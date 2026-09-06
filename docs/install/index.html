@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Install — pmcp</title>
+    <meta
+      name="description"
+      content="Add pmcp to Cursor or VS Code with one click, or paste four lines of JSON into whichever file your agent keeps its MCP servers in. Node 22 or Bun 1.3, two runtime dependencies, no postinstall hook."
+    />
+    <link rel="canonical" href="https://pmcp.build/install/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/install/" />
+    <meta property="og:title" content="Install — pmcp" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              d="M4.25 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 7v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M13.75 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/" aria-current="page">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>Install</h1>
+      <p class="lede">
+        Two of these write the configuration for you. The rest are a line of JSON
+        or a command, depending on where your agent keeps its servers.
+      </p>
+
+      <h2>One click</h2>
+      <p class="actions">
+        <a
+          href="cursor://anysphere.cursor-deeplink/mcp/install?name=pmcp&amp;config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsInBtY3AiXX0="
+          ><img
+            src="https://img.shields.io/badge/Add_to_Cursor-black?style=for-the-badge&amp;logo=cursor&amp;logoColor=white"
+            alt="Add to Cursor"
+            height="28"
+        /></a>
+        <a
+          href="vscode://mcp/install?name=pmcp&amp;config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22pmcp%22%5D%7D"
+          ><img
+            src="https://img.shields.io/badge/Add_to_VS_Code-007ACC?style=for-the-badge&amp;logo=visualstudiocode&amp;logoColor=white"
+            alt="Add to VS Code"
+            height="28"
+        /></a>
+      </p>
+      <p>
+        Those two links carry the whole server definition in their payload, so
+        the editor opens with the form already filled in.
+      </p>
+
+      <h2>As a dev dependency</h2>
+      <pre><code>npm install --save-dev pmcp</code></pre>
+      <p>
+        Installing it is optional. Every configuration below runs it through
+        <code>npx -y pmcp</code>, which works with nothing installed; adding it to
+        the project pins the version your team gets.
+      </p>
+
+      <h2>A host that spawns servers over stdio</h2>
+      <pre><code>{
+  "mcpServers": {
+    "pmcp": { "command": "npx", "args": ["-y", "pmcp"] }
+  }
+}</code></pre>
+      <p>
+        That is the shape most hosts read. The file it goes in differs by host,
+        and the two commands below write it for you.
+      </p>
+
+      <h2>Claude Code</h2>
+      <pre><code>claude mcp add pmcp -- npx -y pmcp</code></pre>
+
+      <h2>VS Code, from a script</h2>
+      <pre><code>code --add-mcp '{"name":"pmcp","command":"npx","args":["-y","pmcp"]}'</code></pre>
+      <p>
+        The same thing the badge does, for setting up a workstation rather than
+        clicking through one.
+      </p>
+
+      <h2>Options the server takes</h2>
+      <div class="scroll">
+        <table>
+          <tbody>
+            <tr>
+              <td><code>--root &lt;dir&gt;</code></td>
+              <td>
+                a <code>node_modules</code> directory to walk, instead of
+                discovering upwards from the working directory; repeatable
+              </td>
+            </tr>
+            <tr>
+              <td><code>--scope &lt;prefix&gt;</code></td>
+              <td>
+                only packages whose names start with this; repeatable, and takes
+                a comma-separated list
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Both go in the <code>args</code> array beside <code>pmcp</code>. A host
+        that passes them with no command still gets the server, because a bare
+        spawn is what the protocol expects.
+      </p>
+
+      <h2>What arrives</h2>
+      <ul>
+        <li>Node 22 or later, or Bun 1.3 or later.</li>
+        <li>
+          Two runtime dependencies: <code>@modelcontextprotocol/server</code> and
+          <code>zod</code>, both MIT.
+        </li>
+        <li>
+          No postinstall hook, and nothing downloaded at install time. Semantic
+          ranking needs an optional peer you install yourself.
+        </li>
+      </ul>
+
+      <div class="note">
+        <p>
+          <strong>Check it before you trust it.</strong>
+          <code>npx -y pmcp list</code> prints what the server would see from
+          this directory, and exits 1 rather than 0 when that is nothing.
+          <a href="/guide/">The five-minute version</a>.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,120 @@
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { catalogEndpoint, DEFAULT_API_ORIGIN } from "./catalog.js";
+
+export interface DistributionCredential {
+  readonly id: string;
+  readonly token: string;
+  readonly registry: string;
+  readonly scope: string;
+  readonly expiresAt: string;
+}
+function api(origin: string, path: string): string {
+  const base = new URL(catalogEndpoint(origin));
+  base.pathname = path;
+  return base.href;
+}
+function credential(value: unknown): DistributionCredential {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid distribution credential response");
+  const row = value as Record<string, unknown>;
+  if (!row["credential"] || typeof row["credential"] !== "object" || Array.isArray(row["credential"])) {
+    throw new Error("invalid distribution credential response");
+  }
+  const item = row["credential"] as Record<string, unknown>;
+  for (const key of ["id", "token", "registry", "scope", "expiresAt"]) {
+    if (typeof item[key] !== "string" || item[key] === "") throw new Error("invalid distribution credential response");
+  }
+  const registry = new URL(item["registry"] as string);
+  if (registry.href !== "https://api.pmcp.build/npm/" || item["scope"] !== "@pmcp" ||
+      !/^pmcp_[A-Za-z0-9_-]{43}$/u.test(item["token"] as string) || !Number.isFinite(Date.parse(item["expiresAt"] as string))) {
+    throw new Error("invalid distribution credential response");
+  }
+  return item as unknown as DistributionCredential;
+}
+
+export async function issueDistributionCredential(
+  accessToken: string,
+  origin = DEFAULT_API_ORIGIN,
+  fetcher: typeof fetch = fetch,
+): Promise<DistributionCredential> {
+  const response = await fetcher(api(origin, "/v1/distribution/credentials"), {
+    method: "POST", redirect: "error", signal: AbortSignal.timeout(15000),
+    headers: { authorization: `Bearer ${accessToken}`, accept: "application/json" },
+  });
+  if (response.status === 401) throw new Error("sign in again before installing skills");
+  if (response.status === 403) throw new Error("your subscription does not include skill downloads");
+  if (!response.ok) throw new Error(`distribution credential request failed (${response.status})`);
+  return credential(await response.json());
+}
+
+export async function verifyRegistryIntegrity(
+  entries: readonly { packageName: string; version: string; integrity: string }[],
+  value: DistributionCredential,
+  fetcher: typeof fetch = fetch,
+): Promise<Map<string, string>> {
+  const verified = new Map<string, string>();
+  for (const entry of entries) {
+    if (!entry.packageName.startsWith(`${value.scope}/`)) throw new Error("catalog delivery scope differs from the registry credential");
+    const endpoint = new URL(encodeURIComponent(entry.packageName), value.registry);
+    const response = await fetcher(endpoint, {
+      method: "GET", redirect: "error", signal: AbortSignal.timeout(15000),
+      headers: { authorization: `Bearer ${value.token}`, accept: "application/json" },
+    });
+    if (!response.ok) throw new Error(`registry metadata request failed (${response.status})`);
+    const raw = await response.text();
+    if (raw.length > 2 * 1024 * 1024) throw new Error("registry metadata exceeds the supported size");
+    const body: unknown = JSON.parse(raw);
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("registry returned invalid metadata");
+    const versions = (body as Record<string, unknown>)["versions"];
+    if (!versions || typeof versions !== "object" || Array.isArray(versions)) throw new Error("registry metadata contains no versions");
+    const release = (versions as Record<string, unknown>)[entry.version];
+    if (!release || typeof release !== "object" || Array.isArray(release)) throw new Error("registry does not contain the catalog version");
+    const dist = (release as Record<string, unknown>)["dist"];
+    if (!dist || typeof dist !== "object" || Array.isArray(dist) || (dist as Record<string, unknown>)["integrity"] !== entry.integrity) {
+      throw new Error("registry integrity differs from the catalog");
+    }
+    verified.set(`${entry.packageName}@${entry.version}`, entry.integrity);
+  }
+  return verified;
+}
+
+export async function revokeDistributionCredential(
+  accessToken: string,
+  id: string,
+  origin = DEFAULT_API_ORIGIN,
+  fetcher: typeof fetch = fetch,
+): Promise<boolean> {
+  try {
+    const response = await fetcher(api(origin, "/v1/distribution/revoke"), {
+      method: "POST", redirect: "error", signal: AbortSignal.timeout(15000),
+      headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    return response.ok || response.status === 404;
+  } catch {
+    return false;
+  }
+}
+
+export interface RegistryConfig {
+  readonly path: string;
+  readonly environment: Readonly<Record<string, string>>;
+  close(): void;
+}
+
+/** Token exists only in a mode-600 temporary npm config and is removed after install. */
+export function temporaryRegistryConfig(value: DistributionCredential): RegistryConfig {
+  const directory = mkdtempSync(join(tmpdir(), "pmcp-registry-"));
+  chmodSync(directory, 0o700);
+  const path = join(directory, ".npmrc");
+  const registry = new URL(value.registry);
+  const auth = `//${registry.host}${registry.pathname}:_authToken=${value.token}`;
+  writeFileSync(path, `${value.scope}:registry=${registry.href}\n${auth}\n`, { mode: 0o600 });
+  chmodSync(path, 0o600);
+  return {
+    path,
+    environment: { HOME: directory },
+    close() { rmSync(directory, { recursive: true, force: true }); },
+  };
+}

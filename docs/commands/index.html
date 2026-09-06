@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Command reference — pmcp</title>
+    <meta
+      name="description"
+      content="Every pmcp command: the bare invocation a host uses, serve, list and index, their flags, what they write to stdout and stderr, and what each exit code means."
+    />
+    <link rel="canonical" href="https://pmcp.build/commands/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/commands/" />
+    <meta property="og:title" content="Command reference — pmcp" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              d="M4.25 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 7v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M13.75 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/" aria-current="page">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>Commands</h1>
+      <p class="lede">
+        Three of them, and the one you will type least is the one a host runs.
+      </p>
+
+      <h2>The invocation a host uses</h2>
+      <div class="scroll">
+        <table>
+          <tbody>
+            <tr>
+              <td><code>pmcp</code></td>
+              <td>run the MCP server on stdio; the same as <code>serve</code></td>
+            </tr>
+            <tr>
+              <td><code>pmcp --root ./node_modules</code></td>
+              <td>
+                a leading option with no command is still a server, because hosts
+                pass options without one
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        An unrecognised command does not fall through to a server the caller did
+        not ask for. Only an empty argument list, or one that begins with an
+        option, takes that path.
+      </p>
+
+      <h2>serve</h2>
+      <pre><code>pmcp serve [--root &lt;dir&gt;] [--scope &lt;prefix&gt;]</code></pre>
+      <p>
+        Reachable by name so it appears in help. It writes nothing to standard
+        output: from the moment it starts, standard output is the protocol, and a
+        diagnostic printed there corrupts the stream.
+      </p>
+
+      <h2>list</h2>
+      <pre><code>pmcp list [--root &lt;dir&gt;] [--scope &lt;prefix&gt;] [--json]</code></pre>
+      <p>
+        The skills discovered in <code>node_modules</code>, as two aligned
+        columns, or as JSON for a script. This is the command that answers
+        "would the server see anything from here".
+      </p>
+      <p>
+        An empty catalog is a finding rather than a success. It exits
+        <strong>1</strong> and names the roots it walked, because a project that
+        installed this and sees nothing has a misconfiguration worth an exit code.
+      </p>
+
+      <h2>index</h2>
+      <pre><code>pmcp index [--root &lt;dir&gt;] [--model &lt;id&gt;] [--json]</code></pre>
+      <p>
+        Encodes each description once so ranking can be semantic, and stores the
+        vectors beside the tree they describe, so two projects never share one
+        index. Only what changed is re-encoded; an unchanged description produces
+        the same vector at the same cost as the first time.
+      </p>
+      <p>
+        Vectors written by one model are never scored against another, so
+        <code>--model</code> is part of the key rather than a preference. Without
+        the optional peer installed it exits <strong>3</strong> and tells you
+        ranking stays lexical, which is the default and not a failure.
+      </p>
+      <p>
+        A partial index is reported rather than called success: it exits
+        <strong>1</strong> and says how many of the catalog it covered, because
+        ranking needs a vector for every entry and falls back to lexical without
+        one.
+      </p>
+
+      <h2>Options</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Where</th>
+              <th>Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--root &lt;dir&gt;</code></td>
+              <td>all three</td>
+              <td>
+                a <code>node_modules</code> directory to walk; repeatable, and
+                the first one wins on a duplicate package
+              </td>
+            </tr>
+            <tr>
+              <td><code>--scope &lt;prefix&gt;</code></td>
+              <td>all three</td>
+              <td>
+                only packages whose names start with this; repeatable, matched
+                with a plain prefix test
+              </td>
+            </tr>
+            <tr>
+              <td><code>--model &lt;id&gt;</code></td>
+              <td><code>index</code></td>
+              <td>the encoder to use; rows from another model are never scored</td>
+            </tr>
+            <tr>
+              <td><code>--json</code></td>
+              <td><code>list</code>, <code>index</code></td>
+              <td>emit JSON on standard output rather than a table or a summary</td>
+            </tr>
+            <tr>
+              <td><code>--help</code>, <code>-h</code></td>
+              <td>anywhere</td>
+              <td>
+                the help for that command, generated from the command itself
+              </td>
+            </tr>
+            <tr>
+              <td><code>--version</code></td>
+              <td>on its own</td>
+              <td>the version, on standard output</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Options are parsed against the command's own list, so an unknown flag is
+        an error rather than a silently ignored typo. Giving a non-repeatable
+        option twice, or leaving off a value it needs, is the same error.
+      </p>
+
+      <h2>Exit codes</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Means</th>
+              <th>For example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>0</code></td>
+              <td>it did what you asked</td>
+              <td>skills listed, or the whole catalog indexed</td>
+            </tr>
+            <tr>
+              <td><code>1</code></td>
+              <td>it ran and found a problem</td>
+              <td>
+                no skills under those roots, a partial index, or no SQLite in
+                this runtime to store vectors in
+              </td>
+            </tr>
+            <tr>
+              <td><code>2</code></td>
+              <td>the arguments were unusable</td>
+              <td>an unknown command, an unknown option, a missing value</td>
+            </tr>
+            <tr>
+              <td><code>3</code></td>
+              <td>an optional dependency is missing</td>
+              <td>
+                <code>index</code> without <code>@huggingface/transformers</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The distinction between 1 and 3 is worth wiring into a script: 1 says the
+        project is not what you expected, and 3 says the machine is missing
+        something optional and the server still works without it.
+      </p>
+
+      <div class="note">
+        <p>
+          <strong>Data on stdout, everything else on stderr.</strong> The JSON
+          from <code>--json</code> and the string from <code>--version</code> go
+          to standard output so they can be piped. Tables, help and messages go
+          to standard error, which is what keeps a pipeline's input clean.
+        </p>
+      </div>
+
+      <h2>Runtime</h2>
+      <ul>
+        <li>Node 22 or later, or Bun 1.3 or later.</li>
+        <li>
+          Runtime dependencies: <code>@modelcontextprotocol/server</code> and
+          <code>zod</code>, both MIT.
+        </li>
+        <li>
+          Vector storage uses whichever SQLite the running binary already has.
+          Neither is a dependency; without one, the server still runs and ranking
+          falls back.
+        </li>
+      </ul>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shipping a skill in your package — pmcp</title>
+    <meta
+      name="description"
+      content="Where a SKILL.md has to sit to be discovered, what its frontmatter must carry, why the description is written as a symptom rather than a feature list, and why a file outside the files array reaches nobody."
+    />
+    <link rel="canonical" href="https://pmcp.build/authoring/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/authoring/" />
+    <meta property="og:title" content="Shipping a skill in your package — pmcp" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              d="M4.25 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 7v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M13.75 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/" aria-current="page">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>Shipping a skill in your package</h1>
+      <p class="lede">
+        Three things have to be true: the file is somewhere the walk reaches, its
+        frontmatter carries a <code>description</code>, and the tarball actually
+        contains it.
+      </p>
+
+      <h2>Where the file goes</h2>
+      <p>
+        Any of these, and the walk does not care which. They are the conventions
+        different agents settled on, and one directory read sees them all:
+      </p>
+      <pre><code>&lt;package&gt;/skills/&lt;slug&gt;/SKILL.md
+&lt;package&gt;/.agent/skills/&lt;slug&gt;/SKILL.md
+&lt;package&gt;/.claude/skills/&lt;slug&gt;/SKILL.md
+&lt;package&gt;/.gemini/skills/&lt;slug&gt;/SKILL.md
+&lt;package&gt;/.codex/skills/&lt;slug&gt;/SKILL.md</code></pre>
+      <p>
+        The path is not what makes it a skill; the file is. Each installed
+        package is walked to a depth of three, and any <code>SKILL.md</code>
+        found is a skill, so a convention nobody has invented yet works too.
+      </p>
+
+      <h3>Where it must not go</h3>
+      <p>
+        The walk skips directories that cannot hold a package's own skill and are
+        expensive or misleading to enter. A <code>SKILL.md</code> under any of
+        these is invisible:
+      </p>
+      <div class="scroll">
+        <table>
+          <tbody>
+            <tr>
+              <td>build output</td>
+              <td>
+                <code>dist</code>, <code>build</code>, <code>out</code>,
+                <code>lib</code>, <code>es</code>, <code>esm</code>,
+                <code>cjs</code>, <code>umd</code>
+              </td>
+            </tr>
+            <tr>
+              <td>sources and types</td>
+              <td>
+                <code>src</code>, <code>types</code>, <code>typings</code>,
+                <code>bin</code>
+              </td>
+            </tr>
+            <tr>
+              <td>test corpora</td>
+              <td>
+                <code>test</code>, <code>tests</code>, <code>__tests__</code>,
+                <code>fixtures</code>, <code>__fixtures__</code>,
+                <code>example</code>, <code>examples</code>,
+                <code>coverage</code>
+              </td>
+            </tr>
+            <tr>
+              <td>nested installs and caches</td>
+              <td>
+                <code>node_modules</code>, <code>.git</code>,
+                <code>.turbo</code>, <code>.cache</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The common mistake is authoring the skill in <code>src/</code> and
+        letting the build copy it to <code>dist/</code>. Both ends of that are
+        skipped. Keep the file at a path that ships as written.
+      </p>
+
+      <h2>The frontmatter</h2>
+      <pre><code>---
+name: release-runbook
+description: A deploy went out but the container still runs the old bundle, and rebuilding does not change it.
+---
+
+# Releasing
+
+…</code></pre>
+      <p>
+        Two fields are read. <code>name</code> becomes the slug, and the skill is
+        addressed as <code>&lt;package&gt;/&lt;slug&gt;</code>; leave it out and
+        the directory holding the file names it, or the package itself does when
+        the file sits at the package root.
+      </p>
+      <p>
+        <code>description</code> is the only text that
+        <a href="/guide/"><code>skill_find</code></a> ranks. A skill without one
+        is skipped rather than listed: ranking could never surface it, so listing
+        it would spend a session's tokens on an entry that cannot answer.
+      </p>
+      <p>
+        The reader is not a YAML parser. It takes flat scalars on their own line,
+        strips one pair of surrounding quotes, and ignores anything nested. That
+        is the honest limit rather than a partial YAML, and it means a
+        description folded over several lines is not read as you intended.
+      </p>
+
+      <h2>Write the description as a symptom</h2>
+      <p>
+        A reader arrives with a problem, not with your vocabulary. They will not
+        type your package's name, because not knowing it is why they are asking.
+        Descriptions that name the symptom are the ones a sentence can reach.
+      </p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Instead of</th>
+              <th>Write</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <code>Utilities for distributed locks, leases and fencing
+                tokens.</code>
+              </td>
+              <td>
+                <span class="yes"
+                  ><code
+                    >A job ran twice because two workers took the same lock, or a
+                    lock outlived the worker holding it.</code
+                  ></span
+                >
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <code>Deployment helpers and image build configuration.</code>
+              </td>
+              <td>
+                <span class="yes"
+                  ><code
+                    >A deploy went out but the container still runs the old
+                    bundle, and rebuilding does not change it.</code
+                  ></span
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Both halves of the lexical score reward this. It compares the words of
+        the question against the words of the description, and a feature list
+        shares its words with every other feature list in the catalog.
+      </p>
+      <p>
+        Name the failure, the surprise, and the thing the reader already tried.
+        One or two sentences. It is read by whoever is choosing between five
+        candidates, so it is a filter, not a summary of the body.
+      </p>
+
+      <h2>Ship the file</h2>
+      <pre><code>{
+  "files": ["dist", "skills", "README.md"]
+}</code></pre>
+      <p>
+        A <code>SKILL.md</code> outside the manifest's <code>files</code> array
+        is not in the tarball, and therefore not in anyone's
+        <code>node_modules</code>. This fails quietly: your repository has the
+        skill, your tests find it, and no consumer ever sees it.
+      </p>
+      <p>
+        Check by installing your own tarball into an empty project and running
+        <code>npx -y pmcp list</code> there. If the name is not in that output,
+        no agent will find it either.
+      </p>
+
+      <h2>The body</h2>
+      <p>
+        Everything after the closing <code>---</code> is the body, and
+        <code>skill_call</code> returns it whole. It is read on its own, by
+        someone who has seen only the description, so it should not depend on the
+        rest of your documentation site to make sense.
+      </p>
+
+      <div class="note">
+        <p>
+          <strong>Two skills can share a name only once.</strong> The catalog is
+          keyed by <code>&lt;package&gt;/&lt;slug&gt;</code> and the first root
+          wins, so a nested copy of your package is ignored in favour of the one
+          the project actually resolved.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

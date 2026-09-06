@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Getting started — pmcp</title>
+    <meta
+      name="description"
+      content="Add pmcp to your agent, check what it can see in node_modules, then ask skill_find a sentence and read the one skill it names. Five minutes, no account, no model."
+    />
+    <link rel="canonical" href="https://pmcp.build/guide/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/guide/" />
+    <meta property="og:title" content="Getting started — pmcp" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "Set up pmcp in a project",
+        "description": "Register the server with an agent, confirm which installed packages ship a SKILL.md, and retrieve one by describing the problem it solves.",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Register the server",
+            "text": "Add a stdio server that runs npx -y pmcp to whichever file your host keeps MCP servers in."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "See what it can see",
+            "text": "Run npx -y pmcp list. It prints the name and description of every skill your installed packages ship, and exits 1 when it finds none."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Ask a question",
+            "text": "Call skill_find with a sentence describing the problem, then skill_call with the name it returns to read that one skill."
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              d="M4.25 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 7v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M13.75 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/" aria-current="page">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>Getting started</h1>
+      <p class="lede">
+        Reading installed skills needs no login or model. The local MCP server
+        reads files already on your disk; CLI commands manage additional skill packages.
+      </p>
+
+      <h2>1. Register the server</h2>
+      <pre><code>{
+  "mcpServers": {
+    "pmcp": { "command": "npx", "args": ["-y", "pmcp"] }
+  }
+}</code></pre>
+      <p>
+        Hosts differ about which file that goes in, and two of them will write it
+        for you from <a href="/install/">the install page</a>. Nothing has to be
+        installed first: <code>npx -y</code> fetches the package when needed.
+      </p>
+
+      <h2>2. See what it can see</h2>
+      <pre><code>npx -y pmcp list</code></pre>
+      <p>
+        One row per skill: the name, as
+        <code>&lt;package&gt;/&lt;slug&gt;</code>, and the one-line description
+        that <code>skill_find</code> ranks. Do this before you ask an agent
+        anything, because it answers the question the server cannot ask you back.
+      </p>
+      <p>
+        An empty catalog exits <strong>1</strong> rather than 0, and prints the
+        roots it walked. That is usually one of two things: the working directory
+        is not the project, or none of the installed packages ships a
+        <code>SKILL.md</code> at all.
+      </p>
+
+      <h2>3. Ask in a sentence</h2>
+      <p>
+        <code>skill_find</code> takes an <code>intent</code>: what you are trying
+        to do, written as an English sentence. It returns names only, ranked, and
+        never a body.
+      </p>
+      <div class="term">
+        <span class="mark">&gt;</span> skill_find
+        <span class="dim"
+          >"a job ran twice because two workers took the same lock"</span
+        ><br />
+        <span class="mark">+</span> redis-toolkit/locks<br />
+        <span class="dim">&nbsp;&nbsp;ranking lexical</span
+        ><span class="gap"></span>
+        <span class="mark">&gt;</span> skill_call
+        <span class="dim">redis-toolkit/locks</span><br />
+        <span class="dim">&nbsp;&nbsp;the body, once</span>
+      </div>
+      <p>
+        A bare keyword ranks badly on purpose. Descriptions are written as
+        symptoms, so a sentence shares vocabulary with one of them and a single
+        noun matches many of them weakly and none of them strongly. When you want
+        to browse rather than search, <code>skill_catalog</code> is the tool that
+        filters.
+      </p>
+
+      <h2>4. Read exactly one</h2>
+      <p>
+        <code>skill_call</code> takes the name <code>skill_find</code> returned
+        and gives back that skill's body. It is the only call that costs a
+        document, which is the whole point of the split: looking is cheap, and
+        reading is deliberate.
+      </p>
+      <p>
+        An unknown name comes back as an error naming the tool to call instead,
+        rather than as an empty result that reads like an empty catalog.
+      </p>
+
+      <h2>Where it looks</h2>
+      <p>
+        By default, the <code>node_modules</code> directories above the working
+        directory. Two options change that, and both belong in the
+        <code>args</code> array beside <code>pmcp</code>:
+      </p>
+      <pre><code>npx -y pmcp list --root ./node_modules
+npx -y pmcp list --scope @acme/</code></pre>
+      <p>
+        <code>--scope</code> matches the start of the package name, so
+        <code>@acme</code> also matches <code>@acmetools/thing</code>. Include the
+        trailing slash when you mean the scope. Both options are repeatable.
+      </p>
+      <p>
+        When two roots hold the same package, the first one wins: a nested
+        <code>node_modules</code> holds an older copy of something the outer root
+        already resolved.
+      </p>
+
+      <h2>If you want semantic ranking</h2>
+      <pre><code>npm install --save-dev @huggingface/transformers
+npx -y pmcp index</code></pre>
+      <p>
+        <code>index</code> encodes descriptions and stores local vectors. The
+        default MCP server currently ranks lexically; installing the optional
+        encoder alone does not activate semantic ranking.
+      </p>
+      <p>
+        The model runtime and weights add installation and loading costs. Skip
+        this optional step when local lexical search meets your needs.
+      </p>
+
+      <h2>What to do next</h2>
+      <ul>
+        <li>
+          <a href="/authoring/">Ship a skill of your own</a> — the paths, the
+          frontmatter, and how to write a description that gets found
+        </li>
+        <li>
+          <a href="/commands/">The command reference</a> — flags and exit codes
+        </li>
+        <li><a href="/licence/">The licence</a> — what Elastic License 2.0 permits</li>
+      </ul>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

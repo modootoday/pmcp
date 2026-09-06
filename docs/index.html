@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>pmcp — the skills your installed packages already ship</title>
+    <meta
+      name="description"
+      content="An MCP server that reads SKILL.md files out of node_modules and serves them as three tools, so a session pays for the one skill it opens rather than for the whole catalog. Discovery is by shape, ranking is lexical by default, and no model is installed."
+    />
+    <link rel="canonical" href="https://pmcp.build/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/" />
+    <meta
+      property="og:title"
+      content="pmcp — the skills your installed packages already ship"
+    />
+    <meta
+      property="og:description"
+      content="Some of your dependencies shipped instructions for using them. pmcp reads them out of node_modules and serves three tools, so a session pays for the one skill it opens."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "pmcp",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Linux, macOS, Windows",
+        "url": "https://pmcp.build/",
+        "downloadUrl": "https://www.npmjs.com/package/pmcp",
+        "softwareRequirements": "Node.js 22 or Bun 1.3",
+        "license": "https://www.elastic.co/licensing/elastic-license",
+        "author": { "@type": "Organization", "name": "modootoday" },
+        "description": "An MCP server that reads SKILL.md files out of node_modules and serves them as three tools, so a session pays for the one skill it opens rather than for the whole catalog.",
+        "featureList": [
+          "Three tools on the wire: skill_catalog, skill_find, skill_call",
+          "Discovery by shape, so skills, .agent, .claude, .gemini and .codex are all found",
+          "The catalog is derived from the installed tree at request time",
+          "Lexical ranking with no model, semantic through an optional peer",
+          "Local MCP tools read installed skills; CLI commands manage skill packages",
+          "Runs on Node 22 or Bun 1.3"
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              d="M4.25 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 7v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M13.75 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>Some of your dependencies shipped instructions.</h1>
+      <p class="lede">
+        A package can carry a <code>SKILL.md</code> saying how to use it. Once a
+        project has a few hundred of them, nobody knows which ones did, so every
+        question about an installed package gets answered by reading its source.
+      </p>
+
+      <div class="term">
+        <span class="cmd">npx -y pmcp list</span><br />
+        &nbsp;&nbsp;@acme/release-runbook&nbsp;&nbsp;<span class="dim"
+          >a deploy went out but the old bundle is still running</span
+        ><br />
+        &nbsp;&nbsp;redis-toolkit/locks&nbsp;&nbsp;&nbsp;&nbsp;<span class="dim"
+          >a job ran twice because two workers took the same lock</span
+        ><br />
+        <span class="dim">&nbsp;&nbsp;…</span><span class="gap"></span>
+        <span class="mark">&gt;</span> skill_find
+        <span class="dim">"my deploy shipped but the old bundle is running"</span
+        ><br />
+        <span class="mark">+</span> @acme/release-runbook<br />
+        <span class="dim">&nbsp;&nbsp;ranking lexical</span
+        ><span class="gap"></span>
+        <span class="mark">&gt;</span> skill_call
+        <span class="dim">@acme/release-runbook</span><br />
+        <span class="dim">&nbsp;&nbsp;one document, at the moment it is needed</span>
+      </div>
+
+      <p>
+        <code>pmcp</code> reads those files out of <code>node_modules</code> and
+        serves three tools over the Model Context Protocol:
+        <code>skill_catalog</code>, <code>skill_find</code> and
+        <code>skill_call</code>. The host sees three tools whatever the catalog
+        holds, and a session pays for the one skill it opens.
+      </p>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="/guide/">Get started</a>
+        <a class="btn" href="/install/">Install</a>
+      </div>
+
+      <h2>What the design buys you</h2>
+      <div class="rows">
+        <div class="row">
+          <h3>Startup does not grow with the catalog</h3>
+          <p>
+            Bodies are read by <code>skill_call</code>, one at a time. Adding a
+            dependency that ships ten skills adds ten one-line descriptions to
+            what a search ranks, not ten documents to what a session loads.
+          </p>
+        </div>
+        <div class="row">
+          <h3>Nobody maintains the list</h3>
+          <p>
+            The catalog is derived from the installed tree when a tool is
+            called. Installing a package is how its skill arrives, and
+            uninstalling it is how the skill leaves.
+          </p>
+        </div>
+        <div class="row">
+          <h3>One directory read sees every convention</h3>
+          <p>
+            Discovery is by shape rather than by path, so
+            <code>skills/</code>, <code>.agent/skills/</code>,
+            <code>.claude/skills/</code>, <code>.gemini/skills/</code> and
+            <code>.codex/skills/</code> are all found by the same walk.
+          </p>
+        </div>
+        <div class="row">
+          <h3>No model arrives with it</h3>
+          <p>
+            Ranking is lexical by default and takes no model at all. Nothing is
+            downloaded at install time and there is no postinstall hook.
+          </p>
+        </div>
+      </div>
+
+      <h2>Skills can live in more than one layout</h2>
+      <p>
+        The same bounded walk finds SKILL.md in agent-specific directories,
+        a package's skills directory, and layouts such as lib/skill. Nested
+        installations and cache directories are kept out of that walk.
+      </p>
+      <p><a href="/authoring/">Where a skill has to sit to be found</a></p>
+
+      <h2>Three tools, and nothing else</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Takes</th>
+              <th>Answers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>skill_catalog</code></td>
+              <td>nothing</td>
+              <td>every skill's name and description, grouped by package</td>
+            </tr>
+            <tr>
+              <td><code>skill_find</code></td>
+              <td>a sentence describing your problem</td>
+              <td>the few skills that match, ranked, names only</td>
+            </tr>
+            <tr>
+              <td><code>skill_call</code></td>
+              <td>a skill name</td>
+              <td>that skill's body</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <code>skill_find</code> wants a sentence rather than a keyword, because
+        it ranks the frontmatter <code>description</code>, and a description is
+        written as a symptom. <code>skill_catalog</code> is the one that takes a
+        bare word, because it filters instead of ranking.
+      </p>
+
+      <h2>Local indexing is optional</h2>
+      <p>
+        The default MCP server ranks lexically. The <code>index</code> command
+        requires an encoder installed separately and may load model assets when
+        explicitly invoked. Installing the optional peer alone does not switch
+        the server to semantic ranking.
+      </p>
+
+      <h2>Three reasons you might not want this</h2>
+      <div class="rows">
+        <div class="row">
+          <h3>The licence is not OSI open source</h3>
+          <p>
+            Elastic License 2.0: use it inside your company at any scale, ship it
+            in a product you sell, fork it. What you cannot do is offer it to
+            third parties as a hosted or managed service.
+            <a href="/licence/">The whole of it, in a page</a>.
+          </p>
+        </div>
+        <div class="row">
+          <h3>Your own repository's skills do not need it</h3>
+          <p>
+            Skills that live in the project are not installed, and a host that
+            already loads them does not need a server in front of them. This is
+            for the skills you did not write.
+          </p>
+        </div>
+        <div class="row">
+          <h3>Lexical ranking is what you get by default</h3>
+          <p>
+            Token overlap and character bigrams, no model. It answers a sentence
+            that shares vocabulary with a description and it does not answer a
+            paraphrase that shares none.
+          </p>
+        </div>
+      </div>
+
+      <div class="note">
+        <p>
+          <strong>MCP reading stays local.</strong> The three tools read installed
+          skills. Separate CLI commands retrieve the catalog and install skill
+          packages with confirmation; they do not upload your dependency list.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Licence — Elastic License 2.0</title>
+    <meta
+      name="description"
+      content="pmcp is source-available under the Elastic License 2.0. Running it locally as an MCP server is use. Offering it to third parties as a hosted or managed service is the one thing the licence forbids."
+    />
+    <link rel="canonical" href="https://pmcp.build/licence/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/licence/" />
+    <meta property="og:title" content="Licence — Elastic License 2.0" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is pmcp open source?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. It is source-available under the Elastic License 2.0, which is not an OSI-approved open source licence. You may use it inside your company at any scale, embed it in a product you sell, modify it and fork it. You may not offer it to third parties as a hosted or managed service."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does running pmcp as an MCP server count as a hosted service?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. A host process spawning it on your own machine is use, which is what the software is for. The prohibited case is a remotely hosted endpoint that serves other people."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              d="M4.25 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 7v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M13.75 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>Licence</h1>
+      <p class="lede">
+        Elastic License 2.0. Licensor: <strong>modootoday</strong>. This page is a
+        summary; the
+        <a href="https://www.elastic.co/licensing/elastic-license"
+          >licence itself</a
+        >
+        is what governs.
+      </p>
+
+      <h2>What it permits</h2>
+      <ul>
+        <li>Using it inside your own company, on any scale.</li>
+        <li>Embedding it in a product you sell.</li>
+        <li>
+          Modifying it, forking it, redistributing it with the notices intact.
+        </li>
+        <li>
+          Running it locally as an MCP server, which is what it is for. A host
+          process spawning it on your own machine is use.
+        </li>
+      </ul>
+
+      <h2>What it does not</h2>
+      <ul>
+        <li>
+          Offering this software to third parties as a hosted or managed service.
+          A remotely hosted MCP endpoint serving other people is the case this
+          forbids.
+        </li>
+        <li>Circumventing licence key functionality.</li>
+        <li>Removing or obscuring the notices.</li>
+      </ul>
+
+      <h2>This is not an OSI open source licence</h2>
+      <p>
+        Source-available and open source are not the same thing, and calling this
+        one open source would be wrong. Plenty of organisations have a policy that
+        allows only OSI-approved licences; if yours is one of them, that rules
+        this out, and the honest time to find out is now rather than at review.
+      </p>
+
+      <h2>Patents</h2>
+      <p>
+        The licence carries an explicit patent grant and a retaliation clause:
+        asserting patent claims that this software infringes ends your patent
+        licence immediately. Permissive licences like MIT and BSD-3-Clause contain
+        no patent text at all.
+      </p>
+
+      <h2>What ships with it</h2>
+      <p>
+        The two runtime dependencies, <code>@modelcontextprotocol/server</code>
+        and <code>zod</code>, are MIT and are distributed under their own terms.
+        <code>@huggingface/transformers</code> is an optional peer, never
+        distributed with this package: a user who wants semantic ranking installs
+        it themselves, under its own terms.
+      </p>
+
+      <div class="note">
+        <p>
+          <strong>The text is what applies.</strong> Where this summary and the
+          <code>LICENSE</code> file differ, <code>LICENSE</code> is what governs.
+          <code>NOTICE</code> in the package says the same thing in short.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

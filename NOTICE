@@ -1,0 +1,49 @@
+pmcp
+
+Copyright (c) 2026 modootoday. All rights reserved.
+
+Licensor: modootoday
+Licensed under the Elastic License 2.0; see LICENSE.
+
+The licensor is modootoday, the company, not any individual contributor. This
+file names the licensor because the Elastic License 2.0 defines that term rather
+than carrying a copyright line of its own; LICENSE is kept unmodified.
+
+What the licence permits, in short, without replacing the terms in LICENSE:
+
+  - Using this software inside your own company, on any scale.
+  - Embedding it in a product you sell, and modifying or forking it.
+  - Redistributing it, with these notices intact.
+  - Running it locally as an MCP server, which is what it is for. A host
+    process spawning it on your own machine is use, not a hosted service.
+
+What it does not permit:
+
+  - Offering this software to third parties as a hosted or managed service.
+    A remotely hosted MCP endpoint serving other people is the case this
+    forbids.
+  - Circumventing licence key functionality.
+  - Removing or obscuring these notices.
+
+The Elastic License 2.0 is source-available, not an OSI-approved open source
+licence. It grants a patent licence and ends that licence if you assert a patent
+claim against the software; see the Patents section of LICENSE.
+
+LICENSE governs. Where this summary and LICENSE differ, LICENSE is what applies.
+
+---
+
+This software depends on the following packages, which are distributed under
+their own terms and are not covered by the licence above.
+
+  @modelcontextprotocol/server   MIT   Copyright (c) Anthropic, PBC
+  @modelcontextprotocol/core     MIT   Copyright (c) Anthropic, PBC
+  zod                            MIT   Copyright (c) Colin McDonnell
+  semver                         ISC   See the dependency's LICENSE file.
+
+The MIT License permits this distribution provided the above notices are
+retained. Full licence texts ship with those packages.
+
+@huggingface/transformers is an optional peer dependency. It is never
+distributed with this package; a user who wants semantic ranking installs it
+themselves, under its own Apache-2.0 terms.
