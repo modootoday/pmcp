@@ -18,19 +18,62 @@ it("issues a credential with OAuth without placing the token in the URL or body"
   let request: { url: string; init?: RequestInit } | undefined;
   const fetcher = (async (input, init) => {
     request = { url: String(input), init };
-    return Response.json({ schemaVersion: 1, requestId: "test", credential }, { status: 201 });
+    return Response.json(
+      { schemaVersion: 1, requestId: "test", credential },
+      { status: 201 },
+    );
   }) as typeof fetch;
-  expect(await issueDistributionCredential("oauth-secret", "https://api.pmcp.build", fetcher)).toEqual(credential);
-  expect(request?.url).toBe("https://api.pmcp.build/v1/distribution/credentials");
+  expect(
+    await issueDistributionCredential(
+      "oauth-secret",
+      "https://api.pmcp.build",
+      fetcher,
+    ),
+  ).toEqual(credential);
+  expect(request?.url).toBe(
+    "https://api.pmcp.build/v1/distribution/credentials",
+  );
   expect(request?.init?.body).toBeUndefined();
-  expect(new Headers(request?.init?.headers).get("authorization")).toBe("Bearer oauth-secret");
+  expect(new Headers(request?.init?.headers).get("authorization")).toBe(
+    "Bearer oauth-secret",
+  );
 });
 
-it("distinguishes login, subscription and dependency failures", async () => {
-  const status = (code: number) => (async () => Response.json({}, { status: code })) as typeof fetch;
-  await expect(issueDistributionCredential("x", undefined, status(401))).rejects.toThrow("sign in");
-  await expect(issueDistributionCredential("x", undefined, status(403))).rejects.toThrow("subscription");
-  await expect(issueDistributionCredential("x", undefined, status(503))).rejects.toThrow("503");
+it("distinguishes login, scope, subscription and dependency failures", async () => {
+  const status = (code: number) =>
+    (async () => Response.json({}, { status: code })) as typeof fetch;
+  await expect(
+    issueDistributionCredential("x", undefined, status(401)),
+  ).rejects.toThrow("sign in again before");
+  await expect(
+    issueDistributionCredential("x", undefined, status(403)),
+  ).rejects.toThrow("approve skill downloads");
+  await expect(
+    issueDistributionCredential("x", undefined, status(402)),
+  ).rejects.toThrow("subscription");
+  await expect(
+    issueDistributionCredential("x", undefined, status(503)),
+  ).rejects.toThrow("503");
+});
+
+it("repeats the request id the service named, so a report can be looked up", async () => {
+  const refused = (async () =>
+    Response.json(
+      {
+        schemaVersion: 1,
+        requestId: "req-abc-123",
+        error: { code: "NOT_ENTITLED", message: "no", retryable: false },
+      },
+      { status: 402 },
+    )) as typeof fetch;
+  await expect(
+    issueDistributionCredential("x", undefined, refused),
+  ).rejects.toThrow("req-abc-123");
+  const silent = (async () =>
+    new Response(null, { status: 402 })) as typeof fetch;
+  await expect(
+    issueDistributionCredential("x", undefined, silent),
+  ).rejects.toThrow("subscription");
 });
 
 it("writes credentials only into a temporary mode-600 config and removes it", () => {
@@ -40,7 +83,9 @@ it("writes credentials only into a temporary mode-600 config and removes it", ()
     expect(text).toContain("@pmcp:registry=https://api.pmcp.build/npm/");
     expect(text).toContain(credential.token);
     expect((statSync(config.path).mode & 0o777).toString(8)).toBe("600");
-    expect(config.environment.HOME).toBe(config.path.slice(0, -"/.npmrc".length));
+    expect(config.environment.HOME).toBe(
+      config.path.slice(0, -"/.npmrc".length),
+    );
   } finally {
     config.close();
   }
@@ -48,8 +93,22 @@ it("writes credentials only into a temporary mode-600 config and removes it", ()
 });
 
 it("revocation treats an already missing credential as complete", async () => {
-  expect(await revokeDistributionCredential("oauth", credential.id, undefined,
-    (async () => Response.json({}, { status: 404 })) as typeof fetch)).toBe(true);
-  expect(await revokeDistributionCredential("oauth", credential.id, undefined,
-    (async () => { throw new Error("offline"); }) as typeof fetch)).toBe(false);
+  expect(
+    await revokeDistributionCredential(
+      "oauth",
+      credential.id,
+      undefined,
+      (async () => Response.json({}, { status: 404 })) as typeof fetch,
+    ),
+  ).toBe(true);
+  expect(
+    await revokeDistributionCredential(
+      "oauth",
+      credential.id,
+      undefined,
+      (async () => {
+        throw new Error("offline");
+      }) as typeof fetch,
+    ),
+  ).toBe(false);
 });

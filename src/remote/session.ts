@@ -8,7 +8,15 @@
  * No callback server. A loopback redirect fails over SSH, inside a container
  * and on a machine with no browser, which is where this tool tends to run.
  */
-import { closeSync, fchmodSync, mkdirSync, openSync, readFileSync, rmSync, writeSync } from "node:fs";
+import {
+  closeSync,
+  fchmodSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  rmSync,
+  writeSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -24,7 +32,9 @@ export function globalDir(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): string {
   const xdg = env["XDG_CONFIG_HOME"];
-  return xdg !== undefined && xdg !== "" ? join(xdg, "pmcp") : join(home, ".pmcp");
+  return xdg !== undefined && xdg !== ""
+    ? join(xdg, "pmcp")
+    : join(home, ".pmcp");
 }
 
 export interface IssuerMetadata {
@@ -81,7 +91,13 @@ export async function discover(
 ): Promise<IssuerMetadata> {
   const base = issuer.replace(/\/+$/, "");
   const source = new URL(base);
-  if (source.protocol !== "https:" || source.username || source.password || source.search || source.hash) {
+  if (
+    source.protocol !== "https:" ||
+    source.username ||
+    source.password ||
+    source.search ||
+    source.hash
+  ) {
     throw new Error("the issuer must be a plain HTTPS origin");
   }
   const res = await fetcher(`${base}/.well-known/oauth-authorization-server`);
@@ -93,7 +109,11 @@ export async function discover(
   }
   // The document says where to send the device code and the refresh token. An
   // endpoint on another origin would send both to whoever served the document.
-  for (const endpoint of [body.token_endpoint, body.device_authorization_endpoint, body.revocation_endpoint]) {
+  for (const endpoint of [
+    body.token_endpoint,
+    body.device_authorization_endpoint,
+    body.revocation_endpoint,
+  ]) {
     if (endpoint !== undefined) validateIssuerUrl(endpoint, base);
   }
   const grants = body.grant_types_supported ?? [];
@@ -217,7 +237,8 @@ export async function refresh(
   fetcher: Fetcher,
   now: () => number = Date.now,
 ): Promise<StoredSession | null> {
-  if (typeof session.refreshToken !== "string" || session.refreshToken === "") return null;
+  if (typeof session.refreshToken !== "string" || session.refreshToken === "")
+    return null;
   validateIssuerUrl(metadata.token_endpoint, session.issuer);
   let res;
   try {
@@ -246,8 +267,12 @@ export async function refresh(
     // A server that rotates the refresh token invalidates the one we hold, so
     // keeping the old value would sign this machine out on its next use.
     refreshToken:
-      typeof rotated === "string" && rotated !== "" ? rotated : session.refreshToken,
-    ...(Number.isFinite(expiresIn) ? { expiresAt: now() + expiresIn * 1000 } : {}),
+      typeof rotated === "string" && rotated !== ""
+        ? rotated
+        : session.refreshToken,
+    ...(Number.isFinite(expiresIn)
+      ? { expiresAt: now() + expiresIn * 1000 }
+      : {}),
     ...(typeof scope === "string"
       ? { scope }
       : session.scope !== undefined
@@ -294,10 +319,26 @@ export async function revoke(
   fetcher: Fetcher,
 ): Promise<boolean> {
   if (!metadata.revocation_endpoint) return false;
-  const res = await fetcher(metadata.revocation_endpoint, {
-    method: "POST",
-    headers: FORM_HEADERS,
-    body: form({ token: session.accessToken, client_id: clientId }),
-  });
-  return res.ok;
+  validateIssuerUrl(metadata.revocation_endpoint, session.issuer);
+  // The refresh token outlives the access token, so revoking only the access
+  // token leaves the machine able to mint a new one -- that is not a logout.
+  // Refresh goes first: if the second call fails the longer-lived half is
+  // already gone.
+  let revoked = true;
+  const tokens = [session.refreshToken, session.accessToken].filter(
+    (token): token is string => typeof token === "string" && token !== "",
+  );
+  for (const token of tokens) {
+    try {
+      const res = await fetcher(metadata.revocation_endpoint, {
+        method: "POST",
+        headers: FORM_HEADERS,
+        body: form({ token, client_id: clientId }),
+      });
+      if (!res.ok) revoked = false;
+    } catch {
+      revoked = false;
+    }
+  }
+  return revoked;
 }
