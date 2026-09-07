@@ -97,7 +97,6 @@ export interface IntentCacheOptions {
 
 export const DEFAULT_INTENT_CACHE_LIMIT = 4096;
 
-
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS intent_vector (
     intent   TEXT    NOT NULL PRIMARY KEY,
@@ -142,7 +141,9 @@ export async function openIntentCache(
     dims: number;
     vector: Uint8Array;
   }>("SELECT model_id, dims, vector FROM intent_vector WHERE intent = ?");
-  const touch = db.prepare("UPDATE intent_vector SET used_at = ? WHERE intent = ?");
+  const touch = db.prepare(
+    "UPDATE intent_vector SET used_at = ? WHERE intent = ?",
+  );
   const upsert = db.prepare(
     `INSERT INTO intent_vector (intent, model_id, dims, vector, used_at)
      VALUES (?, ?, ?, ?, ?)
@@ -182,7 +183,10 @@ export async function openIntentCache(
       // Copied rather than viewed: the row's buffer is owned by the driver and
       // is not guaranteed to outlive the statement.
       return new Float32Array(
-        bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+        bytes.buffer.slice(
+          bytes.byteOffset,
+          bytes.byteOffset + bytes.byteLength,
+        ),
       );
     },
 
@@ -205,7 +209,13 @@ export async function openIntentCache(
     },
 
     stats() {
-      return { hits, misses, mismatched, rows: countRows.get()?.n ?? 0, provider };
+      return {
+        hits,
+        misses,
+        mismatched,
+        rows: countRows.get()?.n ?? 0,
+        provider,
+      };
     },
 
     close() {

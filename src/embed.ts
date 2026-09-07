@@ -57,10 +57,9 @@ export async function loadEmbedder(
   const factory = module.pipeline;
   if (typeof factory !== "function") return null;
 
-  const encode = (await (factory as (task: string, model: string) => Promise<Pipeline>)(
-    "feature-extraction",
-    modelId,
-  )) as Pipeline;
+  const encode = (await (
+    factory as (task: string, model: string) => Promise<Pipeline>
+  )("feature-extraction", modelId)) as Pipeline;
 
   let dims = 0;
   return {
@@ -112,12 +111,17 @@ export async function openEntryVectors(
     read(modelId) {
       const out = new Map<string, Float32Array>();
       const rows = db
-        .prepare("SELECT name, dims, vector FROM entry_vector WHERE model_id = ?")
+        .prepare(
+          "SELECT name, dims, vector FROM entry_vector WHERE model_id = ?",
+        )
         .all(modelId) as Array<{ name: string; dims: number; vector: unknown }>;
       for (const row of rows) {
         const bytes = row.vector as Uint8Array;
         const vector = new Float32Array(
-          bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+          bytes.buffer.slice(
+            bytes.byteOffset,
+            bytes.byteOffset + bytes.byteLength,
+          ),
         );
         if (vector.length === row.dims) out.set(row.name, vector);
       }
@@ -125,9 +129,13 @@ export async function openEntryVectors(
     },
     stale(modelId, entries) {
       const rows = db
-        .prepare("SELECT name, description_hash FROM entry_vector WHERE model_id = ?")
+        .prepare(
+          "SELECT name, description_hash FROM entry_vector WHERE model_id = ?",
+        )
         .all(modelId) as Array<{ name: string; description_hash: string }>;
-      const stored = new Map(rows.map((row) => [row.name, row.description_hash]));
+      const stored = new Map(
+        rows.map((row) => [row.name, row.description_hash]),
+      );
       const out: string[] = [];
       for (const [name, description] of entries) {
         if (stored.get(name) !== describeHash(description)) out.push(name);

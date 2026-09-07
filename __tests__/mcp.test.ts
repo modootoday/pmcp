@@ -13,7 +13,11 @@ interface Registered {
 function fakeServer() {
   const tools: Registered[] = [];
   const server = {
-    registerTool(name: string, config: Registered["config"], handler: Registered["handler"]) {
+    registerTool(
+      name: string,
+      config: Registered["config"],
+      handler: Registered["handler"],
+    ) {
       tools.push({ name, config, handler });
       return server;
     },
@@ -86,14 +90,15 @@ describe("registerSkillTools", () => {
 
 describe("resolveRoots", () => {
   it("uses the arguments given", () => {
-    expect(resolveRoots(["/a/node_modules", "/b/node_modules"], "/cwd")).toEqual([
-      "/a/node_modules",
-      "/b/node_modules",
-    ]);
+    expect(
+      resolveRoots(["/a/node_modules", "/b/node_modules"], "/cwd"),
+    ).toEqual(["/a/node_modules", "/b/node_modules"]);
   });
 
   it("ignores flags when deciding whether roots were given", () => {
-    expect(resolveRoots(["--scope=@acme/"], "/cwd")).toEqual(["/cwd/node_modules"]);
+    expect(resolveRoots(["--scope=@acme/"], "/cwd")).toEqual([
+      "/cwd/node_modules",
+    ]);
   });
 
   it("falls back to the working directory's node_modules", () => {

@@ -39,7 +39,9 @@ function reachableFrom(entry: string): string {
     if (!existsSync(path)) return;
     const text = readFileSync(path, "utf8");
     parts.push(text);
-    for (const m of text.matchAll(/from\s*"\.\/([^"]+)"|import\("\.\/([^"]+)"\)/gu)) {
+    for (const m of text.matchAll(
+      /from\s*"\.\/([^"]+)"|import\("\.\/([^"]+)"\)/gu,
+    )) {
       walk(m[1] ?? m[2] ?? "");
     }
   };
@@ -72,7 +74,8 @@ describeBuilt("the built bundle", () => {
 // legitimately does, and they share chunks, so the claim is only checkable
 // per entry point. This is that check, and it is the promise itself rather
 // than a paraphrase of it.
-const NETWORK = /\bfetch\s*\(|node:http|node:https|["']undici["']|new WebSocket\b/u;
+const NETWORK =
+  /\bfetch\s*\(|node:http|node:https|["']undici["']|new WebSocket\b/u;
 
 describeBuilt("the network boundary", () => {
   it.each(["index.js", "stdio.js"])(

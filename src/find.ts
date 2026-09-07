@@ -67,7 +67,8 @@ export function lexicalScore(intent: string, description: string): number {
   const wanted = tokens(intent);
   if (wanted.length === 0) return 0;
   const have = new Set(tokens(description));
-  const overlap = wanted.filter((token) => have.has(token)).length / wanted.length;
+  const overlap =
+    wanted.filter((token) => have.has(token)).length / wanted.length;
 
   const a = bigrams(intent);
   const b = bigrams(description);

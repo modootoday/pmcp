@@ -38,10 +38,10 @@ For a host that spawns MCP servers over stdio:
 
 Flags, all optional:
 
-| Flag | Effect |
-| --- | --- |
-| `--root=<dir>` | Use this `node_modules` instead of discovering upwards. Repeatable. |
-| `--scope=@acme,@other` | Only catalogue packages whose names start with one of these. |
+| Flag                   | Effect                                                              |
+| ---------------------- | ------------------------------------------------------------------- |
+| `--root=<dir>`         | Use this `node_modules` instead of discovering upwards. Repeatable. |
+| `--scope=@acme,@other` | Only catalogue packages whose names start with one of these.        |
 
 Embedded in a host you are writing yourself:
 
@@ -108,11 +108,11 @@ discovery will and will not walk.
 
 ### Tools on the wire
 
-| Tool | Argument | Returns |
-| --- | --- | --- |
-| `skill_catalog` | optional scope | every skill's name and description |
-| `skill_find` | `intent`, a sentence; optional `limit` | ranked matches |
-| `skill_call` | `name` | that skill's body |
+| Tool            | Argument                               | Returns                            |
+| --------------- | -------------------------------------- | ---------------------------------- |
+| `skill_catalog` | optional scope                         | every skill's name and description |
+| `skill_find`    | `intent`, a sentence; optional `limit` | ranked matches                     |
+| `skill_call`    | `name`                                 | that skill's body                  |
 
 ## Worked examples
 
@@ -138,7 +138,9 @@ are trying to teach, and it is easy to get wrong:
 // Retrieves: the sentence shares vocabulary with a symptom description.
 await client.callTool({
   name: "skill_find",
-  arguments: { intent: "my build copies dist into the image but a stale bundle ships" },
+  arguments: {
+    intent: "my build copies dist into the image but a stale bundle ships",
+  },
 });
 
 // Does not: one word matches many descriptions weakly and none strongly.

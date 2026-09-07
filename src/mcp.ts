@@ -10,7 +10,11 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 
-import { createSkillTools, type SkillServerOptions, type SkillTools } from "./server.js";
+import {
+  createSkillTools,
+  type SkillServerOptions,
+  type SkillTools,
+} from "./server.js";
 
 /** Reported to the host on connect. */
 export const SERVER_NAME = "pmcp";
@@ -74,7 +78,10 @@ export function registerSkillTools(
       description:
         "The body of a single skill, by the name skill_find or skill_catalog returned. This is the only call that costs a document.",
       inputSchema: z.object({
-        name: z.string().min(1).describe("The skill name, as <package>/<slug>."),
+        name: z
+          .string()
+          .min(1)
+          .describe("The skill name, as <package>/<slug>."),
       }),
       annotations: readOnly,
     },

@@ -98,7 +98,8 @@ export function dispatch(
 
   const command = COMMANDS.find((candidate) => candidate.name === verb);
   if (command === undefined) {
-    if (PLANNED.includes(verb)) ui.error(`"${verb}" is designed but not implemented yet`);
+    if (PLANNED.includes(verb))
+      ui.error(`"${verb}" is designed but not implemented yet`);
     else ui.error(`unknown command "${verb}"`);
     printHelp(ui, COMMANDS, PLANNED);
     return 2;
@@ -117,10 +118,17 @@ export const VERSION = "0.1.0";
 async function run(
   command: Command,
   argv: readonly string[],
-  context: { ui: Ui; env: Readonly<Record<string, string | undefined>>; cwd: string },
+  context: {
+    ui: Ui;
+    env: Readonly<Record<string, string | undefined>>;
+    cwd: string;
+  },
 ): Promise<number> {
   try {
-    return await command.run({ ...context, args: parseArgs(argv, command.options) });
+    return await command.run({
+      ...context,
+      args: parseArgs(argv, command.options),
+    });
   } catch (error) {
     if (error instanceof ArgumentError) {
       context.ui.error(error.message);

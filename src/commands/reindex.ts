@@ -26,7 +26,11 @@ export const indexCommand: Command = {
       describe: "Encoder to use. Rows from another model are never scored.",
       placeholder: "<id>",
     },
-    { name: "json", describe: "Emit JSON rather than a summary.", boolean: true },
+    {
+      name: "json",
+      describe: "Emit JSON rather than a summary.",
+      boolean: true,
+    },
     {
       name: "dry-run",
       describe: "Report what would be encoded and write nothing.",
@@ -45,15 +49,21 @@ export const indexCommand: Command = {
     const model = one(context.args, "model");
     const embedder = await loadEmbedder(model);
     if (embedder === null) {
-      context.ui.error("semantic ranking needs an encoder that is not installed");
+      context.ui.error(
+        "semantic ranking needs an encoder that is not installed",
+      );
       context.ui.info("npm install --save-dev @huggingface/transformers");
       context.ui.info("ranking stays lexical until then, which is the default");
       return 3;
     }
 
-    const store = await openEntryVectors(indexPath(rootsFrom(context)[0] ?? "."));
+    const store = await openEntryVectors(
+      indexPath(rootsFrom(context)[0] ?? "."),
+    );
     if (store === null) {
-      context.ui.error("no sqlite in this runtime, so vectors cannot be stored");
+      context.ui.error(
+        "no sqlite in this runtime, so vectors cannot be stored",
+      );
       return 1;
     }
 
@@ -63,10 +73,14 @@ export const indexCommand: Command = {
       // Only what changed. Re-encoding an unchanged description costs the same
       // as the first time and produces the same vector.
       const todo = entries.filter((entry) => stale.has(entry.name));
-      context.ui.info(`${todo.length} of ${entries.length} to encode`, embedder.modelId);
+      context.ui.info(
+        `${todo.length} of ${entries.length} to encode`,
+        embedder.modelId,
+      );
 
       if (dryRun) {
-        for (const entry of todo) context.ui.line(`  would encode ${entry.name}`);
+        for (const entry of todo)
+          context.ui.line(`  would encode ${entry.name}`);
         context.ui.info("dry run, nothing written");
         return 0;
       }
@@ -80,7 +94,12 @@ export const indexCommand: Command = {
       if (context.args.flags.has("json")) {
         context.ui.data(
           `${JSON.stringify(
-            { model: embedder.modelId, encoded: todo.length, indexed, catalog: entries.length },
+            {
+              model: embedder.modelId,
+              encoded: todo.length,
+              indexed,
+              catalog: entries.length,
+            },
             null,
             2,
           )}\n`,
@@ -90,7 +109,10 @@ export const indexCommand: Command = {
       // Partial coverage is reported rather than called success: find needs a
       // vector for every entry, so a partial index ranks lexically anyway.
       if (indexed < entries.length) {
-        context.ui.warn(`indexed ${indexed} of ${entries.length}`, "ranking stays lexical");
+        context.ui.warn(
+          `indexed ${indexed} of ${entries.length}`,
+          "ranking stays lexical",
+        );
         return 1;
       }
       context.ui.success(`indexed ${indexed} skills`, embedder.modelId);

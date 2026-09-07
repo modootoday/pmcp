@@ -47,13 +47,18 @@ if (process.argv.includes("--json")) {
 // The payload has to survive the round trip, or the badge opens an editor with
 // an empty form and the failure looks like the editor's.
 const decoded = JSON.parse(
-  Buffer.from(new URL(cursor).searchParams.get("config") ?? "", "base64").toString("utf8"),
+  Buffer.from(
+    new URL(cursor).searchParams.get("config") ?? "",
+    "base64",
+  ).toString("utf8"),
 );
 if (JSON.stringify(decoded) !== json) {
   process.stderr.write("install-links: cursor payload does not round-trip\n");
   process.exit(1);
 }
-const decodedVscode = JSON.parse(new URL(vscode).searchParams.get("config") ?? "");
+const decodedVscode = JSON.parse(
+  new URL(vscode).searchParams.get("config") ?? "",
+);
 if (JSON.stringify(decodedVscode) !== json) {
   process.stderr.write("install-links: vscode payload does not round-trip\n");
   process.exit(1);

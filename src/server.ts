@@ -8,7 +8,13 @@
 
 import { readFileSync } from "node:fs";
 
-import { readBody, readCatalog, withoutBody, type CatalogOptions, type SkillEntry } from "./catalog.js";
+import {
+  readBody,
+  readCatalog,
+  withoutBody,
+  type CatalogOptions,
+  type SkillEntry,
+} from "./catalog.js";
 import { find, type Embedder, type FindResult } from "./find.js";
 import type { IntentCache } from "./intent.js";
 
@@ -24,7 +30,10 @@ export interface CatalogResponse {
   readonly count: number;
   readonly packages: readonly {
     readonly package: string;
-    readonly skills: readonly { readonly name: string; readonly description: string }[];
+    readonly skills: readonly {
+      readonly name: string;
+      readonly description: string;
+    }[];
   }[];
 }
 
@@ -51,7 +60,10 @@ export function createSkillTools(options: SkillServerOptions) {
   return {
     /** Grouped, and without bodies. The cheap overview and the search's miss path. */
     catalog(): CatalogResponse {
-      const byPackage = new Map<string, { name: string; description: string }[]>();
+      const byPackage = new Map<
+        string,
+        { name: string; description: string }[]
+      >();
       for (const entry of catalog()) {
         const list = byPackage.get(entry.package) ?? [];
         list.push({ name: entry.name, description: entry.description });
@@ -81,7 +93,10 @@ export function createSkillTools(options: SkillServerOptions) {
     call(name: string): CallResponse | null {
       const entry = catalog().find((candidate) => candidate.name === name);
       if (!entry) return null;
-      return { name: entry.name, body: readBody(readFileSync(entry.path, "utf8")) };
+      return {
+        name: entry.name,
+        body: readBody(readFileSync(entry.path, "utf8")),
+      };
     },
 
     /** Drops the memoised catalog, so the next call re-reads the tree. */

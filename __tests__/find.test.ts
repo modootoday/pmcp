@@ -46,7 +46,9 @@ describe("cosine", () => {
   });
 
   it("is zero for orthogonal vectors", () => {
-    expect(cosine(new Float32Array([1, 0]), new Float32Array([0, 1]))).toBeCloseTo(0, 6);
+    expect(
+      cosine(new Float32Array([1, 0]), new Float32Array([0, 1])),
+    ).toBeCloseTo(0, 6);
   });
 
   it("is zero rather than NaN for a zero vector", () => {
@@ -54,7 +56,9 @@ describe("cosine", () => {
   });
 
   it("is zero for mismatched widths rather than reading past the end", () => {
-    expect(cosine(new Float32Array([1, 2]), new Float32Array([1, 2, 3]))).toBe(0);
+    expect(cosine(new Float32Array([1, 2]), new Float32Array([1, 2, 3]))).toBe(
+      0,
+    );
   });
 });
 
@@ -101,8 +105,15 @@ describe("find", () => {
   // A partial semantic answer silently omits whatever the index missed, which
   // is worse than an honest lexical one over everything.
   it("falls back to lexical when the index does not cover every entry", async () => {
-    const partial = new Map([["@acme/runner/adoption", new Float32Array([1, 0, 0])]]);
-    const result = await find({ entries, intent: "runner", embedder, vectors: partial });
+    const partial = new Map([
+      ["@acme/runner/adoption", new Float32Array([1, 0, 0])],
+    ]);
+    const result = await find({
+      entries,
+      intent: "runner",
+      embedder,
+      vectors: partial,
+    });
     expect(result.ranking).toBe("lexical");
   });
 
@@ -123,13 +134,26 @@ describe("find", () => {
     const stored = new Map<string, Float32Array>();
     const cache = {
       get: (intent: string) => stored.get(intent) ?? null,
-      put: (intent: string, vector: Float32Array) => void stored.set(intent, vector),
+      put: (intent: string, vector: Float32Array) =>
+        void stored.set(intent, vector),
       stats: () => ({ hits: 0, misses: 0, mismatched: 0, rows: stored.size }),
       close: () => {},
     };
 
-    await find({ entries, intent: "runner", embedder: counting, vectors, cache });
-    await find({ entries, intent: "runner", embedder: counting, vectors, cache });
+    await find({
+      entries,
+      intent: "runner",
+      embedder: counting,
+      vectors,
+      cache,
+    });
+    await find({
+      entries,
+      intent: "runner",
+      embedder: counting,
+      vectors,
+      cache,
+    });
     expect(embedCalls).toBe(1);
   });
 });

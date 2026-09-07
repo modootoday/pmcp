@@ -29,12 +29,18 @@ function packageName(name: string): boolean {
   return /^(?:@[a-z0-9._-]+\/)?[a-z0-9][a-z0-9._-]*$/u.test(name);
 }
 
-function locate(name: string, project: string): InstalledDependency | DependencyIssue {
+function locate(
+  name: string,
+  project: string,
+): InstalledDependency | DependencyIssue {
   let directory = project;
   for (;;) {
     let source: string;
     try {
-      source = readFileSync(join(directory, "node_modules", name, "package.json"), "utf8");
+      source = readFileSync(
+        join(directory, "node_modules", name, "package.json"),
+        "utf8",
+      );
     } catch (error) {
       if (!absent(error)) return { name, reason: "unreadable_manifest" };
       const parent = dirname(directory);
@@ -57,18 +63,32 @@ function locate(name: string, project: string): InstalledDependency | Dependency
     ) {
       return { name, reason: "invalid_manifest" };
     }
-    return { name: manifest.name, requestedAs: name, version: manifest.version };
+    return {
+      name: manifest.name,
+      requestedAs: name,
+      version: manifest.version,
+    };
   }
 }
 
 /** Declared ranges never substitute for an installed package's version. */
-export function readInstalledDependencies(projectDirectory: string): InstalledInventory {
+export function readInstalledDependencies(
+  projectDirectory: string,
+): InstalledInventory {
   const project = resolve(projectDirectory);
-  const manifest: unknown = JSON.parse(readFileSync(join(project, "package.json"), "utf8"));
-  if (!object(manifest)) throw new Error("project package.json must contain an object");
+  const manifest: unknown = JSON.parse(
+    readFileSync(join(project, "package.json"), "utf8"),
+  );
+  if (!object(manifest))
+    throw new Error("project package.json must contain an object");
 
   const names = new Set<string>();
-  for (const field of ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"]) {
+  for (const field of [
+    "dependencies",
+    "devDependencies",
+    "optionalDependencies",
+    "peerDependencies",
+  ]) {
     const declared = manifest[field];
     if (declared === undefined) continue;
     if (!object(declared)) throw new Error(`${field} must contain an object`);

@@ -16,7 +16,13 @@ export {
   withoutBody,
 } from "./catalog.js";
 
-export type { Embedder, FindOptions, FindResult, Match, Ranking } from "./find.js";
+export type {
+  Embedder,
+  FindOptions,
+  FindResult,
+  Match,
+  Ranking,
+} from "./find.js";
 export { DEFAULT_FIND_LIMIT, cosine, find, lexicalScore } from "./find.js";
 
 export type {

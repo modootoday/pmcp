@@ -9,7 +9,12 @@ const root = mkdtempSync(join(tmpdir(), "skill-tools-"));
 afterAll(() => rmSync(root, { recursive: true, force: true }));
 const modules = join(root, "node_modules");
 
-function makeSkill(pkg: string, slug: string, description: string, body: string): void {
+function makeSkill(
+  pkg: string,
+  slug: string,
+  description: string,
+  body: string,
+): void {
   const dir = join(modules, pkg.replace("@acme/", ""), ".agent/skills", slug);
   mkdirSync(dir, { recursive: true });
   writeFileSync(
@@ -22,8 +27,18 @@ function makeSkill(pkg: string, slug: string, description: string, body: string)
   );
 }
 
-makeSkill("@acme/runner", "adoption", "Wire the stage runner", "Install it, then call run.");
-makeSkill("@acme/clock", "adoption", "Deterministic time for tests", "Inject the Clock.");
+makeSkill(
+  "@acme/runner",
+  "adoption",
+  "Wire the stage runner",
+  "Install it, then call run.",
+);
+makeSkill(
+  "@acme/clock",
+  "adoption",
+  "Deterministic time for tests",
+  "Inject the Clock.",
+);
 
 const tools = () => createSkillTools({ roots: [modules] });
 
@@ -31,7 +46,10 @@ describe("catalog", () => {
   it("groups by package and counts every skill", () => {
     const result = tools().catalog();
     expect(result.count).toBe(2);
-    expect(result.packages.map((p) => p.package)).toEqual(["@acme/clock", "@acme/runner"]);
+    expect(result.packages.map((p) => p.package)).toEqual([
+      "@acme/clock",
+      "@acme/runner",
+    ]);
   });
 
   // The whole point: the overview never carries bodies, so listing costs the
@@ -61,7 +79,9 @@ describe("call", () => {
   });
 
   it("returns the body without its frontmatter", () => {
-    expect(tools().call("@acme/runner/adoption")?.body).not.toContain("description:");
+    expect(tools().call("@acme/runner/adoption")?.body).not.toContain(
+      "description:",
+    );
   });
 
   it("returns null for a name that is not in the catalog", () => {

@@ -37,9 +37,9 @@ describe("readFrontmatter", () => {
   });
 
   it("strips surrounding quotes", () => {
-    expect(readFrontmatter('---\ndescription: "b: c"\n---\n')["description"]).toBe(
-      "b: c",
-    );
+    expect(
+      readFrontmatter('---\ndescription: "b: c"\n---\n')["description"],
+    ).toBe("b: c");
   });
 
   it("returns nothing for a file with no frontmatter", () => {
@@ -51,7 +51,9 @@ describe("readFrontmatter", () => {
   });
 
   it("skips a key with no value rather than storing an empty one", () => {
-    expect(readFrontmatter("---\nname: a\ndescription:\n---\n")).toEqual({ name: "a" });
+    expect(readFrontmatter("---\nname: a\ndescription:\n---\n")).toEqual({
+      name: "a",
+    });
   });
 });
 
@@ -66,7 +68,9 @@ describe("readBody", () => {
 });
 
 describe("readCatalog", () => {
-  makePackage("plain", "@acme/plain", { adoption: skill("adoption", "Wire the plain package") });
+  makePackage("plain", "@acme/plain", {
+    adoption: skill("adoption", "Wire the plain package"),
+  });
   makePackage("@scope/scoped", "@scope/scoped", {
     adoption: skill("adoption", "Wire the scoped package"),
     extra: skill("extra", "Something else entirely"),
@@ -89,7 +93,9 @@ describe("readCatalog", () => {
   });
 
   it("finds every skill a package ships", () => {
-    expect(catalog().filter((e) => e.package === "@scope/scoped")).toHaveLength(2);
+    expect(catalog().filter((e) => e.package === "@scope/scoped")).toHaveLength(
+      2,
+    );
   });
 
   it("costs nothing for a package with no skills", () => {
@@ -100,7 +106,9 @@ describe("readCatalog", () => {
   // already knowing its name, and listing it spends tokens on an entry that
   // cannot answer.
   it("skips a skill with no description", () => {
-    expect(catalog().some((e) => e.package === "@acme/undescribed")).toBe(false);
+    expect(catalog().some((e) => e.package === "@acme/undescribed")).toBe(
+      false,
+    );
   });
 
   it("skips a package whose manifest does not parse rather than throwing", () => {

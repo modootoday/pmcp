@@ -13,7 +13,11 @@ const modules = join(root, "node_modules");
 const skill = (name: string, description: string) =>
   `---\nname: ${name}\ndescription: ${description}\n---\n\nhow to wire it\n`;
 
-function write(packageName: string, relativePath: string, contents: string): void {
+function write(
+  packageName: string,
+  relativePath: string,
+  contents: string,
+): void {
   const path = join(modules, packageName, relativePath);
   mkdirSync(join(path, ".."), { recursive: true });
   writeFileSync(path, contents);
@@ -42,7 +46,10 @@ for (const [packageName, dir] of CONVENTIONS) {
   write(
     packageName,
     `${dir}/the-slug/SKILL.md`,
-    skill("the-slug", `Something goes wrong in ${packageName} and you need it.`),
+    skill(
+      "the-slug",
+      `Something goes wrong in ${packageName} and you need it.`,
+    ),
   );
 }
 
@@ -96,8 +103,15 @@ describe("what discovery refuses to walk", () => {
 
   it("stops at the declared depth rather than walking the whole package", () => {
     makePackage("pkg-deep");
-    const tooDeep = Array.from({ length: MAX_SKILL_DEPTH + 1 }, (_, i) => `d${i}`).join("/");
-    write("pkg-deep", `${tooDeep}/SKILL.md`, skill("too-deep", "Deeper than the limit."));
+    const tooDeep = Array.from(
+      { length: MAX_SKILL_DEPTH + 1 },
+      (_, i) => `d${i}`,
+    ).join("/");
+    write(
+      "pkg-deep",
+      `${tooDeep}/SKILL.md`,
+      skill("too-deep", "Deeper than the limit."),
+    );
 
     const entries = readCatalog({ roots: [modules] }).filter(
       (entry) => entry.package === "pkg-deep",
@@ -124,7 +138,11 @@ describe("naming a skill found anywhere", () => {
 
   it("catalogues a SKILL.md sitting at the package root", () => {
     makePackage("pkg-root");
-    write("pkg-root", "SKILL.md", skill("", "A skill the package keeps at its root."));
+    write(
+      "pkg-root",
+      "SKILL.md",
+      skill("", "A skill the package keeps at its root."),
+    );
 
     const entry = readCatalog({ roots: [modules] }).find(
       (candidate) => candidate.package === "pkg-root",

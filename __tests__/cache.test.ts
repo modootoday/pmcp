@@ -13,11 +13,15 @@ const vec = (...values: number[]) => new Float32Array(values);
 
 describe("normaliseIntent", () => {
   it("folds case, punctuation and spacing into one key", () => {
-    expect(normaliseIntent("How do I wire X?")).toBe(normaliseIntent("how  do i wire x"));
+    expect(normaliseIntent("How do I wire X?")).toBe(
+      normaliseIntent("how  do i wire x"),
+    );
   });
 
   it("keeps different questions apart", () => {
-    expect(normaliseIntent("wire the runner")).not.toBe(normaliseIntent("wire the parser"));
+    expect(normaliseIntent("wire the runner")).not.toBe(
+      normaliseIntent("wire the parser"),
+    );
   });
 
   it("keeps digits, which carry meaning in a version or a count", () => {
@@ -25,7 +29,9 @@ describe("normaliseIntent", () => {
   });
 
   it("keeps non-latin letters rather than dropping them", () => {
-    expect(normaliseIntent("日本語 запрос ελληνικά")).toBe("日本語 запрос ελληνικά");
+    expect(normaliseIntent("日本語 запрос ελληνικά")).toBe(
+      "日本語 запрос ελληνικά",
+    );
   });
 
   it("returns an empty key for punctuation alone", () => {
@@ -35,7 +41,12 @@ describe("normaliseIntent", () => {
 
 describe("openIntentCache", () => {
   const open = async (over: Record<string, unknown> = {}) =>
-    (await openIntentCache({ path: ":memory:", modelId: "m1", dims: 3, ...over }))!;
+    (await openIntentCache({
+      path: ":memory:",
+      modelId: "m1",
+      dims: 3,
+      ...over,
+    }))!;
 
   it("misses on an empty cache", async () => {
     const cache = await open();
@@ -112,7 +123,9 @@ describe("openIntentCache", () => {
 
   it("refuses to store a vector of the wrong width", async () => {
     const cache = await open();
-    expect(() => cache.put("q", vec(1, 2))).toThrow("intent vector is 2 wide, cache holds 3");
+    expect(() => cache.put("q", vec(1, 2))).toThrow(
+      "intent vector is 2 wide, cache holds 3",
+    );
     cache.close();
   });
 

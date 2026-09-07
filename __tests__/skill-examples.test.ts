@@ -78,7 +78,9 @@ describe("SKILL.md — Install and wire", () => {
     const { ranking, matches } = await tools.find(
       "how do I match file paths in a lint rule",
     );
-    const body = matches[0] ? (tools.call(matches[0].name)?.body ?? null) : null;
+    const body = matches[0]
+      ? (tools.call(matches[0].name)?.body ?? null)
+      : null;
 
     expect(ranking).toBe("lexical");
     expect(matches.length).toBeGreaterThan(0);
@@ -159,7 +161,10 @@ describe("SKILL.md — Testing against it, the fixture", () => {
     const pkg = join(root, "node_modules", "@acme", "thing");
     const skill = join(pkg, ".agent", "skills", "widget-wiring");
     mkdirSync(skill, { recursive: true });
-    writeFileSync(join(pkg, "package.json"), JSON.stringify({ name: "@acme/thing" }));
+    writeFileSync(
+      join(pkg, "package.json"),
+      JSON.stringify({ name: "@acme/thing" }),
+    );
     writeFileSync(
       join(skill, "SKILL.md"),
       "---\nname: widget-wiring\ndescription: Wiring a widget into a host application.\n---\n\nBody text.\n",
@@ -173,11 +178,15 @@ describe("SKILL.md — Testing against it, the fixture", () => {
     const response = tools.catalog();
     expect(response.count).toBe(1);
     expect(response.packages[0]?.package).toBe("@acme/thing");
-    expect(response.packages[0]?.skills[0]?.name).toBe("@acme/thing/widget-wiring");
+    expect(response.packages[0]?.skills[0]?.name).toBe(
+      "@acme/thing/widget-wiring",
+    );
   });
 
   it("finds it lexically and reads the body only when asked", async () => {
-    const { ranking, matches } = await tools.find("wiring a widget into a host");
+    const { ranking, matches } = await tools.find(
+      "wiring a widget into a host",
+    );
     expect(ranking).toBe("lexical");
     expect(matches[0]?.name).toBe("@acme/thing/widget-wiring");
     expect(tools.call(matches[0]!.name)?.body.trim()).toBe("Body text.");
@@ -191,8 +200,14 @@ describe("SKILL.md — Invariants", () => {
     const pkg = join(nm, "@acme", "quiet");
     const skill = join(pkg, ".agent", "skills", "undocumented");
     mkdirSync(skill, { recursive: true });
-    writeFileSync(join(pkg, "package.json"), JSON.stringify({ name: "@acme/quiet" }));
-    writeFileSync(join(skill, "SKILL.md"), "---\nname: undocumented\n---\n\nBody.\n");
+    writeFileSync(
+      join(pkg, "package.json"),
+      JSON.stringify({ name: "@acme/quiet" }),
+    );
+    writeFileSync(
+      join(skill, "SKILL.md"),
+      "---\nname: undocumented\n---\n\nBody.\n",
+    );
 
     expect(createSkillTools({ roots: [nm] }).catalog().count).toBe(0);
   });
@@ -210,7 +225,13 @@ describe("SKILL.md — Invariants", () => {
     const tools = createSkillTools({ roots: [nm] });
     expect(tools.catalog().count).toBe(0);
 
-    writeSkill(nm, "@acme/late", "arrived-later", "A skill installed after the first walk.", "Late.");
+    writeSkill(
+      nm,
+      "@acme/late",
+      "arrived-later",
+      "A skill installed after the first walk.",
+      "Late.",
+    );
     expect(tools.catalog().count).toBe(0);
 
     tools.refresh();
@@ -230,7 +251,9 @@ describe("SKILL.md — Invariants", () => {
     };
 
     const raw = entries.entries();
-    const full = new Map(catalogNames.map((name) => [name, Float32Array.from([1, 0])]));
+    const full = new Map(
+      catalogNames.map((name) => [name, Float32Array.from([1, 0])]),
+    );
     const partial = new Map([...full].slice(0, 1));
 
     const withPartial = await find({

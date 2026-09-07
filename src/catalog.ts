@@ -113,7 +113,8 @@ function skillFiles(packageDir: string): string[] {
       }
       if (!entry.isDirectory()) continue;
       if (SKIPPED_DIRS.has(entry.name)) continue;
-      if (depth + 1 <= MAX_SKILL_DEPTH) stack.push([join(dir, entry.name), depth + 1]);
+      if (depth + 1 <= MAX_SKILL_DEPTH)
+        stack.push([join(dir, entry.name), depth + 1]);
     }
   }
   return found.sort();
@@ -187,7 +188,9 @@ export function readCatalog(options: CatalogOptions): SkillEntry[] {
         // The directory holding the SKILL.md names it when frontmatter does
         // not. A skill at the package root falls back to the package name.
         const dirName = basename(dirname(path));
-        const slug = front["name"] ?? (dirName === basename(packageDir) ? packageName : dirName);
+        const slug =
+          front["name"] ??
+          (dirName === basename(packageDir) ? packageName : dirName);
         const name = `${packageName}/${slug}`;
         // The first root wins: a nested node_modules holds an older copy of a
         // package the root already resolved.
