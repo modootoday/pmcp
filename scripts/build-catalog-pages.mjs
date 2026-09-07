@@ -25,12 +25,16 @@ const escape = (value) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 
+// "Catalog" is taken. On every other page of this site it means the list the
+// server derives from node_modules, and skill_catalog is one of the three MCP
+// tools, so the same word for the thing we sell sent a reader to the wrong
+// meaning. Install folds into Start, which is where a first-time reader is
+// already going.
 const NAV = [
   ["/guide/", "Start"],
-  ["/catalog/", "Catalog"],
+  ["/skills/", "Skills"],
   ["/pricing/", "Pricing"],
   ["/compare/", "Compare"],
-  ["/install/", "Install"],
   ["/authoring/", "Authoring"],
   ["/commands/", "Commands"],
 ];
@@ -47,7 +51,7 @@ function page({ path, title, description, body }) {
     ([href, label]) =>
       `<a href="${href}"${href === path || (path.startsWith(`${href.slice(0, -1)}/`) && href !== "/guide/") ? ' aria-current="page"' : ""}>${label}</a>`,
   ).join("\n          ");
-  const footer = [...NAV, ["/licence/", "Licence"]]
+  const footer = [...NAV, ["/install/", "Install"], ["/licence/", "Licence"]]
     .map(([href, label]) => `<a href="${href}">${label}</a>`)
     .join("\n          ");
   return `<!doctype html>
@@ -121,13 +125,13 @@ const targetsOf = (entry) =>
     .join("; ");
 
 emit(
-  "/catalog/",
+  "/skills/",
   page({
-    path: "/catalog/",
-    title: "Catalog — pmcp",
+    path: "/skills/",
+    title: "Written skills — pmcp",
     description:
       "Authored skills for packages that ship none, each verified by executing its examples against the version it names.",
-    body: `      <h1>Catalog</h1>
+    body: `      <h1>Written skills</h1>
       <p>
         A skill here is written for one package and verified by running its
         examples against that package. The date and the count below are what
@@ -150,7 +154,7 @@ ${
         .map(
           (entry) =>
             `            <tr>
-              <td><a href="/catalog/${escape(entry.productId)}/">${escape(entry.title)}</a></td>
+              <td><a href="/skills/${escape(entry.productId)}/">${escape(entry.title)}</a></td>
               <td><code>${escape(targetsOf(entry))}</code></td>
               <td>${escape(entry.evidence?.verifiedOn || "before this was recorded")}, ${escape(String(entry.evidence?.examplesExecuted ?? 0))} examples</td>
             </tr>`,
@@ -166,9 +170,9 @@ ${
 for (const entry of entries) {
   const preview = entry.preview;
   emit(
-    `/catalog/${entry.productId}/`,
+    `/skills/${entry.productId}/`,
     page({
-      path: `/catalog/${entry.productId}/`,
+      path: `/skills/${entry.productId}/`,
       title: `${entry.title} — pmcp`,
       description: entry.summary,
       body: `      <h1>${escape(entry.title)}</h1>

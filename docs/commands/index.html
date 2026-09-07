@@ -46,10 +46,9 @@
         </a>
         <nav>
           <a href="/guide/">Start</a>
-          <a href="/catalog/">Catalog</a>
+          <a href="/skills/">Skills</a>
           <a href="/pricing/">Pricing</a>
           <a href="/compare/">Compare</a>
-          <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
           <a href="/commands/" aria-current="page">Commands</a>
         </nav>
@@ -129,6 +128,63 @@
         <strong>1</strong> and says how many of the catalog it covered, because
         ranking needs a vector for every entry and falls back to lexical without
         one.
+      </p>
+
+      <h2>The written skills</h2>
+      <p>
+        The commands above read what is already installed and need no account.
+        The ones below reach the
+        <a href="/skills/">catalogue we write</a>; reading it is free, and
+        installing from it needs a <a href="/pricing/">subscription</a>.
+      </p>
+      <p>
+        All four take <code>--project &lt;dir&gt;</code>,
+        <code>--api &lt;origin&gt;</code>, <code>--json</code>, and
+        <code>--catalog &lt;file&gt;</code>, which reads a saved response so the
+        command runs with no network at all.
+      </p>
+
+      <h2>available</h2>
+      <pre><code>pmcp available [--project &lt;dir&gt;] [--catalog &lt;file&gt;] [--json]</code></pre>
+      <p>
+        Which written skills match the dependencies this project already has.
+        It reads your <code>package.json</code> to decide what matches and does
+        not upload it. No account needed.
+      </p>
+
+      <h2>preview</h2>
+      <pre><code>pmcp preview &lt;skill-package&gt; [--json]</code></pre>
+      <p>
+        A skill's contents and one complete example, before paying for it. The
+        sample is taken from the skill's own bytes rather than described, so it
+        cannot drift from what you would receive. No account needed.
+      </p>
+
+      <h2>login · logout · whoami</h2>
+      <pre><code>pmcp login [--issuer &lt;url&gt;]
+pmcp logout
+pmcp whoami [--json]</code></pre>
+      <p>
+        <code>login</code> signs this machine in without a browser: it prints a
+        code and a URL to open anywhere. The credential is kept outside the
+        project, so it cannot be committed or copied into an image.
+        <code>whoami</code> answers on stdout, so a script can read it.
+      </p>
+
+      <h2>install · sync</h2>
+      <pre><code>pmcp install &lt;skill-package&gt;... | --all [--dry-run | --yes]
+pmcp sync [--project &lt;dir&gt;] [--dry-run | --yes]</code></pre>
+      <p>
+        <code>install</code> adds skill packages as dev dependencies with your
+        own package manager, and what lands is checked against the digest the
+        catalogue published — not its name and version, which any registry can
+        claim. <code>sync</code> updates the ones already declared and removes
+        nothing else.
+      </p>
+      <p>
+        Both show the project and lockfile changes and stop:
+        <code>--yes</code> approves them, <code>--dry-run</code> prints the plan
+        and changes nothing.
       </p>
 
       <h2>Options</h2>
@@ -267,12 +323,12 @@
       <div class="wrap">
         <nav>
           <a href="/guide/">Start</a>
-          <a href="/catalog/">Catalog</a>
+          <a href="/skills/">Skills</a>
           <a href="/pricing/">Pricing</a>
           <a href="/compare/">Compare</a>
-          <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
-          <a href="/commands/">Commands</a>
+          <a href="/commands/" aria-current="page">Commands</a>
+          <a href="/install/">Install</a>
           <a href="/licence/">Licence</a>
           <a href="https://www.npmjs.com/package/pmcp">npm</a>
         </nav>

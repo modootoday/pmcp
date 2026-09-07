@@ -72,10 +72,9 @@
         </a>
         <nav>
           <a href="/guide/" aria-current="page">Start</a>
-          <a href="/catalog/">Catalog</a>
+          <a href="/skills/">Skills</a>
           <a href="/pricing/">Pricing</a>
           <a href="/compare/">Compare</a>
-          <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
           <a href="/commands/">Commands</a>
         </nav>
@@ -187,6 +186,21 @@ npx -y pmcp index</code></pre>
         this optional step when local lexical search meets your needs.
       </p>
 
+      <h2>If step 2 came back short</h2>
+      <p>
+        It usually does. Most packages ship no skill, so the server has nothing
+        to serve for them, and that is the gap we write into: skills for the
+        packages an agent gets wrong most often, each verified by running its
+        examples against the version it names.
+      </p>
+      <pre><code>npx -y pmcp available   # which of them match this project
+npx -y pmcp preview &lt;skill&gt;  # its contents and one full example</code></pre>
+      <p>
+        Both are free and need no account. Installing one needs a
+        <a href="/pricing/">subscription</a>; the
+        <a href="/skills/">list of what exists</a> is open to read.
+      </p>
+
       <h2>What to do next</h2>
       <ul>
         <li>
@@ -205,13 +219,13 @@ npx -y pmcp index</code></pre>
     <footer class="site">
       <div class="wrap">
         <nav>
-          <a href="/guide/">Start</a>
-          <a href="/catalog/">Catalog</a>
+          <a href="/guide/" aria-current="page">Start</a>
+          <a href="/skills/">Skills</a>
           <a href="/pricing/">Pricing</a>
           <a href="/compare/">Compare</a>
-          <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
           <a href="/commands/">Commands</a>
+          <a href="/install/">Install</a>
           <a href="/licence/">Licence</a>
           <a href="https://www.npmjs.com/package/pmcp">npm</a>
         </nav>

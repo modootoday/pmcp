@@ -25,7 +25,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pmcp.build/catalog/</loc>
+    <loc>https://pmcp.build/skills/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -37,7 +37,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pmcp.build/catalog/zod-schema-validation/</loc>
+    <loc>https://pmcp.build/skills/zod-schema-validation/</loc>
     <priority>0.6</priority>
   </url>
 </urlset>
