@@ -31,6 +31,11 @@
   --term-dim: #7f8d85;
   --term-mark: #5cbf95;
 
+  /* Semantic, and deliberately not the accent: an advisory is not a feature
+     to highlight, and reusing the accent for it makes both mean less. */
+  --warn: #8a4b1d;
+  --warn-soft: #f6ece3;
+
   --radius: 6px;
   --measure: 40rem;
 }
@@ -53,6 +58,8 @@
     --term-fg: #e4ebe6;
     --term-dim: #84918a;
     --term-mark: #6fbf9a;
+    --warn: #d99a63;
+    --warn-soft: #241a12;
   }
 }
 
@@ -504,6 +511,53 @@ footer.site nav {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 3px;
+}
+
+/* Where a skill line stands. A frozen line is recessed, because it is still
+   the thing you came for; a recalled one is lifted and marked, because it is
+   the reason not to. */
+.notice {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--stroke);
+  border-left: 3px solid var(--stroke-strong);
+  border-radius: var(--radius);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+}
+
+.notice > :first-child {
+  margin-top: 0;
+}
+
+.notice > :last-child {
+  margin-bottom: 0;
+}
+
+.notice h2 {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+div.notice {
+  border-left-color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--stroke-strong);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  vertical-align: middle;
+}
+
+.tag.warn {
+  border-color: var(--warn);
+  color: var(--warn);
 }
 
 @media print {

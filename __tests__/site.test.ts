@@ -107,6 +107,23 @@ it("gives every page the chrome the stylesheet is written for", () => {
   expect(missing).toEqual([]);
 });
 
+it("styles every class the pages use", () => {
+  // The sibling brand shipped generated pages whose markup the stylesheet had
+  // no rule for, and they laid out full-bleed beside every hand-written page.
+  // A class nothing styles is markup that renders as nothing.
+  const css = readFileSync(join(docs, "assets/style.css"), "utf8");
+  const unstyled = new Set<string>();
+  for (const [, file] of pages) {
+    const html = readFileSync(file, "utf8");
+    for (const [, list] of html.matchAll(/class="([^"]+)"/gu)) {
+      for (const name of list!.split(/\s+/u).filter(Boolean)) {
+        if (!css.includes(`.${name}`)) unstyled.add(name);
+      }
+    }
+  }
+  expect([...unstyled].sort()).toEqual([]);
+});
+
 it("keeps the generated catalog pages in step with the catalog they came from", () => {
   // The generator is the only writer of these pages, so a page edited by hand
   // or a catalog updated without a rebuild both show up here.

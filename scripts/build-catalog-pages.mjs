@@ -124,6 +124,56 @@ const targetsOf = (entry) =>
     )
     .join("; ");
 
+/**
+ * The listing has to carry the standing too. A reader who can only learn it by
+ * opening each page learns it about the one they opened.
+ */
+function markOf(entry) {
+  const status = entry.line?.status;
+  if (status === "recalled") return ` <span class="tag warn">recalled</span>`;
+  if (status === "frozen") return ` <span class="tag">frozen</span>`;
+  return "";
+}
+
+/**
+ * Where a line stands, said before the contents rather than after: a reader
+ * deciding whether to pay should meet a recall before meeting the sample that
+ * makes them want it. The current line says nothing, so that the page which
+ * does say something is the one worth reading.
+ */
+function standingOf(entry) {
+  const line = entry.line;
+  if (!line || line.status === "active") return "";
+
+  if (line.status === "recalled" && line.recall) {
+    return `      <div class="notice">
+        <h2>This line has been recalled</h2>
+        <p>
+          A ${escape(line.recall.severity)} advisory covers the versions this
+          skill is written for. The skill itself is not the vulnerability: what
+          is unsafe is the range it applies to.
+        </p>
+        <p>${escape(line.recall.summary)}</p>
+        <p>
+          ${
+            line.recall.reverifyAt
+              ? `The fix is in <code>${escape(line.recall.reverifyAt)}</code>. Move there and this skill still applies.`
+              : "No release in this line is unaffected. Move to a newer major."
+          }
+          <a href="${escape(line.recall.advisoryUrl)}">Read the advisory</a>.
+        </p>
+      </div>
+`;
+  }
+
+  return `      <p class="notice">
+        Written for <code>${escape(String(line.major))}.x</code>, which is no
+        longer revised. The verification date below is where this line stopped,
+        not a date that will move again.
+      </p>
+`;
+}
+
 emit(
   "/skills/",
   page({
@@ -154,7 +204,7 @@ ${
         .map(
           (entry) =>
             `            <tr>
-              <td><a href="/skills/${escape(entry.productId)}/">${escape(entry.title)}</a></td>
+              <td><a href="/skills/${escape(entry.productId)}/">${escape(entry.title)}</a>${markOf(entry)}</td>
               <td><code>${escape(targetsOf(entry))}</code></td>
               <td>${escape(entry.evidence?.verifiedOn || "before this was recorded")}, ${escape(String(entry.evidence?.examplesExecuted ?? 0))} examples</td>
             </tr>`,
@@ -177,7 +227,7 @@ for (const entry of entries) {
       description: entry.summary,
       body: `      <h1>${escape(entry.title)}</h1>
       <p>${escape(entry.summary)}</p>
-      <dl>
+${standingOf(entry)}      <dl>
         <dt>For</dt><dd><code>${escape(targetsOf(entry))}</code></dd>
         <dt>Verified</dt><dd>${escape(entry.evidence?.verifiedOn || "before this was recorded")}, ${escape(String(entry.evidence?.examplesExecuted ?? 0))} examples executed</dd>
         <dt>Package</dt><dd><code>${escape(entry.delivery.packageName)}@${escape(entry.delivery.version)}</code></dd>
