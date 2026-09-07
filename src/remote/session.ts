@@ -9,6 +9,7 @@
  * and on a machine with no browser, which is where this tool tends to run.
  */
 import {
+  chmodSync,
   closeSync,
   fchmodSync,
   mkdirSync,
@@ -291,10 +292,14 @@ export function readSession(home?: string): StoredSession | null {
 
 export function writeSession(session: StoredSession, home?: string): void {
   const path = sessionPath(home);
-  mkdirSync(globalDir(home), { recursive: true, mode: 0o700 });
-  // A creation mode is ignored when the file already exists, so a session
-  // written once at a looser mode would stay readable for every later write.
-  // The descriptor is narrowed before the credential reaches it.
+  const directory = globalDir(home);
+  mkdirSync(directory, { recursive: true, mode: 0o700 });
+  // A creation mode is ignored for something that already exists, and the
+  // directory matters on its own: a group-writable one lets another user
+  // replace the session file without ever reading it.
+  chmodSync(directory, 0o700);
+  // The same for the file, whose descriptor is narrowed before the credential
+  // reaches it.
   const fd = openSync(path, "w", 0o600);
   try {
     fchmodSync(fd, 0o600);

@@ -48,3 +48,15 @@ it("creates the session directory and file closed to other users", () => {
   expect(mode(globalDir(root))).toBe("700");
   expect(mode(join(globalDir(root), "session.json"))).toBe("600");
 });
+
+it("narrows a session directory that already exists group-writable", () => {
+  // Measured on this host at 0775, so it is a state rather than a hypothesis.
+  // A private file inside a group-writable directory is still replaceable by
+  // anyone in the group, who never has to read it to substitute their own.
+  const root = home();
+  const directory = globalDir(root);
+  mkdirSync(directory, { recursive: true });
+  chmodSync(directory, 0o775);
+  writeSession(session, root);
+  expect(mode(directory)).toBe("700");
+});
