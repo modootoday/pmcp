@@ -34,7 +34,7 @@ function credential(value: unknown): DistributionCredential {
   const registry = new URL(item["registry"] as string);
   if (
     registry.href !== "https://api.pmcp.build/npm/" ||
-    item["scope"] !== "@pmcp" ||
+    item["scope"] !== "@modootoday" ||
     !/^pmcp_[A-Za-z0-9_-]{43}$/u.test(item["token"] as string) ||
     !Number.isFinite(Date.parse(item["expiresAt"] as string))
   ) {
@@ -103,9 +103,12 @@ export async function verifyRegistryIntegrity(
 ): Promise<Map<string, string>> {
   const verified = new Map<string, string>();
   for (const entry of entries) {
-    if (!entry.packageName.startsWith(`${value.scope}/`))
+    // The scope is shared with this organisation's other packages, so the
+    // check names the skill prefix: a credential for the scope must not be
+    // spent fetching something that is not a skill package.
+    if (!entry.packageName.startsWith(`${value.scope}/pmcp-`))
       throw new Error(
-        "catalog delivery scope differs from the registry credential",
+        "catalog delivery name is not a skill package for this credential",
       );
     const endpoint = new URL(
       encodeURIComponent(entry.packageName),

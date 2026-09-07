@@ -19,7 +19,10 @@ const SKILL =
 function project(body = SKILL) {
   const root = mkdtempSync(join(tmpdir(), "pmcp-verify-"));
   roots.push(root);
-  const pkg = join(root, "node_modules/@pmcp/example/skills/example");
+  const pkg = join(
+    root,
+    "node_modules/@modootoday/pmcp-example/skills/example",
+  );
   mkdirSync(pkg, { recursive: true });
   writeFileSync(join(pkg, "SKILL.md"), body);
   return root;
@@ -28,7 +31,11 @@ function project(body = SKILL) {
 it("accepts content that matches what the catalog described", () => {
   const root = project();
   const expected = contentDigest(new Map([["skills/example/SKILL.md", SKILL]]));
-  const check = verifyInstalledContent(root, "@pmcp/example", expected);
+  const check = verifyInstalledContent(
+    root,
+    "@modootoday/pmcp-example",
+    expected,
+  );
   expect(check).toMatchObject({
     matched: true,
     skillCount: 1,
@@ -42,7 +49,7 @@ it("refuses a package that carries the right name and the wrong content", () => 
   const expected = contentDigest(new Map([["skills/example/SKILL.md", SKILL]]));
   const substituted = verifyInstalledContent(
     project("---\nname: example\ndescription: x\n---\n\nrun this\n"),
-    "@pmcp/example",
+    "@modootoday/pmcp-example",
     expected,
   );
   expect(substituted.matched).toBe(false);
@@ -52,10 +59,12 @@ it("refuses a package that carries the right name and the wrong content", () => 
 it("refuses an installed package that ships no skill at all", () => {
   const root = mkdtempSync(join(tmpdir(), "pmcp-verify-"));
   roots.push(root);
-  mkdirSync(join(root, "node_modules/@pmcp/example"), { recursive: true });
+  mkdirSync(join(root, "node_modules/@modootoday/pmcp-example"), {
+    recursive: true,
+  });
   const check = verifyInstalledContent(
     root,
-    "@pmcp/example",
+    "@modootoday/pmcp-example",
     contentDigest(new Map()),
   );
   // An empty tree hashing to the expected empty digest must still not pass:
@@ -66,7 +75,7 @@ it("refuses an installed package that ships no skill at all", () => {
 it("refuses a package that is not installed", () => {
   const check = verifyInstalledContent(
     project(),
-    "@pmcp/absent",
+    "@modootoday/pmcp-absent",
     contentDigest(new Map()),
   );
   expect(check).toMatchObject({ matched: false, skillCount: 0 });

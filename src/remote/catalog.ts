@@ -25,7 +25,12 @@ const target = z
   .refine((value) =>
     value.verifiedVersions.every((item) => semver.satisfies(item, value.range)),
   );
-const deliveryName = npmName.refine((value) => value.startsWith("@pmcp/"));
+// Skill packages live under the organisation scope; `@pmcp` on the public
+// registry belongs to someone else, so a catalog naming it would point at a
+// namespace this project cannot publish into.
+const deliveryName = npmName.refine((value) =>
+  value.startsWith("@modootoday/pmcp-"),
+);
 const entry = z.object({
   productId: z.string().min(1),
   title: z.string().min(1),

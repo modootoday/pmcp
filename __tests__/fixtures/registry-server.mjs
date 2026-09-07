@@ -35,9 +35,12 @@ const server = createServer(tls, (request, response) => {
     response.end(archive);
     return;
   }
-  if (path === "/@pmcp/example" || path === "/@pmcp/example/1.0.0") {
+  if (
+    path === "/@modootoday/pmcp-example" ||
+    path === "/@modootoday/pmcp-example/1.0.0"
+  ) {
     const version = {
-      name: "@pmcp/example",
+      name: "@modootoday/pmcp-example",
       version: "1.0.0",
       dist: { tarball: `${origin}/artifact.tgz`, integrity, shasum },
       scripts: {
@@ -51,7 +54,7 @@ const server = createServer(tls, (request, response) => {
         path.endsWith("/1.0.0")
           ? version
           : {
-              name: "@pmcp/example",
+              name: "@modootoday/pmcp-example",
               "dist-tags": { latest: "1.0.0" },
               versions: { "1.0.0": version },
             },

@@ -47,7 +47,7 @@ it("installs pinned skill packages with npm and Bun without executing install ho
     writeFileSync(
       join(source, "package.json"),
       JSON.stringify({
-        name: "@pmcp/example",
+        name: "@modootoday/pmcp-example",
         version: "1.0.0",
         files: ["skills"],
         scripts: {
@@ -143,7 +143,7 @@ it("installs pinned skill packages with npm and Bun without executing install ho
       );
       writeFileSync(
         join(project, ".npmrc"),
-        `registry=${origin}\n@pmcp:registry=${origin}\n`,
+        `registry=${origin}\n@modootoday:registry=${origin}\n`,
       );
       const catalog: RemoteCatalog = {
         revision: "r1",
@@ -154,7 +154,7 @@ it("installs pinned skill packages with npm and Bun without executing install ho
             title: "Example",
             summary: "Example skill",
             delivery: {
-              packageName: "@pmcp/example",
+              packageName: "@modootoday/pmcp-example",
               version: "1.0.0",
               integrity,
             },
@@ -185,7 +185,7 @@ it("installs pinned skill packages with npm and Bun without executing install ho
         id: "11111111-1111-4111-8111-111111111111",
         token: "pmcp_" + "a".repeat(43),
         registry: `${origin}/`,
-        scope: "@pmcp",
+        scope: "@modootoday",
         expiresAt: "2099-01-01T00:00:00.000Z",
       });
       // The registry is HTTPS in production. Only this self-signed fixture
@@ -205,7 +205,7 @@ it("installs pinned skill packages with npm and Bun without executing install ho
                   PMCP_TEST_MARKER: marker,
                   NODE_TLS_REJECT_UNAUTHORIZED: "0",
                 },
-                new Map([["@pmcp/example@1.0.0", integrity]]),
+                new Map([["@modootoday/pmcp-example@1.0.0", integrity]]),
               ),
             ),
           ).toBe(0);
@@ -222,11 +222,14 @@ it("installs pinned skill packages with npm and Bun without executing install ho
       }
       expect(
         JSON.parse(readFileSync(join(project, "package.json"), "utf8"))
-          .devDependencies["@pmcp/example"],
+          .devDependencies["@modootoday/pmcp-example"],
       ).toBe("1.0.0");
       expect(
         existsSync(
-          join(project, "node_modules/@pmcp/example/skills/example/SKILL.md"),
+          join(
+            project,
+            "node_modules/@modootoday/pmcp-example/skills/example/SKILL.md",
+          ),
         ),
       ).toBe(true);
       expect(existsSync(marker)).toBe(false);

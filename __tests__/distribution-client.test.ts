@@ -10,7 +10,7 @@ const credential = {
   id: "11111111-1111-4111-8111-111111111111",
   token: `pmcp_${"a".repeat(43)}`,
   registry: "https://api.pmcp.build/npm/",
-  scope: "@pmcp",
+  scope: "@modootoday",
   expiresAt: "2026-09-07T00:00:00.000Z",
 };
 
@@ -80,7 +80,7 @@ it("writes credentials only into a temporary mode-600 config and removes it", ()
   const config = temporaryRegistryConfig(credential);
   try {
     const text = readFileSync(config.path, "utf8");
-    expect(text).toContain("@pmcp:registry=https://api.pmcp.build/npm/");
+    expect(text).toContain("@modootoday:registry=https://api.pmcp.build/npm/");
     expect(text).toContain(credential.token);
     expect((statSync(config.path).mode & 0o777).toString(8)).toBe("600");
     expect(config.environment.HOME).toBe(

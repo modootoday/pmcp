@@ -18,7 +18,7 @@ const response = () => ({
         title: "Example",
         summary: "Use example correctly.",
         delivery: {
-          packageName: "@pmcp/example",
+          packageName: "@modootoday/pmcp-example",
           version: "1.0.0",
           integrity: `sha512-${"A".repeat(86)}==`,
         },

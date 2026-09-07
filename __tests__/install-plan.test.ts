@@ -41,7 +41,11 @@ function catalog(): RemoteCatalog {
         productId: "example-skill",
         title: "Example",
         summary: "Example skill",
-        delivery: { packageName: "@pmcp/example", version: "1.0.0", integrity },
+        delivery: {
+          packageName: "@modootoday/pmcp-example",
+          version: "1.0.0",
+          integrity,
+        },
         skillRevision: 1,
         contentDigest:
           "sha256:0000000000000000000000000000000000000000000000000000000000000000",
@@ -91,7 +95,7 @@ it("plans an exact npm install without scripts or direct filesystem writes", () 
     "--ignore-scripts",
     "--no-audit",
     "--no-fund",
-    "@pmcp/example@1.0.0",
+    "@modootoday/pmcp-example@1.0.0",
   ]);
   expect(readFileSync(join(root, "package.json"), "utf8")).toBe(before);
 });
@@ -104,7 +108,7 @@ it("uses Bun's own add command for a Bun project", () => {
     "--dev",
     "--exact",
     "--ignore-scripts",
-    "@pmcp/example@1.0.0",
+    "@modootoday/pmcp-example@1.0.0",
   ]);
 });
 
@@ -122,10 +126,10 @@ it("sync updates only already declared skill packages", () => {
   json(join(root, "package.json"), {
     packageManager: "npm@1.0.0",
     dependencies: { example: "^2.0.0" },
-    devDependencies: { "@pmcp/example": "0.9.0" },
+    devDependencies: { "@modootoday/pmcp-example": "0.9.0" },
   });
-  json(join(root, "node_modules/@pmcp/example/package.json"), {
-    name: "@pmcp/example",
+  json(join(root, "node_modules/@modootoday/pmcp-example/package.json"), {
+    name: "@modootoday/pmcp-example",
     version: "0.9.0",
   });
   expect(plan(root, true).changes).toHaveLength(1);
@@ -136,16 +140,16 @@ it("does not silently downgrade or move a production dependency", () => {
   json(join(root, "package.json"), {
     packageManager: "npm@1.0.0",
     dependencies: { example: "^2.0.0" },
-    devDependencies: { "@pmcp/example": "2.0.0" },
+    devDependencies: { "@modootoday/pmcp-example": "2.0.0" },
   });
-  json(join(root, "node_modules/@pmcp/example/package.json"), {
-    name: "@pmcp/example",
+  json(join(root, "node_modules/@modootoday/pmcp-example/package.json"), {
+    name: "@modootoday/pmcp-example",
     version: "2.0.0",
   });
   expect(() => plan(root)).toThrow("downgrade");
   json(join(root, "package.json"), {
     packageManager: "npm@1.0.0",
-    dependencies: { example: "^2.0.0", "@pmcp/example": "2.0.0" },
+    dependencies: { example: "^2.0.0", "@modootoday/pmcp-example": "2.0.0" },
   });
   expect(() => plan(root)).toThrow("outside devDependencies");
 });
@@ -211,10 +215,10 @@ it("verifies the installed version after package manager success", () => {
       json(join(root, "package.json"), {
         packageManager: "npm@1.0.0",
         dependencies: { example: "^2.0.0" },
-        devDependencies: { "@pmcp/example": "1.0.0" },
+        devDependencies: { "@modootoday/pmcp-example": "1.0.0" },
       });
-      json(join(root, "node_modules/@pmcp/example/package.json"), {
-        name: "@pmcp/example",
+      json(join(root, "node_modules/@modootoday/pmcp-example/package.json"), {
+        name: "@modootoday/pmcp-example",
         version: "1.0.0",
       });
       return 0;
