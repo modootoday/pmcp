@@ -83,6 +83,30 @@ it("gives every page the same navigation, generated or written by hand", () => {
   }
 });
 
+it("gives every page the chrome the stylesheet is written for", () => {
+  // The sibling brand shipped generated pages that emitted a bare <header>
+  // while the stylesheet targets header.site, and they laid out full-bleed
+  // beside every hand-written page. Every metadata check passed: none of them
+  // looked at the frame. A generator and a page written by hand drift the same
+  // way, and only one of them is obvious.
+  const REQUIRED = [
+    '<header class="site">',
+    '<footer class="site">',
+    'class="wrap"',
+    'class="brand"',
+    'class="skip"',
+    '<main id="main"',
+  ];
+  const missing: string[] = [];
+  for (const [route, file] of pages) {
+    const html = readFileSync(file, "utf8");
+    for (const part of REQUIRED) {
+      if (!html.includes(part)) missing.push(`${route} ${part}`);
+    }
+  }
+  expect(missing).toEqual([]);
+});
+
 it("keeps the generated catalog pages in step with the catalog they came from", () => {
   // The generator is the only writer of these pages, so a page edited by hand
   // or a catalog updated without a rebuild both show up here.

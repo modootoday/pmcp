@@ -1,5 +1,6 @@
 import { ArgumentError, type Command } from "../cli/command.js";
 import { invocation } from "../cli/invocation.js";
+import { sayStanding } from "./standing.js";
 import { readInstalledDependencies } from "../installed.js";
 import { matchingSkills } from "../install/plan.js";
 import {
@@ -42,6 +43,7 @@ export const availableCommand: Command = {
         if (headings.length > 0) {
           context.ui.line(`    ${headings.join(" · ")}`);
         }
+        sayStanding(context, match.entry.line);
       }
       context.ui.info(`${matches.length} matching skills`, catalog.revision);
       if (matches.length > 0) {

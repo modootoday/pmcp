@@ -93,6 +93,19 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
       context.ui.line(
         `  ${plan.command.executable} ${plan.command.args.join(" ")}`,
       );
+    // Said before the confirmation, because after it there is nothing to
+    // decide. A recall does not block the install: the skill is usually not
+    // what is unsafe, and refusing would leave the reader with neither.
+    for (const entry of plan.recalled) {
+      context.ui.warn(
+        "recalled",
+        `${entry.packageName} is written for versions a ${entry.line.recall?.severity ?? "high"} advisory covers`,
+      );
+      if (entry.line.recall) {
+        context.ui.line(`  ${entry.line.recall.summary}`);
+        context.ui.line(`  ${entry.line.recall.advisoryUrl}`);
+      }
+    }
   }
   if (!dryRun && plan.changes.length === 0) {
     // "Nothing to install" is not "nothing to check": after the first install
@@ -158,6 +171,8 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
   const credential = await issueDistributionCredential(
     session.accessToken,
     origin,
+    fetch,
+    plan.changes.map((entry) => entry.packageName),
   );
   const registry = temporaryRegistryConfig(credential);
   let revoked = false;

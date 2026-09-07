@@ -46,17 +46,40 @@ function credential(value: unknown): DistributionCredential {
 /** Every refusal the service explains, said back in the caller's terms. */
 const REFUSALS: Readonly<Record<number, string>> = {
   401: "sign in again before installing skills",
-  402: "your subscription does not include skill downloads",
+  402: "a subscription is needed to install these skills",
   403: "sign in again to approve skill downloads",
 };
+
+/**
+ * Where the service says a refusal is resolved. Only the service knows the
+ * price, and a copy of this client compiled with one would keep quoting it
+ * after it changed, so nothing here states an amount.
+ */
+function helpUrl(body: Record<string, unknown>): string | undefined {
+  const error = body["error"];
+  if (!error || typeof error !== "object") return undefined;
+  const help = (error as Record<string, unknown>)["help"];
+  if (!help || typeof help !== "object") return undefined;
+  const url = (help as Record<string, unknown>)["subscribeUrl"];
+  if (typeof url !== "string") return undefined;
+  // A refusal must not become a way to send someone anywhere.
+  const parsed = URL.parse(url);
+  if (!parsed || parsed.protocol !== "https:") return undefined;
+  return parsed.host === "pmcp.build" ? parsed.href : undefined;
+}
 
 /**
  * The service names the request it refused, and that name is the only thing
  * that ties a report to a server log. Dropping it leaves the person with a
  * sentence and nobody able to look up what happened.
  */
-async function refusal(response: Response, fallback: string): Promise<Error> {
+async function refusal(
+  response: Response,
+  fallback: string,
+  subjects: readonly string[] = [],
+): Promise<Error> {
   let requestId: string | undefined;
+  let where: string | undefined;
   try {
     const body: unknown = await response.json();
     const value =
@@ -66,17 +89,30 @@ async function refusal(response: Response, fallback: string): Promise<Error> {
     if (typeof value["requestId"] === "string" && value["requestId"] !== "") {
       requestId = value["requestId"];
     }
+    where = helpUrl(value);
   } catch {
     // A refusal without a body is still a refusal; the status carries it.
   }
   const said = REFUSALS[response.status] ?? `${fallback} (${response.status})`;
-  return new Error(requestId ? `${said} [request ${requestId}]` : said);
+  // Naming what was refused is the difference between a sentence about an
+  // account and a sentence about the thing the reader asked for.
+  const named = subjects.length > 0 ? `${said}: ${subjects.join(", ")}` : said;
+  return new Error(
+    [
+      named,
+      where ? `subscribe at ${where}` : "",
+      requestId ? `[request ${requestId}]` : "",
+    ]
+      .filter((part) => part !== "")
+      .join("\n  "),
+  );
 }
 
 export async function issueDistributionCredential(
   accessToken: string,
   origin = DEFAULT_API_ORIGIN,
   fetcher: typeof fetch = fetch,
+  subjects: readonly string[] = [],
 ): Promise<DistributionCredential> {
   const response = await fetcher(api(origin, "/v1/distribution/credentials"), {
     method: "POST",
@@ -88,7 +124,11 @@ export async function issueDistributionCredential(
     },
   });
   if (!response.ok)
-    throw await refusal(response, "distribution credential request failed");
+    throw await refusal(
+      response,
+      "distribution credential request failed",
+      subjects,
+    );
   return credential(await response.json());
 }
 

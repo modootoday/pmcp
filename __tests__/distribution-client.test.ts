@@ -5,6 +5,7 @@ import {
   revokeDistributionCredential,
   temporaryRegistryConfig,
 } from "../src/remote/distribution.js";
+import { refusalMessage } from "./refusal-message.js";
 
 const credential = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -54,6 +55,63 @@ it("distinguishes login, scope, subscription and dependency failures", async () 
   await expect(
     issueDistributionCredential("x", undefined, status(503)),
   ).rejects.toThrow("503");
+});
+
+it("says what was refused and where it is resolved", async () => {
+  // A sentence about an account leaves the reader with nothing to act on. The
+  // skills come from the caller, which knows what it was about to install; the
+  // address comes from the service, because a price compiled into a published
+  // client keeps being quoted after it changes.
+  const refused = (async () =>
+    Response.json(
+      {
+        requestId: "r-1",
+        error: {
+          code: "NOT_ENTITLED",
+          message: "Your subscription does not include this resource.",
+          retryable: false,
+          help: { subscribeUrl: "https://pmcp.build/pricing/" },
+        },
+      },
+      { status: 402 },
+    )) as typeof fetch;
+
+  const message = await refusalMessage(
+    issueDistributionCredential("x", undefined, refused, [
+      "@modootoday/pmcp-zod-schema-validation",
+    ]),
+  );
+
+  expect(message).toContain("@modootoday/pmcp-zod-schema-validation");
+  expect(message).toContain("https://pmcp.build/pricing/");
+  expect(message).toContain("[request r-1]");
+});
+
+it("will not forward an address the service did not have the right to name", async () => {
+  const elsewhere = (host: string) =>
+    (async () =>
+      Response.json(
+        {
+          requestId: "r-2",
+          error: {
+            code: "NOT_ENTITLED",
+            message: "no",
+            retryable: false,
+            help: { subscribeUrl: `https://${host}/pricing/` },
+          },
+        },
+        { status: 402 },
+      )) as typeof fetch;
+
+  for (const host of ["evil.example", "pmcp.build.evil.example"]) {
+    const message = await refusalMessage(
+      issueDistributionCredential("x", undefined, elsewhere(host), [
+        "@modootoday/pmcp-x",
+      ]),
+    );
+    expect(message).not.toContain(host);
+    expect(message).toContain("@modootoday/pmcp-x");
+  }
 });
 
 it("repeats the request id the service named, so a report can be looked up", async () => {

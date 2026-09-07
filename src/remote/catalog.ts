@@ -58,6 +58,24 @@ const entry = z.object({
       example: z.string().min(1),
     })
     .optional(),
+  // Where this line stands: which major of the target it is written for, and
+  // whether it is the current one, an older one nobody is revising, or one an
+  // advisory has reached. Optional for the same reason as the preview -- a
+  // client that demands it rejects a catalog published before it existed.
+  line: z
+    .object({
+      major: z.number().int().nonnegative(),
+      status: z.enum(["active", "frozen", "recalled"]),
+      recall: z
+        .object({
+          advisoryUrl: z.string().url(),
+          severity: z.enum(["high", "critical"]),
+          summary: z.string().min(1),
+          reverifyAt: version.optional(),
+        })
+        .optional(),
+    })
+    .optional(),
   targets: z.array(target).min(1),
 });
 const responseSchema = z.object({

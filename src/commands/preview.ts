@@ -1,5 +1,6 @@
 import { ArgumentError, type Command } from "../cli/command.js";
 import { REMOTE_OPTIONS, remoteCatalog } from "./remote-options.js";
+import { sayStanding } from "./standing.js";
 
 /**
  * What a skill contains, before paying for it.
@@ -40,6 +41,9 @@ export const previewCommand: Command = {
             summary: entry.summary,
             package: `${entry.delivery.packageName}@${entry.delivery.version}`,
             evidence: entry.evidence,
+            // A script deciding on our behalf needs the recall as much as a
+            // person does, and more so: it will not read the prose.
+            line: entry.line,
             targets: entry.targets,
             preview: entry.preview,
           },
@@ -59,6 +63,9 @@ export const previewCommand: Command = {
         )
         .join("; ")}\n\n`,
     );
+    // Before the contents, not after: someone deciding whether to pay should
+    // meet a recall before they meet the sample that makes them want it.
+    sayStanding(context, entry.line);
     if (!entry.preview) {
       context.ui.data(
         "This entry was published before previews were recorded, so there is no sample to show.\n",

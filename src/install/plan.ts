@@ -156,6 +156,11 @@ export interface InstallPlan {
   readonly catalogRevision: string;
   readonly context: InstallContext;
   readonly changes: readonly RemoteEntry["delivery"][];
+  /** Lines in this plan that an advisory has reached. */
+  readonly recalled: readonly {
+    readonly packageName: string;
+    readonly line: NonNullable<RemoteEntry["line"]>;
+  }[];
   readonly command: {
     readonly executable: string;
     readonly args: readonly string[];
@@ -229,9 +234,24 @@ export function planInstall(options: {
         throw new Error("catalog would downgrade an installed skill package");
       return !installed || installed.version !== entry.delivery.version;
     })
-    .map((entry) => entry.delivery)
-    .sort((a, b) => a.packageName.localeCompare(b.packageName));
-  const specs = changes.map((entry) => `${entry.packageName}@${entry.version}`);
+    .sort((a, b) =>
+      a.delivery.packageName.localeCompare(b.delivery.packageName),
+    );
+
+  // A recalled line must not be installed without saying so. The plan carries
+  // it because `changes` is only the delivery, and a caller holding a package
+  // name has no way back to the standing that came with it.
+  const recalled = changes
+    .filter((entry) => entry.line?.status === "recalled")
+    .map((entry) => ({
+      packageName: entry.delivery.packageName,
+      line: entry.line!,
+    }));
+
+  const deliveries = changes.map((entry) => entry.delivery);
+  const specs = deliveries.map(
+    (entry) => `${entry.packageName}@${entry.version}`,
+  );
   let args: string[];
   if (context.manager === "npm") {
     args = [
@@ -253,7 +273,8 @@ export function planInstall(options: {
   return {
     catalogRevision: catalog.revision,
     context,
-    changes,
+    changes: deliveries,
+    recalled,
     command: {
       executable: context.manager,
       args,
