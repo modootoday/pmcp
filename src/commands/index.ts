@@ -12,6 +12,7 @@ import { listCommand } from "./list.js";
 import { serveCommand } from "./serve.js";
 import { loginCommand, logoutCommand, whoamiCommand } from "./session.js";
 import { availableCommand } from "./available.js";
+import { previewCommand } from "./preview.js";
 import { installCommand, syncCommand } from "./install.js";
 
 export const COMMANDS: readonly Command[] = [
@@ -22,6 +23,7 @@ export const COMMANDS: readonly Command[] = [
   logoutCommand,
   whoamiCommand,
   availableCommand,
+  previewCommand,
   installCommand,
   syncCommand,
 ];

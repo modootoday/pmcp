@@ -49,6 +49,11 @@ function catalog(): RemoteCatalog {
         skillRevision: 1,
         contentDigest:
           "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        evidence: { verifiedOn: "2026-09-07", examplesExecuted: 2 },
+        preview: {
+          headings: ["When to reach for it"],
+          example: "const a = 1;",
+        },
         targets: [
           {
             packageName: "example",

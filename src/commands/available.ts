@@ -31,8 +31,23 @@ export const availableCommand: Command = {
         context.ui.data(
           `${match.targetName}@${match.targetVersion}\t${match.entry.delivery.packageName}@${match.entry.delivery.version}\t${status}\n`,
         );
+        // What the run proved, so the decision to buy is made on evidence
+        // rather than on a summary line.
+        const { verifiedOn, examplesExecuted } = match.entry.evidence;
+        context.ui.line(
+          `    ${examplesExecuted} examples executed on ${verifiedOn}`,
+        );
+        if (match.entry.preview.headings.length > 0) {
+          context.ui.line(`    ${match.entry.preview.headings.join(" · ")}`);
+        }
       }
       context.ui.info(`${matches.length} matching skills`, catalog.revision);
+      if (matches.length > 0) {
+        context.ui.info(
+          "preview",
+          "pmcp preview <package> shows a full example before you subscribe",
+        );
+      }
       for (const issue of inventory.issues)
         context.ui.warn(issue.reason, issue.name);
     }
