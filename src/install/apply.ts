@@ -7,23 +7,6 @@ export interface PackageManagerRunner {
   install(plan: InstallPlan): number;
 }
 
-function bunExecutable(): string {
-  const result = spawnSync(
-    "bun",
-    ["-e", "process.stdout.write(process.execPath)"],
-    {
-      env: process.env,
-      encoding: "utf8",
-      shell: false,
-      timeout: 15000,
-    },
-  );
-  const path = result.stdout?.trim();
-  if (result.error || result.status !== 0 || !path)
-    throw new Error("the Bun runtime could not be resolved");
-  return path;
-}
-
 function environment(
   userConfig: string | undefined,
   base: NodeJS.ProcessEnv,

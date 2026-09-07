@@ -211,8 +211,11 @@ export function readCatalog(options: CatalogOptions): SkillEntry[] {
 }
 
 /** A catalog entry without its body, which is what `catalog` returns. */
-export function withoutBody(entry: SkillEntry): Omit<SkillEntry, "path"> {
-  const { path: _path, ...rest } = entry;
+export function withoutBody({
+  path,
+  ...rest
+}: SkillEntry): Omit<SkillEntry, "path"> {
+  void path;
   return rest;
 }
 

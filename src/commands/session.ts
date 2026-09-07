@@ -144,26 +144,51 @@ export const logoutCommand: Command = {
 export const whoamiCommand: Command = {
   name: "whoami",
   describe: "Whether this machine is signed in, and to what",
-  usage: "pmcp whoami",
+  usage: "pmcp whoami [--json]",
+  options: [
+    { name: "json", describe: "Print the answer as JSON.", boolean: true },
+  ],
 
-  run({ ui }) {
+  run({ ui, args }) {
     const session = readSession();
+    // This command exists to answer a question, so the answer goes to stdout
+    // where it can be piped or redirected. Status messages belong on stderr,
+    // but here the status is the answer.
     if (!session) {
-      ui.info("not signed in", "run pmcp login");
+      if (args.flags.has("json")) {
+        ui.data(`${JSON.stringify({ signedIn: false }, null, 2)}\n`);
+      } else {
+        ui.data("not signed in\n");
+        ui.info("sign in", "run pmcp login");
+      }
       return 1;
     }
-    ui.info("issuer", session.issuer);
-    if (session.scope) ui.info("scope", session.scope);
-    if (session.expiresAt !== undefined) {
-      const left = session.expiresAt - Date.now();
-      ui.info(
-        "token",
+    const left =
+      session.expiresAt === undefined
+        ? undefined
+        : session.expiresAt - Date.now();
+    // The token itself is never printed. Knowing it is present is the answer.
+    const answer = {
+      signedIn: true,
+      issuer: session.issuer,
+      ...(session.scope === undefined ? {} : { scope: session.scope }),
+      ...(left === undefined
+        ? {}
+        : { expiresInMinutes: Math.max(0, Math.floor(left / 60000)) }),
+    };
+    if (args.flags.has("json")) {
+      ui.data(`${JSON.stringify(answer, null, 2)}\n`);
+      return 0;
+    }
+    ui.data(`issuer ${answer.issuer}\n`);
+    if (answer.scope !== undefined) ui.data(`scope ${answer.scope}\n`);
+    if (left !== undefined) {
+      ui.data(
         left > 0
-          ? `valid for ${String(Math.floor(left / 60000))} min`
-          : "expired, run pmcp login",
+          ? `token valid for ${String(answer.expiresInMinutes)} min\n`
+          : "token expired, run pmcp login\n",
       );
     }
-    // The token itself is never printed. Knowing it is present is the answer.
     return 0;
   },
 };
