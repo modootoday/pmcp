@@ -1,0 +1,43 @@
+{
+  "revision": "r5-zod-20260907",
+  "publishedAt": "2026-09-07T02:47:23.189Z",
+  "entries": [
+    {
+      "productId": "zod-schema-validation",
+      "title": "zod schema validation",
+      "summary": "Parse at the boundary, read the failure, and let the schema be the type.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-zod-schema-validation",
+        "version": "1.2.0",
+        "integrity": "sha512-bKEm2ARWe6e4/ebq5A8pR14mxOa0Yjoy6bAYoVC333Fawoz8ytIFfWBCTlJ3fi/bw+Q+5F5H0zDApi/dCOEdsw=="
+      },
+      "skillRevision": 4,
+      "contentDigest": "sha256:34aac3f525d85c322ea4a840bda3fdfdc828d49aa523631e0ee1fb02025ae4d0",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "When to reach for it",
+          "Parse or branch, not both",
+          "Unknown keys are dropped, not rejected",
+          "Read the failure, do not stringify it",
+          "Let the schema be the type",
+          "Coerce only where the wire is untyped",
+          "What this skill does not cover"
+        ],
+        "example": "import { z } from \"zod\";\nimport assert from \"node:assert/strict\";\n\nconst Config = z.object({ port: z.number(), host: z.string() });\n\n// safeParse when the caller answers for the failure.\nconst result = Config.safeParse({ port: \"8080\", host: \"localhost\" });\nassert.equal(result.success, false);\n\n// parse when there is no answer but to stop.\nassert.deepEqual(Config.parse({ port: 8080, host: \"localhost\" }), {\n  port: 8080,\n  host: \"localhost\",\n});"
+      },
+      "targets": [
+        {
+          "packageName": "zod",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.5.4"
+          ]
+        }
+      ]
+    }
+  ]
+}

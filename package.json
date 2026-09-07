@@ -60,6 +60,9 @@
     "typecheck": "tsc --noEmit --incremental --tsBuildInfoFile ./dist/.tsbuildinfo && tsc -p tsconfig.tests.json --noEmit",
     "test": "vitest run",
     "clean": "rimraf dist",
+    "catalog:refresh": "node scripts/refresh-catalog.mjs",
+    "site:build": "node scripts/build-catalog-pages.mjs",
+    "site:deployed": "node scripts/check-deployed.mjs",
     "prepack": "npm run build && npm run typecheck && npm test",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

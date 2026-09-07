@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>zod schema validation — pmcp</title>
+    <meta name="description" content="Parse at the boundary, read the failure, and let the schema be the type." />
+    <link rel="canonical" href="https://pmcp.build/catalog/zod-schema-validation/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/catalog/zod-schema-validation/" />
+    <meta property="og:title" content="zod schema validation — pmcp" />
+    <meta property="og:description" content="Parse at the boundary, read the failure, and let the schema be the type." />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M4.25 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M9 7v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M13.75 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/catalog/" aria-current="page">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>zod schema validation</h1>
+      <p>Parse at the boundary, read the failure, and let the schema be the type.</p>
+      <dl>
+        <dt>For</dt><dd><code>zod@4.5.4</code></dd>
+        <dt>Verified</dt><dd>2026-09-07, 7 examples executed</dd>
+        <dt>Package</dt><dd><code>@modootoday/pmcp-zod-schema-validation@1.2.0</code></dd>
+      </dl>
+      <h2>What it covers</h2>
+      <ul>
+        <li>When to reach for it</li>
+        <li>Parse or branch, not both</li>
+        <li>Unknown keys are dropped, not rejected</li>
+        <li>Read the failure, do not stringify it</li>
+        <li>Let the schema be the type</li>
+        <li>Coerce only where the wire is untyped</li>
+        <li>What this skill does not cover</li>
+      </ul>
+      <h2>One example from this skill</h2>
+      <p>
+        This is the skill's own text, not a summary of it. It runs: that is what
+        verifying means here.
+      </p>
+      <pre><code>import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const Config = z.object({ port: z.number(), host: z.string() });
+
+// safeParse when the caller answers for the failure.
+const result = Config.safeParse({ port: &quot;8080&quot;, host: &quot;localhost&quot; });
+assert.equal(result.success, false);
+
+// parse when there is no answer but to stop.
+assert.deepEqual(Config.parse({ port: 8080, host: &quot;localhost&quot; }), {
+  port: 8080,
+  host: &quot;localhost&quot;,
+});</code></pre>
+      <h2>Getting it</h2>
+      <p>
+        With a <a href="/pricing/">subscription</a>:
+      </p>
+      <pre><code>npx -y pmcp login
+npx -y pmcp install @modootoday/pmcp-zod-schema-validation</code></pre>
+      <p>
+        It installs as a dev dependency of your project, and the
+        <a href="/guide/">MCP server</a> finds it there like any other skill.
+      </p>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

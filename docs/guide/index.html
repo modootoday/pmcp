@@ -72,6 +72,9 @@
         </a>
         <nav>
           <a href="/guide/" aria-current="page">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
           <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
           <a href="/commands/">Commands</a>
@@ -83,7 +86,8 @@
       <h1>Getting started</h1>
       <p class="lede">
         Reading installed skills needs no login or model. The local MCP server
-        reads files already on your disk; CLI commands manage additional skill packages.
+        reads files already on your disk; CLI commands manage additional skill
+        packages.
       </p>
 
       <h2>1. Register the server</h2>
@@ -93,9 +97,9 @@
   }
 }</code></pre>
       <p>
-        Hosts differ about which file that goes in, and two of them will write it
-        for you from <a href="/install/">the install page</a>. Nothing has to be
-        installed first: <code>npx -y</code> fetches the package when needed.
+        Hosts differ about which file that goes in, and two of them will write
+        it for you from <a href="/install/">the install page</a>. Nothing has to
+        be installed first: <code>npx -y</code> fetches the package when needed.
       </p>
 
       <h2>2. See what it can see</h2>
@@ -104,20 +108,21 @@
         One row per skill: the name, as
         <code>&lt;package&gt;/&lt;slug&gt;</code>, and the one-line description
         that <code>skill_find</code> ranks. Do this before you ask an agent
-        anything, because it answers the question the server cannot ask you back.
+        anything, because it answers the question the server cannot ask you
+        back.
       </p>
       <p>
         An empty catalog exits <strong>1</strong> rather than 0, and prints the
-        roots it walked. That is usually one of two things: the working directory
-        is not the project, or none of the installed packages ships a
+        roots it walked. That is usually one of two things: the working
+        directory is not the project, or none of the installed packages ships a
         <code>SKILL.md</code> at all.
       </p>
 
       <h2>3. Ask in a sentence</h2>
       <p>
-        <code>skill_find</code> takes an <code>intent</code>: what you are trying
-        to do, written as an English sentence. It returns names only, ranked, and
-        never a body.
+        <code>skill_find</code> takes an <code>intent</code>: what you are
+        trying to do, written as an English sentence. It returns names only,
+        ranked, and never a body.
       </p>
       <div class="term">
         <span class="mark">&gt;</span> skill_find
@@ -126,17 +131,16 @@
         ><br />
         <span class="mark">+</span> redis-toolkit/locks<br />
         <span class="dim">&nbsp;&nbsp;ranking lexical</span
-        ><span class="gap"></span>
-        <span class="mark">&gt;</span> skill_call
+        ><span class="gap"></span> <span class="mark">&gt;</span> skill_call
         <span class="dim">redis-toolkit/locks</span><br />
         <span class="dim">&nbsp;&nbsp;the body, once</span>
       </div>
       <p>
         A bare keyword ranks badly on purpose. Descriptions are written as
         symptoms, so a sentence shares vocabulary with one of them and a single
-        noun matches many of them weakly and none of them strongly. When you want
-        to browse rather than search, <code>skill_catalog</code> is the tool that
-        filters.
+        noun matches many of them weakly and none of them strongly. When you
+        want to browse rather than search, <code>skill_catalog</code> is the
+        tool that filters.
       </p>
 
       <h2>4. Read exactly one</h2>
@@ -161,13 +165,13 @@
 npx -y pmcp list --scope @acme/</code></pre>
       <p>
         <code>--scope</code> matches the start of the package name, so
-        <code>@acme</code> also matches <code>@acmetools/thing</code>. Include the
-        trailing slash when you mean the scope. Both options are repeatable.
+        <code>@acme</code> also matches <code>@acmetools/thing</code>. Include
+        the trailing slash when you mean the scope. Both options are repeatable.
       </p>
       <p>
         When two roots hold the same package, the first one wins: a nested
-        <code>node_modules</code> holds an older copy of something the outer root
-        already resolved.
+        <code>node_modules</code> holds an older copy of something the outer
+        root already resolved.
       </p>
 
       <h2>If you want semantic ranking</h2>
@@ -192,7 +196,9 @@ npx -y pmcp index</code></pre>
         <li>
           <a href="/commands/">The command reference</a> — flags and exit codes
         </li>
-        <li><a href="/licence/">The licence</a> — what Elastic License 2.0 permits</li>
+        <li>
+          <a href="/licence/">The licence</a> — what Elastic License 2.0 permits
+        </li>
       </ul>
     </main>
 
@@ -200,6 +206,9 @@ npx -y pmcp index</code></pre>
       <div class="wrap">
         <nav>
           <a href="/guide/">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
           <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
           <a href="/commands/">Commands</a>

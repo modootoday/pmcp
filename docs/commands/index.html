@@ -46,6 +46,9 @@
         </a>
         <nav>
           <a href="/guide/">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
           <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
           <a href="/commands/" aria-current="page">Commands</a>
@@ -65,13 +68,15 @@
           <tbody>
             <tr>
               <td><code>pmcp</code></td>
-              <td>run the MCP server on stdio; the same as <code>serve</code></td>
+              <td>
+                run the MCP server on stdio; the same as <code>serve</code>
+              </td>
             </tr>
             <tr>
               <td><code>pmcp --root ./node_modules</code></td>
               <td>
-                a leading option with no command is still a server, because hosts
-                pass options without one
+                a leading option with no command is still a server, because
+                hosts pass options without one
               </td>
             </tr>
           </tbody>
@@ -87,8 +92,8 @@
       <pre><code>pmcp serve [--root &lt;dir&gt;] [--scope &lt;prefix&gt;]</code></pre>
       <p>
         Reachable by name so it appears in help. It writes nothing to standard
-        output: from the moment it starts, standard output is the protocol, and a
-        diagnostic printed there corrupts the stream.
+        output: from the moment it starts, standard output is the protocol, and
+        a diagnostic printed there corrupts the stream.
       </p>
 
       <h2>list</h2>
@@ -101,7 +106,8 @@
       <p>
         An empty catalog is a finding rather than a success. It exits
         <strong>1</strong> and names the roots it walked, because a project that
-        installed this and sees nothing has a misconfiguration worth an exit code.
+        installed this and sees nothing has a misconfiguration worth an exit
+        code.
       </p>
 
       <h2>index</h2>
@@ -109,14 +115,14 @@
       <p>
         Encodes each description once so ranking can be semantic, and stores the
         vectors beside the tree they describe, so two projects never share one
-        index. Only what changed is re-encoded; an unchanged description produces
-        the same vector at the same cost as the first time.
+        index. Only what changed is re-encoded; an unchanged description
+        produces the same vector at the same cost as the first time.
       </p>
       <p>
         Vectors written by one model are never scored against another, so
-        <code>--model</code> is part of the key rather than a preference. Without
-        the optional peer installed it exits <strong>3</strong> and tells you
-        ranking stays lexical, which is the default and not a failure.
+        <code>--model</code> is part of the key rather than a preference.
+        Without the optional peer installed it exits <strong>3</strong> and
+        tells you ranking stays lexical, which is the default and not a failure.
       </p>
       <p>
         A partial index is reported rather than called success: it exits
@@ -155,12 +161,16 @@
             <tr>
               <td><code>--model &lt;id&gt;</code></td>
               <td><code>index</code></td>
-              <td>the encoder to use; rows from another model are never scored</td>
+              <td>
+                the encoder to use; rows from another model are never scored
+              </td>
             </tr>
             <tr>
               <td><code>--json</code></td>
               <td><code>list</code>, <code>index</code></td>
-              <td>emit JSON on standard output rather than a table or a summary</td>
+              <td>
+                emit JSON on standard output rather than a table or a summary
+              </td>
             </tr>
             <tr>
               <td><code>--help</code>, <code>-h</code></td>
@@ -216,15 +226,16 @@
               <td><code>3</code></td>
               <td>an optional dependency is missing</td>
               <td>
-                <code>index</code> without <code>@huggingface/transformers</code>
+                <code>index</code> without
+                <code>@huggingface/transformers</code>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
       <p>
-        The distinction between 1 and 3 is worth wiring into a script: 1 says the
-        project is not what you expected, and 3 says the machine is missing
+        The distinction between 1 and 3 is worth wiring into a script: 1 says
+        the project is not what you expected, and 3 says the machine is missing
         something optional and the server still works without it.
       </p>
 
@@ -246,8 +257,8 @@
         </li>
         <li>
           Vector storage uses whichever SQLite the running binary already has.
-          Neither is a dependency; without one, the server still runs and ranking
-          falls back.
+          Neither is a dependency; without one, the server still runs and
+          ranking falls back.
         </li>
       </ul>
     </main>
@@ -256,6 +267,9 @@
       <div class="wrap">
         <nav>
           <a href="/guide/">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
           <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
           <a href="/commands/">Commands</a>

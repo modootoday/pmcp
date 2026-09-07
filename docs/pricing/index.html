@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pricing — pmcp</title>
+    <meta
+      name="description"
+      content="Reading the catalog is free. A subscription installs the authored skills, and if it lapses the ones you already have keep working."
+    />
+    <link rel="canonical" href="https://pmcp.build/pricing/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/pricing/" />
+    <meta property="og:title" content="Pricing — pmcp" />
+    <meta
+      property="og:description"
+      content="Reading the catalog is free. A subscription installs the authored skills, and if it lapses the ones you already have keep working."
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path
+              d="M4.25 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9 7v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+            <path
+              d="M13.75 4.6v8.8"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+            />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/" aria-current="page">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>Pricing</h1>
+
+      <p>
+        pmcp is two things. The server that reads the skills your dependencies
+        already ship is free and needs no account. The
+        <a href="/catalog/">catalog</a> of skills we write for packages that
+        ship none is what a subscription buys.
+      </p>
+
+      <h2>Free, with no account</h2>
+      <ul>
+        <li>
+          The MCP server, which finds a <code>SKILL.md</code> anywhere in
+          <code>node_modules</code> and serves it to your agent.
+        </li>
+        <li>
+          Reading the catalog: what exists, what each skill covers, what version
+          it was verified against, and one full example of each.
+        </li>
+        <li>
+          What we observed about a package while verifying it, whether or not it
+          became a skill.
+        </li>
+      </ul>
+
+      <h2>Price</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Price</th>
+              <th>Includes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Monthly</td>
+              <td>USD 10 / month</td>
+              <td>
+                Every skill in the catalog, and every revision while it runs.
+              </td>
+            </tr>
+            <tr>
+              <td>Yearly</td>
+              <td>USD 100 / year</td>
+              <td>The same, at ten months for twelve.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Both renew until you cancel. There is no per-seat price and no per-skill
+        price: a subscription covers the catalog.
+      </p>
+
+      <h2>If a subscription lapses</h2>
+      <p>
+        The skills you already installed keep working. They are files in a
+        project you own, and taking them away would be a ransom rather than a
+        product. What stops is fetching new ones and receiving revisions.
+      </p>
+
+      <h2>What you are paying for</h2>
+      <p>
+        Not access to a document. Every skill is verified by executing its
+        examples against the version it names, and it is not published if any of
+        them fail, if none ran, or if fewer ran than the skill claims. The line
+        the model reads first —
+        <em>verified against, on this date, this many examples</em> — is
+        produced by that run rather than typed by an author.
+      </p>
+      <p>
+        The <a href="/catalog/">catalog</a> shows the date, the count and a
+        complete example for each skill before you pay for any of them.
+      </p>
+
+      <h2>Getting started</h2>
+      <pre><code>npx -y pmcp available     # what matches this project, free
+npx -y pmcp preview &lt;skill&gt;  # contents and one example, free
+npx -y pmcp login         # sign in, no browser needed
+npx -y pmcp install --all # installs what matches</code></pre>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/install/">Install</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

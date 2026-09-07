@@ -14,7 +14,10 @@
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="pmcp" />
     <meta property="og:url" content="https://pmcp.build/authoring/" />
-    <meta property="og:title" content="Shipping a skill in your package — pmcp" />
+    <meta
+      property="og:title"
+      content="Shipping a skill in your package — pmcp"
+    />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -46,6 +49,9 @@
         </a>
         <nav>
           <a href="/guide/">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
           <a href="/install/">Install</a>
           <a href="/authoring/" aria-current="page">Authoring</a>
           <a href="/commands/">Commands</a>
@@ -56,9 +62,9 @@
     <main id="main" class="wrap">
       <h1>Shipping a skill in your package</h1>
       <p class="lede">
-        Three things have to be true: the file is somewhere the walk reaches, its
-        frontmatter carries a <code>description</code>, and the tarball actually
-        contains it.
+        Three things have to be true: the file is somewhere the walk reaches,
+        its frontmatter carries a <code>description</code>, and the tarball
+        actually contains it.
       </p>
 
       <h2>Where the file goes</h2>
@@ -79,9 +85,9 @@
 
       <h3>Where it must not go</h3>
       <p>
-        The walk skips directories that cannot hold a package's own skill and are
-        expensive or misleading to enter. A <code>SKILL.md</code> under any of
-        these is invisible:
+        The walk skips directories that cannot hold a package's own skill and
+        are expensive or misleading to enter. A <code>SKILL.md</code> under any
+        of these is invisible:
       </p>
       <div class="scroll">
         <table>
@@ -136,22 +142,24 @@ description: A deploy went out but the container still runs the old bundle, and 
 
 …</code></pre>
       <p>
-        Two fields are read. <code>name</code> becomes the slug, and the skill is
-        addressed as <code>&lt;package&gt;/&lt;slug&gt;</code>; leave it out and
-        the directory holding the file names it, or the package itself does when
-        the file sits at the package root.
+        Two fields are read. <code>name</code> becomes the slug, and the skill
+        is addressed as <code>&lt;package&gt;/&lt;slug&gt;</code>; leave it out
+        and the directory holding the file names it, or the package itself does
+        when the file sits at the package root.
       </p>
       <p>
         <code>description</code> is the only text that
         <a href="/guide/"><code>skill_find</code></a> ranks. A skill without one
-        is skipped rather than listed: ranking could never surface it, so listing
-        it would spend a session's tokens on an entry that cannot answer.
+        is skipped rather than listed: ranking could never surface it, so
+        listing it would spend a session's tokens on an entry that cannot
+        answer.
       </p>
       <p>
-        The reader is not a YAML parser. It takes flat scalars on their own line,
-        strips one pair of surrounding quotes, and ignores anything nested. That
-        is the honest limit rather than a partial YAML, and it means a
-        description folded over several lines is not read as you intended.
+        The reader is not a YAML parser. It takes flat scalars on their own
+        line, strips one pair of surrounding quotes, and ignores anything
+        nested. That is the honest limit rather than a partial YAML, and it
+        means a description folded over several lines is not read as you
+        intended.
       </p>
 
       <h2>Write the description as a symptom</h2>
@@ -171,14 +179,16 @@ description: A deploy went out but the container still runs the old bundle, and 
           <tbody>
             <tr>
               <td>
-                <code>Utilities for distributed locks, leases and fencing
-                tokens.</code>
+                <code
+                  >Utilities for distributed locks, leases and fencing
+                  tokens.</code
+                >
               </td>
               <td>
                 <span class="yes"
                   ><code
-                    >A job ran twice because two workers took the same lock, or a
-                    lock outlived the worker holding it.</code
+                    >A job ran twice because two workers took the same lock, or
+                    a lock outlived the worker holding it.</code
                   ></span
                 >
               </td>
@@ -230,8 +240,8 @@ description: A deploy went out but the container still runs the old bundle, and 
       <p>
         Everything after the closing <code>---</code> is the body, and
         <code>skill_call</code> returns it whole. It is read on its own, by
-        someone who has seen only the description, so it should not depend on the
-        rest of your documentation site to make sense.
+        someone who has seen only the description, so it should not depend on
+        the rest of your documentation site to make sense.
       </p>
 
       <div class="note">
@@ -248,6 +258,9 @@ description: A deploy went out but the container still runs the old bundle, and 
       <div class="wrap">
         <nav>
           <a href="/guide/">Start</a>
+          <a href="/catalog/">Catalog</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
           <a href="/install/">Install</a>
           <a href="/authoring/">Authoring</a>
           <a href="/commands/">Commands</a>
