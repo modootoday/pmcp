@@ -178,8 +178,19 @@ emit(
         Reading this page costs nothing. Installing a skill needs a
         <a href="/pricing/">subscription</a>.
       </p>
+      <p class="filter">
+        <label for="skills-filter" hidden>Find a skill</label>
+        <input
+          id="skills-filter"
+          type="search"
+          placeholder="Filter by package or version"
+          autocomplete="off"
+          hidden
+        />
+      </p>
+      <p id="skills-count">${escape(String(entries.length))} ${entries.length === 1 ? "line" : "lines"}, one per major of the package it is written for.</p>
       <div class="scroll">
-        <table>
+        <table id="skills-table">
           <thead>
             <tr><th>Skill</th><th>For</th><th>Verified</th></tr>
           </thead>
@@ -200,7 +211,8 @@ ${
 }
           </tbody>
         </table>
-      </div>`,
+      </div>
+      <script src="/assets/skills-filter.js" defer></script>`,
   }),
 );
 

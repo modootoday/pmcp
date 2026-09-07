@@ -36,7 +36,9 @@ it("links only to pages and assets that exist", () => {
   const broken: string[] = [];
   for (const [route, file] of pages) {
     const html = readFileSync(file, "utf8");
-    for (const [, raw] of html.matchAll(/href="(\/[^"#]*)"/gu)) {
+    // src as well as href: a page can ask the browser for a script that is
+    // not there, and a walk that only reads href would never see it.
+    for (const [, raw] of html.matchAll(/(?:href|src)="(\/[^"#]*)"/gu)) {
       const href = raw!;
       const last = href.slice(href.lastIndexOf("/") + 1);
       if (last.includes(".")) {
@@ -136,4 +138,47 @@ it("keeps the generated catalog pages in step with the catalog they came from", 
     { encoding: "utf8" },
   );
   expect(JSON.parse(result).changed).toBe(0);
+});
+
+it("keeps every published line reachable from the index", () => {
+  // The index is where a reader finds a line at all. Read off the BUILT page's
+  // hrefs rather than the catalog that produced them, because the claim that
+  // matters is what the page links -- a line dropped from the listing keeps
+  // its own page and its own JSON, and nothing else notices.
+  const catalog = JSON.parse(
+    readFileSync(join(docs, "catalog.json"), "utf8"),
+  ) as { entries: { productId: string; line?: { major: number } }[] };
+  const index = readFileSync(pages.get("/skills/")!, "utf8");
+  const linked = new Set(
+    [...index.matchAll(/href="(\/skills\/[^"]+\/\d+\/)"/gu)].map(
+      ([, href]) => href!,
+    ),
+  );
+  const expected = catalog.entries.map(
+    (entry) => `/skills/${entry.productId}/${String(entry.line?.major ?? 0)}/`,
+  );
+  expect(expected.filter((route) => !linked.has(route))).toEqual([]);
+  expect(linked.size).toBe(expected.length);
+});
+
+it("ships the filter as a file the page can actually load", () => {
+  // A sibling brand shipped this inline and its content-security-policy
+  // dropped it: the control was in the DOM, invisible, and every local check
+  // passed. Inline script is refused here so that cannot happen quietly.
+  const index = readFileSync(pages.get("/skills/")!, "utf8");
+  expect(index).toContain('src="/assets/skills-filter.js"');
+  const inline = [...index.matchAll(/<script(?![^>]*\bsrc=)[^>]*>/gu)].filter(
+    (match) => !match[0].includes("application/ld+json"),
+  );
+  expect(inline.map((match) => match[0])).toEqual([]);
+});
+
+it("renders every row without scripting, and hides the control until there is", () => {
+  // The rows are the page. The control is progressive enhancement, so it is
+  // emitted hidden and a plain count stands in its place.
+  const index = readFileSync(pages.get("/skills/")!, "utf8");
+  const rows = [...index.matchAll(/<tr>\s*<td>/gu)].length;
+  expect(rows).toBeGreaterThan(1);
+  expect(index).toMatch(/<input[^>]*id="skills-filter"[\s\S]*?hidden/u);
+  expect(index).toContain('id="skills-count"');
 });

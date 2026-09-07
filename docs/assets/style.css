@@ -560,6 +560,31 @@ div.notice {
   color: var(--warn);
 }
 
+/* A table row ignores [hidden] unless it is told: the display rules for table
+   elements win over the attribute's own. */
+tr[hidden] {
+  display: none;
+}
+
+.filter input {
+  width: 100%;
+  max-width: 26rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.filter label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
 .examination {
   margin: 2rem 0;
   padding-top: 1.5rem;

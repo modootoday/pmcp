@@ -49,12 +49,138 @@
         Reading this page costs nothing. Installing a skill needs a
         <a href="/pricing/">subscription</a>.
       </p>
+      <p class="filter">
+        <label for="skills-filter" hidden>Find a skill</label>
+        <input
+          id="skills-filter"
+          type="search"
+          placeholder="Filter by package or version"
+          autocomplete="off"
+          hidden
+        />
+      </p>
+      <p id="skills-count">25 lines, one per major of the package it is written for.</p>
       <div class="scroll">
-        <table>
+        <table id="skills-table">
           <thead>
             <tr><th>Skill</th><th>For</th><th>Verified</th></tr>
           </thead>
           <tbody>
+            <tr>
+              <td><a href="/skills/autoprefixer/10/">autoprefixer 10.x</a></td>
+              <td><code>autoprefixer@10.5.5</code></td>
+              <td>2026-09-07, 2 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/bun-types/1/">bun-types 1.x</a></td>
+              <td><code>bun-types@1.4.2</code></td>
+              <td>2026-09-07, 1 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/commander/15/">commander 15.x</a></td>
+              <td><code>commander@15.0.0</code></td>
+              <td>2026-09-07, 8 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/croner/10/">croner 10.x</a></td>
+              <td><code>croner@10.0.1</code></td>
+              <td>2026-09-07, 4 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/graphql/17/">graphql 17.x</a></td>
+              <td><code>graphql@17.0.2</code></td>
+              <td>2026-09-07, 6 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/graphql-yoga/5/">graphql-yoga 5.x</a></td>
+              <td><code>graphql-yoga@5.22.0</code></td>
+              <td>2026-09-07, 3 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/happy-dom/20/">happy-dom 20.x</a></td>
+              <td><code>happy-dom@20.14.0</code></td>
+              <td>2026-09-07, 5 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/hono/4/">hono 4.x</a></td>
+              <td><code>hono@4.13.7</code></td>
+              <td>2026-09-07, 4 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/ioredis/6/">ioredis 6.x</a></td>
+              <td><code>ioredis@6.0.0</code></td>
+              <td>2026-09-07, 5 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/jsdom/30/">jsdom 30.x</a></td>
+              <td><code>jsdom@30.0.1</code></td>
+              <td>2026-09-07, 2 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/playwright-test/1/">@playwright/test 1.x</a></td>
+              <td><code>@playwright/test@1.63.0</code></td>
+              <td>2026-09-07, 5 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/pothos-core/4/">@pothos/core 4.x</a></td>
+              <td><code>@pothos/core@4.13.1</code></td>
+              <td>2026-09-07, 7 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/react/19/">react 19.x</a></td>
+              <td><code>react@19.2.8</code></td>
+              <td>2026-09-07, 1 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/react-dom/19/">react-dom 19.x</a></td>
+              <td><code>react-dom@19.2.8</code></td>
+              <td>2026-09-07, 2 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/react-icons/5/">react-icons 5.x</a></td>
+              <td><code>react-icons@5.7.0</code></td>
+              <td>2026-09-07, 3 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/react-testing-library/16/">@testing-library/react 16.x</a></td>
+              <td><code>@testing-library/react@16.3.3</code></td>
+              <td>2026-09-07, 1 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/tailwindcss/4/">tailwindcss 4.x</a></td>
+              <td><code>tailwindcss@4.3.3</code></td>
+              <td>2026-09-07, 1 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/ts-morph/28/">ts-morph 28.x</a></td>
+              <td><code>ts-morph@28.0.0</code></td>
+              <td>2026-09-07, 8 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/tsx/4/">tsx 4.x</a></td>
+              <td><code>tsx@4.23.13</code></td>
+              <td>2026-09-07, 2 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/vite/8/">vite 8.x</a></td>
+              <td><code>vite@8.2.2</code></td>
+              <td>2026-09-07, 4 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/vitejs-plugin-react/6/">@vitejs/plugin-react 6.x</a></td>
+              <td><code>@vitejs/plugin-react@6.1.1</code></td>
+              <td>2026-09-07, 2 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/vitest/5/">vitest 5.x</a></td>
+              <td><code>vitest@5.0.0</code></td>
+              <td>2026-09-07, 5 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/wrangler/4/">wrangler 4.x</a></td>
+              <td><code>wrangler@4.129.1</code></td>
+              <td>2026-09-07, 4 examples</td>
+            </tr>
             <tr>
               <td><a href="/skills/zod-schema-validation/4/">zod schema validation 4.x</a></td>
               <td><code>zod@4.5.4</code></td>
@@ -68,6 +194,7 @@
           </tbody>
         </table>
       </div>
+      <script src="/assets/skills-filter.js" defer></script>
     </main>
 
     <footer class="site">

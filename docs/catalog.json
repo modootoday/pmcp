@@ -1,6 +1,6 @@
 {
-  "revision": "r6-zod-two-lines-20260907",
-  "publishedAt": "2026-09-07T14:53:33.744Z",
+  "revision": "r10-recovered-20260907",
+  "publishedAt": "2026-09-07T23:16:58.580Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -86,6 +86,991 @@
       "line": {
         "major": 3,
         "status": "frozen"
+      }
+    },
+    {
+      "productId": "commander",
+      "title": "commander",
+      "summary": "Use Commander 15.0.0 for ESM command-line parsing, options, arguments, subcommands, and custom option definitions.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-commander",
+        "version": "15.0.0",
+        "integrity": "sha512-Tk0JYdsVanB/mImboJOAEW+WuuLtd0IGgNqlQSm8QnzsQXcQHZpoAbLIfpNbcPeVbBk0VY3C3yqXS7xFDDQ3iA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:61296e560e1dcf3c0510cfb74c9b24902e48d5df634a88ab39e42e18a00f81e2",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module shape",
+          "Parse a command",
+          "Define options and arguments",
+          "Custom `Option` definitions",
+          "Constructors and factory functions",
+          "Subcommands",
+          "Does not cover"
+        ],
+        "example": "import { strict as assert } from 'node:assert';\nimport { Command } from 'commander';\n\nconst command = new Command();\nassert.ok(command instanceof Command);"
+      },
+      "targets": [
+        {
+          "packageName": "commander",
+          "range": "^15.0.0",
+          "verifiedVersions": [
+            "15.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 15,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "croner",
+      "title": "croner",
+      "summary": "Use Croner 10.x (^10.0.0, documented at 10.0.1) to calculate, match, schedule, and control cron jobs in plain JavaScript/TypeScript scripts.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-croner",
+        "version": "10.0.0",
+        "integrity": "sha512-CKy62V1plHt0aC1hD84lb+8D35Lp2szRxOb4RVWYvi9zENkkVwNEzJwtLw/JeY51xGE0mBhIbotJZ7Sfkgv4Eg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:9b3099229fcf69908b8c6fc47cc31d68942e25cde8c2030acb8589877ddac9e3",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Scope and version",
+          "Import correctly",
+          "Constructing jobs",
+          "Calculation and enumeration",
+          "Matching dates",
+          "One-shot dates and time zones",
+          "Triggering and controlling a job",
+          "10.x syntax and options",
+          "Migration traps",
+          "Not covered"
+        ],
+        "example": "import { Cron } from \"croner\";\nimport assert from \"node:assert/strict\";\n\nconst job = new Cron(\"0 0 0 * * 7\", { paused: true });\nconst from = new Date(\"2025-01-01T00:00:00Z\");\nconst runs = job.nextRuns(2, from);\n\nassert.equal(runs.length, 2);\nassert.ok(runs[0] instanceof Date);\nassert.ok(runs[1] > runs[0]);\nassert.ok(job.nextRun(from) instanceof Date);\nassert.ok(job.msToNext(from) >= 0);\nassert.equal(job.previousRuns(1, from).length, 1);"
+      },
+      "targets": [
+        {
+          "packageName": "croner",
+          "range": "^10.0.0",
+          "verifiedVersions": [
+            "10.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 10,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "graphql",
+      "title": "graphql",
+      "summary": "Practical guidance for graphql ^17.0.0: parse, print, visit, build schemas, and execute operations from standalone scripts.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-graphql",
+        "version": "17.0.0",
+        "integrity": "sha512-un0iQaXJr+eqwpJeaVnyLc0ZKUkYlbNNkO9Kz8L1a/0D0xd7BRhMjQrj2xR+RYwJc4mL58Gds7YlhfzlnZLTRA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:ab33a2cfcfaa67afca903ed6fc4025aacf804eb0ac6d703190fc00d6a0a90aad",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Parse and print documents",
+          "Visit and transform an AST",
+          "Build a schema from SDL",
+          "Execute an operation asynchronously",
+          "Execute synchronously",
+          "Construct a schema with GraphQL types",
+          "v17-specific cautions",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { parse, print } from 'graphql';\n\nconst ast = parse('{ hero { name } }');\nassert.equal(\n  print(ast),\n  '{\\n  hero {\\n    name\\n  }\\n}',\n);"
+      },
+      "targets": [
+        {
+          "packageName": "graphql",
+          "range": "^17.0.0",
+          "verifiedVersions": [
+            "17.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 17,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "ioredis",
+      "title": "ioredis",
+      "summary": "Use ioredis ^6.0.0 from Node.js 20+ for Redis commands, pipelines, Pub/Sub, Lua commands, streams, and RESP3-aware clients.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-ioredis",
+        "version": "6.0.0",
+        "integrity": "sha512-3gNrykzMjqe/2i6NNp9u4ojgcz8r7weF7ymfx6BFpRq/bY756mvJsOq9R57N9muTJMCGMARjU1hfJ/MBCSxuoA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:dd3f85395a8a8f73277bf5045d9be1dd28da56fc84605ab2e1408e8dae4a9fbc",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Runtime and compatibility",
+          "The v6 protocol and reply-shape trap",
+          "Basic commands",
+          "Pipelining",
+          "Pub/Sub",
+          "Lua custom commands",
+          "Streams",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import { strict as assert } from \"node:assert\"\nimport { Redis } from \"ioredis\"\n\nassert.equal(typeof Redis, \"function\")\nassert.equal(typeof Redis.prototype.get, \"function\")\nassert.equal(typeof Redis.prototype.set, \"function\")\n\nconst redis = new Redis(\"redis://127.0.0.1:6379\")\nassert.equal(typeof redis.get, \"function\")\nassert.equal(typeof redis.set, \"function\")\nredis.disconnect()"
+      },
+      "targets": [
+        {
+          "packageName": "ioredis",
+          "range": "^6.0.0",
+          "verifiedVersions": [
+            "6.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 6,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "jsdom",
+      "title": "jsdom",
+      "summary": "Use jsdom ^30.0.0 from a plain Bun/Node script to construct and inspect DOMs and create document fragments. The documented v30 package requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-jsdom",
+        "version": "30.0.0",
+        "integrity": "sha512-8JOqipbRrbrq/Uyge2GFR/5mylcU6tQnc4fU+IITIXDv//YrXaELmsIVZdIZcve0O+3xg+6WBoSJnC9AbADwhA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:ab08bcd2ec54f8ddc68654fff809b21e3db52a700f7be1ae7e7d4702a151b453",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Runtime requirement",
+          "Construct and query a DOM",
+          "Document fragments",
+          "Inline scripts",
+          "Other documented exports and factories",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport { JSDOM } from \"jsdom\";\n\nconst dom = new JSDOM(\"<!DOCTYPE html><p>Hello world</p>\");\n\nassert.equal(dom.window.document.querySelector(\"p\")?.textContent, \"Hello world\");"
+      },
+      "targets": [
+        {
+          "packageName": "jsdom",
+          "range": "^30.0.0",
+          "verifiedVersions": [
+            "30.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 30,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "ts-morph",
+      "title": "ts-morph",
+      "summary": "Use ts-morph 28.x for in-memory TypeScript project analysis, AST navigation and manipulation, type checking, printing, diagnostics, and emission.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-ts-morph",
+        "version": "28.0.0",
+        "integrity": "sha512-i/BrudDnQ0HTk2LV70SXBk6n+s5tKgamoHbTEp4y/AO8i+++l5WYo3UTCXq1ztD6P5cH+CL+CFwe/Vw0aH3E8w=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:a2966f1ddbdabe2702e2a0d4263305383b8ae26d2a7aac25773e2eaa83f5d537",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Version boundary",
+          "Project setup and virtual source files",
+          "Finding source files and navigating nodes",
+          "AST manipulation",
+          "Type checking and diagnostics",
+          "Standalone structure printing",
+          "Emitting without filesystem output",
+          "Utilities",
+          "Persistence boundary",
+          "Not covered"
+        ],
+        "example": "import { strict as assert } from \"node:assert\";\nimport { Project, ScriptTarget } from \"ts-morph\";\n\nconst project = new Project({\n  compilerOptions: { target: ScriptTarget.ES3 },\n});\n\nconst sourceFile = project.createSourceFile(\n  \"src/example.ts\",\n  \"export const answer: number = 42;\\n\",\n);\n\nassert.equal(sourceFile.getVariableDeclarationOrThrow(\"answer\").getType().getText(), \"number\");\nassert.equal(project.getSourceFiles().length, 1);"
+      },
+      "targets": [
+        {
+          "packageName": "ts-morph",
+          "range": "^28.0.0",
+          "verifiedVersions": [
+            "28.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 28,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "vite",
+      "title": "vite",
+      "summary": "Use Vite 8's programmatic JavaScript API and avoid Vite 7/Rollup-era configuration shapes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-vite",
+        "version": "8.0.0",
+        "integrity": "sha512-xUDogofoTnFVXHQASaYG8rcEGs6GJZfHM5+XwQpgyarG3DPcgBaiBgMUVHyaPbG2gvM9zgx8ZSiANAHvsIU+yg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:05fb9f9070a0741c2fe832d2ed518127dc0285fa35d01e0173034b56b91bc774",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Programmatic API",
+          "Configuration utilities",
+          "Oxc JavaScript/TypeScript transforms",
+          "CSS preprocessing",
+          "Path normalization",
+          "Dev and preview servers",
+          "Production builds",
+          "Vite 8 configuration migration",
+          "CLI and config-file scope",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport { mergeConfig } from 'vite'\n\nconst result = mergeConfig(\n  { server: { port: 3000 }, define: { A: '1' } },\n  { server: { strictPort: true }, define: { B: '2' } },\n)\n\nassert.equal(result.server.port, 3000)\nassert.equal(result.server.strictPort, true)\nassert.equal(result.define.A, '1')\nassert.equal(result.define.B, '2')"
+      },
+      "targets": [
+        {
+          "packageName": "vite",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.2.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "vitest",
+      "title": "vitest",
+      "summary": "Use Vitest ^5.0.0 standalone assertions and mock functions correctly, while avoiding APIs that require the Vitest runner and accounting for v5 migration changes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-vitest",
+        "version": "5.0.0",
+        "integrity": "sha512-iSfnL92nXDk6nG6Ss8FgmGgr9mwf/gIYfZtfRppQcJIKZBdQXC0Ht5JMbaPEN5PHlF+yq75xUDKniDjJXqoNcw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:131fde8889b439589cf1eb0ab78dca20c0e1df0231113f0dd6dc7e418d4f487c",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Requirements",
+          "What can run in a plain script",
+          "Assertions",
+          "Mock functions",
+          "Spying on an object method",
+          "Conditional mock behavior with `vi.when`",
+          "Mock lifecycle APIs",
+          "APIs that require the Vitest runner",
+          "v5 benchmarks",
+          "Module mocking",
+          "v5 migration traps",
+          "Not covered"
+        ],
+        "example": "import { expect } from 'vitest'\n\nexpect(Math.sqrt(4)).toBe(2)\nexpect(Math.sqrt(144)).toBe(12)\nexpect(Math.sqrt(0)).toBe(0)\nexpect(0.1 + 0.2).toBeCloseTo(0.3)\nexpect('vitest').toContain('test')"
+      },
+      "targets": [
+        {
+          "packageName": "vitest",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "pothos-core",
+      "title": "@pothos/core",
+      "summary": "Use @pothos/core ^4.0.0 to build executable GraphQL schemas, account for v4 nullability and ID defaults, use context caching, and write/register typed plugins.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-pothos-core",
+        "version": "4.0.0",
+        "integrity": "sha512-J4xc27xKLuNfzE1W4wvn59UCy6HSO6UgqNgGXJpeg/mc7LGH9AJh1UQNPl7xTowJGM3DHIgOoBNV0DSX7H9DFw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:622f8658dc917c2c01309589068be5daf895d651bba1b153a8c849d60b4b6216",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Requirements",
+          "Build a schema",
+          "Restore v3 defaults when migrating",
+          "ID scalar changes",
+          "Context cache",
+          "ObjectRef and shared object fields",
+          "Plugins",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport SchemaBuilder from '@pothos/core';\n\nconst builder = new SchemaBuilder({});\n\nbuilder.queryType({\n  fields: (t) => ({\n    hello: t.string({\n      args: {\n        name: t.arg.string(),\n      },\n      resolve: (_parent, { name }) => `hello, ${name || 'World'}`,\n    }),\n  }),\n});\n\nconst schema = builder.toSchema();\nconst query = schema.getQueryType();\nassert.ok(query);\nassert.ok(query.getFields().hello);\nassert.equal(query.getFields().hello.type.toString(), 'String');\nassert.equal(query.getFields().hello.args[0]?.name, 'name');"
+      },
+      "targets": [
+        {
+          "packageName": "@pothos/core",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.13.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "react-testing-library",
+      "title": "@testing-library/react",
+      "summary": "Use @testing-library/react ^16.0.0 correctly, including its React-specific exports, DOM peer dependency, cleanup behavior, and the boundary between standalone scripts and a DOM-enabled test runner.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-react-testing-library",
+        "version": "16.0.0",
+        "integrity": "sha512-Td3cCB+ZV6kCwhSGKYLRJDRrws9o8MUxlO0BACxY2tN+Ue9XpCil8l1zqNaiDKrl8JY4G6y6JqRsIBdl9FBCrg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:39a1c7762693330994cf86a4341d6b1cb6bd95f42023547fc8d0607cd71dc0b4",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 1
+      },
+      "preview": {
+        "headings": [
+          "Install the v16 peer dependencies",
+          "API surface",
+          "`render`",
+          "`cleanup`",
+          "`act`",
+          "`renderHook`",
+          "`configure`",
+          "Test-runner and environment boundary",
+          "Standalone API checks",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport {act, cleanup, configure, render, renderHook} from '@testing-library/react'\n\nassert.equal(typeof act, 'function')\nassert.equal(typeof cleanup, 'function')\nassert.equal(typeof configure, 'function')\nassert.equal(typeof render, 'function')\nassert.equal(typeof renderHook, 'function')\n\nassert.doesNotThrow(() => {\n  configure({reactStrictMode: true})\n})\n\nlet called = false\nact(() => {\n  called = true\n})\nassert.equal(called, true)"
+      },
+      "targets": [
+        {
+          "packageName": "@testing-library/react",
+          "range": "^16.0.0",
+          "verifiedVersions": [
+            "16.3.3"
+          ]
+        }
+      ],
+      "line": {
+        "major": 16,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "bun-types",
+      "title": "bun-types",
+      "summary": "Use bun-types as TypeScript declarations for Bun runtime APIs, while avoiding the common mistake of treating it as a runtime package. Covers the current @types/bun wrapper shape, explicit configuration for direct bun-types usage, and the Bun APIs described by the declarations.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-bun-types",
+        "version": "1.0.0",
+        "integrity": "sha512-03HZ38hi5TYh/S68Pv3/aeaKoigwxYghvpg9PYs5PQJZ/adc4nHNwbU5tNqpk6vEpbDJXhJxOBPNIUUtYz9d6Q=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:183dca5135ea4e29c884a842cdc0663cca80b248552f971f060a0b244abf6acc",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 1
+      },
+      "preview": {
+        "headings": [
+          "The important distinction: declarations versus runtime",
+          "Declared file APIs",
+          "HTTP server declaration",
+          "Child-process declarations",
+          "Other documented importable declarations",
+          "Type-checking workflow",
+          "What this skill does not cover"
+        ],
+        "example": "import type {} from \"bun-types\";\nimport assert from \"node:assert/strict\";\n\nassert.equal(typeof Bun.file, \"function\");\nassert.equal(typeof Bun.write, \"function\");\nassert.equal(typeof Bun.serve, \"function\");\nassert.equal(typeof Bun.spawn, \"function\");\nassert.equal(typeof Bun.spawnSync, \"function\");"
+      },
+      "targets": [
+        {
+          "packageName": "bun-types",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.4.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "hono",
+      "title": "hono",
+      "summary": "Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-hono",
+        "version": "4.0.0",
+        "integrity": "sha512-+j5zOhdK6ZvWJGJJepf1sWFXxAidqqFTWv6p4mNb552x0SrDU15Ci3gByWtb/18nwyOlp52cJFxflfygqXLTrA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:ca196575d760c951e9135b3356d4002f0f69f31c98bdcaec2e1c12a92c8707b8",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Use the current app API",
+          "Context and responses",
+          "Middleware",
+          "Validation",
+          "Hono 4 migration traps",
+          "Other entry points",
+          "JSX and RPC boundaries",
+          "Not covered"
+        ],
+        "example": "import { strict as assert } from 'node:assert'\nimport { Hono } from 'hono'\n\nconst app = new Hono()\napp.get('/hello', (c) => c.text('Hello Hono!'))\n\nconst response = await app.request('/hello')\nassert.equal(response.status, 200)\nassert.equal(await response.text(), 'Hello Hono!')"
+      },
+      "targets": [
+        {
+          "packageName": "hono",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.13.7"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "react",
+      "title": "react",
+      "summary": "Use React 19 APIs correctly from the react package, avoiding pre-19 rendering APIs and distinguishing plain JavaScript access from renderer, server, framework, and build-time surfaces.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-react",
+        "version": "19.0.0",
+        "integrity": "sha512-H+3TrPf6qTLKGPDMkV0j8AMgiU8TgUzKg0JgdTJqtpj6bEXwGAeaa2rvxbzA5JsO+ticOc02uC9LvEveXzYS/A=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:eeb7320bba91c5f20a51e343b15aa9f31822b17f8587037d85405026f96ffa34",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 1
+      },
+      "preview": {
+        "headings": [
+          "Installation and upgrade shape",
+          "`createElement`",
+          "State and resource-reading hooks",
+          "Other documented React exports",
+          "Browser, server, and framework boundaries",
+          "What this skill does not cover"
+        ],
+        "example": "import { createElement } from 'react';\nimport assert from 'node:assert/strict';\n\nfunction Greeting({ name }: { name: string }) {\n  return createElement(\n    'h1',\n    { className: 'greeting' },\n    'Hello ',\n    createElement('i', null, name),\n    '. Welcome!'\n  );\n}\n\nconst element = createElement(Greeting, { name: 'Taylor' });\n\nassert.equal(element.type, Greeting);\nassert.equal(element.props.name, 'Taylor');"
+      },
+      "targets": [
+        {
+          "packageName": "react",
+          "range": "^19.0.0",
+          "verifiedVersions": [
+            "19.2.8"
+          ]
+        }
+      ],
+      "line": {
+        "major": 19,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "react-dom",
+      "title": "react-dom",
+      "summary": "Use react-dom ^19.0.0 with React 19 root, server-rendering, portal, scheduling, form-status, and resource APIs. Avoid removed React 18-era entry points and distinguish browser-only APIs from standalone server APIs.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-react-dom",
+        "version": "19.0.0",
+        "integrity": "sha512-nLWZlphEHZoM4lxyAIvoNSrVopYG51dZiSzTH8x60PAiw1HREDn+HEXsLA6JzI6wf4FCQHebkB9m8DTzmXmSLw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:cfe2c8e2be493e9db8d268297338843f0fded9bcbd002021ca742e218a588789",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "React 19 root APIs",
+          "Common outdated shapes",
+          "Server rendering",
+          "Browser APIs from `react-dom`",
+          "Forms and React 19 additions",
+          "Features requiring tooling or framework integration",
+          "Does not cover",
+          "Sources"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport React from 'react';\nimport { renderToString } from 'react-dom/server';\n\nconst markup = renderToString(\n  React.createElement('main', null, React.createElement('h1', null, 'Hello')),\n);\n\nassert.match(markup, /<main>/);\nassert.match(markup, /<h1>Hello<\\/h1>/);"
+      },
+      "targets": [
+        {
+          "packageName": "react-dom",
+          "range": "^19.0.0",
+          "verifiedVersions": [
+            "19.2.8"
+          ]
+        }
+      ],
+      "line": {
+        "major": 19,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "react-icons",
+      "title": "react-icons",
+      "summary": "Use react-icons v5 icon-pack subpath imports, core component types, context, and documented packaging boundaries without relying on obsolete pre-v3 imports or unavailable manifest paths.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-react-icons",
+        "version": "5.0.0",
+        "integrity": "sha512-G8pBUPrjeT0ZaVyn31164LF9M2YDSptmdJ0oBGfA1nBQ0uxX3h2Ng34aHSHFjzzKxUa/4PuPpZv4FKv8mznnFA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2404fa46acb29eaf64149b1eaa899aefe830f93189231fd5991417d419df7fc4",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Version and package boundary",
+          "Import icons from an icon-pack subpath",
+          "Common import mistake",
+          "Standalone import check",
+          "Core component API",
+          "Global icon context",
+          "Manifest declarations and runtime path",
+          "Installation and packaging notes",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport { createElement } from \"react\";\nimport { FaBeer } from \"react-icons/fa\";\n\nassert.equal(typeof FaBeer, \"function\");\n\nconst element = createElement(FaBeer, { title: \"Beer\" });\nassert.equal(element.type, FaBeer);\nassert.equal(element.props.title, \"Beer\");"
+      },
+      "targets": [
+        {
+          "packageName": "react-icons",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.7.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "tailwindcss",
+      "title": "tailwindcss",
+      "summary": "Use Tailwind CSS v4's programmatic compiler correctly, and avoid the v3 integration shape and obsolete PostCSS setup.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tailwindcss",
+        "version": "4.0.0",
+        "integrity": "sha512-y1XWi0oo0pjP7ifVvXj4W9HcnznP0ZuzI8p8pMetn2Yp23IwwoOkiPc6q4S4o7kkOCyePlGZjFc3IgzUhvqwoQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:9187d282e5f818b4b75e35d60292e7534b8cffef13851472956fbe86f65de9f1",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 1
+      },
+      "preview": {
+        "headings": [
+          "Package role",
+          "Programmatic compilation",
+          "AST compilation",
+          "Loading the design system",
+          "Default export warning",
+          "v4 integration changes",
+          "PostCSS, Vite, and CLI packages are separate",
+          "Use the v4 CSS import",
+          "Configuration is normally in CSS",
+          "Compatibility",
+          "Not covered"
+        ],
+        "example": "import assert from \"node:assert/strict\"\nimport tailwindcss from \"tailwindcss\"\n\nassert.throws(() => tailwindcss(), /@tailwindcss\\/postcss/)"
+      },
+      "targets": [
+        {
+          "packageName": "tailwindcss",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.3.3"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "tsx",
+      "title": "tsx",
+      "summary": "Use tsx v4 as a Node-compatible TypeScript loader, or use its documented ESM/CJS Developer APIs from a plain script. Covers v4 changes, dynamic loading, scoped registration, and the boundary between the API and the tsx CLI.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tsx",
+        "version": "4.0.0",
+        "integrity": "sha512-S/eS/5xXZvou1LlecIrHVT4cR5MQRI+maugbcGhm6ADbuy78oXRid65bESaB5tWnAZ9S0KrEJXnyIW31l77EXw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:bc9f098197dba9832d2d4b31ec08ce1b1973ce7d24bb5c7e9c5ac5efc1bbf651",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "v4 corrections",
+          "CLI usage",
+          "Package entry points",
+          "Dynamic ESM loading: `tsx/esm/api`",
+          "Enhanced CommonJS loading: `tsx/cjs/api`",
+          "Scoped CJS registration",
+          "Scoped ESM registration",
+          "CLI-only features",
+          "Standalone-runtime limitation",
+          "Does not cover"
+        ],
+        "example": "import { register } from 'tsx/cjs/api'\nimport assert from 'node:assert/strict'\n\nconst unregister = register()\n\nassert.equal(typeof unregister, 'function')\nunregister()"
+      },
+      "targets": [
+        {
+          "packageName": "tsx",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.23.13"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "playwright-test",
+      "title": "@playwright/test",
+      "summary": "Use @playwright/test 1.x correctly: distinguish its runner-managed test API from standalone imports, configure projects, define fixtures, and compose test/assertion extensions.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-playwright-test",
+        "version": "1.0.0",
+        "integrity": "sha512-NW+OhSCdvqjkhDTZwwLde0rJr1CfHdfei2Tc/c6beRZnBBA97jYq/7hcE/Dq0+HGJCK0DtFORxGbTM6oKW2//A=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:bb2b3f2bcc06932dbbecbc3de636609f355e83109175c73b898f824e531da68d",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Scope and package shape",
+          "The common shape mistake",
+          "Plain-script surface",
+          "Generic `expect`",
+          "Configuration with `defineConfig`",
+          "Device descriptors",
+          "Custom fixtures with `test.extend`",
+          "Combining test and assertion extensions",
+          "Runner-only operations",
+          "What this skill does not cover"
+        ],
+        "example": "import { expect } from '@playwright/test';\n\nconst value = { status: 'ready', count: 2 };\nexpect(value.status).toBe('ready');\nexpect(value.count).toBeGreaterThan(1);\nexpect(value).toEqual({ status: 'ready', count: 2 });"
+      },
+      "targets": [
+        {
+          "packageName": "@playwright/test",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.63.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "vitejs-plugin-react",
+      "title": "@vitejs/plugin-react",
+      "summary": "Practical usage of @vitejs/plugin-react v6.0.0, including its Vite plugin factory, configuration options, React Compiler preset, v5-to-v6 Babel migration, and preamble requirements.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-vitejs-plugin-react",
+        "version": "6.0.0",
+        "integrity": "sha512-cH76bKfXpourKdJTN1GIzrDZetK76rVQvBpdJ8HZuivrXNBrxeMeE5xSChgEl+NetIT7zvGX8oRxSWW/Bz0yUQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:8951b35120a6131c8a5995191301376ac3fbad8ebaa9b3ba59a734cbadf94788",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "What this package is",
+          "Normal configuration",
+          "Standalone API shape check",
+          "Babel configuration changed in v6",
+          "React Compiler",
+          "Fast Refresh and the preamble",
+          "Common mistakes",
+          "Does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport react from '@vitejs/plugin-react'\n\nconst plugins = react({\n  include: /\\.(tsx|jsx)$/,\n  exclude: /\\/node_modules\\//,\n  jsxImportSource: 'react',\n  jsxRuntime: 'automatic',\n})\n\nassert.equal(Array.isArray(plugins), true)\nassert.equal(plugins.length > 0, true)"
+      },
+      "targets": [
+        {
+          "packageName": "@vitejs/plugin-react",
+          "range": "^6.0.0",
+          "verifiedVersions": [
+            "6.1.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 6,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "autoprefixer",
+      "title": "autoprefixer",
+      "summary": "Use Autoprefixer ^10.0.0 as a PostCSS 8 plugin from a plain Node/Bun script, including its callable API, plugin inspection, options, and the v10 peer-dependency shape.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-autoprefixer",
+        "version": "10.0.0",
+        "integrity": "sha512-NKjePsSoRIYTjsw4jqFUmUKAMCJv0vVY3mKxQAj7whzusKxxrZwJulJuCcSC3SUn6CyfpRMm7abfQdwcO0/JxQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:1a3910f00c3592b25729013e8b8cd42219bd06196829f410a8f144f7d6861837",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Import and construct the plugin",
+          "Process CSS programmatically",
+          "Grid translation",
+          "Inspect the plugin and package API",
+          "Browser targets",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "const assert = require('node:assert/strict')\nconst autoprefixer = require('autoprefixer')\nconst postcss = require('postcss')\n\nconst result = await postcss([autoprefixer()]).process(\n  '.card { display: flex }',\n  { from: undefined }\n)\n\nassert.equal(typeof result.css, 'string')\nassert.match(result.css, /display:\\s*flex/)\nassert.ok(Array.isArray(result.warnings()))"
+      },
+      "targets": [
+        {
+          "packageName": "autoprefixer",
+          "range": "^10.0.0",
+          "verifiedVersions": [
+            "10.5.5"
+          ]
+        }
+      ],
+      "line": {
+        "major": 10,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "graphql-yoga",
+      "title": "graphql-yoga",
+      "summary": "Use graphql-yoga ^5.0.0 to build a Fetch-compatible GraphQL handler, execute it directly in scripts, and configure documented readiness and error-handling plugins. Avoid legacy Yoga v2/v4 server shapes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-graphql-yoga",
+        "version": "5.0.0",
+        "integrity": "sha512-WolJpGN7Gm9r3TEbusAvqlFppc2FgphlAqTnGV6vPfdFVtEFNiXQogLOGz6BGr2Z+tz93knOCNxM4ro03+A6pQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:1a8f22ec7449d2d0c36b5dfa3024ab4a8328193c5dbf72fb518ff20918d3c20d",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Current API shape",
+          "Running Yoga with Node HTTP",
+          "Readiness checks",
+          "Error coordinates and masking",
+          "v5 migration traps",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport { createSchema, createYoga } from 'graphql-yoga'\n\nconst schema = createSchema({\n  typeDefs: /* GraphQL */ `\n    type Query {\n      hello: String\n    }\n  `,\n  resolvers: {\n    Query: {\n      hello: () => 'world'\n    }\n  }\n})\n\nconst yoga = createYoga({ schema })\n\nconst response = await yoga.fetch('http://yoga/graphql', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ query: '{ hello }' })\n})\n\nassert.equal(response.status, 200)\nassert.deepEqual(await response.json(), {\n  data: { hello: 'world' }\n})"
+      },
+      "targets": [
+        {
+          "packageName": "graphql-yoga",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.22.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "happy-dom",
+      "title": "happy-dom",
+      "summary": "Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-happy-dom",
+        "version": "20.0.0",
+        "integrity": "sha512-JExCSijGBN9PZX5KupQl37J+YKukwnt21ZmsTEm9MH3p6aFFbD9pCZOzVdkoSI+GdGl/KCeitRkGZilXB0Q71A=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b1210fc1c6b79f83567eeeedf8d70a1bff8c1ee2288ea726ce447131f6224d8f",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "`Window`: create and manipulate a DOM",
+          "JavaScript evaluation is disabled by default in v20",
+          "`Browser` and pages",
+          "`GlobalWindow`",
+          "Finding the owning window with `PropertySymbol`",
+          "Test-environment integrations are separate",
+          "Server rendering is a separate package",
+          "Not covered"
+        ],
+        "example": "import { strict as assert } from 'node:assert';\nimport { Window } from 'happy-dom';\n\nconst window = new Window({ url: 'https://localhost:8080' });\nconst document = window.document;\n\ndocument.body.innerHTML = '<div class=\"container\"></div>';\nconst container = document.querySelector('.container');\nassert.ok(container);\n\nconst button = document.createElement('button');\ncontainer.appendChild(button);\n\nassert.equal(document.body.innerHTML, '<div class=\"container\"><button></button></div>');\nassert.equal(window.location.href, 'https://localhost:8080/');\n\nawait window.happyDOM.abort();\nwindow.close();"
+      },
+      "targets": [
+        {
+          "packageName": "happy-dom",
+          "range": "^20.0.0",
+          "verifiedVersions": [
+            "20.14.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 20,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "wrangler",
+      "title": "wrangler",
+      "summary": "Use Wrangler ^4.0.0 programmatically from Node.js, while avoiding deprecated v3 APIs, accidental remote data access, and assumptions that the CLI or Worker runtime is available in a plain script.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-wrangler",
+        "version": "4.0.0",
+        "integrity": "sha512-FOqS2F1VxfMrJvGZrtyJtWCvlNpBh+A0uFMwkwfP3oZnnBD9dF9m+1BL8AwMgLTVRkqwdFHJ5KbPTKkiHfr88g=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:c57745c3e5e907bf35dfcd50b1c3e682365c467eb19edee833827587f3882c6e",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "Programmatic exports",
+          "`createTestHarness`",
+          "`unstable_dev`",
+          "`getPlatformProxy`",
+          "`experimental_generateTypes`",
+          "`unstable_startWorker`",
+          "CLI and build behavior",
+          "v4 migration traps",
+          "Local versus remote data",
+          "What this skill does not cover"
+        ],
+        "example": "import { strict as assert } from \"node:assert/strict\";\nimport {\n  createTestHarness,\n  experimental_generateTypes,\n  getPlatformProxy,\n  unstable_dev,\n  unstable_startWorker,\n} from \"wrangler\";\n\nassert.equal(typeof createTestHarness, \"function\");\nassert.equal(typeof experimental_generateTypes, \"function\");\nassert.equal(typeof getPlatformProxy, \"function\");\nassert.equal(typeof unstable_dev, \"function\");\nassert.equal(typeof unstable_startWorker, \"function\");"
+      },
+      "targets": [
+        {
+          "packageName": "wrangler",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.129.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
       }
     }
   ]

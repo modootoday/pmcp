@@ -142,10 +142,7 @@ it("renders the empty ledger as nothing examined, not as nothing found", () => {
     examinations: [],
   });
   expect(empty).toContain("Nothing has been examined yet");
-  expect(
-    readFileSync(
-      join(import.meta.dirname, "../docs/observations/index.html"),
-      "utf8",
-    ),
-  ).toContain("Nothing has been examined yet");
+  // Asserted on the renderer, not on the built page: the ledger fills up, and
+  // a test that reads today's page is testing the data rather than the rule.
+  expect(empty).not.toContain("Nothing was observed in this run");
 });
