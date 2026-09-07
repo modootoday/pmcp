@@ -2,32 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://pmcp.build/</loc>
-    <lastmod>2026-09-06</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://pmcp.build/install/</loc>
-    <lastmod>2026-09-06</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/guide/</loc>
-    <lastmod>2026-09-06</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/authoring/</loc>
-    <lastmod>2026-09-06</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/commands/</loc>
-    <lastmod>2026-09-06</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/licence/</loc>
-    <lastmod>2026-09-06</lastmod>
     <priority>0.8</priority>
   </url>
 </urlset>
