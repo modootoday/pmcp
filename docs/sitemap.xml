@@ -5,7 +5,15 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://pmcp.build/install/</loc>
+    <loc>https://pmcp.build/authoring/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/commands/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/compare/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -13,11 +21,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pmcp.build/authoring/</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pmcp.build/commands/</loc>
+    <loc>https://pmcp.build/install/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -29,19 +33,23 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pmcp.build/skills/</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://pmcp.build/pricing/</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pmcp.build/compare/</loc>
+    <loc>https://pmcp.build/skills/</loc>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/skills/zod-schema-validation/</loc>
-    <priority>0.6</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/zod-schema-validation/3/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/zod-schema-validation/4/</loc>
+    <priority>0.8</priority>
   </url>
 </urlset>

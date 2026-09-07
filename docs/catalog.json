@@ -1,6 +1,6 @@
 {
-  "revision": "r5-zod-20260907",
-  "publishedAt": "2026-09-07T02:47:23.189Z",
+  "revision": "r6-zod-two-lines-20260907",
+  "publishedAt": "2026-09-07T14:53:33.744Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -8,10 +8,10 @@
       "summary": "Parse at the boundary, read the failure, and let the schema be the type.",
       "delivery": {
         "packageName": "@modootoday/pmcp-zod-schema-validation",
-        "version": "1.2.0",
-        "integrity": "sha512-bKEm2ARWe6e4/ebq5A8pR14mxOa0Yjoy6bAYoVC333Fawoz8ytIFfWBCTlJ3fi/bw+Q+5F5H0zDApi/dCOEdsw=="
+        "version": "4.0.0",
+        "integrity": "sha512-XicOImJVjHWBm97H8k/zZTlAmiFY8WeO1CJlIvWHWdmeQPM7vEMLe98MUwSkoP4pU5N6yi1EjLzuWIS60LeZYQ=="
       },
-      "skillRevision": 4,
+      "skillRevision": 5,
       "contentDigest": "sha256:34aac3f525d85c322ea4a840bda3fdfdc828d49aa523631e0ee1fb02025ae4d0",
       "evidence": {
         "verifiedOn": "2026-09-07",
@@ -37,7 +37,56 @@
             "4.5.4"
           ]
         }
-      ]
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "zod-schema-validation",
+      "title": "zod schema validation",
+      "summary": "Parse at the boundary, read the failure, and let the schema be the type.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-zod-schema-validation",
+        "version": "3.0.0",
+        "integrity": "sha512-uNlJoXwAlotaohT/jedzF6eA0qjYoaDs29gvuNw9rNnQS6mFNyU0zsY6aSARpNf6Dy1U7WrirNwm1VqETtClag=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:f5115629b2896bc935f90621d59d56abf863faeed812e5430f1e2645fa9ad347",
+      "evidence": {
+        "verifiedOn": "2026-09-07",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Import and version boundary",
+          "Primitive schemas and parsing",
+          "Object schemas and inferred types",
+          "Coercion",
+          "Custom messages",
+          "Tuples and rest elements",
+          "Selective partial objects",
+          "Records",
+          "Async parsing",
+          "Common version and shape mistakes",
+          "Not covered"
+        ],
+        "example": "import { z } from \"zod\";\nimport assert from \"node:assert/strict\";\n\nconst schema = z.string();\n\nassert.equal(schema.parse(\"tuna\"), \"tuna\");\nassert.throws(() => schema.parse(12));\n\nconst valid = schema.safeParse(\"tuna\");\nassert.equal(valid.success, true);\nif (valid.success) assert.equal(valid.data, \"tuna\");\n\nconst invalid = schema.safeParse(12);\nassert.equal(invalid.success, false);"
+      },
+      "targets": [
+        {
+          "packageName": "zod",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.25.76"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "frozen"
+      }
     }
   ]
 }

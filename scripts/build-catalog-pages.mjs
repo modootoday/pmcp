@@ -93,6 +93,17 @@ function emit(path, html) {
   written.push({ file, html });
 }
 
+// One skill can have a line per major, so a line needs a URL of its own. The
+// bare /skills/<id>/ is the skill, listing its lines; a line never moves off
+// its own address when a newer major arrives.
+const lineOf = (entry) => entry.line?.major ?? 0;
+const routeOf = (entry) =>
+  `/skills/${entry.productId}/${String(lineOf(entry))}/`;
+const linesOf = (productId) =>
+  entries
+    .filter((candidate) => candidate.productId === productId)
+    .sort((a, b) => lineOf(b) - lineOf(a));
+
 const targetsOf = (entry) =>
   entry.targets
     .map(
@@ -180,7 +191,7 @@ ${
         .map(
           (entry) =>
             `            <tr>
-              <td><a href="/skills/${escape(entry.productId)}/">${escape(entry.title)}</a>${markOf(entry)}</td>
+              <td><a href="${escape(routeOf(entry))}">${escape(entry.title)} ${escape(String(lineOf(entry)))}.x</a>${markOf(entry)}</td>
               <td><code>${escape(targetsOf(entry))}</code></td>
               <td>${escape(entry.evidence?.verifiedOn || "before this was recorded")}, ${escape(String(entry.evidence?.examplesExecuted ?? 0))} examples</td>
             </tr>`,
@@ -193,17 +204,79 @@ ${
   }),
 );
 
+/**
+ * The other lines of the same skill. A reader arrives here from a search for
+ * their own major, and the line they need may not be the one they landed on.
+ */
+function otherLines(entry) {
+  const others = linesOf(entry.productId).filter(
+    (candidate) => lineOf(candidate) !== lineOf(entry),
+  );
+  if (others.length === 0) return "";
+  return `      <p>
+        Other lines of this skill:
+        ${others
+          .map(
+            (other) =>
+              `<a href="${escape(routeOf(other))}">${escape(String(lineOf(other)))}.x</a> (${escape(other.line?.status ?? "")}, for <code>${escape(other.targets[0]?.packageName ?? "")}@${escape(other.targets[0]?.range ?? "")}</code>)`,
+          )
+          .join(", ")}.
+      </p>
+`;
+}
+
+// The skill itself, above its lines. The bare URL stays what it always was so
+// a link to it keeps working, and it stops being any one line's address the
+// moment a second line exists.
+for (const productId of new Set(entries.map((entry) => entry.productId))) {
+  const lines = linesOf(productId);
+  const first = lines[0];
+  if (!first) continue;
+  emit(
+    `/skills/${productId}/`,
+    page({
+      path: `/skills/${productId}/`,
+      title: `${first.title} — pmcp`,
+      description: first.summary,
+      body: `      <h1>${escape(first.title)}</h1>
+      <p>${escape(first.summary)}</p>
+      <p>
+        A skill is written against one major of its package, because a major is
+        where the shape changes. Pick the line that matches your lockfile.
+      </p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr><th>Line</th><th>For</th><th>Verified</th></tr>
+          </thead>
+          <tbody>
+${lines
+  .map(
+    (line) => `            <tr>
+              <td><a href="${escape(routeOf(line))}">${escape(String(lineOf(line)))}.x</a>${markOf(line)}</td>
+              <td><code>${escape(targetsOf(line))}</code></td>
+              <td>${escape(line.evidence?.verifiedOn || "before this was recorded")}, ${escape(String(line.evidence?.examplesExecuted ?? 0))} examples</td>
+            </tr>`,
+  )
+  .join("\n")}
+          </tbody>
+        </table>
+      </div>`,
+    }),
+  );
+}
+
 for (const entry of entries) {
   const preview = entry.preview;
   emit(
-    `/skills/${entry.productId}/`,
+    routeOf(entry),
     page({
-      path: `/skills/${entry.productId}/`,
-      title: `${entry.title} — pmcp`,
+      path: routeOf(entry),
+      title: `${entry.title} ${String(lineOf(entry))}.x — pmcp`,
       description: entry.summary,
-      body: `      <h1>${escape(entry.title)}</h1>
+      body: `      <h1>${escape(entry.title)} ${escape(String(lineOf(entry)))}.x</h1>
       <p>${escape(entry.summary)}</p>
-${standingOf(entry)}      <dl>
+${standingOf(entry)}${otherLines(entry)}      <dl>
         <dt>For</dt><dd><code>${escape(targetsOf(entry))}</code></dd>
         <dt>Verified</dt><dd>${escape(entry.evidence?.verifiedOn || "before this was recorded")}, ${escape(String(entry.evidence?.examplesExecuted ?? 0))} examples executed</dd>
         <dt>Package</dt><dd><code>${escape(entry.delivery.packageName)}@${escape(entry.delivery.version)}</code></dd>

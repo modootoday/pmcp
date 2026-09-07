@@ -62,7 +62,7 @@
     "clean": "rimraf dist",
     "catalog:refresh": "node scripts/refresh-catalog.mjs",
     "observations:refresh": "node scripts/refresh-observations.mjs",
-    "site:build": "node scripts/build-catalog-pages.mjs && node scripts/build-observation-pages.mjs",
+    "site:build": "node scripts/build-catalog-pages.mjs && node scripts/build-observation-pages.mjs && node scripts/build-sitemap.mjs",
     "site:deployed": "node scripts/check-deployed.mjs",
     "prepack": "npm run build && npm run typecheck && npm test",
     "format": "prettier --write .",

@@ -41,50 +41,29 @@
     <main id="main" class="wrap">
       <h1>zod schema validation</h1>
       <p>Parse at the boundary, read the failure, and let the schema be the type.</p>
-      <dl>
-        <dt>For</dt><dd><code>zod@4.5.4</code></dd>
-        <dt>Verified</dt><dd>2026-09-07, 7 examples executed</dd>
-        <dt>Package</dt><dd><code>@modootoday/pmcp-zod-schema-validation@1.2.0</code></dd>
-      </dl>
-      <h2>What it covers</h2>
-      <ul>
-        <li>When to reach for it</li>
-        <li>Parse or branch, not both</li>
-        <li>Unknown keys are dropped, not rejected</li>
-        <li>Read the failure, do not stringify it</li>
-        <li>Let the schema be the type</li>
-        <li>Coerce only where the wire is untyped</li>
-        <li>What this skill does not cover</li>
-      </ul>
-      <h2>One example from this skill</h2>
       <p>
-        This is the skill's own text, not a summary of it. It runs: that is what
-        verifying means here.
+        A skill is written against one major of its package, because a major is
+        where the shape changes. Pick the line that matches your lockfile.
       </p>
-      <pre><code>import { z } from &quot;zod&quot;;
-import assert from &quot;node:assert/strict&quot;;
-
-const Config = z.object({ port: z.number(), host: z.string() });
-
-// safeParse when the caller answers for the failure.
-const result = Config.safeParse({ port: &quot;8080&quot;, host: &quot;localhost&quot; });
-assert.equal(result.success, false);
-
-// parse when there is no answer but to stop.
-assert.deepEqual(Config.parse({ port: 8080, host: &quot;localhost&quot; }), {
-  port: 8080,
-  host: &quot;localhost&quot;,
-});</code></pre>
-      <h2>Getting it</h2>
-      <p>
-        With a <a href="/pricing/">subscription</a>:
-      </p>
-      <pre><code>npx -y @modootoday/pmcp login
-npx -y @modootoday/pmcp install @modootoday/pmcp-zod-schema-validation</code></pre>
-      <p>
-        It installs as a dev dependency of your project, and the
-        <a href="/guide/">MCP server</a> finds it there like any other skill.
-      </p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr><th>Line</th><th>For</th><th>Verified</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="/skills/zod-schema-validation/4/">4.x</a></td>
+              <td><code>zod@4.5.4</code></td>
+              <td>2026-09-07, 7 examples</td>
+            </tr>
+            <tr>
+              <td><a href="/skills/zod-schema-validation/3/">3.x</a> <span class="tag">frozen</span></td>
+              <td><code>zod@3.25.76</code></td>
+              <td>2026-09-07, 7 examples</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </main>
 
     <footer class="site">
