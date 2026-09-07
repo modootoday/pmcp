@@ -43,13 +43,21 @@ const entry = z.object({
   skillRevision: z.number().int().positive(),
   contentDigest: z.string().regex(/^sha256:[a-f0-9]{64}$/u),
   evidence: z.object({
-    verifiedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
+    verifiedOn: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/u)
+      .optional(),
     examplesExecuted: z.number().int().positive(),
   }),
-  preview: z.object({
-    headings: z.array(z.string().min(1)),
-    example: z.string().min(1),
-  }),
+  // Optional for the same reason the service makes it optional: a snapshot
+  // published before previews existed cannot grow one, and a client that
+  // demands it rejects the whole catalog rather than one older entry.
+  preview: z
+    .object({
+      headings: z.array(z.string().min(1)),
+      example: z.string().min(1),
+    })
+    .optional(),
   targets: z.array(target).min(1),
 });
 const responseSchema = z.object({

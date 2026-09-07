@@ -55,10 +55,19 @@ export const previewCommand: Command = {
 
     context.ui.data(`${entry.title}\n\n${entry.summary}\n\n`);
     context.ui.data(
-      `${entry.evidence.examplesExecuted} examples executed on ${entry.evidence.verifiedOn}, against ${entry.targets
-        .map((target) => `${target.packageName}@${target.verifiedVersions.join(", ")}`)
+      `${entry.evidence.examplesExecuted} examples executed${entry.evidence.verifiedOn ? ` on ${entry.evidence.verifiedOn}` : ""}, against ${entry.targets
+        .map(
+          (target) =>
+            `${target.packageName}@${target.verifiedVersions.join(", ")}`,
+        )
         .join("; ")}\n\n`,
     );
+    if (!entry.preview) {
+      context.ui.data(
+        "This entry was published before previews were recorded, so there is no sample to show.\n",
+      );
+      return 0;
+    }
     if (entry.preview.headings.length > 0) {
       context.ui.data("Contents\n");
       for (const heading of entry.preview.headings) {
@@ -68,7 +77,9 @@ export const previewCommand: Command = {
     }
     // The sample is a real example from the skill, assertions included: a
     // reader can run it and see for themselves.
-    context.ui.data(`One example from this skill\n\n${entry.preview.example}\n`);
+    context.ui.data(
+      `One example from this skill\n\n${entry.preview.example}\n`,
+    );
     return 0;
   },
 };

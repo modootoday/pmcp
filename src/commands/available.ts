@@ -35,10 +35,11 @@ export const availableCommand: Command = {
         // rather than on a summary line.
         const { verifiedOn, examplesExecuted } = match.entry.evidence;
         context.ui.line(
-          `    ${examplesExecuted} examples executed on ${verifiedOn}`,
+          `    ${examplesExecuted} examples executed${verifiedOn ? ` on ${verifiedOn}` : ""}`,
         );
-        if (match.entry.preview.headings.length > 0) {
-          context.ui.line(`    ${match.entry.preview.headings.join(" · ")}`);
+        const headings = match.entry.preview?.headings ?? [];
+        if (headings.length > 0) {
+          context.ui.line(`    ${headings.join(" · ")}`);
         }
       }
       context.ui.info(`${matches.length} matching skills`, catalog.revision);
