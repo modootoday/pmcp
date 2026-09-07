@@ -19,7 +19,7 @@ import {
 const DEFAULT_ISSUER = "https://auth.pmcp.build";
 const DEFAULT_CLIENT = "https://auth.pmcp.build/oauth-client.json";
 const DEFAULT_RESOURCE = "https://api.pmcp.build";
-const DEFAULT_SCOPE = "catalog:read distribution:read";
+const DEFAULT_SCOPE = "pmcp:catalog:read pmcp:distribution:read";
 
 const fetcher: Fetcher = (url, init) =>
   fetch(url, init as RequestInit) as unknown as ReturnType<Fetcher>;

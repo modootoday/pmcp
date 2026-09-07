@@ -16,7 +16,7 @@ const stored = {
   issuer: ISSUER,
   accessToken: "old-access",
   refreshToken: "old-refresh",
-  scope: "catalog:read",
+  scope: "pmcp:catalog:read",
 };
 const reply = (body: unknown, ok = true, status = 200): ReturnType<Fetcher> =>
   Promise.resolve({ ok, status, json: async () => body });
@@ -42,7 +42,7 @@ it("renews the access token and adopts a rotated refresh token", async () => {
     accessToken: "new-access",
     refreshToken: "new-refresh",
     expiresAt: 601000,
-    scope: "catalog:read",
+    scope: "pmcp:catalog:read",
   });
   expect(sent).toContain("grant_type=refresh_token");
   expect(sent).toContain("refresh_token=old-refresh");
