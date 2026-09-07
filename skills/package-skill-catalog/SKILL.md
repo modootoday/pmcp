@@ -23,7 +23,7 @@ need a server in front of them. This exists for the skills you did not write.
 ## Install and wire
 
 ```sh
-npm install --save-dev pmcp
+npm install --save-dev @modootoday/pmcp
 ```
 
 For a host that spawns MCP servers over stdio:

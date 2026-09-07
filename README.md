@@ -7,7 +7,7 @@ Find and use package skills without loading every document into your agent's con
 ## Install
 
 ```sh
-npm install --save-dev pmcp
+npm install --save-dev @modootoday/pmcp
 ```
 
 Register it with an MCP host:
