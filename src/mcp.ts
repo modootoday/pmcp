@@ -111,6 +111,6 @@ export function registerSkillTools(
  * and never asks pays nothing for the walk.
  */
 export function createSkillServer(options: SkillServerOptions): McpServer {
-  const server = new McpServer({ name: SERVER_NAME, version: "0.1.0" });
+  const server = new McpServer({ name: SERVER_NAME, version: "0.1.1" });
   return registerSkillTools(server, createSkillTools(options));
 }

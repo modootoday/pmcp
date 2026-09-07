@@ -115,7 +115,7 @@ export function dispatch(
   return run(command, rest, { ui, env, cwd });
 }
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.1";
 
 async function run(
   command: Command,

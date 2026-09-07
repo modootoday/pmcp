@@ -1,6 +1,6 @@
 {
   "name": "@modootoday/pmcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "Elastic-2.0",
   "author": "modootoday",
   "description": "An MCP server that finds the skills your installed packages already ship. Reads SKILL.md out of node_modules by shape rather than by path, so it sees the skills, .agent, .claude, .gemini and .codex conventions alike, and keeps session startup flat as the number of installed skills grows.",

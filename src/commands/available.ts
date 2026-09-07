@@ -1,4 +1,5 @@
 import { ArgumentError, type Command } from "../cli/command.js";
+import { invocation } from "../cli/invocation.js";
 import { readInstalledDependencies } from "../installed.js";
 import { matchingSkills } from "../install/plan.js";
 import {
@@ -46,7 +47,7 @@ export const availableCommand: Command = {
       if (matches.length > 0) {
         context.ui.info(
           "preview",
-          "pmcp preview <package> shows a full example before you subscribe",
+          `${invocation()} preview <package> shows a full example before you subscribe`,
         );
       }
       for (const issue of inventory.issues)

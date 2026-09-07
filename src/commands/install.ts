@@ -4,6 +4,7 @@ import {
   type Command,
   type CommandContext,
 } from "../cli/command.js";
+import { invocation } from "../cli/invocation.js";
 import { readInstalledDependencies } from "../installed.js";
 import {
   applyInstallPlan,
@@ -149,7 +150,9 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
     !session ||
     (session.expiresAt !== undefined && session.expiresAt <= Date.now())
   ) {
-    throw new Error("run pmcp login before installing paid skill packages");
+    throw new Error(
+      `run ${invocation()} login before installing paid skill packages`,
+    );
   }
   const origin = apiOrigin(context);
   const credential = await issueDistributionCredential(

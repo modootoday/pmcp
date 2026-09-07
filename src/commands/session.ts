@@ -1,4 +1,5 @@
 import type { Command } from "../cli/command.js";
+import { invocation } from "../cli/invocation.js";
 import {
   clearSession,
   discover,
@@ -83,7 +84,10 @@ export const loginCommand: Command = {
     let interval = start.intervalMs;
     for (;;) {
       if (Date.now() >= start.expiresAt) {
-        ui.error("expired", "the code timed out; run pmcp login again");
+        ui.error(
+          "expired",
+          `the code timed out; run ${invocation()} login again`,
+        );
         return 1;
       }
       await wait(interval);
@@ -105,7 +109,10 @@ export const loginCommand: Command = {
         return 1;
       }
       if (outcome.kind === "expired") {
-        ui.error("expired", "the code timed out; run pmcp login again");
+        ui.error(
+          "expired",
+          `the code timed out; run ${invocation()} login again`,
+        );
         return 1;
       }
     }
@@ -159,7 +166,7 @@ export const whoamiCommand: Command = {
         ui.data(`${JSON.stringify({ signedIn: false }, null, 2)}\n`);
       } else {
         ui.data("not signed in\n");
-        ui.info("sign in", "run pmcp login");
+        ui.info("sign in", `run ${invocation()} login`);
       }
       return 1;
     }
@@ -186,7 +193,7 @@ export const whoamiCommand: Command = {
       ui.data(
         left > 0
           ? `token valid for ${String(answer.expiresInMinutes)} min\n`
-          : "token expired, run pmcp login\n",
+          : `token expired, run ${invocation()} login\n`,
       );
     }
     return 0;
