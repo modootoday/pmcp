@@ -1,0 +1,4 @@
+{
+  "disclaimer": "Each entry records what happened in one sandboxed run under the policy named beside it. It is not a judgement of the package, and the absence of an observation is not a finding of safety. Observations at the 'manifest' and 'install' stages are the package's own behaviour; an observation at an 'example-N' stage happened while running example code we wrote against the package, and may have been caused by that code rather than by the package.",
+  "examinations": []
+}

@@ -25,6 +25,10 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/observations/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/</loc>
     <priority>0.8</priority>
   </url>

@@ -9,107 +9,83 @@
  *
  * Run: node scripts/build-catalog-pages.mjs [--check]
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { commit, escape, page } from "./page.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const docs = join(root, "docs");
 const source = join(docs, "catalog.json");
 const check = process.argv.includes("--check");
 
-const escape = (value) =>
-  String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-
-// "Catalog" is taken. On every other page of this site it means the list the
-// server derives from node_modules, and skill_catalog is one of the three MCP
-// tools, so the same word for the thing we sell sent a reader to the wrong
-// meaning. Install folds into Start, which is where a first-time reader is
-// already going.
-const NAV = [
-  ["/guide/", "Start"],
-  ["/skills/", "Skills"],
-  ["/pricing/", "Pricing"],
-  ["/compare/", "Compare"],
-  ["/authoring/", "Authoring"],
-  ["/commands/", "Commands"],
-];
-
-const MARK = `<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-            <path d="M4.25 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-            <path d="M9 7v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-            <path d="M13.75 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
-          </svg>`;
-
-function page({ path, title, description, body }) {
-  const url = `https://pmcp.build${path}`;
-  const nav = NAV.map(
-    ([href, label]) =>
-      `<a href="${href}"${href === path || (path.startsWith(`${href.slice(0, -1)}/`) && href !== "/guide/") ? ' aria-current="page"' : ""}>${label}</a>`,
-  ).join("\n          ");
-  const footer = [...NAV, ["/install/", "Install"], ["/licence/", "Licence"]]
-    .map(([href, label]) => `<a href="${href}">${label}</a>`)
-    .join("\n          ");
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escape(title)}</title>
-    <meta name="description" content="${escape(description)}" />
-    <link rel="canonical" href="${url}" />
-    <link rel="stylesheet" href="/assets/style.css" />
-    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
-    <meta property="og:type" content="article" />
-    <meta property="og:site_name" content="pmcp" />
-    <meta property="og:url" content="${url}" />
-    <meta property="og:title" content="${escape(title)}" />
-    <meta property="og:description" content="${escape(description)}" />
-  </head>
-  <body>
-    <a class="skip" href="#main">Skip to content</a>
-
-    <header class="site">
-      <div class="wrap">
-        <a class="brand" href="/">
-          ${MARK}
-          pmcp
-        </a>
-        <nav>
-          ${nav}
-        </nav>
-      </div>
-    </header>
-
-    <main id="main" class="wrap">
-${body}
-    </main>
-
-    <footer class="site">
-      <div class="wrap">
-        <nav>
-          ${footer}
-          <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
-        </nav>
-        <p>
-          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
-          2.0.
-        </p>
-      </div>
-    </footer>
-  </body>
-</html>
-`;
-}
-
 const catalog = JSON.parse(readFileSync(source, "utf8"));
 const entries = [...(catalog.entries ?? [])].sort((a, b) =>
   a.productId.localeCompare(b.productId),
 );
+
+// A reader deciding whether to trust a package should not have to go looking
+// for what it did while we were watching it.
+const ledger = JSON.parse(
+  readFileSync(join(docs, "observations.json"), "utf8"),
+);
+const examinationsOf = (packageName) =>
+  (ledger.examinations ?? []).filter(
+    (entry) => entry.packageName === packageName,
+  );
+
+/**
+ * Only the manifest and install stages are the package on its own; the example
+ * code is ours. Saying so on the skill page matters more than on the ledger,
+ * because this is the page where a reader is thinking about one package.
+ */
+const PACKAGE_STAGES = new Set(["manifest", "install"]);
+
+function observedOn(entry) {
+  const runs = entry.targets.flatMap((target) =>
+    examinationsOf(target.packageName),
+  );
+  if (runs.length === 0) return "";
+  const seen = runs.flatMap((run) =>
+    run.observations.map((observation) => ({
+      ...observation,
+      packageName: run.packageName,
+    })),
+  );
+  return `      <h2>What it did in the sandbox</h2>
+      <p>
+        Verifying this skill meant installing the package and running code
+        against it with no route out. ${
+          seen.length === 0
+            ? "Nothing was observed."
+            : "This is what happened, quoted from the run."
+        }
+        <a href="/observations/">The full ledger</a> lists every package
+        examined, including the ones that never became a skill.
+      </p>
+${
+  seen.length === 0
+    ? `      <p>
+        Nothing observed is not a finding of safety. It means one run, under
+        one policy, produced nothing to report.
+      </p>`
+    : `      <ul class="observations">
+${seen
+  .map(
+    (observation) => `        <li>
+          <code>${escape(observation.evidence)}</code>
+          ${
+            PACKAGE_STAGES.has(observation.stage)
+              ? `<span class="tag">the package</span>`
+              : `<span class="tag warn">our example</span>`
+          }
+        </li>`,
+  )
+  .join("\n")}
+      </ul>`
+}
+`;
+}
 
 const written = [];
 function emit(path, html) {
@@ -253,7 +229,7 @@ ${
         sample to show. A later revision will carry one.
       </p>`
 }
-      <h2>Getting it</h2>
+${observedOn(entry)}      <h2>Getting it</h2>
       <p>
         With a <a href="/pricing/">subscription</a>:
       </p>
@@ -267,23 +243,7 @@ npx -y @modootoday/pmcp install ${escape(entry.delivery.packageName)}</code></pr
   );
 }
 
-let changed = 0;
-for (const { file, html } of written) {
-  let current = "";
-  try {
-    current = readFileSync(file, "utf8");
-  } catch {
-    current = "";
-  }
-  if (current === html) continue;
-  changed += 1;
-  if (check) {
-    console.error(`out of date: ${file.slice(root.length + 1)}`);
-    continue;
-  }
-  mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, html);
-}
+const changed = commit(written, { root, check });
 
 console.log(
   JSON.stringify({

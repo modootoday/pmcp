@@ -560,6 +560,35 @@ div.notice {
   color: var(--warn);
 }
 
+.examination {
+  margin: 2rem 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--stroke);
+}
+
+.examination h2 {
+  font-size: 1.05rem;
+}
+
+/* The quoted line is the evidence, so it gets its own line rather than being
+   squeezed in beside the sentence that describes it. */
+.observations {
+  margin: 1rem 0;
+  padding-left: 1.1rem;
+}
+
+.observations li {
+  margin-bottom: 0.75rem;
+}
+
+.observations code {
+  display: block;
+  margin-top: 0.35rem;
+  overflow-x: auto;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
 @media print {
   header.site,
   footer.site nav,

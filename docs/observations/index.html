@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Written skills — pmcp</title>
-    <meta name="description" content="Authored skills for packages that ship none, each verified by executing its examples against the version it names." />
-    <link rel="canonical" href="https://pmcp.build/skills/" />
+    <title>What packages did in the sandbox — pmcp</title>
+    <meta name="description" content="Every package examined while writing a skill, what it did under the sandbox policy, and what that does and does not mean." />
+    <link rel="canonical" href="https://pmcp.build/observations/" />
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="pmcp" />
-    <meta property="og:url" content="https://pmcp.build/skills/" />
-    <meta property="og:title" content="Written skills — pmcp" />
-    <meta property="og:description" content="Authored skills for packages that ship none, each verified by executing its examples against the version it names." />
+    <meta property="og:url" content="https://pmcp.build/observations/" />
+    <meta property="og:title" content="What packages did in the sandbox — pmcp" />
+    <meta property="og:description" content="Every package examined while writing a skill, what it did under the sandbox policy, and what that does and does not mean." />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -29,7 +29,7 @@
         </a>
         <nav>
           <a href="/guide/">Start</a>
-          <a href="/skills/" aria-current="page">Skills</a>
+          <a href="/skills/">Skills</a>
           <a href="/pricing/">Pricing</a>
           <a href="/compare/">Compare</a>
           <a href="/authoring/">Authoring</a>
@@ -39,30 +39,28 @@
     </header>
 
     <main id="main" class="wrap">
-      <h1>Written skills</h1>
+      <h1>What packages did in the sandbox</h1>
       <p>
-        A skill here is written for one package and verified by running its
-        examples against that package. The date and the count below are what
-        the run produced, not a claim about it.
+        Writing a skill means installing a package nobody here has read and
+        running code against it, in a container with no route out. That
+        produces security observations as a by-product. They are worth more
+        than the skill, so they are published here.
       </p>
       <p>
-        Reading this page costs nothing. Installing a skill needs a
-        <a href="/pricing/">subscription</a>.
+        Every package examined is listed, including the ones that never became
+        a skill. A list of only what we sell would be an advertisement, and the
+        package that got itself refused is the one worth reading about.
       </p>
-      <div class="scroll">
-        <table>
-          <thead>
-            <tr><th>Skill</th><th>For</th><th>Verified</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><a href="/skills/zod-schema-validation/">zod schema validation</a></td>
-              <td><code>zod@4.5.4</code></td>
-              <td>2026-09-07, 7 examples</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="notice">
+        <h2>What this is not</h2>
+        <p>Each entry records what happened in one sandboxed run under the policy named beside it. It is not a judgement of the package, and the absence of an observation is not a finding of safety. Observations at the 'manifest' and 'install' stages are the package's own behaviour; an observation at an 'example-N' stage happened while running example code we wrote against the package, and may have been caused by that code rather than by the package.</p>
+        <p>
+          Nothing here is inferred, scored, or taken from someone else's
+          advisory feed. Each line is something that happened in a run we
+          executed, quoted from that run's own output.
+        </p>
       </div>
+      <p>Nothing has been examined yet.</p>
     </main>
 
     <footer class="site">
