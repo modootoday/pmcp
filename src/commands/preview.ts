@@ -13,10 +13,7 @@ export const previewCommand: Command = {
   name: "preview",
   describe: "Show what a skill contains before subscribing",
   usage: "pmcp preview <skill-package> [--json]",
-  options: [
-    ...REMOTE_OPTIONS,
-    { name: "json", describe: "Print the preview as JSON.", boolean: true },
-  ],
+  options: REMOTE_OPTIONS,
 
   async run(context) {
     const [requested, ...extra] = context.args.positional;
