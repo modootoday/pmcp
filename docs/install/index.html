@@ -88,14 +88,14 @@
       <pre><code>npm install --save-dev pmcp</code></pre>
       <p>
         Installing it is optional. Every configuration below runs it through
-        <code>npx -y pmcp</code>, which works with nothing installed; adding it
+        <code>npx -y @modootoday/pmcp</code>, which works with nothing installed; adding it
         to the project pins the version your team gets.
       </p>
 
       <h2>A host that spawns servers over stdio</h2>
       <pre><code>{
   "mcpServers": {
-    "pmcp": { "command": "npx", "args": ["-y", "pmcp"] }
+    "pmcp": { "command": "npx", "args": ["-y", "@modootoday/pmcp"] }
   }
 }</code></pre>
       <p>
@@ -104,10 +104,10 @@
       </p>
 
       <h2>Claude Code</h2>
-      <pre><code>claude mcp add pmcp -- npx -y pmcp</code></pre>
+      <pre><code>claude mcp add pmcp -- npx -y @modootoday/pmcp</code></pre>
 
       <h2>VS Code, from a script</h2>
-      <pre><code>code --add-mcp '{"name":"pmcp","command":"npx","args":["-y","pmcp"]}'</code></pre>
+      <pre><code>code --add-mcp '{"name":"pmcp","command":"npx","args":["-y","@modootoday/pmcp"]}'</code></pre>
       <p>
         The same thing the badge does, for setting up a workstation rather than
         clicking through one.
@@ -157,7 +157,7 @@
       <div class="note">
         <p>
           <strong>Check it before you trust it.</strong>
-          <code>npx -y pmcp list</code> prints what the server would see from
+          <code>npx -y @modootoday/pmcp list</code> prints what the server would see from
           this directory, and exits 1 rather than 0 when that is nothing.
           <a href="/guide/">The five-minute version</a>.
         </p>
@@ -175,7 +175,7 @@
           <a href="/commands/">Commands</a>
           <a href="/install/" aria-current="page">Install</a>
           <a href="/licence/">Licence</a>
-          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+          <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
         </nav>
         <p>
           Copyright &copy; 2026 modootoday. Licensed under the Elastic License

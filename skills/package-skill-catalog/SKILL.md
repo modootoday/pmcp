@@ -31,7 +31,7 @@ For a host that spawns MCP servers over stdio:
 ```json
 {
   "mcpServers": {
-    "pmcp": { "command": "npx", "args": ["pmcp"] }
+    "pmcp": { "command": "npx", "args": ["@modootoday/pmcp"] }
   }
 }
 ```
@@ -46,7 +46,7 @@ Flags, all optional:
 Embedded in a host you are writing yourself:
 
 ```ts
-import { createSkillServer } from "pmcp";
+import { createSkillServer } from "@modootoday/pmcp";
 
 const server = createSkillServer({
   roots: ["./node_modules"],
@@ -119,7 +119,7 @@ discovery will and will not walk.
 ### Reading the catalog without a server
 
 ```ts
-import { readCatalog } from "pmcp";
+import { readCatalog } from "@modootoday/pmcp";
 
 const catalog = readCatalog({ roots: ["./node_modules"] });
 console.log(`${catalog.length} skills`);
@@ -173,7 +173,7 @@ for it.
 import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readCatalog } from "pmcp";
+import { readCatalog } from "@modootoday/pmcp";
 
 const root = mkdtempSync(join(tmpdir(), "skills-"));
 const pkg = join(root, "node_modules", "example");

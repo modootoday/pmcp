@@ -15,7 +15,7 @@ Register it with an MCP host:
 ```json
 {
   "mcpServers": {
-    "pmcp": { "command": "npx", "args": ["-y", "pmcp"] }
+    "pmcp": { "command": "npx", "args": ["-y", "@modootoday/pmcp"] }
   }
 }
 ```
@@ -23,7 +23,7 @@ Register it with an MCP host:
 For Claude Code:
 
 ```sh
-claude mcp add pmcp -- npx -y pmcp
+claude mcp add pmcp -- npx -y @modootoday/pmcp
 ```
 
 ## Commands

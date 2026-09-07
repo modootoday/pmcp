@@ -26,12 +26,12 @@
           {
             "@type": "HowToStep",
             "name": "Register the server",
-            "text": "Add a stdio server that runs npx -y pmcp to whichever file your host keeps MCP servers in."
+            "text": "Add a stdio server that runs npx -y @modootoday/pmcp to whichever file your host keeps MCP servers in."
           },
           {
             "@type": "HowToStep",
             "name": "See what it can see",
-            "text": "Run npx -y pmcp list. It prints the name and description of every skill your installed packages ship, and exits 1 when it finds none."
+            "text": "Run npx -y @modootoday/pmcp list. It prints the name and description of every skill your installed packages ship, and exits 1 when it finds none."
           },
           {
             "@type": "HowToStep",
@@ -92,7 +92,7 @@
       <h2>1. Register the server</h2>
       <pre><code>{
   "mcpServers": {
-    "pmcp": { "command": "npx", "args": ["-y", "pmcp"] }
+    "pmcp": { "command": "npx", "args": ["-y", "@modootoday/pmcp"] }
   }
 }</code></pre>
       <p>
@@ -102,7 +102,7 @@
       </p>
 
       <h2>2. See what it can see</h2>
-      <pre><code>npx -y pmcp list</code></pre>
+      <pre><code>npx -y @modootoday/pmcp list</code></pre>
       <p>
         One row per skill: the name, as
         <code>&lt;package&gt;/&lt;slug&gt;</code>, and the one-line description
@@ -160,8 +160,8 @@
         directory. Two options change that, and both belong in the
         <code>args</code> array beside <code>pmcp</code>:
       </p>
-      <pre><code>npx -y pmcp list --root ./node_modules
-npx -y pmcp list --scope @acme/</code></pre>
+      <pre><code>npx -y @modootoday/pmcp list --root ./node_modules
+npx -y @modootoday/pmcp list --scope @acme/</code></pre>
       <p>
         <code>--scope</code> matches the start of the package name, so
         <code>@acme</code> also matches <code>@acmetools/thing</code>. Include
@@ -175,7 +175,7 @@ npx -y pmcp list --scope @acme/</code></pre>
 
       <h2>If you want semantic ranking</h2>
       <pre><code>npm install --save-dev @huggingface/transformers
-npx -y pmcp index</code></pre>
+npx -y @modootoday/pmcp index</code></pre>
       <p>
         <code>index</code> encodes descriptions and stores local vectors. The
         default MCP server currently ranks lexically; installing the optional
@@ -193,8 +193,8 @@ npx -y pmcp index</code></pre>
         packages an agent gets wrong most often, each verified by running its
         examples against the version it names.
       </p>
-      <pre><code>npx -y pmcp available   # which of them match this project
-npx -y pmcp preview &lt;skill&gt;  # its contents and one full example</code></pre>
+      <pre><code>npx -y @modootoday/pmcp available   # which of them match this project
+npx -y @modootoday/pmcp preview &lt;skill&gt;  # its contents and one full example</code></pre>
       <p>
         Both are free and need no account. Installing one needs a
         <a href="/pricing/">subscription</a>; the
@@ -227,7 +227,7 @@ npx -y pmcp preview &lt;skill&gt;  # its contents and one full example</code></p
           <a href="/commands/">Commands</a>
           <a href="/install/">Install</a>
           <a href="/licence/">Licence</a>
-          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+          <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
         </nav>
         <p>
           Copyright &copy; 2026 modootoday. Licensed under the Elastic License

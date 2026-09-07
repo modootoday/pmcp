@@ -93,7 +93,7 @@ ${body}
       <div class="wrap">
         <nav>
           ${footer}
-          <a href="https://www.npmjs.com/package/pmcp">npm</a>
+          <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
         </nav>
         <p>
           Copyright &copy; 2026 modootoday. Licensed under the Elastic License
@@ -207,8 +207,8 @@ ${
       <p>
         With a <a href="/pricing/">subscription</a>:
       </p>
-      <pre><code>npx -y pmcp login
-npx -y pmcp install ${escape(entry.delivery.packageName)}</code></pre>
+      <pre><code>npx -y @modootoday/pmcp login
+npx -y @modootoday/pmcp install ${escape(entry.delivery.packageName)}</code></pre>
       <p>
         It installs as a dev dependency of your project, and the
         <a href="/guide/">MCP server</a> finds it there like any other skill.

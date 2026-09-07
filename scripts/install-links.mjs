@@ -10,7 +10,7 @@ const NAME = "pmcp";
 const CONFIG = {
   type: "stdio",
   command: "npx",
-  args: ["-y", "pmcp"],
+  args: ["-y", "@modootoday/pmcp"],
 };
 
 const json = JSON.stringify(CONFIG);
