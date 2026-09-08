@@ -1,6 +1,11 @@
 import { readFileSync, statSync } from "node:fs";
 import semver from "semver";
 import { z } from "zod";
+import {
+  memoryCatalogCache,
+  type CachedCatalog,
+  type CatalogCache,
+} from "./catalog-cache.js";
 
 const npmName = z
   .string()
@@ -137,14 +142,48 @@ export function readCatalogFile(path: string): RemoteCatalog {
 export async function fetchCatalog(
   origin: string,
   fetcher: typeof fetch = fetch,
+  cache: CatalogCache = memoryCatalogCache(),
+): Promise<RemoteCatalog> {
+  const held = cache.read(origin);
+  if (held) {
+    try {
+      return await request(origin, fetcher, held, cache);
+    } catch (error) {
+      // A cache that cannot be honoured is a cache to ignore, not a failure:
+      // fall through and ask for the whole thing.
+      if (!(error instanceof StaleCacheError)) throw error;
+    }
+  }
+  return await request(origin, fetcher, null, cache);
+}
+
+class StaleCacheError extends Error {}
+
+async function request(
+  origin: string,
+  fetcher: typeof fetch,
+  held: CachedCatalog | null,
+  cache: CatalogCache,
 ): Promise<RemoteCatalog> {
   // The public index request contains no account, dependency list or query text.
+  // The entity tag says which revision is already held, which the catalog
+  // itself publishes; it says nothing about the machine asking.
   const response = await fetcher(catalogEndpoint(origin), {
     method: "GET",
-    headers: { accept: "application/json" },
+    headers: held
+      ? { accept: "application/json", "if-none-match": held.etag }
+      : { accept: "application/json" },
     redirect: "error",
     signal: AbortSignal.timeout(15000),
   });
+  if (response.status === 304) {
+    if (!held) throw new Error("catalog answered 304 to an unconditional read");
+    try {
+      return parseCatalog(JSON.parse(held.body));
+    } catch {
+      throw new StaleCacheError("the held catalog no longer parses");
+    }
+  }
   if (!response.ok)
     throw new Error(`catalog request failed (${response.status})`);
   if (
@@ -178,5 +217,11 @@ export async function fetchCatalog(
     bytes.set(chunk, offset);
     offset += chunk.byteLength;
   }
-  return parseCatalog(JSON.parse(new TextDecoder().decode(bytes)));
+  const text = new TextDecoder().decode(bytes);
+  const catalog = parseCatalog(JSON.parse(text));
+  // Stored only after it parsed: a cache is a copy of an answer we accepted.
+  const tag = response.headers.get("etag");
+  if (tag !== null && tag !== "")
+    cache.write(origin, { etag: tag, body: text });
+  return catalog;
 }

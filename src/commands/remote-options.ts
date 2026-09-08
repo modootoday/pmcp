@@ -6,6 +6,8 @@ import {
   readCatalogFile,
   type RemoteCatalog,
 } from "../remote/catalog.js";
+import { fileCatalogCache } from "../remote/catalog-cache.js";
+import { globalDir } from "../remote/session.js";
 
 export const REMOTE_OPTIONS: readonly OptionSpec[] = [
   {
@@ -43,5 +45,5 @@ export async function remoteCatalog(
       throw new Error("choose --catalog or --api, not both");
     return readCatalogFile(resolve(context.cwd, file));
   }
-  return fetchCatalog(apiOrigin(context));
+  return fetchCatalog(apiOrigin(context), fetch, fileCatalogCache(globalDir()));
 }
