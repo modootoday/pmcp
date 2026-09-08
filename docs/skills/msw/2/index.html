@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>msw 2.x — pmcp</title>
+    <meta name="description" content="Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point." />
+    <link rel="canonical" href="https://pmcp.build/skills/msw/2/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/skills/msw/2/" />
+    <meta property="og:title" content="msw 2.x — pmcp" />
+    <meta property="og:description" content="Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point." />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M4.25 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M9 7v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M13.75 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/skills/" aria-current="page">Skills</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>msw 2.x</h1>
+      <p>Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point.</p>
+      <dl>
+        <dt>For</dt><dd><code>msw@2.15.0</code></dd>
+        <dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd>
+        <dt>Package</dt><dd><code>@modootoday/pmcp-msw@2.0.0</code></dd>
+      </dl>
+      <h2>What it covers</h2>
+      <ul>
+        <li>The v2 shape</li>
+        <li>Node interception</li>
+        <li>GraphQL handlers</li>
+        <li>Browser setup</li>
+        <li>Migration traps from MSW 1.x</li>
+        <li>Not covered</li>
+      </ul>
+      <h2>One example from this skill</h2>
+      <p>
+        This is the skill's own text, not a summary of it. It runs: that is what
+        verifying means here.
+      </p>
+      <pre><code>import assert from 'node:assert/strict'
+import { http, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
+
+const server = setupServer(
+  http.get('https://example.test/users/:id', ({ params, request }) =&gt; {
+    const url = new URL(request.url)
+    return HttpResponse.json(
+      { id: params.id, host: url.host },
+      { status: 202, statusText: 'Mocked' },
+    )
+  }),
+)
+
+server.listen()
+try {
+  const response = await fetch('https://example.test/users/abc-123')
+  assert.equal(response.status, 202)
+  assert.equal(response.statusText, 'Mocked')
+  assert.deepEqual(await response.json(), {
+    id: 'abc-123',
+    host: 'example.test',
+  })
+} finally {
+  server.close()
+}</code></pre>
+      <h2>What it did in the sandbox</h2>
+      <p>
+        Verifying this skill meant installing the package and running code
+        against it with no route out. This is what happened, quoted from the run.
+        <a href="/observations/">The full ledger</a> lists every package
+        examined, including the ones that never became a skill.
+      </p>
+      <ul class="observations">
+        <li>
+          <code>postinstall: node -e &quot;import('./config/scripts/postinstall.js').catch(() =&gt; void 0)&quot;</code>
+          <span class="tag">the package</span>
+        </li>
+        <li>
+          <code>postinstall: node -e &quot;import('./config/scripts/postinstall.js').catch(() =&gt; void 0)&quot;</code>
+          <span class="tag">the package</span>
+        </li>
+      </ul>
+      <h2>Getting it</h2>
+      <p>
+        With a <a href="/pricing/">subscription</a>:
+      </p>
+      <pre><code>npx -y @modootoday/pmcp login
+npx -y @modootoday/pmcp install @modootoday/pmcp-msw</code></pre>
+      <p>
+        It installs as a dev dependency of your project, and the
+        <a href="/guide/">MCP server</a> finds it there like any other skill.
+      </p>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/skills/">Skills</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/observations/">Observations</a>
+          <a href="/install/">Install</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>zod-validation-error 5.x — pmcp</title>
+    <meta name="description" content="Use zod-validation-error ^5.0.0 with Zod 4 by default, including direct ValidationError construction, Zod error conversion, type guards, message builders, and the separate Zod 3 entrypoint." />
+    <link rel="canonical" href="https://pmcp.build/skills/zod-validation-error/5/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/skills/zod-validation-error/5/" />
+    <meta property="og:title" content="zod-validation-error 5.x — pmcp" />
+    <meta property="og:description" content="Use zod-validation-error ^5.0.0 with Zod 4 by default, including direct ValidationError construction, Zod error conversion, type guards, message builders, and the separate Zod 3 entrypoint." />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M4.25 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M9 7v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M13.75 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/skills/" aria-current="page">Skills</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>zod-validation-error 5.x</h1>
+      <p>Use zod-validation-error ^5.0.0 with Zod 4 by default, including direct ValidationError construction, Zod error conversion, type guards, message builders, and the separate Zod 3 entrypoint.</p>
+      <dl>
+        <dt>For</dt><dd><code>zod-validation-error@5.0.0</code></dd>
+        <dt>Verified</dt><dd>2026-09-08, 7 examples executed</dd>
+        <dt>Package</dt><dd><code>@modootoday/pmcp-zod-validation-error@5.0.0</code></dd>
+      </dl>
+      <h2>What it covers</h2>
+      <ul>
+        <li>Important version distinction</li>
+        <li>Direct `ValidationError`</li>
+        <li>Convert a Zod error</li>
+        <li>Convert one issue</li>
+        <li>Convert with `toValidationError`</li>
+        <li>Message builders and error maps</li>
+        <li>Type guards</li>
+        <li>Common mistakes</li>
+        <li>Not covered</li>
+      </ul>
+      <h2>One example from this skill</h2>
+      <p>
+        This is the skill's own text, not a summary of it. It runs: that is what
+        verifying means here.
+      </p>
+      <pre><code>import assert from 'node:assert/strict';
+import { ValidationError } from 'zod-validation-error';
+
+const error = new ValidationError('Invalid argument; expected buffer');
+
+assert.equal(error instanceof Error, true);
+assert.equal(error.message, 'Invalid argument; expected buffer');</code></pre>
+      <h2>What it did in the sandbox</h2>
+      <p>
+        Verifying this skill meant installing the package and running code
+        against it with no route out. This is what happened, quoted from the run.
+        <a href="/observations/">The full ledger</a> lists every package
+        examined, including the ones that never became a skill.
+      </p>
+      <ul class="observations">
+        <li>
+          <code>prepare: husky</code>
+          <span class="tag">the package</span>
+        </li>
+        <li>
+          <code>prepare: husky</code>
+          <span class="tag">the package</span>
+        </li>
+      </ul>
+      <h2>Getting it</h2>
+      <p>
+        With a <a href="/pricing/">subscription</a>:
+      </p>
+      <pre><code>npx -y @modootoday/pmcp login
+npx -y @modootoday/pmcp install @modootoday/pmcp-zod-validation-error</code></pre>
+      <p>
+        It installs as a dev dependency of your project, and the
+        <a href="/guide/">MCP server</a> finds it there like any other skill.
+      </p>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/skills/">Skills</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/observations/">Observations</a>
+          <a href="/install/">Install</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

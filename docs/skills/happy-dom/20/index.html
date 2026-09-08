@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>happy-dom 20.x — pmcp</title>
+    <meta name="description" content="Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind." />
+    <link rel="canonical" href="https://pmcp.build/skills/happy-dom/20/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/skills/happy-dom/20/" />
+    <meta property="og:title" content="happy-dom 20.x — pmcp" />
+    <meta property="og:description" content="Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind." />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M4.25 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M9 7v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M13.75 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/skills/" aria-current="page">Skills</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>happy-dom 20.x</h1>
+      <p>Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind.</p>
+      <dl>
+        <dt>For</dt><dd><code>happy-dom@20.14.0</code></dd>
+        <dt>Verified</dt><dd>2026-09-07, 5 examples executed</dd>
+        <dt>Package</dt><dd><code>@modootoday/pmcp-happy-dom@20.0.0</code></dd>
+      </dl>
+      <h2>What it covers</h2>
+      <ul>
+        <li>Scope</li>
+        <li>`Window`: create and manipulate a DOM</li>
+        <li>JavaScript evaluation is disabled by default in v20</li>
+        <li>`Browser` and pages</li>
+        <li>`GlobalWindow`</li>
+        <li>Finding the owning window with `PropertySymbol`</li>
+        <li>Test-environment integrations are separate</li>
+        <li>Server rendering is a separate package</li>
+        <li>Not covered</li>
+      </ul>
+      <h2>One example from this skill</h2>
+      <p>
+        This is the skill's own text, not a summary of it. It runs: that is what
+        verifying means here.
+      </p>
+      <pre><code>import { strict as assert } from 'node:assert';
+import { Window } from 'happy-dom';
+
+const window = new Window({ url: 'https://localhost:8080' });
+const document = window.document;
+
+document.body.innerHTML = '&lt;div class=&quot;container&quot;&gt;&lt;/div&gt;';
+const container = document.querySelector('.container');
+assert.ok(container);
+
+const button = document.createElement('button');
+container.appendChild(button);
+
+assert.equal(document.body.innerHTML, '&lt;div class=&quot;container&quot;&gt;&lt;button&gt;&lt;/button&gt;&lt;/div&gt;');
+assert.equal(window.location.href, 'https://localhost:8080/');
+
+await window.happyDOM.abort();
+window.close();</code></pre>
+      <h2>What it did in the sandbox</h2>
+      <p>
+        Verifying this skill meant installing the package and running code
+        against it with no route out. Nothing was observed.
+        <a href="/observations/">The full ledger</a> lists every package
+        examined, including the ones that never became a skill.
+      </p>
+      <p>
+        Nothing observed is not a finding of safety. It means one run, under
+        one policy, produced nothing to report.
+      </p>
+      <h2>Getting it</h2>
+      <p>
+        With a <a href="/pricing/">subscription</a>:
+      </p>
+      <pre><code>npx -y @modootoday/pmcp login
+npx -y @modootoday/pmcp install @modootoday/pmcp-happy-dom</code></pre>
+      <p>
+        It installs as a dev dependency of your project, and the
+        <a href="/guide/">MCP server</a> finds it there like any other skill.
+      </p>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/skills/">Skills</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/observations/">Observations</a>
+          <a href="/install/">Install</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

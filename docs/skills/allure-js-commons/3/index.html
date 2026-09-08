@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>allure-js-commons 3.x — pmcp</title>
+    <meta name="description" content="Use allure-js-commons 3.x as the test-facing Allure facade or as the SDK foundation for a framework adapter. Prefer the v3 ReporterRuntime/TestRuntime architecture over the removed v2 AllureRuntime shape." />
+    <link rel="canonical" href="https://pmcp.build/skills/allure-js-commons/3/" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="pmcp" />
+    <meta property="og:url" content="https://pmcp.build/skills/allure-js-commons/3/" />
+    <meta property="og:title" content="allure-js-commons 3.x — pmcp" />
+    <meta property="og:description" content="Use allure-js-commons 3.x as the test-facing Allure facade or as the SDK foundation for a framework adapter. Prefer the v3 ReporterRuntime/TestRuntime architecture over the removed v2 AllureRuntime shape." />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M4.25 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M9 7v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M13.75 4.6v8.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+          </svg>
+          pmcp
+        </a>
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/skills/" aria-current="page">Skills</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <h1>allure-js-commons 3.x</h1>
+      <p>Use allure-js-commons 3.x as the test-facing Allure facade or as the SDK foundation for a framework adapter. Prefer the v3 ReporterRuntime/TestRuntime architecture over the removed v2 AllureRuntime shape.</p>
+      <dl>
+        <dt>For</dt><dd><code>allure-js-commons@3.12.0</code></dd>
+        <dt>Verified</dt><dd>2026-09-08, 4 examples executed</dd>
+        <dt>Package</dt><dd><code>@modootoday/pmcp-allure-js-commons@3.0.0</code></dd>
+      </dl>
+      <h2>What it covers</h2>
+      <ul>
+        <li>Scope</li>
+        <li>Test-facing facade</li>
+        <li>Synchronous facade</li>
+        <li>Custom integrations and reporter SDK</li>
+        <li>Migration traps from v2</li>
+        <li>What this skill does not cover</li>
+      </ul>
+      <h2>One example from this skill</h2>
+      <p>
+        This is the skill's own text, not a summary of it. It runs: that is what
+        verifying means here.
+      </p>
+      <pre><code>import assert from &quot;node:assert/strict&quot;;
+import * as allure from &quot;allure-js-commons&quot;;
+
+assert.equal(typeof allure.epic, &quot;function&quot;);
+assert.equal(typeof allure.feature, &quot;function&quot;);
+assert.equal(typeof allure.story, &quot;function&quot;);
+assert.equal(typeof allure.owner, &quot;function&quot;);
+assert.equal(typeof allure.severity, &quot;function&quot;);
+assert.equal(typeof allure.issue, &quot;function&quot;);
+assert.equal(typeof allure.tms, &quot;function&quot;);
+assert.equal(typeof allure.tag, &quot;function&quot;);
+assert.equal(typeof allure.description, &quot;function&quot;);
+assert.equal(typeof allure.descriptionHtml, &quot;function&quot;);
+assert.equal(typeof allure.displayName, &quot;function&quot;);
+assert.equal(typeof allure.historyId, &quot;function&quot;);
+assert.equal(typeof allure.testCaseId, &quot;function&quot;);
+assert.equal(typeof allure.parameter, &quot;function&quot;);
+assert.equal(typeof allure.step, &quot;function&quot;);
+assert.equal(typeof allure.logStep, &quot;function&quot;);
+assert.equal(typeof allure.attachment, &quot;function&quot;);
+assert.equal(typeof allure.attachmentPath, &quot;function&quot;);
+assert.equal(typeof allure.globalAttachment, &quot;function&quot;);
+assert.equal(typeof allure.globalAttachmentPath, &quot;function&quot;);</code></pre>
+      <h2>What it did in the sandbox</h2>
+      <p>
+        Verifying this skill meant installing the package and running code
+        against it with no route out. Nothing was observed.
+        <a href="/observations/">The full ledger</a> lists every package
+        examined, including the ones that never became a skill.
+      </p>
+      <p>
+        Nothing observed is not a finding of safety. It means one run, under
+        one policy, produced nothing to report.
+      </p>
+      <h2>Getting it</h2>
+      <p>
+        With a <a href="/pricing/">subscription</a>:
+      </p>
+      <pre><code>npx -y @modootoday/pmcp login
+npx -y @modootoday/pmcp install @modootoday/pmcp-allure-js-commons</code></pre>
+      <p>
+        It installs as a dev dependency of your project, and the
+        <a href="/guide/">MCP server</a> finds it there like any other skill.
+      </p>
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <nav>
+          <a href="/guide/">Start</a>
+          <a href="/skills/">Skills</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/compare/">Compare</a>
+          <a href="/authoring/">Authoring</a>
+          <a href="/commands/">Commands</a>
+          <a href="/observations/">Observations</a>
+          <a href="/install/">Install</a>
+          <a href="/licence/">Licence</a>
+          <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+        </nav>
+        <p>
+          Copyright &copy; 2026 modootoday. Licensed under the Elastic License
+          2.0.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
