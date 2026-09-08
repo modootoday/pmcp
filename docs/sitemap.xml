@@ -41,11 +41,35 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/agent-base/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/agent-base/9/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/ansi-styles/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/ansi-styles/7/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/autoprefixer/</loc>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/skills/autoprefixer/10/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/babel-plugin-transform-typescript/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/babel-plugin-transform-typescript/8/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -57,6 +81,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/chalk/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/chalk/6/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/commander/</loc>
     <priority>0.8</priority>
   </url>
@@ -65,11 +97,35 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/content-type/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/content-type/3/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/croner/</loc>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/skills/croner/10/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/firebase-admin/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/firebase-admin/14/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/get-uri/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/get-uri/8/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -105,6 +161,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/inquirer/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/inquirer/14/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/ioredis/</loc>
     <priority>0.8</priority>
   </url>
@@ -113,11 +177,43 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/jake/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/jake/12/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/jasmine-core/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/jasmine-core/7/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/jsdom/</loc>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/skills/jsdom/30/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/make-fetch-happen/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/make-fetch-happen/16/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/mocha/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/mocha/12/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -153,6 +249,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/react-router/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/react-router/8/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/react-testing-library/</loc>
     <priority>0.8</priority>
   </url>
@@ -169,11 +273,59 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/release-it/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/release-it/21/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/rolldown/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/rolldown/1/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/sinon/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/sinon/22/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/slice-ansi/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/slice-ansi/9/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/supports-color/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/supports-color/11/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/tailwindcss/</loc>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/skills/tailwindcss/4/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/tedious/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/tedious/20/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -222,6 +374,14 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/wrangler/4/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/yeoman-environment/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/yeoman-environment/7/</loc>
     <priority>0.8</priority>
   </url>
   <url>

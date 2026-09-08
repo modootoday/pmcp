@@ -1,6 +1,6 @@
 {
-  "revision": "r10-recovered-20260907",
-  "publishedAt": "2026-09-07T23:16:58.580Z",
+  "revision": "r11-batch4-20260908",
+  "publishedAt": "2026-09-08T00:32:28.226Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -1070,6 +1070,843 @@
       ],
       "line": {
         "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "babel-plugin-transform-typescript",
+      "title": "@babel/plugin-transform-typescript",
+      "summary": "Use @babel/plugin-transform-typescript 8.0.0 with Babel 8 to strip and transform TypeScript syntax.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-babel-plugin-transform-typescript",
+        "version": "8.0.0",
+        "integrity": "sha512-euH4MPncXtGQCJM7jd8Dbr8S103Le2ag3e0nP78pv9S0AJME9cwb0/T7a6h2uwf8NGFsrbBuWI6xwkaR9b8bhQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:f62fb57d2b638567739595bfb2c4fede6dd59c818c426b3b4112871445a756e2",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "Basic transformation",
+          "Babel 8 typed class fields",
+          "`const enum` optimization",
+          "Options and configuration mistakes",
+          "CommonJS `import = require` caveat",
+          "Does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport { transformSync } from \"@babel/core\";\nimport transformTypeScript from \"@babel/plugin-transform-typescript\";\n\nconst result = transformSync(\"const value: number = 0;\", {\n  plugins: [transformTypeScript],\n});\n\nassert.ok(result?.code);\nassert.match(result.code, /const value = 0/);\nassert.doesNotMatch(result.code, /: number/);"
+      },
+      "targets": [
+        {
+          "packageName": "@babel/plugin-transform-typescript",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "agent-base",
+      "title": "agent-base",
+      "summary": "Use agent-base 9 as an ESM adapter for Node's HTTP and HTTPS agent machinery.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-agent-base",
+        "version": "9.0.0",
+        "integrity": "sha512-O354EwwyWRb/TXM8kE0Vc84yyhjSH8Ge7mpDMU4hpIizpQPAjefsIvgKh9m18WHp65dy7q2Wc/TY0k3mBjFcJg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:703a39060524863690ce2bd799abc59c0120f1b9c5d9923b5110a3fa09fe9ca7",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Version and module shape",
+          "`Agent` subclass contract",
+          "`toBuffer()`",
+          "`json()`",
+          "`req()`",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { PassThrough } from 'node:stream';\nimport { Agent } from 'agent-base';\n\nclass LocalAgent extends Agent {\n  connect(_request: never, options: { secureEndpoint: boolean }) {\n    assert.equal(options.secureEndpoint, false);\n    return new PassThrough();\n  }\n}\n\nconst agent = new LocalAgent({ keepAlive: true });\nassert.ok(agent instanceof Agent);\nassert.equal(agent.options.keepAlive, true);\n\nconst socket = agent.connect({} as never, { secureEndpoint: false });\nassert.ok(socket instanceof PassThrough);"
+      },
+      "targets": [
+        {
+          "packageName": "agent-base",
+          "range": "^9.0.0",
+          "verifiedVersions": [
+            "9.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 9,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "ansi-styles",
+      "title": "ansi-styles",
+      "summary": "Use ansi-styles v7.0.0 to generate ANSI escape sequences, inspect style groups, convert RGB/hex colors, and work with underline colors. Requires Node.js 22 or newer and ESM imports.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-ansi-styles",
+        "version": "7.0.0",
+        "integrity": "sha512-tCZhIUPXyECp2NeD6Gamlt7tbFohkPca0KSNFTe6xQJxIxnvBJcvEHwOvHdkxz13GCAnyQ/D/LdfkAplzAXgRA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2bfb6681d3a4c3f7abbd75c955a76dd4a8b050e9a3d0041cc63e7182e3c8510b",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Import shape",
+          "Styles and groups",
+          "ANSI color conversions",
+          "Underline styles and underline colors",
+          "The `codes` map",
+          "Common v6-to-v7 mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport styles, {\n  modifierNames,\n  foregroundColorNames,\n  backgroundColorNames,\n  underlineColorNames,\n  colorNames,\n} from 'ansi-styles';\n\nassert.ok(modifierNames.includes('bold'));\nassert.ok(foregroundColorNames.includes('green'));\nassert.ok(backgroundColorNames.includes('bgGreen'));\nassert.ok(underlineColorNames.includes('underlineRed'));\nassert.ok(colorNames.includes('green'));\nassert.ok(colorNames.includes('bgGreen'));\nassert.ok(!colorNames.includes('underlineRed'));"
+      },
+      "targets": [
+        {
+          "packageName": "ansi-styles",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "chalk",
+      "title": "chalk",
+      "summary": "Use chalk@^6.0.0 correctly from Node.js 22+ ESM, including deterministic color levels, v6 underline styles/colors, Chalk instances, and exported capability metadata.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-chalk",
+        "version": "6.0.0",
+        "integrity": "sha512-dtVraZqdzYMDL9gc397itEwJsQyRFq/mlXBMEoyjzJs8Ws8sS2MHCpjKpV7ZOboEb+u3XzWBlm1n8hB2lqoh9Q=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:401473e61969914d62625e55f890ff4df2d6f339d023f1de5750c98d6dee90f5",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Runtime and package shape",
+          "Chaining styles and arguments",
+          "Color levels and `Chalk`",
+          "v6 underline styles and underline colors",
+          "Color models",
+          "Named exports and stderr instance",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport chalk, {Chalk} from 'chalk';\n\nassert.equal(typeof chalk, 'function');\nassert.equal(typeof Chalk, 'function');\n\nconst plain = new Chalk({level: 0});\nassert.equal(plain.blue('hello'), 'hello');\nassert.equal(plain.bold.red('error'), 'error');"
+      },
+      "targets": [
+        {
+          "packageName": "chalk",
+          "range": "^6.0.0",
+          "verifiedVersions": [
+            "6.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 6,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "content-type",
+      "title": "content-type",
+      "summary": "Use content-type 3.x as an ESM-only parser and formatter for HTTP Content-Type header values. Covers parse options, formatting, validation boundaries, and migration away from older CommonJS/request-response examples.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-content-type",
+        "version": "3.0.0",
+        "integrity": "sha512-7Fm7FJXs1zV5a2qIii27/hJ0AT6K1d6RXYJZnza1rvjFRShc7JILqodcxLo5XqCKWOKjBfLMvqvNLGvGVrfuUg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:99dd9e53f9c3b4f30702f45fe2e00204d8fa765954fe05fc07f27698d7d8fc72",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "Parse a Content-Type string",
+          "Parse options",
+          "Format a Content-Type value",
+          "Migration traps",
+          "What this skill does not cover"
+        ],
+        "example": "import * as assert from \"node:assert/strict\";\nimport * as contentType from \"content-type\";\n\nconst parsed = contentType.parse(\"image/svg+xml; charset=utf-8\");\n\nassert.equal(parsed.type, \"image/svg+xml\");\nassert.equal(parsed.parameters.charset, \"utf-8\");"
+      },
+      "targets": [
+        {
+          "packageName": "content-type",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "firebase-admin",
+      "title": "firebase-admin",
+      "summary": "Practical firebase-admin ^14.0.0 guidance for Node.js 22+ server applications, using v14 modular imports and avoiding removed legacy APIs.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-firebase-admin",
+        "version": "14.0.0",
+        "integrity": "sha512-tBTyIri7wRfXTGTiLqb5VvZgm0209ZM/b49yB5l89yc30HCfPd0iGE/gj9tnzbFJAU8tIjbymqkid2A/a2ct1g=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:59dcb01f9a436fb85ea6dbf6da25ed135d37f9a4f794bf3fa5b8c3e8ad316378",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Use the modular API",
+          "Initialize and retrieve apps",
+          "Authentication",
+          "Cloud Firestore",
+          "Cloud Messaging",
+          "Other documented modules",
+          "Version and runtime cautions",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { getApp, getApps, initializeApp } from 'firebase-admin/app';\n\nconst app = initializeApp({ projectId: 'example-project' }, 'example-app');\nassert.equal(getApp('example-app'), app);\nassert.equal(getApps().includes(app), true);\nassert.equal(app.name, 'example-app');"
+      },
+      "targets": [
+        {
+          "packageName": "firebase-admin",
+          "range": "^14.0.0",
+          "verifiedVersions": [
+            "14.3.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 14,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "get-uri",
+      "title": "get-uri",
+      "summary": "Use get-uri 8.x to obtain readable streams from data, file, FTP, HTTP, and HTTPS URIs, or to validate supported protocols.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-get-uri",
+        "version": "8.0.0",
+        "integrity": "sha512-3aTj1ofOnkZFQgHt4nuHaiYTvT60th4qhvdHMCpCUQvy0ikA3DD8EMX8UaTpPOUVjta+dhoC2/dDyXEY9Wr14Q=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:d7cbed6f9a0958ada91c5be0bd4dccbb4ab2ed81b2e7f70c1390466ad6eb8548",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module shape",
+          "Get a readable stream",
+          "Protocol helpers",
+          "Caching and errors",
+          "Common version mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { getUri } from 'get-uri';\n\nconst stream = await getUri('data:text/plain,hello');\nlet result = '';\n\nfor await (const chunk of stream) {\n  result += chunk.toString();\n}\n\nassert.equal(result, 'hello');"
+      },
+      "targets": [
+        {
+          "packageName": "get-uri",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "inquirer",
+      "title": "inquirer",
+      "summary": "Use Inquirer.js 14's legacy prompt API correctly, including v14 prompt registration behavior, prompt-module creation, separators, and interactive-terminal limitations.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-inquirer",
+        "version": "14.0.0",
+        "integrity": "sha512-YajZecy0lnQyLa/JWY+WJR8j3CMt7VJOxPo18cd70v9cW2XcWSnSUBMj+q8+s3BLReMw6CpMeJ6dv5g+79upbw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:aa7cf3646eabafcff8e0a067485ca536d9f03f3bf0bb74cfb2c78c33f2ff243a",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Scope and package shape",
+          "The important v14 behavior change",
+          "Asking questions",
+          "Non-interactive environments",
+          "Prompt modules",
+          "Separators in choices",
+          "Reactive questions",
+          "Built-in prompt details and environment caveats",
+          "Migration and v14 notes",
+          "Not covered"
+        ],
+        "example": "import inquirer from 'inquirer';\nimport assert from 'node:assert/strict';\n\nassert.equal(typeof inquirer.prompt, 'function');\nassert.equal(typeof inquirer.registerPrompt, 'function');\nassert.equal(typeof inquirer.createPromptModule, 'function');\nassert.equal(typeof inquirer.restoreDefaultPrompts, 'function');\nassert.equal(typeof inquirer.Separator, 'function');"
+      },
+      "targets": [
+        {
+          "packageName": "inquirer",
+          "range": "^14.0.0",
+          "verifiedVersions": [
+            "14.2.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 14,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "jake",
+      "title": "jake",
+      "summary": "Use Jake 12.x task-definition APIs safely from JavaScript or TypeScript, while distinguishing import-time definitions from behavior supplied by Jake’s CLI runner.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-jake",
+        "version": "12.0.0",
+        "integrity": "sha512-U4DKhP/hSEH0+hu6MEifYmy9qtyyQhdkes10WrqNrBJUJWIwsuipQ9DqOwzhLR43s0KyBzQVaEX8XoRpVY/U9Q=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:9dbd6c849296521f9379dbdd9ace6b658e6dd62636238243c082368bc42f833f",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Version and import",
+          "Define ordinary tasks",
+          "File and directory tasks",
+          "Namespaces",
+          "Compose functions with `series`",
+          "Exported-function task shape",
+          "Runner-only behavior",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport jake from \"jake\";\n\nassert.equal(typeof jake.task, \"function\");\nassert.equal(typeof jake.file, \"function\");\nassert.equal(typeof jake.namespace, \"function\");\nassert.equal(typeof jake.series, \"function\");"
+      },
+      "targets": [
+        {
+          "packageName": "jake",
+          "range": "^12.0.0",
+          "verifiedVersions": [
+            "12.10.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 12,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "jasmine-core",
+      "title": "jasmine-core",
+      "summary": "Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-jasmine-core",
+        "version": "7.0.0",
+        "integrity": "sha512-RJqRnou1rEwCTZe/O8AIuGO29Mz2meBNYAAMJrECbEHdux/E1KAVl3B3nHMZdNGd0/p8hUwJw/HE4GS6m16sYw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:af1b53fd8f111cff1bc8653ee8d1ea421b77c25d8d8c3ca899cb906db8739d88",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "What this package is",
+          "Import and booting in 7.x",
+          "State and version",
+          "Defining specs and expectations",
+          "Spies",
+          "Pending versus not applicable",
+          "6.x shapes that are wrong in 7.x",
+          "Configuration and integration migration notes",
+          "Does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport jasmineCore from \"jasmine-core\";\n\nconst target: Record<string, unknown> = {};\njasmineCore.installGlobals(target);\n\nfor (const name of [\"describe\", \"it\", \"expect\", \"spyOn\", \"notApplicable\"]) {\n  assert.equal(typeof target[name], \"function\", `${name} should be installed`);\n}\nassert.equal(typeof (globalThis as any).describe, \"undefined\");"
+      },
+      "targets": [
+        {
+          "packageName": "jasmine-core",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "make-fetch-happen",
+      "title": "make-fetch-happen",
+      "summary": "Use make-fetch-happen ^16.0.0 for fetch-compatible HTTP requests with caching, retries, proxy support, integrity verification, DNS caching, and Node.js transport options.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-make-fetch-happen",
+        "version": "16.0.0",
+        "integrity": "sha512-RZHqKgF5R9BcxKN6QrRu0U9aSN6pc1cLoxpL1hjlBQl2U4Tar+mscZyEi8DzBiWXO5P+qDlZIlZ9H95bnj5viQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:5573559968d5a99c98fb1ecfa074fefde26467c71d1d24a57eba85f7b8b46047",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Runtime and import",
+          "Defaults and caching",
+          "Retry behavior",
+          "Integrity verification",
+          "Other request options",
+          "Standalone fetch-compatible classes",
+          "Creating configured fetch functions without making a request",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\n\nconst {\n  Headers,\n  Request,\n  Response\n} = require('make-fetch-happen')\n\nconst headers = new Headers({\n  'content-type': 'application/json',\n  'x-example': 'yes'\n})\n\nassert.equal(headers.get('content-type'), 'application/json')\nassert.equal(headers.get('x-example'), 'yes')\n\nconst request = new Request('https://example.invalid/data', {\n  method: 'POST',\n  headers,\n  body: JSON.stringify({ input: 1 })\n})\n\nassert.equal(request.method, 'POST')\nassert.equal(request.url, 'https://example.invalid/data')\nassert.equal(request.headers.get('x-example'), 'yes')\n\nconst response = new Response(JSON.stringify({ ok: true }), {\n  status: 201,\n  headers: { 'content-type': 'application/json' }\n})\n\nassert.equal(response.status, 201)\nassert.equal(response.headers.get('content-type'), 'application/json')\nassert.deepEqual(await response.json(), { ok: true })"
+      },
+      "targets": [
+        {
+          "packageName": "make-fetch-happen",
+          "range": "^16.0.0",
+          "verifiedVersions": [
+            "16.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 16,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "mocha",
+      "title": "mocha",
+      "summary": "Use Mocha ^12.0.0 programmatically, with the ESM package shape and runner-loading rules rather than v11-era assumptions.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-mocha",
+        "version": "12.0.0",
+        "integrity": "sha512-YjtX2R4ivbjQXas0dnWtQn2EK9AsVDNwyEGLZcj+tThZs8QH9D3jPDSPa0UPlK4wgdPLVdWz+lzY8yq/emNnjA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:165b2eb6bc40f27a352b6c349019d94fef97bb7442589f8af4fb5dc51a216af4",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Version and module shape",
+          "Construct and configure a runner",
+          "Loading test files and running",
+          "CLI and configuration",
+          "ESM and runner limitations",
+          "Mocha 12 CLI changes",
+          "Not covered"
+        ],
+        "example": "import Mocha from \"mocha\";\nimport assert from \"node:assert/strict\";\n\nconst mocha = new Mocha({ timeout: 1000, reporter: \"spec\" });\n\nassert.equal(mocha.ui(\"bdd\"), mocha);\nassert.equal(mocha.timeout(\"1s\"), mocha);\nassert.equal(mocha.retries(1), mocha);\nassert.equal(mocha.grep(/match/i), mocha);\nassert.equal(mocha.invert(), mocha);\nassert.equal(mocha.reporter(\"spec\"), mocha);\nassert.equal(typeof Mocha.Runner, \"function\");\nassert.equal(typeof Mocha.reporters, \"object\");"
+      },
+      "targets": [
+        {
+          "packageName": "mocha",
+          "range": "^12.0.0",
+          "verifiedVersions": [
+            "12.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 12,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "react-router",
+      "title": "react-router",
+      "summary": "Use react-router ^8.0.0 APIs correctly, including v8 import boundaries, pure path helpers, and the parts that require a React or framework runtime.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-react-router",
+        "version": "8.0.0",
+        "integrity": "sha512-s0Qo7oV86BSdQcbQq8sOMoungwi4O2+4j75v4HY9eKmq4/DL0Pcn4ZV4+JZSLh0bv4gy8SDtirvdHBJlHqAJmA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:3039a6877949702c52ab7ee2ad25bf510fac778deab5e6d0caa2c4a4e811aadc",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Version and module boundary",
+          "Pure path helpers",
+          "`generatePath`",
+          "`matchPath`",
+          "React-bound APIs",
+          "`useRoutes`",
+          "`createBrowserRouter`",
+          "v8 migration traps",
+          "Framework and server boundaries",
+          "Not covered"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport { generatePath } from \"react-router\";\n\nassert.equal(generatePath(\"/users/:id\", { id: \"123\" }), \"/users/123\");\nassert.equal(generatePath(\"/files/:name\", { name: \"a b\" }), \"/files/a%20b\");"
+      },
+      "targets": [
+        {
+          "packageName": "react-router",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.3.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "release-it",
+      "title": "release-it",
+      "summary": "Practical guidance for release-it ^21.0.0, including its ESM programmatic API, Config and Plugin classes, CLI-oriented workflow, v21 changes, and standalone examples.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-release-it",
+        "version": "21.0.0",
+        "integrity": "sha512-ByQao5NFeaHYN3eQANUQgfnHoemdPuul0rFOg9Pxux2X4b8YnvK1KCWYOQ3qm/rjGP0fo+W+Upr7CWcfa0rPAQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:f7f9dd106d6d5e8918b7b55911bc3859a2fcb2d88e44114d3a5d7fd6fd6e0d9c",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module format",
+          "Normal usage is CLI-first",
+          "Programmatic runner",
+          "`Config`",
+          "`Plugin`",
+          "Configuration shape",
+          "Hooks are shell commands",
+          "v21 CLI changes",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport releaseIt from 'release-it';\n\nconst result = await releaseIt({\n  config: false,\n  ci: true,\n  'dry-run': true,\n  increment: 'patch'\n});\n\nfor (const key of ['name', 'changelog', 'latestVersion', 'version']) {\n  assert.ok(Object.hasOwn(result, key), `missing result key: ${key}`);\n}"
+      },
+      "targets": [
+        {
+          "packageName": "release-it",
+          "range": "^21.0.0",
+          "verifiedVersions": [
+            "21.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 21,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "rolldown",
+      "title": "rolldown",
+      "summary": "Use Rolldown 1.x programmatically, with the current JavaScript API shape, standalone transform utilities, and correct bundle/plugin lifecycle handling.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-rolldown",
+        "version": "1.0.0",
+        "integrity": "sha512-6RFPNLWuiF0baig6Louc371h8wD+fnqZFVOseGU6MhoJhDvBf2vAV26Ybh73UdhKjqhAvklLp+RLFw6C8Atvzw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:75866de6254b07076e84b3af6221d9037f17fe545e2d357e60978aab8a1a67be",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "Current JavaScript API shape",
+          "The common old-API mistake",
+          "Standalone transform utility",
+          "Watch mode",
+          "Bundle lifecycle and plugins",
+          "Configuration and CLI boundaries",
+          "Version-transition notes",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { defineConfig } from 'rolldown';\n\nconst config = defineConfig({\n  input: 'src/main.js',\n  output: { file: 'bundle.js' },\n});\n\nassert.equal(config.input, 'src/main.js');\nassert.deepEqual(config.output, { file: 'bundle.js' });"
+      },
+      "targets": [
+        {
+          "packageName": "rolldown",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.2.7"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "sinon",
+      "title": "sinon",
+      "summary": "Use Sinon ^22.0.0 for standalone spies, stubs, fake timers, sandboxes, and Sinon assertions.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-sinon",
+        "version": "22.0.0",
+        "integrity": "sha512-wyQDl22vNlrTh0hrsOt7AgeGlxE/oKNLxIfiz5L45Zw4w8ZAYWCBh8zp37Vn1q/KDUSPS1kTQGKCib1JD8H2oA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:5944a6b8b3cfde9a11452664289d4ad182c7822cabda0ab8a515f329df246611",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Import and version-specific shape",
+          "Spies",
+          "Stubs",
+          "Fake timers",
+          "Sandboxes",
+          "Assertions and matchers",
+          "Cleanup and compatibility",
+          "Not covered"
+        ],
+        "example": "import sinon from \"sinon\";\nimport assert from \"node:assert/strict\";\n\nassert.equal(typeof sinon.spy, \"function\");\nassert.equal(typeof sinon.stub, \"function\");"
+      },
+      "targets": [
+        {
+          "packageName": "sinon",
+          "range": "^22.0.0",
+          "verifiedVersions": [
+            "22.1.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 22,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "slice-ansi",
+      "title": "slice-ansi",
+      "summary": "Use slice-ansi@^9.0.0 to slice ANSI-styled strings by visible-column positions while preserving ANSI codes and grapheme clusters.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-slice-ansi",
+        "version": "9.0.0",
+        "integrity": "sha512-YD6SNgR0D+/JmM7qlZfrOPWYaQdpebb1W+1l4rfBRjSwH1cWfroEvi9fv5Aocuz8GLnCqiSOzScqcDS8NHzcgA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:ba8f4509e9f758c2274bdb2096573103cb592b3829a5b918bec6e536f5b90d5d",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "What it does",
+          "Import and runtime requirements",
+          "ANSI-styled strings",
+          "Grapheme clusters",
+          "Omitting the endpoint",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport sliceAnsi from 'slice-ansi';\n\nconst input = '\\u001B[31mred\\u001B[39m';\nassert.equal(sliceAnsi(input, 0, 3), input);"
+      },
+      "targets": [
+        {
+          "packageName": "slice-ansi",
+          "range": "^9.0.0",
+          "verifiedVersions": [
+            "9.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 9,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "supports-color",
+      "title": "supports-color",
+      "summary": "Use supports-color 11.0.0 to detect terminal color capability in Node.js scripts, including stdout/stderr detection and custom stream detection.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-supports-color",
+        "version": "11.0.0",
+        "integrity": "sha512-WKyZMMQbDunwrjQYazR4z+EV3y1vpTS8MbWo9d2zTZ+EUfOGVQM8tDk7nZilS1v/cCWXpxv74000u5cjR/6ZQA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:43d93d6adcce20e1d617c1d501b4ca0d5ac52b42865cc7c95fb5e8273308364e",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module shape",
+          "Reading capability levels",
+          "Custom stream detection",
+          "Environment and command-line controls",
+          "Browser condition",
+          "Does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport supportsColor from 'supports-color';\n\nassert.equal(typeof supportsColor, 'object');\nassert.ok('stdout' in supportsColor);\nassert.ok('stderr' in supportsColor);\n\nfor (const streamSupport of [supportsColor.stdout, supportsColor.stderr]) {\n\tif (streamSupport !== false) {\n\t\tassert.ok([1, 2, 3].includes(streamSupport.level));\n\t\tassert.equal(streamSupport.hasBasic, streamSupport.level >= 1);\n\t\tassert.equal(streamSupport.has256, streamSupport.level >= 2);\n\t\tassert.equal(streamSupport.has16m, streamSupport.level >= 3);\n\t}\n}"
+      },
+      "targets": [
+        {
+          "packageName": "supports-color",
+          "range": "^11.0.0",
+          "verifiedVersions": [
+            "11.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 11,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "tedious",
+      "title": "tedious",
+      "summary": "Use tedious ^20.0.0 from a plain Node.js script to connect to SQL Server, execute requests, manage transactions, and perform bulk loads. Covers the documented v20 API surface, its one-request-per-connection constraint, and the Node.js 22 requirement.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tedious",
+        "version": "20.0.0",
+        "integrity": "sha512-FwiLjYqJ14AHF7dvudoDSqzg64sERHXVVk3XIgZ1fjT8X1KQT/PzqjjYzy1uezU3qegwtWfmqT767mBpgHw0SA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:1d7139974d8b33d5715bdb977703bba7c103db8b017ddab17993b10d61b726a3",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Runtime and package boundary",
+          "Imports",
+          "Constructing and opening a connection",
+          "Requests",
+          "Data types",
+          "Transactions",
+          "Bulk loads",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { Request, TYPES } from 'tedious';\n\nconst request = new Request('select @city', (err, rowCount) => {\n  assert.equal(err, null);\n  assert.equal(rowCount, 1);\n});\n\nrequest.addParameter('city', TYPES.VarChar, 'London');\nassert.equal(typeof request.pause, 'function');\nassert.equal(typeof request.resume, 'function');\nassert.equal(typeof request.setTimeout, 'function');\nassert.equal(typeof request.cancel, 'function');"
+      },
+      "targets": [
+        {
+          "packageName": "tedious",
+          "range": "^20.0.0",
+          "verifiedVersions": [
+            "20.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 20,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "yeoman-environment",
+      "title": "yeoman-environment",
+      "summary": "Use yeoman-environment's ESM environment API when working against the v7.0.0 source shape. Note that ^7.0.0 is not a published version according to the researched npm metadata; verify the installed version before relying on this skill.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-yeoman-environment",
+        "version": "7.0.0",
+        "integrity": "sha512-HPadcUfGvCnorYqZUIPkCZoQPIhTaSvL19oX89apEHbgxwrVu0G9ni0aeEpeQIgksjva62PEQb3D8MSbmxz/yg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:4b4cae44b0de4968a984500d1390f998c13a5d17246c3fa164557bb87572b17a",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Version reality",
+          "Core environment",
+          "Generator lookup",
+          "Registering and running",
+          "Command preparation",
+          "Package-manager installation task",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { createEnv } from 'yeoman-environment';\n\nconst env = createEnv({ skipInstall: true });\n\nassert.equal(typeof env.lookup, 'function');\nassert.equal(typeof env.create, 'function');\nassert.equal(typeof env.run, 'function');\nassert.equal(typeof env.runGenerator, 'function');\nassert.equal(typeof env.register, 'function');\nassert.equal(typeof env.registerStub, 'function');"
+      },
+      "targets": [
+        {
+          "packageName": "yeoman-environment",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
         "status": "active"
       }
     }

@@ -12,11 +12,13 @@
  */
 (function () {
   var input = document.getElementById("skills-filter");
-  var table = document.getElementById("skills-table");
-  if (!input || !table) return;
+  var sections = document.querySelectorAll("section.topic");
+  if (!input || sections.length === 0) return;
 
   var count = document.getElementById("skills-count");
-  var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+  var rows = Array.prototype.slice.call(
+    document.querySelectorAll("section.topic tbody tr"),
+  );
   // The count's own text, so the generator has one less thing to keep in step
   // with this file.
   var resting = count ? count.textContent : "";
@@ -36,6 +38,13 @@
         query === "" || row.textContent.toLowerCase().indexOf(query) >= 0;
       row.hidden = !hit;
       if (hit) shown += 1;
+    }
+    // A heading over nothing reads as a group with no skills in it, which is
+    // a different claim from a group the query did not match.
+    for (var s = 0; s < sections.length; s += 1) {
+      var section = sections[s];
+      var live = section.querySelectorAll("tbody tr:not([hidden])").length;
+      section.hidden = live === 0;
     }
     if (!count) return;
     count.textContent =

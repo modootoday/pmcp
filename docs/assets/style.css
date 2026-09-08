@@ -566,6 +566,14 @@ tr[hidden] {
   display: none;
 }
 
+.topic {
+  margin: 2rem 0;
+}
+
+.topic h2 {
+  font-size: 1.05rem;
+}
+
 .filter input {
   width: 100%;
   max-width: 26rem;

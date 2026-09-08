@@ -159,6 +159,47 @@ it("keeps every published line reachable from the index", () => {
   );
   expect(expected.filter((route) => !linked.has(route))).toEqual([]);
   expect(linked.size).toBe(expected.length);
+
+  // Once, not at least once. The index is grouped now, and a line matched by
+  // two groups would be listed twice while a set of hrefs looked perfectly
+  // healthy.
+  const occurrences = [
+    ...index.matchAll(/href="(\/skills\/[^"]+\/\d+\/)"/gu),
+  ].map(([, href]) => href!);
+  const twice = occurrences.filter(
+    (route, at) => occurrences.indexOf(route) !== at,
+  );
+  expect([...new Set(twice)]).toEqual([]);
+});
+
+it("puts every published line in exactly one group", () => {
+  // A group is a claim about where a skill is. A line the map places nowhere
+  // must show up under everything else rather than vanish from the page while
+  // its own page stays live.
+  const topics = JSON.parse(
+    readFileSync(join(docs, "topics.json"), "utf8"),
+  ) as {
+    groups: { label: string; packages: string[] }[];
+    ungrouped: string[];
+  };
+  const catalog = JSON.parse(
+    readFileSync(join(docs, "catalog.json"), "utf8"),
+  ) as { entries: { targets: { packageName: string }[] }[] };
+
+  const placed = [
+    ...topics.groups.flatMap((group) => group.packages),
+    ...topics.ungrouped,
+  ];
+  expect(placed.filter((name, at) => placed.indexOf(name) !== at)).toEqual([]);
+
+  const targets = [
+    ...new Set(
+      catalog.entries.flatMap((entry) =>
+        entry.targets.map((target) => target.packageName),
+      ),
+    ),
+  ];
+  expect(targets.filter((name) => !placed.includes(name))).toEqual([]);
 });
 
 it("ships the filter as a file the page can actually load", () => {

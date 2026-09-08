@@ -1,0 +1,559 @@
+{
+  "groups": [
+    {
+      "label": "Testing",
+      "packages": [
+        "@testing-library/react",
+        "jasmine-core",
+        "mocha",
+        "sinon",
+        "vitest"
+      ]
+    },
+    {
+      "label": "Browser and DOM",
+      "packages": [
+        "happy-dom",
+        "jsdom"
+      ]
+    },
+    {
+      "label": "React",
+      "packages": [
+        "@vitejs/plugin-react",
+        "react",
+        "react-dom",
+        "react-router"
+      ]
+    },
+    {
+      "label": "Command line",
+      "packages": [
+        "ansi-styles",
+        "chalk",
+        "commander",
+        "inquirer",
+        "jake",
+        "slice-ansi",
+        "supports-color",
+        "tsx",
+        "wrangler",
+        "yeoman-environment"
+      ]
+    },
+    {
+      "label": "HTTP and servers",
+      "packages": [
+        "@pothos/core",
+        "agent-base",
+        "content-type",
+        "get-uri",
+        "graphql",
+        "graphql-yoga",
+        "hono",
+        "make-fetch-happen"
+      ]
+    },
+    {
+      "label": "Build and bundling",
+      "packages": [
+        "autoprefixer",
+        "release-it",
+        "rolldown",
+        "vite"
+      ]
+    },
+    {
+      "label": "TypeScript and code",
+      "packages": [
+        "@babel/plugin-transform-typescript",
+        "bun-types",
+        "ts-morph",
+        "zod"
+      ]
+    },
+    {
+      "label": "Data stores",
+      "packages": [
+        "firebase-admin",
+        "ioredis",
+        "tedious"
+      ]
+    }
+  ],
+  "ungrouped": [
+    "@playwright/test",
+    "croner",
+    "react-icons",
+    "tailwindcss"
+  ],
+  "keywords": {
+    "@babel/plugin-transform-typescript": [
+      "babel-plugin",
+      "typescript"
+    ],
+    "@playwright/test": [],
+    "@pothos/core": [
+      "pothos",
+      "graphql",
+      "schema",
+      "types",
+      "typescript",
+      "builder",
+      "framework",
+      "plugin"
+    ],
+    "@testing-library/react": [
+      "testing",
+      "react",
+      "ui",
+      "dom",
+      "jsdom",
+      "unit",
+      "integration",
+      "functional",
+      "end-to-end",
+      "e2e"
+    ],
+    "@vitejs/plugin-react": [
+      "fast refresh",
+      "react",
+      "react-refresh",
+      "vite",
+      "vite-plugin"
+    ],
+    "agent-base": [
+      "http",
+      "agent",
+      "base",
+      "barebones",
+      "https"
+    ],
+    "ansi-styles": [
+      "ansi",
+      "styles",
+      "color",
+      "colour",
+      "colors",
+      "terminal",
+      "console",
+      "cli",
+      "string",
+      "tty",
+      "escape",
+      "formatting",
+      "rgb",
+      "256",
+      "shell",
+      "xterm",
+      "log",
+      "logging",
+      "command-line",
+      "text"
+    ],
+    "autoprefixer": [
+      "autoprefixer",
+      "css",
+      "postcss",
+      "postcss-plugin",
+      "prefix"
+    ],
+    "bun-types": [
+      "bun",
+      "bun.js",
+      "types"
+    ],
+    "chalk": [
+      "color",
+      "colour",
+      "colors",
+      "terminal",
+      "console",
+      "cli",
+      "string",
+      "ansi",
+      "style",
+      "styles",
+      "tty",
+      "formatting",
+      "rgb",
+      "256",
+      "shell",
+      "xterm",
+      "log",
+      "logging",
+      "command-line",
+      "text"
+    ],
+    "commander": [
+      "commander",
+      "command",
+      "option",
+      "parser",
+      "cli",
+      "argument",
+      "args",
+      "argv"
+    ],
+    "content-type": [
+      "content-type",
+      "http",
+      "req",
+      "res",
+      "rfc7231",
+      "rfc9110"
+    ],
+    "croner": [
+      "cron",
+      "front-end",
+      "backend",
+      "parser",
+      "croner",
+      "schedule",
+      "scheduler",
+      "timer",
+      "task",
+      "job",
+      "isomorphic",
+      "crontab"
+    ],
+    "firebase-admin": [
+      "admin",
+      "database",
+      "firebase",
+      "realtime",
+      "authentication"
+    ],
+    "get-uri": [
+      "uri",
+      "read",
+      "readstream",
+      "stream",
+      "get",
+      "http",
+      "https",
+      "ftp",
+      "file",
+      "data",
+      "protocol",
+      "url"
+    ],
+    "graphql": [
+      "graphql",
+      "graphql-js"
+    ],
+    "graphql-yoga": [
+      "graphql",
+      "server",
+      "api",
+      "graphql-server"
+    ],
+    "happy-dom": [
+      "jsdom",
+      "dom",
+      "browser",
+      "custom",
+      "elements",
+      "web",
+      "components",
+      "html",
+      "whatwg",
+      "w3c"
+    ],
+    "hono": [
+      "hono",
+      "web",
+      "app",
+      "http",
+      "application",
+      "framework",
+      "router",
+      "cloudflare",
+      "workers",
+      "fastly",
+      "compute",
+      "deno",
+      "bun",
+      "lambda",
+      "nodejs"
+    ],
+    "inquirer": [
+      "answer",
+      "answers",
+      "ask",
+      "base",
+      "cli",
+      "command",
+      "command-line",
+      "confirm",
+      "enquirer",
+      "generate",
+      "generator",
+      "hyper",
+      "input",
+      "inquire",
+      "inquirer",
+      "interface",
+      "iterm",
+      "javascript",
+      "menu",
+      "node",
+      "nodejs",
+      "prompt",
+      "promptly",
+      "prompts",
+      "question",
+      "readline",
+      "scaffold",
+      "scaffolder",
+      "scaffolding",
+      "stdin",
+      "stdout",
+      "terminal",
+      "tty",
+      "ui",
+      "yeoman",
+      "yo",
+      "zsh"
+    ],
+    "ioredis": [
+      "redis",
+      "cluster",
+      "sentinel",
+      "pipelining"
+    ],
+    "jake": [
+      "build",
+      "cli",
+      "make",
+      "rake"
+    ],
+    "jasmine-core": [
+      "test",
+      "testing",
+      "jasmine",
+      "tdd",
+      "bdd"
+    ],
+    "jsdom": [
+      "dom",
+      "html",
+      "whatwg",
+      "w3c"
+    ],
+    "make-fetch-happen": [
+      "http",
+      "request",
+      "fetch",
+      "mean girls",
+      "caching",
+      "cache",
+      "subresource integrity"
+    ],
+    "mocha": [
+      "mocha",
+      "test",
+      "bdd",
+      "tdd",
+      "tap",
+      "testing",
+      "chai",
+      "assertion",
+      "ava",
+      "jest",
+      "tape",
+      "jasmine",
+      "playwright"
+    ],
+    "react": [
+      "react"
+    ],
+    "react-dom": [
+      "react"
+    ],
+    "react-icons": [],
+    "react-router": [
+      "react",
+      "router",
+      "route",
+      "routing",
+      "history",
+      "link"
+    ],
+    "release-it": [
+      "build",
+      "changelog",
+      "commit",
+      "distribution",
+      "git",
+      "github",
+      "gitlab",
+      "interactive",
+      "ci",
+      "npm",
+      "publish",
+      "push",
+      "release",
+      "release-it",
+      "repository",
+      "script",
+      "shell",
+      "tag",
+      "tool",
+      "version",
+      "semver",
+      "plugin"
+    ],
+    "rolldown": [
+      "bundler",
+      "esbuild",
+      "parcel",
+      "rolldown",
+      "rollup",
+      "webpack"
+    ],
+    "sinon": [
+      "sinon",
+      "test",
+      "testing",
+      "unit",
+      "stub",
+      "spy",
+      "fake",
+      "time",
+      "clock",
+      "mock",
+      "xhr",
+      "assert"
+    ],
+    "slice-ansi": [
+      "slice",
+      "string",
+      "ansi",
+      "styles",
+      "color",
+      "colour",
+      "colors",
+      "terminal",
+      "console",
+      "cli",
+      "tty",
+      "escape",
+      "formatting",
+      "rgb",
+      "256",
+      "shell",
+      "xterm",
+      "log",
+      "logging",
+      "command-line",
+      "text"
+    ],
+    "supports-color": [
+      "color",
+      "colour",
+      "colors",
+      "terminal",
+      "console",
+      "cli",
+      "ansi",
+      "styles",
+      "tty",
+      "rgb",
+      "256",
+      "shell",
+      "xterm",
+      "command-line",
+      "support",
+      "supports",
+      "capability",
+      "detect",
+      "truecolor",
+      "16m"
+    ],
+    "tailwindcss": [],
+    "tedious": [
+      "sql",
+      "database",
+      "mssql",
+      "sqlserver",
+      "sql-server",
+      "tds",
+      "msnodesql",
+      "azure"
+    ],
+    "ts-morph": [
+      "typescript",
+      "ast",
+      "static analysis",
+      "code generation",
+      "code refactor"
+    ],
+    "tsx": [
+      "cli",
+      "runtime",
+      "node",
+      "cjs",
+      "commonjs",
+      "esm",
+      "typescript",
+      "typescript runner"
+    ],
+    "vite": [
+      "build-tool",
+      "dev-server",
+      "framework",
+      "frontend",
+      "hmr",
+      "vite"
+    ],
+    "vitest": [
+      "vite",
+      "vitest",
+      "test",
+      "jest"
+    ],
+    "wrangler": [
+      "assembly",
+      "cli",
+      "cloudflare",
+      "cloudflare workers",
+      "compute",
+      "edge",
+      "emscripten",
+      "graphql",
+      "http",
+      "router",
+      "rust",
+      "serverless",
+      "serverless application",
+      "serverless module",
+      "typescript",
+      "wasm",
+      "web",
+      "webassembly",
+      "workers",
+      "wrangler"
+    ],
+    "yeoman-environment": [
+      "development",
+      "dev",
+      "build",
+      "tool",
+      "cli",
+      "scaffold",
+      "scaffolding",
+      "generate",
+      "generator",
+      "yeoman",
+      "app"
+    ],
+    "zod": [
+      "typescript",
+      "schema",
+      "validation",
+      "type",
+      "inference"
+    ]
+  }
+}

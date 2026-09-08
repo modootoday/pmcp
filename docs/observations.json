@@ -2,6 +2,744 @@
   "disclaimer": "Each entry records what happened in one sandboxed run under the policy named beside it. It is not a judgement of the package, and the absence of an observation is not a finding of safety. Observations at the 'manifest' and 'install' stages are the package's own behaviour; an observation at an 'example-N' stage happened while running example code we wrote against the package, and may have been caused by that code rather than by the package.",
   "examinations": [
     {
+      "id": "7a6b78e2-ed89-48c0-8331-158f653ab260",
+      "packageName": "yeoman-environment",
+      "packageVersion": "7.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:50.038Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: npm run build"
+        }
+      ]
+    },
+    {
+      "id": "a85d27ea-8686-407b-a6ec-4200c9d4e057",
+      "packageName": "tedious",
+      "packageVersion": "20.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:41.056Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "2efabf08-dfd4-4211-b021-6422c0258aa2",
+      "packageName": "supports-color",
+      "packageVersion": "11.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:34.427Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "58e5e25d-d8c6-43ce-81dd-881ebdb9ecf9",
+      "packageName": "slice-ansi",
+      "packageVersion": "9.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:32.138Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 6,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "1ad27f2a-0706-4971-80a1-3365ceffe206",
+      "packageName": "sinon",
+      "packageVersion": "22.1.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:28.668Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 8,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "d59bb4da-f430-474e-bb68-dd4a301899b4",
+      "packageName": "rolldown",
+      "packageVersion": "1.2.7",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:22.220Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 2,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "20d6feca-5f67-4956-8aa9-d4869dc15e0c",
+      "packageName": "release-it",
+      "packageVersion": "21.0.2",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:13.108Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "b66fdd75-e631-4493-b295-7305fb83bc5e",
+      "packageName": "react-router",
+      "packageVersion": "8.3.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:07.750Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 2,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "d0178e87-ebe5-4554-ba71-b45891578b11",
+      "packageName": "mocha",
+      "packageVersion": "12.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:04.824Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 2,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "61ecbeab-9ff7-4c7d-9f63-6fdd180623e3",
+      "packageName": "make-fetch-happen",
+      "packageVersion": "16.0.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:31:01.853Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 2,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "bc737eac-a04d-4b4b-93c5-002322655720",
+      "packageName": "jasmine-core",
+      "packageVersion": "7.0.2",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:57.933Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 5,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "b4f61c66-dbf9-4834-9d89-80aeb9e26541",
+      "packageName": "jake",
+      "packageVersion": "12.10.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:53.701Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 7,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "989f83aa-e7a5-479d-8c8f-7a73a2f351be",
+      "packageName": "inquirer",
+      "packageVersion": "14.2.2",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:48.456Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "30d42f73-a4a2-4cf7-87c0-38b44898bb8b",
+      "packageName": "get-uri",
+      "packageVersion": "8.0.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:39.095Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 4,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "ff8e163a-31ad-41ac-819b-dbd8152d2981",
+      "packageName": "firebase-admin",
+      "packageVersion": "14.3.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:35.242Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 4,
+      "outcome": "verified",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: npm run build && npm run esm-wrap"
+        }
+      ]
+    },
+    {
+      "id": "b84696b3-e8d6-43c3-9a81-da2fbdf835f9",
+      "packageName": "content-type",
+      "packageVersion": "3.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:28.256Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 5,
+      "outcome": "verified",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: ts-scripts install && npm run build"
+        }
+      ]
+    },
+    {
+      "id": "0c03edba-37cc-4dff-a916-ca8561adc56b",
+      "packageName": "chalk",
+      "packageVersion": "6.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:25.150Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 6,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "0f05ae8c-f4cc-401c-b5fb-b567898ebae4",
+      "packageName": "ansi-styles",
+      "packageVersion": "7.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:21.303Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 5,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "b318cf5a-ece5-4f5d-9bfe-ef88b088c66e",
+      "packageName": "agent-base",
+      "packageVersion": "9.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:18.245Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "830d5770-b292-4d6c-87ed-7222cd5fcd9a",
+      "packageName": "@babel/plugin-transform-typescript",
+      "packageVersion": "8.0.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:30:15.809Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 4,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "dfd6b320-6fce-4c6d-bc51-ffbc644b9809",
+      "packageName": "yeoman-environment",
+      "packageVersion": "7.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:21:35.581Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: npm run build"
+        }
+      ]
+    },
+    {
+      "id": "1f6d41e6-2d33-446f-93e3-84e1f2b5d47a",
+      "packageName": "testcontainers",
+      "packageVersion": "12.1.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:20:50.108Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 1,
+      "outcome": "refused",
+      "observations": []
+    },
+    {
+      "id": "44a42dc1-d4da-4ba4-b139-f2fd25806482",
+      "packageName": "yeoman-environment",
+      "packageVersion": "^7.0.0",
+      "versionExact": false,
+      "examinedAt": "2026-09-08T00:18:30.248Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 0,
+      "outcome": "incomplete",
+      "observations": []
+    },
+    {
+      "id": "a9a0dd57-55e8-4b03-8655-6b0d79c1f223",
+      "packageName": "testcontainers",
+      "packageVersion": "^12.0.0",
+      "versionExact": false,
+      "examinedAt": "2026-09-08T00:18:06.732Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 0,
+      "outcome": "incomplete",
+      "observations": []
+    },
+    {
+      "id": "0b5af27b-ea1d-44c4-b1c2-7426c1a7e324",
+      "packageName": "expo-build-properties",
+      "packageVersion": "^57.0.0",
+      "versionExact": false,
+      "examinedAt": "2026-09-08T00:17:49.096Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 0,
+      "outcome": "incomplete",
+      "observations": [
+        {
+          "stage": "install",
+          "code": "deadline-exceeded",
+          "evidence": "still running at the 300000ms deadline"
+        }
+      ]
+    },
+    {
+      "id": "4991a4d4-b14d-4af5-bf34-9140105d8ef1",
+      "packageName": "get-uri",
+      "packageVersion": "8.0.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:11:49.386Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 4,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "87dc1ff9-df6f-4025-bd48-303717c19c2e",
+      "packageName": "agent-base",
+      "packageVersion": "9.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:11:12.069Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "3edf5328-86f4-488c-bc7a-fdc039fb93d1",
+      "packageName": "undici",
+      "packageVersion": "8.10.2",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:10:23.600Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 1,
+      "outcome": "refused",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: husky && node ./scripts/platform-shell.js"
+        }
+      ]
+    },
+    {
+      "id": "2dde62fb-69cb-462e-84dc-26677863adff",
+      "packageName": "slice-ansi",
+      "packageVersion": "9.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:09:32.241Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 6,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "1eea0897-929d-4db7-a248-4a8b469be989",
+      "packageName": "jake",
+      "packageVersion": "12.10.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:08:51.915Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 7,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "6097736c-23ca-461f-9e28-2cce12a5eb97",
+      "packageName": "sinon",
+      "packageVersion": "22.1.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:08:10.231Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 8,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "1e666f86-fb69-4302-b9c2-7f1980638aba",
+      "packageName": "rolldown",
+      "packageVersion": "1.2.7",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:07:13.144Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 2,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "c0d3ca20-9047-48f1-9d1f-c30c8fc4d963",
+      "packageName": "validate-npm-package-name",
+      "packageVersion": "8.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:06:39.395Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "refused",
+      "observations": []
+    },
+    {
+      "id": "df00bae4-98c5-453f-a833-2d8ee2709eb2",
+      "packageName": "testcontainers",
+      "packageVersion": "^12.0.0",
+      "versionExact": false,
+      "examinedAt": "2026-09-08T00:05:57.430Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 0,
+      "outcome": "incomplete",
+      "observations": []
+    },
+    {
+      "id": "d7b29aba-07a1-445e-9e88-5ac86757ece6",
+      "packageName": "make-fetch-happen",
+      "packageVersion": "16.0.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:05:39.726Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 2,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "f68c0457-e895-4a23-a9d9-d7707c9a3ca3",
+      "packageName": "inquirer",
+      "packageVersion": "14.2.2",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:04:49.942Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": [
+        {
+          "stage": "example-1",
+          "code": "memory-limit-reached",
+          "evidence": "killed by the kernel at the memory limit"
+        }
+      ]
+    },
+    {
+      "id": "7a836597-d0aa-4fa0-9431-9d11741de4aa",
+      "packageName": "firebase-admin",
+      "packageVersion": "14.3.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:03:23.576Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 4,
+      "outcome": "verified",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: npm run build && npm run esm-wrap"
+        }
+      ]
+    },
+    {
+      "id": "4aeaf6f2-fb85-48ac-8794-0be6b905ba3e",
+      "packageName": "@babel/plugin-transform-typescript",
+      "packageVersion": "8.0.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:02:23.996Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 4,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "ca8129eb-2410-4b56-8c36-cfcf85839b6b",
+      "packageName": "react-router",
+      "packageVersion": "8.3.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:01:20.682Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 2,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "7db6f481-77e8-45d8-9d5b-1496ff823cce",
+      "packageName": "tedious",
+      "packageVersion": "20.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-08T00:00:44.927Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "a2ecfc50-3dcb-4807-a9e0-22db1bdba421",
+      "packageName": "expo-build-properties",
+      "packageVersion": "^57.0.0",
+      "versionExact": false,
+      "examinedAt": "2026-09-07T23:59:47.932Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 0,
+      "outcome": "incomplete",
+      "observations": [
+        {
+          "stage": "install",
+          "code": "deadline-exceeded",
+          "evidence": "still running at the 300000ms deadline"
+        }
+      ]
+    },
+    {
+      "id": "4c5b507d-fe78-4dbe-a91e-fa6d25f7395f",
+      "packageName": "dependency-cruiser",
+      "packageVersion": "18.2.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:54:25.742Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 1,
+      "outcome": "refused",
+      "observations": []
+    },
+    {
+      "id": "e0849069-ef30-4693-a39f-ed68b6ffb8cb",
+      "packageName": "argparse",
+      "packageVersion": "3.0.1",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:53:23.058Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 4,
+      "outcome": "refused",
+      "observations": []
+    },
+    {
+      "id": "9c74b080-f261-4932-8a85-efb89ec6dfa7",
+      "packageName": "better-sqlite3",
+      "packageVersion": "13.0.3",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:52:29.294Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 0,
+      "outcome": "refused",
+      "observations": []
+    },
+    {
+      "id": "c9fe38cf-c1c9-499f-bc9d-0645315a798e",
+      "packageName": "release-it",
+      "packageVersion": "21.0.2",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:51:15.144Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "2489d173-4515-40c8-acb6-ef6ec1f3625e",
+      "packageName": "supports-color",
+      "packageVersion": "11.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:50:24.440Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 3,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "1e5d08f7-4eba-4774-8177-35ea2617e155",
+      "packageName": "chalk",
+      "packageVersion": "6.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:49:49.668Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 6,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "383df668-8214-406a-b996-cb61dc509f95",
+      "packageName": "ansi-styles",
+      "packageVersion": "7.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:48:41.754Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 5,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "261b9dd8-7dcd-4f56-90fa-5a28ebc7f806",
+      "packageName": "content-disposition",
+      "packageVersion": "3.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:47:58.929Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 6,
+      "outcome": "refused",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: ts-scripts install && npm run build"
+        }
+      ]
+    },
+    {
+      "id": "898c56c1-b9b5-4f9f-869d-db89238b4870",
+      "packageName": "jasmine-core",
+      "packageVersion": "7.0.2",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:47:09.566Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 5,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "eb42ad86-3ecb-4309-8256-a4b2b9c6b072",
+      "packageName": "content-type",
+      "packageVersion": "3.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:46:31.433Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 5,
+      "outcome": "verified",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: ts-scripts install && npm run build"
+        }
+      ]
+    },
+    {
+      "id": "8797a5a5-d9d6-46ee-b912-2a3ee39f8fa1",
+      "packageName": "got",
+      "packageVersion": "16.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:45:54.113Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 4,
+      "outcome": "refused",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "prepare: npm run build"
+        }
+      ]
+    },
+    {
+      "id": "82bbea84-0ec9-4e78-b70d-35c613d63cfb",
+      "packageName": "mocha",
+      "packageVersion": "12.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:44:49.720Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 2,
+      "outcome": "verified",
+      "observations": []
+    },
+    {
+      "id": "5a28ec3a-b343-4a4c-94ac-bf892f3dfaa1",
+      "packageName": "cypress",
+      "packageVersion": "16.0.0",
+      "versionExact": true,
+      "examinedAt": "2026-09-07T23:43:52.569Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 1,
+      "outcome": "refused",
+      "observations": [
+        {
+          "stage": "manifest",
+          "code": "install-scripts-declared",
+          "evidence": "postinstall: node dist/index.js --exec install"
+        }
+      ]
+    },
+    {
+      "id": "6f7aa9fc-acf2-4cd8-9031-83aef6d87f91",
+      "packageName": "yeoman-environment",
+      "packageVersion": "^7.0.0",
+      "versionExact": false,
+      "examinedAt": "2026-09-07T23:43:06.644Z",
+      "policyDigest": "sha256:bf5bf21f806436cb2430b345218ddcfe6a5ab84b1f75f90feb9d04e5180f0172",
+      "policyDescriptor": "run --rm --name NAME --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 512m --memory-swap 512m --cpus 1 --ulimit cpu=30 --user 1000:1000 --tmpfs /tmp:size=67108864 --workdir /work --read-only -v PROJECT:/work:ro -v CACHE:/package-cache:ro --env BUN_INSTALL_CACHE_DIR=/package-cache oven/bun:1.3.0-slim COMMAND",
+      "examplesRun": 0,
+      "outcome": "incomplete",
+      "observations": []
+    },
+    {
       "id": "d17e3e97-1d15-479e-8007-179a6411993f",
       "packageName": "graphql-yoga",
       "packageVersion": "5.22.0",

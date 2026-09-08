@@ -112,6 +112,62 @@ const targetsOf = (entry) =>
     .join("; ");
 
 /**
+ * The index in groups rather than one long list.
+ *
+ * Forty-five rows answer "is my package here" once a reader can filter, and
+ * never answer "what is here at all". The label comes from the target
+ * package's own npm keywords, worked out in `refresh-topics.mjs`, so nothing
+ * here describes anybody's package for them.
+ */
+const topics = JSON.parse(readFileSync(join(docs, "topics.json"), "utf8"));
+
+function rowOf(entry) {
+  return `            <tr>
+              <td><a href="${escape(routeOf(entry))}">${escape(entry.title)} ${escape(String(lineOf(entry)))}.x</a>${markOf(entry)}</td>
+              <td><code>${escape(targetsOf(entry))}</code></td>
+              <td>${escape(entry.evidence?.verifiedOn || "before this was recorded")}, ${escape(String(entry.evidence?.examplesExecuted ?? 0))} examples</td>
+            </tr>`;
+}
+
+function tableOf(label, members) {
+  return `      <section class="topic">
+        <h2>${escape(label)}</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr><th>Skill</th><th>For</th><th>Verified</th></tr>
+            </thead>
+            <tbody>
+${members.map(rowOf).join("\n")}
+            </tbody>
+          </table>
+        </div>
+      </section>`;
+}
+
+function sections() {
+  if (entries.length === 0) {
+    return `      <p>Nothing published yet.</p>`;
+  }
+  const linesFor = (names) => {
+    const wanted = new Set(names);
+    return entries.filter((entry) =>
+      entry.targets.some((target) => wanted.has(target.packageName)),
+    );
+  };
+  const blocks = (topics.groups ?? [])
+    .map((group) => [group.label, linesFor(group.packages)])
+    .filter(([, members]) => members.length > 0)
+    .map(([label, members]) => tableOf(label, members));
+
+  // Everything the map did not place, named rather than dropped: a package
+  // that publishes no keywords is still a skill somebody paid for.
+  const rest = linesFor(topics.ungrouped ?? []);
+  if (rest.length > 0) blocks.push(tableOf("Everything else", rest));
+  return blocks.join("\n");
+}
+
+/**
  * The listing has to carry the standing too. A reader who can only learn it by
  * opening each page learns it about the one they opened.
  */
@@ -189,29 +245,7 @@ emit(
         />
       </p>
       <p id="skills-count">${escape(String(entries.length))} ${entries.length === 1 ? "line" : "lines"}, one per major of the package it is written for.</p>
-      <div class="scroll">
-        <table id="skills-table">
-          <thead>
-            <tr><th>Skill</th><th>For</th><th>Verified</th></tr>
-          </thead>
-          <tbody>
-${
-  entries.length === 0
-    ? `            <tr><td colspan="3">Nothing published yet.</td></tr>`
-    : entries
-        .map(
-          (entry) =>
-            `            <tr>
-              <td><a href="${escape(routeOf(entry))}">${escape(entry.title)} ${escape(String(lineOf(entry)))}.x</a>${markOf(entry)}</td>
-              <td><code>${escape(targetsOf(entry))}</code></td>
-              <td>${escape(entry.evidence?.verifiedOn || "before this was recorded")}, ${escape(String(entry.evidence?.examplesExecuted ?? 0))} examples</td>
-            </tr>`,
-        )
-        .join("\n")
-}
-          </tbody>
-        </table>
-      </div>
+${sections()}
       <script src="/assets/skills-filter.js" defer></script>`,
   }),
 );
