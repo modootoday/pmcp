@@ -9,7 +9,7 @@
  *
  * Run: node scripts/build-catalog-pages.mjs [--check]
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { commit, escape, page } from "./page.mjs";
@@ -362,12 +362,47 @@ npx -y @modootoday/pmcp install ${escape(entry.delivery.packageName)}</code></pr
   );
 }
 
-const changed = commit(written, { root, check });
+/**
+ * Pages for skills the catalog no longer names.
+ *
+ * The generator only ever wrote, so withdrawing three skills left their pages
+ * serving 200 -- unlinked from the index and still selling something the
+ * catalog had stopped offering. Measured 20260908. Scoped to skill pages,
+ * because those are the ones this generator owns.
+ */
+function orphans() {
+  const kept = new Set(written.map((entry) => entry.file));
+  const found = [];
+  const walk = (dir) => {
+    let names;
+    try {
+      names = readdirSync(dir);
+    } catch {
+      return;
+    }
+    for (const name of names) {
+      const path = join(dir, name);
+      if (statSync(path).isDirectory()) walk(path);
+      else if (name === "index.html" && !kept.has(path)) found.push(path);
+    }
+  };
+  walk(join(docs, "skills"));
+  return found;
+}
+
+const stale = orphans();
+if (stale.length > 0 && !check) {
+  for (const file of stale)
+    rmSync(dirname(file), { recursive: true, force: true });
+}
+
+const changed = commit(written, { root, check }) + stale.length;
 
 console.log(
   JSON.stringify({
     entries: entries.length,
     pages: written.length,
+    orphaned: stale.length,
     changed,
     mode: check ? "check" : "write",
   }),

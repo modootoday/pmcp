@@ -223,3 +223,24 @@ it("renders every row without scripting, and hides the control until there is", 
   expect(index).toMatch(/<input[^>]*id="skills-filter"[\s\S]*?hidden/u);
   expect(index).toContain('id="skills-count"');
 });
+
+it("serves no skill page the catalog no longer names", () => {
+  // Withdrawing three skills left their pages serving 200, unlinked from the
+  // index and still offering something the catalog had stopped offering. The
+  // reachability check above only asks whether every entry has a page; this
+  // asks the converse, which is the half that was missing.
+  const catalog = JSON.parse(
+    readFileSync(join(docs, "catalog.json"), "utf8"),
+  ) as { entries: { productId: string; line?: { major: number } }[] };
+  const expected = new Set<string>();
+  for (const entry of catalog.entries) {
+    expected.add(`/skills/${entry.productId}/`);
+    expected.add(
+      `/skills/${entry.productId}/${String(entry.line?.major ?? 0)}/`,
+    );
+  }
+  const served = [...pages.keys()].filter(
+    (route) => route.startsWith("/skills/") && route !== "/skills/",
+  );
+  expect(served.filter((route) => !expected.has(route))).toEqual([]);
+});

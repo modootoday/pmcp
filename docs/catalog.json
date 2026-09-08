@@ -1,6 +1,6 @@
 {
-  "revision": "r11-batch4-20260908",
-  "publishedAt": "2026-09-08T00:32:28.226Z",
+  "revision": "r13-floor-20260908",
+  "publishedAt": "2026-09-08T03:20:05.618Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -475,92 +475,6 @@
       }
     },
     {
-      "productId": "react-testing-library",
-      "title": "@testing-library/react",
-      "summary": "Use @testing-library/react ^16.0.0 correctly, including its React-specific exports, DOM peer dependency, cleanup behavior, and the boundary between standalone scripts and a DOM-enabled test runner.",
-      "delivery": {
-        "packageName": "@modootoday/pmcp-react-testing-library",
-        "version": "16.0.0",
-        "integrity": "sha512-Td3cCB+ZV6kCwhSGKYLRJDRrws9o8MUxlO0BACxY2tN+Ue9XpCil8l1zqNaiDKrl8JY4G6y6JqRsIBdl9FBCrg=="
-      },
-      "skillRevision": 1,
-      "contentDigest": "sha256:39a1c7762693330994cf86a4341d6b1cb6bd95f42023547fc8d0607cd71dc0b4",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 1
-      },
-      "preview": {
-        "headings": [
-          "Install the v16 peer dependencies",
-          "API surface",
-          "`render`",
-          "`cleanup`",
-          "`act`",
-          "`renderHook`",
-          "`configure`",
-          "Test-runner and environment boundary",
-          "Standalone API checks",
-          "Common mistakes",
-          "Not covered"
-        ],
-        "example": "import assert from 'node:assert/strict'\nimport {act, cleanup, configure, render, renderHook} from '@testing-library/react'\n\nassert.equal(typeof act, 'function')\nassert.equal(typeof cleanup, 'function')\nassert.equal(typeof configure, 'function')\nassert.equal(typeof render, 'function')\nassert.equal(typeof renderHook, 'function')\n\nassert.doesNotThrow(() => {\n  configure({reactStrictMode: true})\n})\n\nlet called = false\nact(() => {\n  called = true\n})\nassert.equal(called, true)"
-      },
-      "targets": [
-        {
-          "packageName": "@testing-library/react",
-          "range": "^16.0.0",
-          "verifiedVersions": [
-            "16.3.3"
-          ]
-        }
-      ],
-      "line": {
-        "major": 16,
-        "status": "active"
-      }
-    },
-    {
-      "productId": "bun-types",
-      "title": "bun-types",
-      "summary": "Use bun-types as TypeScript declarations for Bun runtime APIs, while avoiding the common mistake of treating it as a runtime package. Covers the current @types/bun wrapper shape, explicit configuration for direct bun-types usage, and the Bun APIs described by the declarations.",
-      "delivery": {
-        "packageName": "@modootoday/pmcp-bun-types",
-        "version": "1.0.0",
-        "integrity": "sha512-03HZ38hi5TYh/S68Pv3/aeaKoigwxYghvpg9PYs5PQJZ/adc4nHNwbU5tNqpk6vEpbDJXhJxOBPNIUUtYz9d6Q=="
-      },
-      "skillRevision": 1,
-      "contentDigest": "sha256:183dca5135ea4e29c884a842cdc0663cca80b248552f971f060a0b244abf6acc",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 1
-      },
-      "preview": {
-        "headings": [
-          "The important distinction: declarations versus runtime",
-          "Declared file APIs",
-          "HTTP server declaration",
-          "Child-process declarations",
-          "Other documented importable declarations",
-          "Type-checking workflow",
-          "What this skill does not cover"
-        ],
-        "example": "import type {} from \"bun-types\";\nimport assert from \"node:assert/strict\";\n\nassert.equal(typeof Bun.file, \"function\");\nassert.equal(typeof Bun.write, \"function\");\nassert.equal(typeof Bun.serve, \"function\");\nassert.equal(typeof Bun.spawn, \"function\");\nassert.equal(typeof Bun.spawnSync, \"function\");"
-      },
-      "targets": [
-        {
-          "packageName": "bun-types",
-          "range": "^1.0.0",
-          "verifiedVersions": [
-            "1.4.2"
-          ]
-        }
-      ],
-      "line": {
-        "major": 1,
-        "status": "active"
-      }
-    },
-    {
       "productId": "hono",
       "title": "hono",
       "summary": "Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x.",
@@ -599,46 +513,6 @@
       ],
       "line": {
         "major": 4,
-        "status": "active"
-      }
-    },
-    {
-      "productId": "react",
-      "title": "react",
-      "summary": "Use React 19 APIs correctly from the react package, avoiding pre-19 rendering APIs and distinguishing plain JavaScript access from renderer, server, framework, and build-time surfaces.",
-      "delivery": {
-        "packageName": "@modootoday/pmcp-react",
-        "version": "19.0.0",
-        "integrity": "sha512-H+3TrPf6qTLKGPDMkV0j8AMgiU8TgUzKg0JgdTJqtpj6bEXwGAeaa2rvxbzA5JsO+ticOc02uC9LvEveXzYS/A=="
-      },
-      "skillRevision": 1,
-      "contentDigest": "sha256:eeb7320bba91c5f20a51e343b15aa9f31822b17f8587037d85405026f96ffa34",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 1
-      },
-      "preview": {
-        "headings": [
-          "Installation and upgrade shape",
-          "`createElement`",
-          "State and resource-reading hooks",
-          "Other documented React exports",
-          "Browser, server, and framework boundaries",
-          "What this skill does not cover"
-        ],
-        "example": "import { createElement } from 'react';\nimport assert from 'node:assert/strict';\n\nfunction Greeting({ name }: { name: string }) {\n  return createElement(\n    'h1',\n    { className: 'greeting' },\n    'Hello ',\n    createElement('i', null, name),\n    '. Welcome!'\n  );\n}\n\nconst element = createElement(Greeting, { name: 'Taylor' });\n\nassert.equal(element.type, Greeting);\nassert.equal(element.props.name, 'Taylor');"
-      },
-      "targets": [
-        {
-          "packageName": "react",
-          "range": "^19.0.0",
-          "verifiedVersions": [
-            "19.2.8"
-          ]
-        }
-      ],
-      "line": {
-        "major": 19,
         "status": "active"
       }
     },
@@ -725,51 +599,6 @@
       ],
       "line": {
         "major": 5,
-        "status": "active"
-      }
-    },
-    {
-      "productId": "tailwindcss",
-      "title": "tailwindcss",
-      "summary": "Use Tailwind CSS v4's programmatic compiler correctly, and avoid the v3 integration shape and obsolete PostCSS setup.",
-      "delivery": {
-        "packageName": "@modootoday/pmcp-tailwindcss",
-        "version": "4.0.0",
-        "integrity": "sha512-y1XWi0oo0pjP7ifVvXj4W9HcnznP0ZuzI8p8pMetn2Yp23IwwoOkiPc6q4S4o7kkOCyePlGZjFc3IgzUhvqwoQ=="
-      },
-      "skillRevision": 1,
-      "contentDigest": "sha256:9187d282e5f818b4b75e35d60292e7534b8cffef13851472956fbe86f65de9f1",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 1
-      },
-      "preview": {
-        "headings": [
-          "Package role",
-          "Programmatic compilation",
-          "AST compilation",
-          "Loading the design system",
-          "Default export warning",
-          "v4 integration changes",
-          "PostCSS, Vite, and CLI packages are separate",
-          "Use the v4 CSS import",
-          "Configuration is normally in CSS",
-          "Compatibility",
-          "Not covered"
-        ],
-        "example": "import assert from \"node:assert/strict\"\nimport tailwindcss from \"tailwindcss\"\n\nassert.throws(() => tailwindcss(), /@tailwindcss\\/postcss/)"
-      },
-      "targets": [
-        {
-          "packageName": "tailwindcss",
-          "range": "^4.0.0",
-          "verifiedVersions": [
-            "4.3.3"
-          ]
-        }
-      ],
-      "line": {
-        "major": 4,
         "status": "active"
       }
     },
@@ -1907,6 +1736,2708 @@
       ],
       "line": {
         "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "typescript-eslint-eslint-plugin",
+      "title": "@typescript-eslint/eslint-plugin",
+      "summary": "Use @typescript-eslint/eslint-plugin v8 exports, legacy preset names, rule definitions, typed-linting requirements, and v8 migration constraints.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-typescript-eslint-eslint-plugin",
+        "version": "8.0.0",
+        "integrity": "sha512-zuoT+n3udkt50AFLKxwkKYCCP+vDPRirb+pSyTVL0NpseyfdA8Vehtp+IwS7eil5edV+Ykp7TWZiXg7y13eNyQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:80ff4896befc7f06f672c7935b06281bb55ba4cbbf6b49672d3f0843f871067e",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "What this package provides",
+          "Configuration names: do not mix package shapes",
+          "Rules",
+          "Legacy `.eslintrc.*` setup",
+          "Flat config and v8",
+          "Typed linting",
+          "v8 rule and configuration changes",
+          "Does not cover"
+        ],
+        "example": "import * as plugin from '@typescript-eslint/eslint-plugin';\nimport assert from 'node:assert/strict';\n\nassert.equal(typeof plugin.configs, 'object');\nassert.equal(typeof plugin.rules, 'object');\nassert.equal(typeof plugin.configs.recommended, 'object');\nassert.equal(typeof plugin.rules['no-unused-vars'], 'object');"
+      },
+      "targets": [
+        {
+          "packageName": "@typescript-eslint/eslint-plugin",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.70.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "typescript-eslint-parser",
+      "title": "@typescript-eslint/parser",
+      "summary": "Use @typescript-eslint/parser ^8.0.0 directly or as the parser behind ESLint. Covers standalone parsing, complete parse results, isolated parser options, v8 Project Service naming, and boundaries around type-aware parsing.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-typescript-eslint-parser",
+        "version": "8.0.0",
+        "integrity": "sha512-xaO5/44NN9L3BODyPMxPncz2zFtN/Ichi4knLwbWn5QPD+POD/ZwKSPTZH4IE73/fCdUbsQH5Tq4bmc4/1W0mg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:7a89105571cadaa07d070e083b13eae744a52835f56838020a61be8edb65aa6d",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Direct parsing",
+          "`parseForESLint`",
+          "Isolated parsing with `withoutProjectParserOptions`",
+          "Project-backed parsing",
+          "v8 configuration mistake: Project Service spelling",
+          "ESLint integration",
+          "Other exports",
+          "Does not cover"
+        ],
+        "example": "import * as assert from 'node:assert/strict';\nimport * as parser from '@typescript-eslint/parser';\n\nconst ast = parser.parse('let x: number = 1;', {\n  filePath: 'example.ts',\n});\n\nassert.equal(ast.type, 'Program');\nassert.equal(ast.body.length, 1);\nassert.equal(ast.body[0].type, 'VariableDeclaration');\nassert.equal(ast.body[0].declarations[0].id.type, 'Identifier');\nassert.equal(ast.body[0].declarations[0].id.typeAnnotation.type, 'TSTypeAnnotation');"
+      },
+      "targets": [
+        {
+          "packageName": "@typescript-eslint/parser",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.70.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "typescript-eslint-types",
+      "title": "@typescript-eslint/types",
+      "summary": "Use @typescript-eslint/types ^8 as the lightweight TypeScript-ESTree AST type package: runtime AST enums plus exported parser, project-service, and AST declarations. It is an internal package, not a parser, runner, CLI, or standalone AST-producing tool.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-typescript-eslint-types",
+        "version": "8.0.0",
+        "integrity": "sha512-jwpfbwxG5/EP7WxEjwI3E3xYfE+WTW0t5//9VBb6fJhjJvdLDKJSkBLPqN9cINwT4tu/Py+j793PD++dfhlllw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:42e6960b8602aeb1104e9577998803c83c4f36695439e1c3f9b4443d6c8dc8c6",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "What this package is",
+          "Runtime enums",
+          "Parser option declarations",
+          "v8 migration traps",
+          "Do not copy an older AST parent assumption",
+          "Use `projectService`, not the experimental older name",
+          "Do not treat this package as the parser",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { AST_NODE_TYPES, AST_TOKEN_TYPES } from '@typescript-eslint/types';\n\nassert.equal(AST_NODE_TYPES.Identifier, 'Identifier');\nassert.equal(AST_NODE_TYPES.TSInterfaceDeclaration, 'TSInterfaceDeclaration');\nassert.equal(AST_TOKEN_TYPES.Identifier, 'Identifier');\nassert.equal(AST_TOKEN_TYPES.Punctuator, 'Punctuator');"
+      },
+      "targets": [
+        {
+          "packageName": "@typescript-eslint/types",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.70.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "typescript-eslint-estree",
+      "title": "@typescript-eslint/typescript-estree",
+      "summary": "Use @typescript-eslint/typescript-estree ^8 to parse TypeScript into ESTree-compatible ASTs, distinguish plain parsing from type-aware services, and avoid v7 configuration shapes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-typescript-eslint-estree",
+        "version": "8.0.0",
+        "integrity": "sha512-T/12uFEaw0swoBPGUlajU2JZPB49EFLNmX3XtlY5zx6xkhyC1fbKB2+oXjoToCclyoz8S4gHcyA+DZdS9msChg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:084c3b7360eff29f22850a68c7c95f688531fdfb8d66bf94917e9308168b0685",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "What this package does",
+          "Basic parsing",
+          "AST type and token constants",
+          "Parser services",
+          "Supplying a TypeScript program",
+          "v8 migration traps",
+          "What this skill does not cover"
+        ],
+        "example": "import { strict as assert } from 'node:assert';\nimport { parse } from '@typescript-eslint/typescript-estree';\n\nconst ast = parse(`const hello: string = 'world';`, {\n  loc: true,\n  range: true,\n});\n\nassert.equal(ast.type, 'Program');\nassert.equal(ast.body.length, 1);\nassert.equal(ast.range?.[0], 0);\nassert.ok(ast.loc);"
+      },
+      "targets": [
+        {
+          "packageName": "@typescript-eslint/typescript-estree",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.70.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "typescript-eslint-utils",
+      "title": "@typescript-eslint/utils",
+      "summary": "Use @typescript-eslint/utils ^8.0.0 to author typed custom ESLint rules, work with TypeScript-ESTree node types, and access parser services from rules running under ESLint.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-typescript-eslint-utils",
+        "version": "8.0.0",
+        "integrity": "sha512-8PbZ8R98qFZNjd+Et0FZQGXUug78EpPV4UGauDnrQgEEDJxeafS+96lkNiTyUlcgynmFThrTHcPP6fRCmwA7hQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:8872ee150921aaf6674ff4ad9ba2f411a96ffb0b81f90825414e0224b030b26d",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "What this package is",
+          "Creating a rule",
+          "AST node types",
+          "Parser services and typed rules",
+          "v8 compatibility notes",
+          "Testing and adjacent configuration",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { ESLintUtils } from '@typescript-eslint/utils';\n\nconst createRule = ESLintUtils.RuleCreator(\n  name => `https://typescript-eslint.io/rules/${name}`,\n);\n\nconst rule = createRule({\n  name: 'demo-rule',\n  meta: {\n    docs: { description: 'Demonstrates a rule.' },\n    messages: { found: 'Found it.' },\n    type: 'suggestion',\n    schema: [],\n  },\n  defaultOptions: [],\n  create(context) {\n    return {\n      Identifier(node) {\n        if (node.name === 'bad') {\n          context.report({ messageId: 'found', node });\n        }\n      },\n    };\n  },\n});\n\nassert.equal(rule.meta.messages.found, 'Found it.');\nconst reports: unknown[] = [];\nconst visitors = rule.create({\n  report(problem: unknown) {\n    reports.push(problem);\n  },\n} as never);\n\nvisitors.Identifier({ type: 'Identifier', name: 'bad' } as never);\nassert.equal(reports.length, 1);"
+      },
+      "targets": [
+        {
+          "packageName": "@typescript-eslint/utils",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.70.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "typescript-eslint-visitor-keys",
+      "title": "@typescript-eslint/visitor-keys",
+      "summary": "Use @typescript-eslint/visitor-keys ^8.0.0 to read TypeScript-ESTree visitor-key definitions and obtain keys for AST nodes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-typescript-eslint-visitor-keys",
+        "version": "8.0.0",
+        "integrity": "sha512-9aJNS9f9wsz299Pyw1fKoELMSKpNVXFSPVu2Dl418A0EIbNfJaCSX8ovk9Gqa4dAI3dzgsLk4cDJJumv6dC3Dw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2aae005f611515dea8be6f1e49ace3209a388d46e95ffeb678cd630933e88316",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "`visitorKeys`",
+          "`getKeys`",
+          "v8 migration hazards",
+          "TypeScript usage",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { visitorKeys } from '@typescript-eslint/visitor-keys';\n\nassert.deepEqual(visitorKeys.CallExpression, [\n  'callee',\n  'typeArguments',\n  'arguments',\n]);\nassert.deepEqual(visitorKeys.ImportExpression, ['source', 'options']);\nassert.deepEqual(visitorKeys.TSConditionalType, [\n  'checkType',\n  'extendsType',\n  'trueType',\n  'falseType',\n]);\nassert.deepEqual(visitorKeys.TSTypeReference, ['typeName', 'typeArguments']);"
+      },
+      "targets": [
+        {
+          "packageName": "@typescript-eslint/visitor-keys",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.70.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "ajv-formats",
+      "title": "ajv-formats",
+      "summary": "Use ajv-formats 3.x with Ajv 8 to add standard and OpenAPI format validation, fast/selective modes, direct format access, and format comparison keywords.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-ajv-formats",
+        "version": "3.0.0",
+        "integrity": "sha512-Hvqnb1/FW0/cfM173WjQT2mzqsuuZLg3DQ+EvGnxRw2Cci8dL68yU3gkH0lZTukDPVyt9KAo1wUAdUU9wZ283A=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:bed99fe5dfedd2fb609a33fdab3d634b26ac969c8c13c07226eb6b8098557a61",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Add all formats",
+          "Select formats and choose fast mode",
+          "v3 date and time behavior",
+          "Format comparison keywords",
+          "Access a format directly",
+          "Common mistakes",
+          "Not covered",
+          "Sources"
+        ],
+        "example": "import assert from \"node:assert/strict\"\nimport Ajv from \"ajv\"\nimport addFormats from \"ajv-formats\"\n\nconst ajv = new Ajv()\naddFormats(ajv)\n\nconst validate = ajv.compile({\n  type: \"object\",\n  properties: {\n    birthday: { type: \"string\", format: \"date\" },\n    email: { type: \"string\", format: \"email\" },\n    ip: { type: \"string\", format: \"ipv4\" },\n  },\n  required: [\"birthday\", \"email\", \"ip\"],\n  additionalProperties: false,\n})\n\nassert.equal(validate({ birthday: \"2024-02-29\", email: \"a@example.com\", ip: \"192.0.2.1\" }), true)\nassert.equal(validate({ birthday: \"2024-02-30\", email: \"a@example.com\", ip: \"192.0.2.1\" }), false)\nassert.equal(validate({ birthday: \"2024-02-29\", email: \"not-an-email\", ip: \"192.0.2.1\" }), false)"
+      },
+      "targets": [
+        {
+          "packageName": "ajv-formats",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "allure-js-commons",
+      "title": "allure-js-commons",
+      "summary": "Use allure-js-commons 3.x as the test-facing Allure facade or as the SDK foundation for a framework adapter. Prefer the v3 ReporterRuntime/TestRuntime architecture over the removed v2 AllureRuntime shape.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-allure-js-commons",
+        "version": "3.0.0",
+        "integrity": "sha512-nImPTK40N+dQ7ARv2U6nVEDAF62zfAoTWlPBdw+vrODVywuWVmBKAA7odoVYJxBMkj3XMOAfAxmaFFOgI9gP/g=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b1305edece16515f1618f4f02d817bcce7a83449c3a65f5198d12863022e09d3",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "Test-facing facade",
+          "Synchronous facade",
+          "Custom integrations and reporter SDK",
+          "Migration traps from v2",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport * as allure from \"allure-js-commons\";\n\nassert.equal(typeof allure.epic, \"function\");\nassert.equal(typeof allure.feature, \"function\");\nassert.equal(typeof allure.story, \"function\");\nassert.equal(typeof allure.owner, \"function\");\nassert.equal(typeof allure.severity, \"function\");\nassert.equal(typeof allure.issue, \"function\");\nassert.equal(typeof allure.tms, \"function\");\nassert.equal(typeof allure.tag, \"function\");\nassert.equal(typeof allure.description, \"function\");\nassert.equal(typeof allure.descriptionHtml, \"function\");\nassert.equal(typeof allure.displayName, \"function\");\nassert.equal(typeof allure.historyId, \"function\");\nassert.equal(typeof allure.testCaseId, \"function\");\nassert.equal(typeof allure.parameter, \"function\");\nassert.equal(typeof allure.step, \"function\");\nassert.equal(typeof allure.logStep, \"function\");\nassert.equal(typeof allure.attachment, \"function\");\nassert.equal(typeof allure.attachmentPath, \"function\");\nassert.equal(typeof allure.globalAttachment, \"function\");\nassert.equal(typeof allure.globalAttachmentPath, \"function\");"
+      },
+      "targets": [
+        {
+          "packageName": "allure-js-commons",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.12.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "ansi-escapes",
+      "title": "ansi-escapes",
+      "summary": "Use ansi-escapes 7.x from ESM code to generate terminal escape-code strings for cursor movement, screen and line control, hyperlinks, images, and iTerm2 features.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-ansi-escapes",
+        "version": "7.0.0",
+        "integrity": "sha512-LCTkfkpqG9LVWlofE4dY03WwrviJVDO+0eS8WGssIuYkdZdlWTLuih6nC6qEFhpC9FFDiFTR5hw2TkbSrtEMEg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:1d2e844fde6ddd6291888bea4bf9a01dbcc5dd9c6be3d0598dca2efb0d576cc4",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module shape",
+          "Cursor movement and position",
+          "Erasing, scrolling, and screen control",
+          "Hyperlinks, images, and iTerm2 features",
+          "Writing the result",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport ansiEscapes, {cursorUp, cursorLeft} from 'ansi-escapes';\n\nassert.equal(ansiEscapes.cursorUp(2), '\\u001B[2A');\nassert.equal(cursorUp(2) + cursorLeft, '\\u001B[2A\\u001B[G');\nassert.equal(ansiEscapes.cursorLeft, cursorLeft);"
+      },
+      "targets": [
+        {
+          "packageName": "ansi-escapes",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.3.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "app-builder-lib",
+      "title": "app-builder-lib",
+      "summary": "Practical app-builder-lib ^26.0.0 API guidance for programmatic use, with runnable checks for architecture and platform helpers and cautions about packaging-only APIs.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-app-builder-lib",
+        "version": "26.0.0",
+        "integrity": "sha512-dorG1MzwfogrQiOv2+8ouP1UBE8OGqQqJEE3eCGz9oUK/Svu4wLRUqDSALHh6kwKNCCu31oY4pcYNELSjYN4fw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:42fd06d81acf8e67c8ffd254e4e85061f0a5b73d6939329b0233157896160f32",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Directly usable helpers",
+          "Programmatic packaging API",
+          "v26-specific cautions",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport { Arch, archFromString } from \"app-builder-lib\";\n\nassert.equal(Arch.ia32, 0);\nassert.equal(Arch.x64, 1);\nassert.equal(Arch.armv7l, 2);\nassert.equal(Arch.arm64, 3);\nassert.equal(Arch.universal, 4);\n\nassert.equal(archFromString(\"ia32\"), Arch.ia32);\nassert.equal(archFromString(\"x64\"), Arch.x64);\nassert.equal(archFromString(\"armv7l\"), Arch.armv7l);\nassert.equal(archFromString(\"arm64\"), Arch.arm64);\nassert.equal(archFromString(\"universal\"), Arch.universal);"
+      },
+      "targets": [
+        {
+          "packageName": "app-builder-lib",
+          "range": "^26.0.0",
+          "verifiedVersions": [
+            "26.15.3"
+          ]
+        }
+      ],
+      "line": {
+        "major": 26,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "chai",
+      "title": "chai",
+      "summary": "Use Chai 6 as an ESM-only assertion library, including its expect, assert, should, plugin, configuration, and Assertion extension surfaces.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-chai",
+        "version": "6.0.0",
+        "integrity": "sha512-ftF80HNMxo1Ul1QTMvGNVua7Um756+hQ8wRGZ/HqwWGf76EAvIowjgK3kPtwgivQcuvKl8zwR/UGcPpyq/Bk3A=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:deec020cb2e48bfdd7462a6371b69305fbce9decd64d75775d5e6e6e486e484d",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module shape",
+          "Assertion styles",
+          "`assert`",
+          "`expect`",
+          "`should`",
+          "Plugins",
+          "Extending `Assertion`",
+          "Configuration",
+          "Register entry points",
+          "Common migration mistakes",
+          "Not covered by this skill"
+        ],
+        "example": "import nodeAssert from 'node:assert/strict';\nimport { assert } from 'chai';\n\nassert('foo' !== 'bar', 'foo is not bar');\nassert(Array.isArray([]), 'empty arrays are arrays');\n\nnodeAssert.equal(1 + 1, 2);"
+      },
+      "targets": [
+        {
+          "packageName": "chai",
+          "range": "^6.0.0",
+          "verifiedVersions": [
+            "6.2.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 6,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "cli-cursor",
+      "title": "cli-cursor",
+      "summary": "Use cli-cursor v5.0.0 to show, hide, or conditionally toggle a terminal cursor from ESM code.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-cli-cursor",
+        "version": "5.0.0",
+        "integrity": "sha512-yYxJXSeWS0HPGuE/1Fg4POe7Y6it4fndvVRfp8nG+ptSGaxhyQp5OxGIlH50gdjJW9V/FIHX35R0XD045UswCA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2ddfc6482e66d88d9a3818a9487ba006287978396f45e7bf3d9f28934f698827",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Import and compatibility",
+          "API",
+          "Show and hide with a stream",
+          "Conditional toggle",
+          "Non-TTY behavior",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport cliCursor from 'cli-cursor';\n\nlet output = '';\nconst stream = {\n  isTTY: true,\n  write(chunk: string) {\n    output += chunk;\n    return true;\n  },\n};\n\ncliCursor.show(stream);\nassert.equal(output, '\\u001B[?25h');\n\noutput = '';\ncliCursor.hide(stream);\nassert.equal(output, '\\u001B[?25l');"
+      },
+      "targets": [
+        {
+          "packageName": "cli-cursor",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "cli-spinners",
+      "title": "cli-spinners",
+      "summary": "Use cli-spinners ^3.0.0 as a pure ESM source of spinner definitions and random spinner selection.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-cli-spinners",
+        "version": "3.0.0",
+        "integrity": "sha512-Kf/qW62qeIU8nyN1L/bYp6iRqhW7fCAvbUkS1512G4mNIWYEnK10MCHfdTws+GFvmsHOTUin1HMxQY1FTfE3mg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:1b0513ac859e403ce142876ce433df8599c2c16597576a2d033b6bd53fbaa396",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Import the package",
+          "Select a random spinner",
+          "Use the data in an animation",
+          "Important migration notes",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport cliSpinners from 'cli-spinners';\n\nconst dots = cliSpinners.dots;\n\nassert.equal(dots.interval, 80);\nassert.deepEqual(dots.frames, ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']);\nassert.equal(cliSpinners.line.interval, 130);\nassert.ok(Array.isArray(cliSpinners.hearts.frames));"
+      },
+      "targets": [
+        {
+          "packageName": "cli-spinners",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.4.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "cliui",
+      "title": "cliui",
+      "summary": "Use cliui ^9.0.0 to build terminal UI strings with rows, columns, wrapping, padding, alignment, borders, and the single-string layout DSL.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-cliui",
+        "version": "9.0.0",
+        "integrity": "sha512-2XTefoCMMr2YxlsyKisQjUg2MkfhhB+EqDff6Xx60exzvg4xerFUCdIhVBUh0sVSKuW/kfvddw8cyRv6LqWi1w=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:c38f56341ca21ba309f4059e121c43118d709825eba23109cc8d932211e24955",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Version and module format",
+          "Create and configure a UI",
+          "Rows and columns with `div`",
+          "Single-string layout DSL",
+          "Append with `span`",
+          "Reset accumulated output",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport cliui from \"cliui\";\n\nconst ui = cliui({});\nui.div(\"Usage: $0 [command] [options]\");\n\nassert.equal(typeof ui.toString(), \"string\");\nassert.match(ui.toString(), /Usage: \\$0/);"
+      },
+      "targets": [
+        {
+          "packageName": "cliui",
+          "range": "^9.0.0",
+          "verifiedVersions": [
+            "9.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 9,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "css-tree",
+      "title": "css-tree",
+      "summary": "Use css-tree 3.x to parse, traverse, transform, generate, and lex CSS ASTs. Covers the v3 AST/API changes that commonly break v2-era code.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-css-tree",
+        "version": "3.0.0",
+        "integrity": "sha512-37MVL1RaMK7eF4lzb992gs3eSqyoLWMEbDsYEZutciGygVbmqso/OKQl4KLOvD3uELt2KKuJHRmwUcwInPuFKg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2524f016e5e0716fa14b8b830d6cdbdcc9bb59bda8969f9201dfc6bd90ed977e",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "Parse and generate",
+          "Walk and mutate ASTs",
+          "Find nodes",
+          "Lexer",
+          "v3 AST and syntax changes",
+          "v2 compatibility traps",
+          "Plain-script boundary",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { generate, parse } from 'css-tree';\n\nconst ast = parse('.example { world: \"!\" }');\nassert.equal(generate(ast), '.example{world:\"!\"}');"
+      },
+      "targets": [
+        {
+          "packageName": "css-tree",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.2.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "data-urls",
+      "title": "data-urls",
+      "summary": "Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-data-urls",
+        "version": "7.0.0",
+        "integrity": "sha512-9AsixcHpE0pgssQkMW9wzZ4EGeGa/PFzLFlwaYM6Z2GE+4VhCp5H3lx1cG08IydowodvATgMixIXnqe1V0k0Ww=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:ec9ea00550c143e521669ffa4ba6d89b242bb4b6ef7ad3b7c24897a5b227ffa7",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Surface",
+          "Important version differences",
+          "Parse ordinary text data URLs",
+          "Parse base64 data URLs",
+          "Handle invalid input",
+          "Parse from a URL record",
+          "Decode bytes as text",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport parseDataURL from \"data-urls\";\n\nconst result = parseDataURL(\"data:,Hello%2C%20World!\");\n\nassert.notEqual(result, null);\nassert.equal(result.mimeType.toString(), \"text/plain;charset=US-ASCII\");\nassert.deepEqual([...result.body], [...new TextEncoder().encode(\"Hello, World!\")]);"
+      },
+      "targets": [
+        {
+          "packageName": "data-urls",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "deep-eql",
+      "title": "deep-eql",
+      "summary": "Use deep-eql ^5.0.0 for boolean deep comparisons in an ESM package. Covers the v5 export shape, comparison rules, custom comparators, circular references, and MemoizeMap.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-deep-eql",
+        "version": "5.0.0",
+        "integrity": "sha512-WxuVFe/Rt8mBkeEbxM4HfNgKEjQxKfoPrFPCjMZ3ZM7JC3mQwX7s+2DsDmsyoxCgkWfV12zjbXPvMt0QIkt2DA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:68355f0587b2843b3dc12e0146b8501c837dc2bcfe0264c92c52ecaf02972bb7",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Import shape",
+          "Default deep equality",
+          "Custom comparator",
+          "Circular references and memoization",
+          "`MemoizeMap`",
+          "What this skill does not cover"
+        ],
+        "example": "import deepEqual, { MemoizeMap } from 'deep-eql';\nimport assert from 'node:assert/strict';\n\nassert.equal(typeof deepEqual, 'function');\nassert.equal(typeof MemoizeMap, 'function');\nassert.equal(deepEqual({ a: 1 }, { a: 1 }), true);"
+      },
+      "targets": [
+        {
+          "packageName": "deep-eql",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "dexie",
+      "title": "dexie",
+      "summary": "Use Dexie 4.x for typed IndexedDB databases, table access, and reactive queries. Covers the Dexie/EntityTable TypeScript shapes, schema setup, liveQuery, and the boundary between standalone Dexie and dexie-cloud.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-dexie",
+        "version": "4.0.0",
+        "integrity": "sha512-+AsXoXTt2czksI3zUKHfApjYXaqrDjpmH5uwrSAwL87fNVHExmUdw+yqGFd471tKWRfX6yOKZSA1MiY0VoRtJw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:0d285484849ed7bed7070397350e4f414dfd2d26f674dc096fd34eb01b8241b2",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Use this when",
+          "Core database setup",
+          "TypeScript table shapes",
+          "Reactive queries with `liveQuery`",
+          "Cloud boundary",
+          "Runnable checks",
+          "Named and default exports, versioned stores, and `table()`",
+          "`liveQuery` is a named export",
+          "TypeScript entity declaration shape",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport DexieDefault, { Dexie } from \"dexie\";\n\nassert.equal(DexieDefault, Dexie);\n\nconst db = new Dexie(\"DexieSkillCore\");\ndb.version(1).stores({\n  friends: \"++id, name, age\",\n  pets: \"++id, name, kind\",\n});\n\nconst friends = db.table(\"friends\");\nassert.equal(friends.name, \"friends\");\nassert.deepEqual(\n  db.tables.map((table) => table.name).sort(),\n  [\"friends\", \"pets\"],\n);"
+      },
+      "targets": [
+        {
+          "packageName": "dexie",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.4.5"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "emittery",
+      "title": "emittery",
+      "summary": "Use Emittery 2.x for asynchronous typed event emission, subscriptions, one-shot waits, async iterables, and listener lifecycle management.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-emittery",
+        "version": "2.0.0",
+        "integrity": "sha512-PNPf5sFyRhHwHcjmR5tooe7+0JwY9QY+4lXQXQFgTNiAwI04zzxQMVpS66R+UNL3SVwHRavPkwd8l/VkGi+8MQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:9958a687fca6d37bab812fb5efab314e96c0a30e6b134e68d8cb355c70148370",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 9
+      },
+      "preview": {
+        "headings": [
+          "Version and runtime",
+          "Critical v2 migration rule",
+          "Basic subscription and removal",
+          "One-shot listeners",
+          "Concurrent and serial emission",
+          "Async event streams",
+          "Any-event listeners and listener inspection",
+          "Other documented API",
+          "Not covered"
+        ],
+        "example": "import Emittery from 'emittery';\nimport assert from 'node:assert/strict';\n\nconst emitter = new Emittery();\nconst received: unknown[] = [];\n\nconst listener = ({name, data}: {name: string; data: unknown}) => {\n\treceived.push([name, data]);\n};\n\nconst off = emitter.on('message', listener);\nawait emitter.emit('message', 'hello');\noff();\nawait emitter.emit('message', 'ignored');\n\nassert.deepEqual(received, [['message', 'hello']]);"
+      },
+      "targets": [
+        {
+          "packageName": "emittery",
+          "range": "^2.0.0",
+          "verifiedVersions": [
+            "2.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 2,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "eslint-plugin-react-hooks",
+      "title": "eslint-plugin-react-hooks",
+      "summary": "Use eslint-plugin-react-hooks ^7.0.0 correctly, including its flat and legacy presets, rule names, custom-hook dependency configuration, and the preset-shape changes from older releases.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-eslint-plugin-react-hooks",
+        "version": "7.0.0",
+        "integrity": "sha512-oZuZeaqcRFpobIQ4lf4E5sqEpljVsaq4eoJ9R4UMmc9OZTPMzNOS9ZwPlxJDS7gM/jkQgSCsGB1OAnCttbQmIg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b892c7339d39485e6dd6ae397da7dba9f47f0c54becdd4c835bdc5221ff96af8",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Presets",
+          "Explicit rule configuration",
+          "`exhaustive-deps` and custom hooks",
+          "Runnable package-surface checks",
+          "Plugin rules and exports",
+          "Flat and legacy preset shapes",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport reactHooks from 'eslint-plugin-react-hooks';\n\nassert.equal(typeof reactHooks, 'object');\nassert.equal(typeof reactHooks.rules, 'object');\nassert.equal(typeof reactHooks.configs, 'object');\n\nfor (const name of [\n  'exhaustive-deps',\n  'rules-of-hooks',\n  'component-hook-factories',\n  'config',\n  'error-boundaries',\n  'gating',\n  'globals',\n  'immutability',\n  'incompatible-library',\n  'preserve-manual-memoization',\n  'purity',\n  'refs',\n  'set-state-in-effect',\n  'set-state-in-render',\n  'static-components',\n  'unsupported-syntax',\n  'use-memo',\n]) {\n  assert.equal(typeof reactHooks.rules[name], 'object', `missing rule: ${name}`);\n}"
+      },
+      "targets": [
+        {
+          "packageName": "eslint-plugin-react-hooks",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.1.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "eslint-plugin-testing-library",
+      "title": "eslint-plugin-testing-library",
+      "summary": "Practical guidance for eslint-plugin-testing-library ^7.0.0, including v7 compatibility requirements, legacy and flat ESLint configuration, available rules, customization settings, and common migration mistakes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-eslint-plugin-testing-library",
+        "version": "7.0.0",
+        "integrity": "sha512-GMJLSbxJXmkhf9D27kyA7r3IM9eRkthGMeFXoYRSk4cYlD7RV06FRhKNATHg7LohUMh0ZL1cjRVOi/s5mK/ezg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b5c93ce926acdc46d3ab02c1dac1e02818e2e98aae6a08ac70dae1ca96bc601f",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "What this package is",
+          "Configuration shapes",
+          "Flat config",
+          "Legacy `.eslintrc` config",
+          "Rules",
+          "Custom utilities and queries",
+          "Migration traps",
+          "Do not copy removed v6-era rule names",
+          "Do not treat v7 as a runner",
+          "Standalone package-surface checks",
+          "Does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\n\nconst testingLibrary = require('eslint-plugin-testing-library');\n\nassert.equal(typeof testingLibrary, 'object');\nassert.equal(typeof testingLibrary.rules, 'object');\nassert.equal(typeof testingLibrary.configs, 'object');\nassert.equal(typeof testingLibrary.rules['await-async-queries'], 'object');\nassert.equal(typeof testingLibrary.rules['no-debugging-utils'], 'object');"
+      },
+      "targets": [
+        {
+          "packageName": "eslint-plugin-testing-library",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.16.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "expect-type",
+      "title": "expect-type",
+      "summary": "Use expect-type ^1.0.0 for compile-time TypeScript assertions about values, types, functions, properties, and type transformations. It has no meaningful runtime assertion behavior; run TypeScript checking separately from any direct script execution.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-expect-type",
+        "version": "1.0.0",
+        "integrity": "sha512-ASdiPr6jkDHpNRH4sMYY7Sg8Au8NbFZTXl9sApCb/mVwIjljl8ubw58EwNi3cRdOUR+4JBzudMM/77+aQxqqZA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:88f75b7d37a3fbafed6ec6459d2a4b065574bc08b491b21a2f91eb32a9dcf6fa",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "What this package is",
+          "Exact equality versus assignability",
+          "Primitive and structural assertions",
+          "Function parameters, returns, overloads, and `this`",
+          "Type transformations and modifiers",
+          "Intersections and deep types",
+          "Does not cover"
+        ],
+        "example": "import {strict as assert} from 'node:assert'\nimport {expectTypeOf} from 'expect-type'\n\nassert.equal(typeof expectTypeOf, 'function')\n\nexpectTypeOf({a: 1}).toEqualTypeOf<{a: number}>()\nexpectTypeOf({a: 1, b: 1}).toMatchTypeOf<{a: number}>()\n\n// This is intentionally a compile-time failure when the directive is checked.\n// @ts-expect-error extra properties are not allowed by exact equality\nexpectTypeOf({a: 1, b: 1}).toEqualTypeOf<{a: number}>()"
+      },
+      "targets": [
+        {
+          "packageName": "expect-type",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.4.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "express",
+      "title": "express",
+      "summary": "Use Express 5.x programmatically on Node.js 18+; covers the Express app, routers, body middleware, Express 5 routing, and migration differences.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-express",
+        "version": "5.0.0",
+        "integrity": "sha512-gvLNniiHTqI2GLsWWhHXS/DuAESuvdcx2Iq1sk3peoN+MZVHiTgkHmKBH8ufP2R5YPocmfRPo5MbgG/eJN76mA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:a3d30c50ba7d289b3ec68f7c6139d2553c9da9a3934fd664d61ddd6f6487c1ac",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Middleware factories",
+          "Routers",
+          "Express 5 route syntax",
+          "Async handlers and errors",
+          "Express 5 migration pitfalls",
+          "Static files",
+          "Not covered"
+        ],
+        "example": "import express from 'express'\nimport assert from 'node:assert/strict'\n\nconst app = express()\n\nassert.equal(typeof express, 'function')\nassert.equal(typeof app, 'function')\nassert.equal(typeof app.get, 'function')\nassert.equal(typeof app.post, 'function')\nassert.equal(typeof app.put, 'function')\nassert.equal(typeof app.delete, 'function')\nassert.equal(typeof app.patch, 'function')\nassert.equal(typeof app.options, 'function')\nassert.equal(typeof app.head, 'function')\nassert.equal(typeof app.all, 'function')\nassert.equal(typeof app.use, 'function')\nassert.equal(typeof app.listen, 'function')"
+      },
+      "targets": [
+        {
+          "packageName": "express",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.2.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "fake-indexeddb",
+      "title": "fake-indexeddb",
+      "summary": "Use fake-indexeddb ^6.0.0 as a pure-JavaScript, in-memory IndexedDB implementation in Node.js scripts and test environments.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-fake-indexeddb",
+        "version": "6.0.0",
+        "integrity": "sha512-b3EzX5JDiGgw4nhpw5QNnvw9OK69VnUvkXoNXvO908S4YSbU28SdEL+QSFIMXnsxaTe4GreTkSohLf2FLrvmnw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:38e339cdab12216581267fdbfe04f417c79c464a6ed384b48298b1a1c61650a1",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "What this package provides",
+          "Global setup",
+          "Explicit imports",
+          "Resetting in-memory state",
+          "Common version-6 mistakes",
+          "Other entry points",
+          "Not covered"
+        ],
+        "example": "import \"fake-indexeddb/auto\";\nimport assert from \"node:assert/strict\";\n\nconst request = indexedDB.open(\"global-example\", 1);\n\nawait new Promise<void>((resolve, reject) => {\n  request.onupgradeneeded = () => {\n    const db = request.result;\n    const store = db.createObjectStore(\"books\", { keyPath: \"isbn\" });\n    store.createIndex(\"by_title\", \"title\", { unique: true });\n    store.put({ isbn: 123456, title: \"Quarry Memories\", author: \"Fred\" });\n  };\n\n  request.onsuccess = () => {\n    const db = request.result;\n    const read = db.transaction(\"books\").objectStore(\"books\").get(123456);\n    read.onsuccess = () => {\n      assert.deepEqual(read.result, {\n        isbn: 123456,\n        title: \"Quarry Memories\",\n        author: \"Fred\",\n      });\n      db.close();\n      resolve();\n    };\n    read.onerror = () => reject(read.error);\n  };\n  request.onerror = () => reject(request.error);\n});"
+      },
+      "targets": [
+        {
+          "packageName": "fake-indexeddb",
+          "range": "^6.0.0",
+          "verifiedVersions": [
+            "6.2.5"
+          ]
+        }
+      ],
+      "line": {
+        "major": 6,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "fast-check",
+      "title": "fast-check",
+      "summary": "Use fast-check 4.x for property-based testing in standalone JavaScript/TypeScript scripts, with v3-to-v4 migration guidance and runnable Bun examples.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-fast-check",
+        "version": "4.0.0",
+        "integrity": "sha512-9o3SYTQSS//t1QkBNJ+hBzKBgojsVgdYIs9YVRA9dIcAow20NFilYd+BJE3FemrKBJo71t4bkQXgChoQ5TcXEA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b6d7d16dd84f753e455dbcfcb3e0f8870773ee5eac1c2735e99e41dbfc533686",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Runtime and language requirements",
+          "Properties, preconditions, and assertions",
+          "Inspecting runs with `check`",
+          "Sampling arbitraries",
+          "Global configuration",
+          "Common arbitraries and v4 inference",
+          "v3-to-v4 migration traps",
+          "What this skill does not cover"
+        ],
+        "example": "import * as fc from 'fast-check';\nimport assert from 'node:assert/strict';\n\nconst values = fc.sample(fc.nat(), 10);\nassert.equal(values.length, 10);\nassert.ok(values.every((value) => Number.isInteger(value) && value >= 0));"
+      },
+      "targets": [
+        {
+          "packageName": "fast-check",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.9.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "figures",
+      "title": "figures",
+      "summary": "Use figures 6.x to render Unicode symbols with terminal-aware fallbacks, access explicit main/fallback symbol sets, and replace symbols in strings.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-figures",
+        "version": "6.0.0",
+        "integrity": "sha512-XEiyRMGCAlg2BLNp5TmxqNlnGRKqJRnzt+SPIpNzMMDP8QhlB7xjWmxz2MFr85FpIFB2VB1gnoCb6w1Dv9Ktqw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:ea04f8267638b0b449cb233e8c5cfe838cded4e35b85c28b1561db4831879e27",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Imports and package shape",
+          "Default terminal-selected symbols",
+          "Explicit symbol sets",
+          "Replacing symbols in text",
+          "Terminal behavior",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport figures, {mainSymbols, fallbackSymbols} from 'figures';\n\nassert.ok(typeof figures.tick === 'string');\nassert.ok(figures.tick === mainSymbols.tick || figures.tick === fallbackSymbols.tick);\nassert.equal(typeof figures.star, 'string');\nassert.equal(typeof figures.line, 'string');"
+      },
+      "targets": [
+        {
+          "packageName": "figures",
+          "range": "^6.0.0",
+          "verifiedVersions": [
+            "6.1.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 6,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "firebase",
+      "title": "firebase",
+      "summary": "Use Firebase JS SDK ^12.0.0 with the modular API, correct v12 imports, and Node 20-compatible tooling. Covers app initialization, Auth and Firestore entry points, Firestore Lite query construction, compat migration traps, and v12 naming changes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-firebase",
+        "version": "12.0.0",
+        "integrity": "sha512-BfZ0gezQ1dHV8n7dLqryAEeofopibZqG4pFmr0++NdQuMiW3CP6wPdpGehZKhGmlTv2zmOyDbXnANIxd2SGWvw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b85ed3fdd06b1e2287973be6340e44d2fd00e4a003f21dfba0460e521fa39966",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Prefer modular imports",
+          "App lifecycle",
+          "Authentication",
+          "Cloud Firestore",
+          "Firestore Lite",
+          "v12 naming changes",
+          "Compat and migration pitfalls",
+          "Environment notes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { initializeApp, getApp, getApps, deleteApp } from 'firebase/app';\n\nconst app = initializeApp({\n  apiKey: 'test-api-key',\n  authDomain: 'example.firebaseapp.com',\n  projectId: 'example-project'\n}, 'skill-example');\n\nassert.equal(getApp('skill-example'), app);\nassert.equal(getApps().includes(app), true);\n\nawait deleteApp(app);\nassert.equal(getApps().some(candidate => candidate === app), false);"
+      },
+      "targets": [
+        {
+          "packageName": "firebase",
+          "range": "^12.0.0",
+          "verifiedVersions": [
+            "12.18.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 12,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "http-proxy-agent",
+      "title": "http-proxy-agent",
+      "summary": "Use http-proxy-agent 9.x to route Node HTTP requests through an HTTP or HTTPS proxy.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-http-proxy-agent",
+        "version": "9.0.0",
+        "integrity": "sha512-wEYPkHHqhscgQ4wIGisqa3MEfW4tSOfcVJ5BGSrsEtq0PO2rxGsKS9Gy31S4VkWrUbvMPrnuV1sTELHM9dFgUw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:1b6834634ca2126cd9541b3860eebab5aac8fff677515729d34be639cbfd4b99",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module shape",
+          "Constructing an agent",
+          "Inspecting the configured agent",
+          "Supported protocols",
+          "Using the agent with Node HTTP",
+          "Public agent methods",
+          "Common version-migration mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { HttpProxyAgent } from 'http-proxy-agent';\n\nconst headers = { 'X-Proxy-Request': 'example' };\nconst agent = new HttpProxyAgent('https://proxy.example.test:8443', {\n  keepAlive: true,\n  headers\n});\n\nassert.equal(agent.proxy.protocol, 'https:');\nassert.equal(agent.proxy.hostname, 'proxy.example.test');\nassert.equal(agent.proxy.port, '8443');\nassert.deepEqual(agent.proxyHeaders, headers);\nassert.equal(agent.connectOpts.host, 'proxy.example.test');\nassert.equal(agent.connectOpts.port, 8443);"
+      },
+      "targets": [
+        {
+          "packageName": "http-proxy-agent",
+          "range": "^9.0.0",
+          "verifiedVersions": [
+            "9.1.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 9,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "human-signals",
+      "title": "human-signals",
+      "summary": "Use human-signals ^8.0.0 as an ES-module lookup table for signal metadata by name or number.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-human-signals",
+        "version": "8.0.0",
+        "integrity": "sha512-3ooWvsQvMBi1eeEocvscbIfUwGvVpOvAQtUva33OuS0d7uT/ofOTbrK3UGa/PC73EK/kpWImlpGGIBMX1MIrGw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:8d38216e4a53edd3db28e6f0049723a15fc53fca2625f51901b2f98ee60beebd",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "What this package provides",
+          "Look up a signal by name",
+          "Look up a signal by number",
+          "Platform support",
+          "Version and compatibility pitfalls",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport { signalsByName } from 'human-signals'\n\nconst sigint = signalsByName.SIGINT\n\nassert.equal(sigint.name, 'SIGINT')\nassert.equal(sigint.number, 2)\nassert.equal(sigint.description, 'User interruption with CTRL-C')\nassert.equal(sigint.supported, true)\nassert.equal(sigint.action, 'terminate')\nassert.equal(sigint.forced, false)\nassert.equal(sigint.standard, 'ansi')"
+      },
+      "targets": [
+        {
+          "packageName": "human-signals",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "ip-address",
+      "title": "ip-address",
+      "summary": "Use ip-address ^10.0.0 for standalone IPv4 and IPv6 parsing, validation, subnet checks, conversions, special-address inspection, and URL parsing. This skill emphasizes the v10 native-BigInt API and avoids older v9 method names.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-ip-address",
+        "version": "10.0.0",
+        "integrity": "sha512-m7WrEqAeHsZX4jtSyXNDByQjCKFcGTy4/2uESM3Sfg9RBrORBIrMTktlPCSq0RFIX5wPqAeCRR+foQA6Q0LYow=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:6dc147100e52de6fb2dfec0964da5ccfb5bea9b0a724f6b5e51cccc0bfa0b7c0",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Importing",
+          "IPv4",
+          "IPv6",
+          "IPv6 URLs and errors",
+          "v10 migration warning",
+          "What this skill does not cover"
+        ],
+        "example": "import { strict as assert } from 'node:assert/strict';\nimport { Address4, Address6 } from 'ip-address';\n\nassert.equal(Address4.isValid('192.168.1.1'), true);\nassert.equal(Address6.isValid('2001:db8::1'), true);\nassert.equal(Address6.isValid('not an address'), false);\n\nconst v4 = new Address4('192.168.1.1/24');\nconst v6 = new Address6('2001:db8::1/64');\n\nassert.ok(v4);\nassert.ok(v6);"
+      },
+      "targets": [
+        {
+          "packageName": "ip-address",
+          "range": "^10.0.0",
+          "verifiedVersions": [
+            "10.7.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 10,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "jackspeak",
+      "title": "jackspeak",
+      "summary": "Use jackspeak v4 to declare command-line fields, parse an explicit argument array, validate parsed values, and render usage documentation.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-jackspeak",
+        "version": "4.0.0",
+        "integrity": "sha512-pRTlHDbOd8Z5P21YcYZ43xPGmOSq9qAFuEUEjI31SYZ/+kCrsLf6iGFJEYPTJ/eqTv5qzxCW18FeIsIpdApOCw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:433904e448357310319cf74876ae8a80a6ab625102d11ebadb2c0e4e988b6607",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Use this skill when",
+          "Core parsing shape",
+          "Field kinds",
+          "Validation and generated documentation",
+          "Headings, descriptions, and fields",
+          "Environment integration",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import { strict as assert } from 'node:assert'\nimport { jack } from 'jackspeak'\n\nconst parser = jack({ envPrefix: 'FOO' })\n  .flag({\n    foo: { description: 'another boolean', short: 'f' },\n  })\n  .optList({\n    'ip-addrs': {\n      description: 'addresses to ip things',\n      delim: ',',\n      default: ['127.0.0.1'],\n    },\n  })\n\nconst { positionals, values } = parser.parse([\n  'some',\n  'positional',\n  '--ip-addrs',\n  '192.168.0.1',\n  '--ip-addrs',\n  '1.1.1.1',\n  '--foo',\n])\n\nassert.deepEqual(positionals, ['some', 'positional'])\nassert.equal(values.foo, true)\nassert.deepEqual(values['ip-addrs'], ['192.168.0.1', '1.1.1.1'])"
+      },
+      "targets": [
+        {
+          "packageName": "jackspeak",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.2.3"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "jest-cli",
+      "title": "jest-cli",
+      "summary": "Use jest-cli 30 programmatically and avoid Jest 29 CLI/API shapes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-jest-cli",
+        "version": "30.0.0",
+        "integrity": "sha512-Dqoz9e9Wd3aD79gaysx4PR5ymHMSEfVJw9k9rGmViB6P9ZNLqS7dmyREJaDGENS+QZEKxQoOBwBSQ4r0tegQkg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:aae4b15a239c369a25ed77e93c135cfdbc96d0ff89205e07b8923ab7c52a7c6b",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Surface",
+          "Parse CLI arguments with `buildArgv`",
+          "Run Jest programmatically",
+          "Inspect the option definitions",
+          "Jest 30 CLI changes",
+          "Rename `--testPathPattern`",
+          "`--init` was removed",
+          "Filter result shape",
+          "Common Jest 29-era mistakes",
+          "Runtime requirements",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport {buildArgv} from 'jest-cli';\n\nconst argv = await buildArgv(['--runInBand']);\nassert.equal(argv.runInBand, true);"
+      },
+      "targets": [
+        {
+          "packageName": "jest-cli",
+          "range": "^30.0.0",
+          "verifiedVersions": [
+            "30.5.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 30,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "jest-extended",
+      "title": "jest-extended",
+      "summary": "Use jest-extended v7 matchers with a Jest/Vitest-compatible expect.extend host, and understand the small subset that can be exercised directly without a test runner.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-jest-extended",
+        "version": "7.0.0",
+        "integrity": "sha512-SzEx2AFhJIMErnWvtupLBWmR4yWdqCyLSEvnOcd25HePrL2MkM1H5q/M1jSS7zcaNfNYL4F3zr2oHz3oVAJrcg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:d7dcf090735bdff6412e40f9ec563df9f32b8817e6b0fd6bb4602f487ab217aa",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "What this package is",
+          "Exported matcher surface",
+          "Directly exercising matchers without a runner",
+          "Setup mistakes to avoid",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { toBeArray } from 'jest-extended';\n\nconst context = {\n  utils: {\n    matcherHint: (hint: string) => hint,\n    printReceived: (value: unknown) => String(value),\n  },\n};\n\nconst isArray = (toBeArray as any).call(context, [1, 2]);\nconst isNotArray = (toBeArray as any).call(context, 'not an array');\n\nassert.equal(isArray.pass, true);\nassert.equal(isNotArray.pass, false);"
+      },
+      "targets": [
+        {
+          "packageName": "jest-extended",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "level-supports",
+      "title": "level-supports",
+      "summary": "Use level-supports ^6.0.0 to construct abstract-level capability manifests, merge manifests, and test optional database features safely.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-level-supports",
+        "version": "6.0.0",
+        "integrity": "sha512-61NVGfOOCFMyVB+QsFBD+OyAF+29QIwZnE4Gb5cLs6PBhKCmxSurjvxTLlzv4Xc7dHh3IyEPCoPJvroSqcR/Wg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:4f470dc20dab9ea462e05de94fbf06141913354c76bf84f7a68e4304ad42c2c5",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "Import the v6 API",
+          "Build a manifest",
+          "Merge manifests",
+          "Test capabilities by truthiness",
+          "Snapshot capabilities",
+          "Signals and iterators",
+          "v6 versus older manifests",
+          "Does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport { supports } from 'level-supports'\n\nconst manifest = supports()\nassert.equal(manifest.seek, false)\nassert.equal(manifest.permanence, false)\nassert.deepEqual(manifest.encodings, {})\nassert.deepEqual(manifest.events, {})\nassert.deepEqual(manifest.additionalMethods, {})\nassert.deepEqual(manifest.signals, {})"
+      },
+      "targets": [
+        {
+          "packageName": "level-supports",
+          "range": "^6.0.0",
+          "verifiedVersions": [
+            "6.2.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 6,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "lowdb",
+      "title": "lowdb",
+      "summary": "Use lowdb v7's pure-ESM database API, distinguishing the v7 preset/update syntax from older v6 examples and choosing the correct Node or browser entry point.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-lowdb",
+        "version": "7.0.0",
+        "integrity": "sha512-jND+0JRKLoCOLb+JUe4zt2KnAGh4hOapLpoxb5TpGGVsKq/3rxdn5nw9upioHOcOHyoFA4kq92dtQmlGz12fQg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:50f1ef9edee85f9b10f18bb75cd18b9753ed4c9dfc6cd077049ea30b8b5eac4c",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Version and module shape",
+          "v7 lifecycle",
+          "Async in-memory example",
+          "Synchronous in-memory example",
+          "Node JSON presets",
+          "Custom serialization",
+          "Browser adapters",
+          "v6-to-v7 mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport { Low, Memory } from 'lowdb'\n\nconst db = new Low(new Memory(), { posts: [] as string[] })\n\nawait db.read()\nawait db.update(({ posts }) => posts.push('hello'))\n\nassert.deepEqual(db.data, { posts: ['hello'] })"
+      },
+      "targets": [
+        {
+          "packageName": "lowdb",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "mdx-bundler",
+      "title": "mdx-bundler",
+      "summary": "Use mdx-bundler 10.x to bundle MDX on Node, preserve frontmatter, and understand the separate React-dependent client consumption helpers.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-mdx-bundler",
+        "version": "10.0.0",
+        "integrity": "sha512-NllsmX9m2exydJXNvqjFRaHJG5crAxxuhuERL3mUYBhH/08vFOEOuXgDqhcACU6DoekDvYnzWv79YHNklEuj+g=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:343c295b8de76dee526a8e32d487fb0ef2d5f860ddb5760ca9b9499cce3bc693",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Scope and version",
+          "Server-side bundling",
+          "Consuming bundled code",
+          "JSX runtime configuration",
+          "Common mistakes and version traps",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport {bundleMDX} from 'mdx-bundler'\n\nconst result = await bundleMDX({\n  source: `---\ntitle: Hello\n---\n\n# Wahoo\n`,\n})\n\nassert.equal(result.frontmatter.title, 'Hello')\nassert.match(result.code, /Wahoo/)\nassert.equal(typeof result.matter, 'object')"
+      },
+      "targets": [
+        {
+          "packageName": "mdx-bundler",
+          "range": "^10.0.0",
+          "verifiedVersions": [
+            "10.1.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 10,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "msw",
+      "title": "msw",
+      "summary": "Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-msw",
+        "version": "2.0.0",
+        "integrity": "sha512-OZtxXgODccphk4cjCFFL5QvaUbmMW2TecMMDGa5m7Spv3gyG7qvoyuMMYdFdnA52dlmKQwg22H8T5qoLrHcQbw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:89327c53ac9075f8024d583bc23ccaf1a0ea374c852c6e8f14a446b698e7e5dd",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "The v2 shape",
+          "Node interception",
+          "GraphQL handlers",
+          "Browser setup",
+          "Migration traps from MSW 1.x",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport { http, HttpResponse } from 'msw'\nimport { setupServer } from 'msw/node'\n\nconst server = setupServer(\n  http.get('https://example.test/users/:id', ({ params, request }) => {\n    const url = new URL(request.url)\n    return HttpResponse.json(\n      { id: params.id, host: url.host },\n      { status: 202, statusText: 'Mocked' },\n    )\n  }),\n)\n\nserver.listen()\ntry {\n  const response = await fetch('https://example.test/users/abc-123')\n  assert.equal(response.status, 202)\n  assert.equal(response.statusText, 'Mocked')\n  assert.deepEqual(await response.json(), {\n    id: 'abc-123',\n    host: 'example.test',\n  })\n} finally {\n  server.close()\n}"
+      },
+      "targets": [
+        {
+          "packageName": "msw",
+          "range": "^2.0.0",
+          "verifiedVersions": [
+            "2.15.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 2,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "negotiator",
+      "title": "negotiator",
+      "summary": "Use negotiator 1.x to select preferred media types, languages, charsets, and encodings from request headers, including the 1.0.0 options-object form for preferred encoding order.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-negotiator",
+        "version": "1.0.0",
+        "integrity": "sha512-ji7XQJh3SNWG6MFX46m+4WjyBAm85UH0JnACudbvJ595Tcf1iL72Kbz9SOX2aDm0lzDU9NbrnpU+1XhGgib2sw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b6106a1c2eff60f633af4812baeee99347085664d5f65899740ffea2fab15f53",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Loading and constructing",
+          "Media-type negotiation",
+          "Language negotiation",
+          "Charset negotiation",
+          "Encoding negotiation",
+          "Backward-compatible aliases",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport Negotiator from 'negotiator'\n\nconst negotiator = new Negotiator({\n  headers: {\n    accept: 'text/html, application/json;q=0.8'\n  }\n})\n\nassert.deepEqual(negotiator.mediaTypes(), ['text/html', 'application/json'])\nassert.deepEqual(\n  negotiator.mediaTypes(['application/json', 'text/plain', 'text/html']),\n  ['text/html', 'application/json']\n)\nassert.equal(\n  negotiator.mediaType(['application/json', 'text/plain', 'text/html']),\n  'text/html'\n)\nassert.equal(negotiator.mediaType(), 'text/html')"
+      },
+      "targets": [
+        {
+          "packageName": "negotiator",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.1.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "npm-run-path",
+      "title": "npm-run-path",
+      "summary": "Use npm-run-path ^6.0.0 to construct npm-style PATH values or environment objects for Node child processes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-npm-run-path",
+        "version": "6.0.0",
+        "integrity": "sha512-olS4v96/hu21BMCs2/5qup0+tILvEi52TihDMBox6GWYzII9g053XcGNo1ti3gO5wRNz9bnkhwcW1XcNbSMZNA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2d0812dd34329d43ca7eef18f1653877e2e0a7ba29824ac4e1337c6ea12f64fa",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "API",
+          "`npmRunPath(options?): string`",
+          "`npmRunPathEnv(options?): ProcessEnv`",
+          "Examples",
+          "Construct a PATH and an environment",
+          "Pass the generated environment to a child process",
+          "Use the options supported by the current type surface",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport {npmRunPath, npmRunPathEnv} from 'npm-run-path';\n\nconst path = npmRunPath({\n  path: '/usr/bin',\n  preferLocal: false,\n  addExecPath: false,\n});\n\nassert.equal(path, '/usr/bin');\n\nconst env = npmRunPathEnv({\n  env: {\n    PATH: '/usr/bin',\n    CUSTOM_VALUE: 'kept',\n  },\n  preferLocal: false,\n  addExecPath: false,\n});\n\nassert.equal(env.PATH, '/usr/bin');\nassert.equal(env.CUSTOM_VALUE, 'kept');"
+      },
+      "targets": [
+        {
+          "packageName": "npm-run-path",
+          "range": "^6.0.0",
+          "verifiedVersions": [
+            "6.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 6,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "nyc",
+      "title": "nyc",
+      "summary": "Use nyc 18.x for its CommonJS API, coverage-file lifecycle, directory resolution, and CLI/runner boundaries. Covers the Node runtime change from nyc 17.x and avoids standalone examples that depend on runner or subprocess internals.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-nyc",
+        "version": "18.0.0",
+        "integrity": "sha512-cvKFLh9lFClSe3s0Z5B4IdeKicL4uI/7VKWxfv+HANKpQLNdjCNvgywCe1DSEOKUEpx9QZXPSwSbSOouypUdcQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:8ad9be4dca8d427419b75ff9034f948105480674c683cf47123739ecd19cd863",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Runtime and package shape",
+          "Instrumentation",
+          "Coverage files",
+          "Temporary directories, reset, and reports",
+          "CLI and runner boundary",
+          "Configuration loading",
+          "What this skill does not cover"
+        ],
+        "example": "const assert = require('node:assert/strict')\nconst NYC = require('nyc')\nconst path = require('node:path')\n\nconst nyc = new NYC({\n  cwd: '/workspace/project',\n  tempDirectory: '.coverage-data',\n  reportDir: 'artifacts/coverage',\n  reporter: ['text', 'lcov']\n})\n\nassert.equal(nyc.cwd, '/workspace/project')\nassert.deepEqual(nyc.reporter, ['text', 'lcov'])\nassert.equal(nyc.tempDirectory(), path.resolve('/workspace/project', '.coverage-data'))\nassert.equal(nyc.reportDirectory(), path.resolve('/workspace/project', 'artifacts/coverage'))"
+      },
+      "targets": [
+        {
+          "packageName": "nyc",
+          "range": "^18.0.0",
+          "verifiedVersions": [
+            "18.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 18,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "ow",
+      "title": "ow",
+      "summary": "Use ow ^3.0.0 for runtime validation in Node.js 20+ ESM code. Covers the v3 API, validation results, predicates, modifiers, custom predicates, TypeScript inference, and v2-to-v3 migration traps.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-ow",
+        "version": "3.0.0",
+        "integrity": "sha512-gEyY2dTb+3s/tkFHX5tJCSIkxPG68SokGjQwS7/N1uMvLJePW4jXprFwUe6IRBlGxz2RWVUQHg4PhsimYaQGFQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:40ce99f335ffea7243a5a5c6e6e71f8d51de71f9e617f5d7333a1a135fcd31f4",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Import and core operations",
+          "Built-in predicates and modifiers",
+          "Custom predicates",
+          "Shapes and TypeScript inference",
+          "v3 migration traps",
+          "Development-only entry point",
+          "Not covered"
+        ],
+        "example": "import ow, {ArgumentError} from 'ow';\nimport assert from 'node:assert/strict';\n\nassert.doesNotThrow(() => ow('hello', ow.string.minLength(5)));\nassert.throws(\n\t() => ow('no', 'username', ow.string.minLength(5)),\n\terror => error instanceof ArgumentError,\n);\n\nassert.equal(ow.isValid(123, ow.number), true);\nassert.equal(ow.isValid('123', ow.number), false);\n\nconst valid = ow.validate('hello', ow.string);\nassert.equal(valid.success, true);\nif (valid.success) {\n\tassert.equal(valid.value.length, 5);\n}\n\nconst invalid = ow.validate(123, 'name', ow.string);\nassert.equal(invalid.success, false);\nif (!invalid.success) {\n\tassert.ok(invalid.error instanceof ArgumentError);\n}\n\nconst longString = ow.create('value', ow.string.minLength(3));\nassert.doesNotThrow(() => longString('abc'));\nassert.throws(() => longString('a'), ArgumentError);\n\nassert.equal(ow.isPredicate(ow.string), true);\nassert.equal(ow.isPredicate('string'), false);\nassert.equal(ow.isValid('abc', ow.any(ow.number, ow.string)), true);\nassert.equal(ow.isValid(true, ow.any(ow.number, ow.string)), false);"
+      },
+      "targets": [
+        {
+          "packageName": "ow",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.1.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "pac-proxy-agent",
+      "title": "pac-proxy-agent",
+      "summary": "Use pac-proxy-agent@^9.0.0 as an ESM Node.js HTTP Agent backed by a PAC file or PAC URI.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-pac-proxy-agent",
+        "version": "9.0.0",
+        "integrity": "sha512-vvZsQdoVzZjAj4/V/Ye9mLK6z0Ghad3PWLPRaFFHwjlm67ASyLNhWIzLOaPmmIh12DLm5FX84B66vGfGUGLIog=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:135bc07cbcc4046f8980dbad689e56759137494463ab715be56c23a0b699d980",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Scope and runtime",
+          "Constructor",
+          "Resolving a PAC file without making a request",
+          "Static protocol list",
+          "Common mistakes",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { PacProxyAgent } from 'pac-proxy-agent';\n\nconst pac = `\nfunction FindProxyForURL(url, host) {\n  if (host === 'internal.example') return 'DIRECT';\n  return 'PROXY proxy.example:8080';\n}\n`;\n\nconst agent = new PacProxyAgent(\n  `pac+data:text/plain,${encodeURIComponent(pac)}`\n);\n\nconst resolver = await agent.getResolver();\nassert.equal(await resolver('http://internal.example/', 'internal.example'), 'DIRECT');\nassert.equal(\n  await resolver('http://external.example/', 'external.example'),\n  'PROXY proxy.example:8080'\n);"
+      },
+      "targets": [
+        {
+          "packageName": "pac-proxy-agent",
+          "range": "^9.0.0",
+          "verifiedVersions": [
+            "9.1.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 9,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "pgsql-ast-parser",
+      "title": "pgsql-ast-parser",
+      "summary": "Use pgsql-ast-parser 12.x to parse PostgreSQL SQL into a typed AST, inspect or transform it, and generate SQL. Covers the standalone JavaScript/TypeScript API in resolved version 12.0.2.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-pgsql-ast-parser",
+        "version": "12.0.0",
+        "integrity": "sha512-lvby2fqADT3zFK+m6ZS3VoV+w9VtNoHvPvfvr+O1a/++oXQZefVJX15Ev4qU3KcHiXD+3A0HPhqzRjPE9QXJNg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:1d0625802dfa53e086e1fe72803cce9f96ccf609dc5f16c303a1eb9b50a3837e",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "Parse statements",
+          "Generate SQL",
+          "Visit an AST",
+          "Transform an AST",
+          "Locations and comments",
+          "Literal and utility helpers",
+          "Deno",
+          "Does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { parse, parseFirst } from 'pgsql-ast-parser';\n\nconst statements = parse(`BEGIN TRANSACTION;\n  INSERT INTO my_table VALUES (1, 'two');`);\nassert.equal(statements.length, 2);\n\nconst statement = parseFirst('SELECT * FROM \"my_table\";');\nassert.ok(statement);\nassert.equal(statement.type, 'select');"
+      },
+      "targets": [
+        {
+          "packageName": "pgsql-ast-parser",
+          "range": "^12.0.0",
+          "verifiedVersions": [
+            "12.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 12,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "protobufjs",
+      "title": "protobufjs",
+      "summary": "Use protobufjs ^8.0.0 for runtime protobuf reflection, schema loading, message conversion, and binary encoding/decoding. Prefer the ordinary reflection API unless generated code is supplied by protobufjs-cli.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-protobufjs",
+        "version": "8.0.0",
+        "integrity": "sha512-fcmGsojcoEvk73GGMewYHc1ClHG7yISnQeP74tAzy6D0HfcA2D7BG0LZh8yP1d0f8sh/0CuqYBvLzEkvCiB7tw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:f7b8bd74e209dee4e99891dd38c49c5634207e206bc9d987ee5bc8bc9ec2fecb",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "What this package provides",
+          "Common runtime workflow",
+          "Build a schema with reflection",
+          "Message lifecycle and binary encoding",
+          "Generated code and the CLI",
+          "Services",
+          "Version-specific caution",
+          "Not covered"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport protobuf from \"protobufjs\";\n\nconst AwesomeMessage = new protobuf.Type(\"AwesomeMessage\")\n  .add(new protobuf.Field(\"awesomeField\", 1, \"string\"));\n\nconst root = new protobuf.Root()\n  .define(\"awesomepackage\")\n  .add(AwesomeMessage);\n\nconst MessageType = root.lookupType(\"awesomepackage.AwesomeMessage\");\nassert.equal(MessageType, AwesomeMessage);\n\nconst message = MessageType.create({ awesomeField: \"hello\" });\nassert.equal(message.awesomeField, \"hello\");"
+      },
+      "targets": [
+        {
+          "packageName": "protobufjs",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.8.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "proxy-agent",
+      "title": "proxy-agent",
+      "summary": "Use proxy-agent ^8.0.0 as an ESM proxy-aware Node.js HTTP(S) Agent on Node.js 20+. Covers environment-based and custom proxy selection, exported lazy proxy constructors, lifecycle, and v8 compatibility concerns.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-proxy-agent",
+        "version": "8.0.0",
+        "integrity": "sha512-+4253MOYnlOP4S09lnoX5F+DAbs6YsVr/U0W8BTNM1I7QEfdrR0pgkPprOuJuJBOStcfRTnxXikokBc+rHewjA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:878d02c37a42742daa109c9158c16bdb24e791e69db1e924d84b288a6c4e9fb9",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module requirements",
+          "Default environment-based proxying",
+          "Selecting a proxy programmatically",
+          "Exported lazy agent constructors",
+          "Lifecycle and custom agents",
+          "Common version and shape mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { ProxyAgent } from 'proxy-agent';\n\nconst agent = new ProxyAgent();\nassert.equal(typeof agent.connect, 'function');\nassert.equal(typeof agent.destroy, 'function');\nagent.destroy();"
+      },
+      "targets": [
+        {
+          "packageName": "proxy-agent",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "react-is",
+      "title": "react-is",
+      "summary": "Use react-is 19 to identify React element brands and validate component types. Covers the React 19 export surface, the removal of React 18 async/concurrent aliases, and standalone checks that run without JSX, React, a DOM, or a test runner.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-react-is",
+        "version": "19.0.0",
+        "integrity": "sha512-O8GxwNTOb2OLXZitQsR07WVbcDg6KbyNdqePTf0m0Z6Bshy77VB5F8D6/Oa6bZkXhcWiHhcIre95gKBSIP93yg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:d07a5430a5977efd7b4f4733a9c5ffbec462e392c72572def4890e77113a6d3c",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "React 19 exports",
+          "Validate component types",
+          "Check arbitrary values without React or JSX",
+          "React-created values",
+          "Portals",
+          "React 18 compatibility trap",
+          "TypeScript",
+          "Not covered"
+        ],
+        "example": "import * as assert from \"node:assert/strict\";\nimport * as ReactIs from \"react-is\";\n\nfunction Component() {\n  return null;\n}\n\nassert.equal(ReactIs.isValidElementType(\"div\"), true);\nassert.equal(ReactIs.isValidElementType(Component), true);\nassert.equal(ReactIs.isValidElementType(null), false);\nassert.equal(ReactIs.isValidElementType({}), false);"
+      },
+      "targets": [
+        {
+          "packageName": "react-is",
+          "range": "^19.0.0",
+          "verifiedVersions": [
+            "19.2.8"
+          ]
+        }
+      ],
+      "line": {
+        "major": 19,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "react-markdown",
+      "title": "react-markdown",
+      "summary": "Use react-markdown ^10.0.0 correctly as an ESM-only React 18+ component, including synchronous, asynchronous, plugin, filtering, URL, and migration guidance.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-react-markdown",
+        "version": "10.0.0",
+        "integrity": "sha512-WjrGBEikDTi8aqHo8CoOjs55Z1Iyd+XGEBttSeqqLDEnnAtXBqjpOVTqteRH2zLijcoKmB7TJxltHp06gtd2Pw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:5aa33c24542ee91db7c535cc04a335bd095a3a7f01758116c882e1e4a1da1222",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Version and runtime",
+          "Basic rendering",
+          "Options and plugins",
+          "URL handling",
+          "Asynchronous processing",
+          "v10 migration mistakes",
+          "Do not pass `className` to `Markdown`",
+          "Do not use pre-v9 URL transform names",
+          "Do not assume the old package/runtime shape",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport React from 'react'\nimport Markdown, {defaultUrlTransform} from 'react-markdown'\n\nconst element = Markdown({children: '# Hello'})\n\nassert.equal(React.isValidElement(element), true)\nassert.equal(typeof defaultUrlTransform, 'function')"
+      },
+      "targets": [
+        {
+          "packageName": "react-markdown",
+          "range": "^10.0.0",
+          "verifiedVersions": [
+            "10.1.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 10,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "reselect",
+      "title": "reselect",
+      "summary": "Use Reselect ^5.0.0 to build memoized selectors, customize memoization, compose structured results, and account for v5 defaults and API changes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-reselect",
+        "version": "5.0.0",
+        "integrity": "sha512-30HihA5XtimZ1bXcYKkHrAjg3dVXumWdzw1ue7qB7SJ7cdI0A8Mszc8Xb7zEGx0ZkaeFgLFbe1y3hiSU4+xdPA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:fe8c9eea266baca2b8de65a29853e999b2a84bc060b55e111c83276a0028216d",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "What this package does",
+          "`createSelector`",
+          "Per-selector memoization",
+          "`createSelectorCreator`",
+          "`createStructuredSelector`",
+          "Memoizer exports",
+          "Development checks",
+          "v5 migration traps",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport { createSelector } from 'reselect'\n\ntype State = {\n  todos: Array<{ id: number; category: string }>\n}\n\nconst selectTodosByCategory = createSelector(\n  [\n    (state: State) => state.todos,\n    (_state: State, category: string) => category\n  ],\n  (todos, category) => todos.filter(todo => todo.category === category)\n)\n\nconst todos = [\n  { id: 1, category: 'work' },\n  { id: 2, category: 'home' },\n  { id: 3, category: 'work' }\n]\nconst state = { todos }\n\nconst first = selectTodosByCategory(state, 'work')\nconst second = selectTodosByCategory(state, 'work')\n\nassert.deepEqual(first, [\n  { id: 1, category: 'work' },\n  { id: 3, category: 'work' }\n])\nassert.strictEqual(first, second)"
+      },
+      "targets": [
+        {
+          "packageName": "reselect",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.3.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "responselike",
+      "title": "responselike",
+      "summary": "Use responselike ^4.0.0 to construct a Node.js readable HTTP-like response with status, headers, body, and URL metadata.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-responselike",
+        "version": "4.0.0",
+        "integrity": "sha512-KWt4/BISnoOxPmmlMEQISrHeCjWD6mC/G2BbtJjtjRtLUUrRYXFVWN7ykM9iDjOaXNYLtgbZ2rygIZB7ljH5cw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:9ba993b556eab69ddf20ba414aaf7da1baa791214c9ae9b5b6df2f4ac77095cc",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "What this package provides",
+          "Constructing a response",
+          "Reading the body as a stream",
+          "Piping",
+          "v4 migration notes",
+          "TypeScript surface",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport Response from 'responselike';\n\nconst response = new Response({\n  statusCode: 200,\n  headers: {\n    'Content-Type': 'text/plain',\n    'X-Request-Id': 'abc123'\n  },\n  body: Buffer.from('Hi!'),\n  url: 'https://example.com'\n});\n\nassert.equal(response.statusCode, 200);\nassert.deepEqual(response.headers, {\n  'content-type': 'text/plain',\n  'x-request-id': 'abc123'\n});\nassert.deepEqual(response.body, Buffer.from('Hi!'));\nassert.equal(response.url, 'https://example.com');"
+      },
+      "targets": [
+        {
+          "packageName": "responselike",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "socks-proxy-agent",
+      "title": "socks-proxy-agent",
+      "summary": "Use socks-proxy-agent ^10.0.0 to create SOCKS agents for Node HTTP clients and compatible integrations.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-socks-proxy-agent",
+        "version": "10.0.0",
+        "integrity": "sha512-cL1zFnYmqyHKc5XrdaliP9c+uOd7Vulz0EXvNsNVMAcowQwbX8484mG7m01xDjW9uqx9TMzVeCnF66aLWDxQCg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:6c6941d36573c8fa170ab4f4c25af8d03296621a5d99d44e1f115ceb97bef979",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Version and module requirements",
+          "Constructing an agent",
+          "Options",
+          "Using the agent with Node HTTP clients",
+          "Common migration mistake",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { SocksProxyAgent } from 'socks-proxy-agent';\n\nconst agent = new SocksProxyAgent(\n  'socks://your-name%40example.com:secret@proxy.example.com:1080'\n);\n\nassert.deepEqual(SocksProxyAgent.protocols, [\n  'socks',\n  'socks4',\n  'socks4a',\n  'socks5',\n  'socks5h',\n]);\nassert.equal(typeof agent.proxyUrl, 'string');\nassert.equal(agent.proxyUrl, 'socks://your-name%40example.com:secret@proxy.example.com:1080');\nassert.equal(typeof agent.shouldLookup, 'boolean');\nassert.equal(typeof agent.proxy, 'object');"
+      },
+      "targets": [
+        {
+          "packageName": "socks-proxy-agent",
+          "range": "^10.0.0",
+          "verifiedVersions": [
+            "10.1.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 10,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "string-width",
+      "title": "string-width",
+      "summary": "Use string-width ^8.0.0 to calculate the terminal column width of strings, including Unicode, emoji, ANSI escape codes, ambiguous-width characters, tabs, and non-printing grapheme clusters.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-string-width",
+        "version": "8.0.0",
+        "integrity": "sha512-gQEzUcshCZP6PpyDdlXyGS3M8qxQwesMTQxVY45iefKD8YDKHN//okJnuO9Hs3VbCWlbY3H6y3CPjJaPDkgF4w=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:3902a70fc6c7075712c1f7dfac6b9253de082ef6b89c31b3c88c208a413ee039",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Runtime and module shape",
+          "Basic width calculation",
+          "Options",
+          "`ambiguousIsNarrow`",
+          "`countAnsiEscapeCodes`",
+          "Unicode and grapheme behavior",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport stringWidth from 'string-width';\n\nassert.equal(stringWidth('a'), 1);\nassert.equal(stringWidth('hello'), 5);\nassert.equal(stringWidth('古'), 2);\nassert.equal(stringWidth('古a'), 3);\nassert.equal(stringWidth('\\t'), 0);\nassert.equal(stringWidth('\\n'), 0);"
+      },
+      "targets": [
+        {
+          "packageName": "string-width",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.2.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "superstruct",
+      "title": "superstruct",
+      "summary": "Use Superstruct ^2.0.0 for runtime validation, coercion, defaults, refinements, and object-shape utilities. Prefer the current named-export API; do not copy older struct.object/User.assert examples.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-superstruct",
+        "version": "2.0.0",
+        "integrity": "sha512-FpCnlGytffLvNaC/asF5VkFhFFiENZV5qU5MS68PCrSJP2pBpt0xZWfCS31SyW8X/d1wVGzfek1yRmwAVkbbpQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:fcbb1d0866f92205d856a399b24aac5aaed34c55f69a6a96921c46c45a0680aa",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Import and version boundary",
+          "Core operations",
+          "Struct factories",
+          "Refinements",
+          "Coercion and defaults",
+          "Struct utilities",
+          "v2 migration traps",
+          "What this skill does not cover"
+        ],
+        "example": "import { strict as nodeAssert } from 'node:assert'\nimport { StructError, assert, create, is, mask, number, object, string, validate } from 'superstruct'\n\nconst User = object({ id: number(), name: string() })\nconst input = { id: 1, name: 'Ada' }\n\nnodeAssert.equal(is(input, User), true)\nnodeAssert.deepEqual(create(input, User), input)\nnodeAssert.deepEqual(mask(input, User), input)\n\nconst [error, value] = validate(input, User, {})\nnodeAssert.equal(error, undefined)\nnodeAssert.deepEqual(value, input)\n\nassert(input, User, 'The user is invalid!')\n\nconst [badError] = validate({ id: 'wrong', name: 'Ada' }, User, {})\nnodeAssert.ok(badError instanceof StructError)"
+      },
+      "targets": [
+        {
+          "packageName": "superstruct",
+          "range": "^2.0.0",
+          "verifiedVersions": [
+            "2.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 2,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "tinyspy",
+      "title": "tinyspy",
+      "summary": "Use tinyspy ^4.0.0 as an ESM-only spying library in standalone TypeScript or JavaScript scripts.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tinyspy",
+        "version": "4.0.0",
+        "integrity": "sha512-VR6WJTsTSTVUp02QOJL6V6KWYPQxIaxY0wVVo8Jjyrxd9phd6rYM5Z5jIXWGD/1luzLG0OX/fpfyUsvlX5Rcnw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:ec39e1a29adabd197f5a38364daa0d7e922b36d93843f4e464f7db331511b8a0",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Package shape and import rule",
+          "Standalone function spies",
+          "Spying on object methods",
+          "Recorded outcomes and controls",
+          "Async spies",
+          "Restoring all spies",
+          "Constructors and internal exports",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport { spy } from 'tinyspy'\n\nconst spied = spy((n: string) => n + '!')\n\nassert.equal(spied('a'), 'a!')\nassert.equal(spied.called, true)\nassert.equal(spied.callCount, 1)\nassert.deepEqual(spied.calls, [['a']])\nassert.deepEqual(spied.results, [['ok', 'a!']])\nassert.deepEqual(spied.returns, ['a!'])\n\nspied.reset()\nassert.equal(spied.called, false)\nassert.equal(spied.callCount, 0)\nassert.deepEqual(spied.calls, [])"
+      },
+      "targets": [
+        {
+          "packageName": "tinyspy",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.0.6"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "tldts",
+      "title": "tldts",
+      "summary": "Use tldts ^7.0.0 to parse hostnames, domains, public suffixes, and subdomains from URLs or host-like strings.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tldts",
+        "version": "7.0.0",
+        "integrity": "sha512-Lbgn3AEQ+p74OlEdfxXR4tCM0IGBiHHFyWAnPfEQyIbLz7CubiTSQCv8nxVSuOSEGCkNhyQ4ESoPzNbqGOe8iA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:a474a893978fb1a39ded16767e2a18cc6e2a04d81718a3f9dd3d710cc2c5a602",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Private suffixes",
+          "Options and the v7 validation change",
+          "CLI boundary",
+          "Does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport {\n  parse,\n  getHostname,\n  getDomain,\n  getFullDomain,\n  getPublicSuffix,\n  getSubdomain,\n  getDomainWithoutSuffix,\n} from 'tldts';\n\nconst parsed = parse('http://www.writethedocs.org/conf/eu/2017/');\nassert.equal(parsed.domain, 'writethedocs.org');\nassert.equal(parsed.domainWithoutSuffix, 'writethedocs');\nassert.equal(parsed.hostname, 'www.writethedocs.org');\nassert.equal(parsed.isIcann, true);\nassert.equal(parsed.isIp, false);\nassert.equal(parsed.isPrivate, false);\nassert.equal(parsed.publicSuffix, 'org');\nassert.equal(parsed.subdomain, 'www');\n\nassert.equal(\n  getHostname('https://user:password@example.co.uk:8080/some/path?and&query#hash'),\n  'example.co.uk',\n);\nassert.equal(getDomain('foo.google.co.uk'), 'google.co.uk');\nassert.equal(getFullDomain('foo.google.co.uk'), 'foo.google.co.uk');\nassert.equal(getPublicSuffix('google.co.uk'), 'co.uk');\nassert.equal(getSubdomain('moar.foo.google.co.uk'), 'moar.foo');\nassert.equal(getDomainWithoutSuffix('foo.google.co.uk'), 'google');\nassert.equal(getFullDomain('1.2.3.4'), null);"
+      },
+      "targets": [
+        {
+          "packageName": "tldts",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.4.12"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "type-fest",
+      "title": "type-fest",
+      "summary": "Use type-fest v5.0.0 as a strict, type-only utility package. Covers v5 module/configuration requirements, the documented Except and Tagged APIs, and migration traps from v4.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-type-fest",
+        "version": "5.0.0",
+        "integrity": "sha512-yQFMUzEOlUtChaSlvsV7XBREGGLAe+yaNpzxKR0Gr9KUUXsP/xCm34XqXRmh01hlnHCRcqAw47Pd7LaAdT+YbQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:70ddc131dab6a712dcce12926f83091764aed03f03a25a5d0dbf40c1de5c429a",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Importing",
+          "`Except`",
+          "Tagged types",
+          "Metadata, `GetTagMetadata`, and `UnwrapTagged`",
+          "Other exports",
+          "v5 migration traps",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport type {Except} from 'type-fest';\n\ntype Foo = {\n\ta: number;\n\tb: string;\n};\n\ntype FooWithoutA = Except<Foo, 'a'>;\n\nconst value: FooWithoutA = {b: '2'};\nassert.deepEqual(value, {b: '2'});"
+      },
+      "targets": [
+        {
+          "packageName": "type-fest",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.9.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "typescript-eslint",
+      "title": "typescript-eslint",
+      "summary": "Use typescript-eslint v8's unified flat-config package, extension lists, presets, and typed-linting configuration. Avoid carrying forward the split-package or legacy ESLint configuration shape unless the project explicitly uses legacy config.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-typescript-eslint",
+        "version": "8.0.0",
+        "integrity": "sha512-lQYuw/lRtzKHjAd4H07NzrgOrR8hKCh16Lh8LZhkLcz4dYPXm4fVJpJzxicvvsIjRlB6jD1kpL1LBCJ1Obtvyw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:557ef2939e69697c5e40877f33dfaed6f9241880911336af57a93658a45ca600",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Use the unified package first",
+          "File extensions and globs",
+          "Main package exports",
+          "Typed linting",
+          "Parser utilities",
+          "Legacy configuration warning",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport tseslint from 'typescript-eslint';\n\nassert.deepEqual(tseslint.extensions.ts, ['mts', 'ts', 'cts', 'tsx']);\nassert.deepEqual(tseslint.extensions.js, ['mjs', 'js', 'cjs', 'jsx']);\nassert.deepEqual(\n  [...tseslint.extensions.jsts].sort(),\n  ['mjs', 'js', 'cjs', 'jsx', 'mts', 'ts', 'cts', 'tsx'].sort(),\n);\n\nconst customGlob = `src/**/*.{${tseslint.extensions.ts.join(',')}}`;\nassert.equal(customGlob, 'src/**/*.{mts,ts,cts,tsx}');"
+      },
+      "targets": [
+        {
+          "packageName": "typescript-eslint",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.70.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "valibot",
+      "title": "valibot",
+      "summary": "Use Valibot ^1.0.0 for dependency-free runtime validation and typed parsing in Node, Bun, or Deno.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-valibot",
+        "version": "1.0.0",
+        "integrity": "sha512-n9zagVgptR3/ttIYU8DSBZzVtz/F/q/TyYKG/JnOmIolnQMwWBomlxaz9KAgIBIbN3LbqTtqCVmxERWt02MAKA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:0505b9113a89bdce4f62bd41a7a7c2eeadf804651896d41e5e5b08b1a7d92aee",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Import and construct schemas",
+          "Pipelines: use `pipe`, not schema arguments",
+          "Throwing parse",
+          "Result-returning parse",
+          "Reusable parser",
+          "Transforming and coercing values",
+          "Current object and tuple variants",
+          "Common migration traps",
+          "TypeScript and runtime notes",
+          "Not covered by this skill"
+        ],
+        "example": "import * as v from 'valibot';\nimport assert from 'node:assert/strict';\n\nconst UserSchema = v.object({\n  name: v.string(),\n  age: v.number(),\n});\n\nconst output = v.parse(UserSchema, {\n  name: 'Ada',\n  age: 36,\n  ignored: true,\n});\n\nassert.deepEqual(output, { name: 'Ada', age: 36 });"
+      },
+      "targets": [
+        {
+          "packageName": "valibot",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.4.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "whatwg-mimetype",
+      "title": "whatwg-mimetype",
+      "summary": "Use whatwg-mimetype ^5.0.0 to parse, inspect, mutate, serialize, classify, and compute MIME types from resource bytes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-whatwg-mimetype",
+        "version": "5.0.0",
+        "integrity": "sha512-/YjlQwobklL8rGiMkJNZSRp/Ihb63Q+5hUdiiJ73Zu/XGCQEQ4HXw/dl96l5QMOznp6RslFsSNsLnayzmtqZzQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:70d50552ea65b2fb9927ec5b2bf41337d3ec86a2c86a8d340ffec88126f9506d",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Scope and version",
+          "Parsing and serialization",
+          "Parameters",
+          "Classification helpers",
+          "Computing a MIME type from bytes",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport { MIMEType } from \"whatwg-mimetype\";\n\nconst mimeType = new MIMEType('Text/HTML;Charset=\"utf-8\"');\n\nassert.equal(mimeType.toString(), \"text/html;charset=utf-8\");\nassert.equal(mimeType.type, \"text\");\nassert.equal(mimeType.subtype, \"html\");\nassert.equal(mimeType.essence, \"text/html\");\nassert.equal(mimeType.parameters.get(\"charset\"), \"utf-8\");\n\nassert.equal(MIMEType.parse(\"not a MIME type\"), null);\nassert.throws(() => new MIMEType(\"not a MIME type\"), Error);"
+      },
+      "targets": [
+        {
+          "packageName": "whatwg-mimetype",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "wrap-ansi",
+      "title": "wrap-ansi",
+      "summary": "Use wrap-ansi v10 to wrap plain or ANSI-styled strings by terminal column width.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-wrap-ansi",
+        "version": "10.0.0",
+        "integrity": "sha512-sw2MBdyL+MaeAZhoafbNBdvjEf5kCm9del2P7J4ewblV8SLNTZ2T4eVRAa4sQVxVODnOdWlEpGoQZp0JJmEGcw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:8ee7d8c12b324fed2ee1b379de1369562e856eae5c5a2587974240374d3eca3a",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Basic word wrapping",
+          "Hard wrapping long words",
+          "Disabling word wrapping",
+          "Whitespace trimming",
+          "Newlines and tabs",
+          "ANSI-styled strings",
+          "Version and compatibility notes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport wrapAnsi from 'wrap-ansi';\n\nconst result = wrapAnsi('one two three four', 10);\n\nassert.equal(result, 'one two\\nthree four');"
+      },
+      "targets": [
+        {
+          "packageName": "wrap-ansi",
+          "range": "^10.0.0",
+          "verifiedVersions": [
+            "10.0.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 10,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "yargs",
+      "title": "yargs",
+      "summary": "Use yargs ^18.0.0 as a factory-based argument parser in supported Node runtimes.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-yargs",
+        "version": "18.0.0",
+        "integrity": "sha512-qeymhelLbpeF1qJXwmhc3XtUuFNI1BjQKSrp/2urRh4wi6jvrEK7gp4kAdCIiVcmnt0pqKyKBS9nJhpSjor50A=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:d66ebc062599056ccc30d5389494235b9a33589d856bf5ed7fbf4453c71008f8",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Runtime and version constraints",
+          "Normal process-argument parsing",
+          "Options and aliases",
+          "Commands",
+          "Help, version, strictness, and wrapping",
+          "Async parsing",
+          "Migration checklist",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport yargs from 'yargs'\n\nconst argv = yargs(['--name', 'Ada', 'file.txt']).parse()\n\nassert.equal(argv.name, 'Ada')\nassert.deepEqual(argv._, ['file.txt'])"
+      },
+      "targets": [
+        {
+          "packageName": "yargs",
+          "range": "^18.0.0",
+          "verifiedVersions": [
+            "18.1.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 18,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "yargs-parser",
+      "title": "yargs-parser",
+      "summary": "Use yargs-parser v22 as a standalone ESM-first argument parser, including its callable parser, detailed results, helper methods, and documented parsing options.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-yargs-parser",
+        "version": "22.0.0",
+        "integrity": "sha512-usFTjC+TEowlqrDc4b/JuAqI7uE4Ul2GeoE7v2W53VyxnL5j8r+HMg1AOK4GeblBwFxss/e6sayxCYu/iO99Hw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:69fb8af44eefc74c9d403026219140f9475e9019e4da7ca65ea636f1187afb11",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Import and runtime",
+          "Basic parsing",
+          "Typed and repeated options",
+          "Detailed parsing",
+          "Helper exports",
+          "Environment and configuration-related options",
+          "`--` values and configuration",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict'\nimport parser from 'yargs-parser'\n\nconst argv = parser('--foo=99 --bar=9987930 positional', {\n  string: ['bar']\n})\n\nassert.equal(argv.foo, 99)\nassert.equal(argv.bar, '9987930')\nassert.deepEqual(argv._, ['positional'])"
+      },
+      "targets": [
+        {
+          "packageName": "yargs-parser",
+          "range": "^22.0.0",
+          "verifiedVersions": [
+            "22.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 22,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "z-schema",
+      "title": "z-schema",
+      "summary": "Use z-schema ^12.0.0 for JSON Schema validation with synchronous and asynchronous APIs, safe results, draft-aware schemas, custom formats, and registered remote references.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-z-schema",
+        "version": "12.0.0",
+        "integrity": "sha512-qWOMPhHhXqsfoCEhjmq+t49d1M436M0kBe2BhAt9Ra1pzhuG6p+9NrYcI9sGGsmKy7tPFl+kvRuqZGoHtjrtEw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:562e05d2c76df3f845dc6bf3bcd13f84525716fa3075719c549f6ba1702ee763",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Runtime and defaults",
+          "Synchronous validation",
+          "Safe validation",
+          "Draft-version migration",
+          "Asynchronous validation",
+          "Custom formats",
+          "Remote references",
+          "Recursion",
+          "What this skill does not cover"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport ZSchema from 'z-schema';\n\nconst validator = ZSchema.create();\nconst schema = {\n  type: 'object',\n  properties: { answer: { type: 'number' } },\n  required: ['answer'],\n  additionalProperties: false,\n};\n\nassert.equal(validator.validate({ answer: 42 }, schema), true);\n\ntry {\n  validator.validate({ answer: 'wrong' }, schema);\n  assert.fail('validation should throw');\n} catch (error) {\n  assert.equal((error as Error).name, 'ValidateError');\n  assert.ok(Array.isArray((error as { details: unknown[] }).details));\n}"
+      },
+      "targets": [
+        {
+          "packageName": "z-schema",
+          "range": "^12.0.0",
+          "verifiedVersions": [
+            "12.4.5"
+          ]
+        }
+      ],
+      "line": {
+        "major": 12,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "zod-validation-error",
+      "title": "zod-validation-error",
+      "summary": "Use zod-validation-error ^5.0.0 with Zod 4 by default, including direct ValidationError construction, Zod error conversion, type guards, message builders, and the separate Zod 3 entrypoint.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-zod-validation-error",
+        "version": "5.0.0",
+        "integrity": "sha512-yd2CvK8OSZmmktvjearZT9tFuycJnJ4M1TYicpKaTEyEWdbkD92VQxD9PfraOyZvmKaeOIXjCxkOac6abbjiWQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:79d72b23032bdfd16b6fbfc8f5f706de84ceb984594db0587d9dccaa14221e50",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Important version distinction",
+          "Direct `ValidationError`",
+          "Convert a Zod error",
+          "Convert one issue",
+          "Convert with `toValidationError`",
+          "Message builders and error maps",
+          "Type guards",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import assert from 'node:assert/strict';\nimport { ValidationError } from 'zod-validation-error';\n\nconst error = new ValidationError('Invalid argument; expected buffer');\n\nassert.equal(error instanceof Error, true);\nassert.equal(error.message, 'Invalid argument; expected buffer');"
+      },
+      "targets": [
+        {
+          "packageName": "zod-validation-error",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "zustand",
+      "title": "zustand",
+      "summary": "Use Zustand ^5.0.0 for vanilla stores, React-bound stores, persistence, and Redux-style reducers. Covers documented v5 APIs, standalone examples, and migration traps such as stable selectors, replacement updates, and changed persistence behavior.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-zustand",
+        "version": "5.0.0",
+        "integrity": "sha512-MQuKUJ1Jq8yep+Wn24z3FUXKzGTx6TNf79cqdgOt9t44jFRa2xyzySdkrGbpVOVj2QdE6blkigx7rS3h49gqhA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:9f03deebf0b0a3d2fb9f428202387f93bc016c89501fa1d2e1245b202e5c4c5c",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Core API",
+          "Persistence",
+          "Redux middleware",
+          "v5 migration traps",
+          "Do not use the v4 equality-function shape with `create`",
+          "Keep selector results stable",
+          "Replacement updates require complete state",
+          "Other v5 compatibility changes",
+          "What this skill does not cover"
+        ],
+        "example": "import { strict as assert } from 'node:assert'\nimport { createStore } from 'zustand/vanilla'\n\nconst store = createStore<{ bears: number; add: () => void }>()((set) => ({\n  bears: 0,\n  add: () => set((state) => ({ bears: state.bears + 1 })),\n}))\n\nstore.getState().add()\nassert.equal(store.getState().bears, 1)\nassert.equal(store.getInitialState().bears, 0)\n\nlet observed = -1\nconst unsubscribe = store.subscribe((state) => {\n  observed = state.bears\n})\nstore.setState({ bears: 3 })\nassert.equal(observed, 3)\nunsubscribe()"
+      },
+      "targets": [
+        {
+          "packageName": "zustand",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.0.15"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      }
+    },
+    {
+      "productId": "bun-types",
+      "title": "bun-types",
+      "summary": "Use bun-types as TypeScript declarations for Bun runtime APIs, while avoiding the common mistake of treating it as a runtime package. Covers the current @types/bun wrapper shape, explicit configuration for direct bun-types usage, and the Bun APIs described by the declarations.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-bun-types",
+        "version": "1.1.0",
+        "integrity": "sha512-ZGWxE3vUEvT7Lzt0D7Nt3RWlaqfHsH6x3CZ9PRrZpDRIIxSwJqYOcvPbepw1vCMvxywwreK8y/IE2YNAz1m6Aw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2952a2b2d4ee1bff048f2dd6245b3e3b39044a40fcedfd7ae86d0c3c283fc098",
+      "evidence": {
+        "verifiedOn": "2026-09-08",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "v1.0.0 installation and TypeScript configuration",
+          "Runtime boundary",
+          "The `bun` module",
+          "SQLite",
+          "Other declared entry points",
+          "Common mistakes",
+          "Not covered"
+        ],
+        "example": "import type {} from \"bun-types\";\nimport { file, serve, write, which, dns } from \"bun\";\nimport assert from \"node:assert/strict\";\n\nassert.equal(typeof file, \"function\");\nassert.equal(typeof serve, \"function\");\nassert.equal(typeof write, \"function\");\nassert.equal(typeof which, \"function\");\nassert.equal(typeof dns, \"object\");"
+      },
+      "targets": [
+        {
+          "packageName": "bun-types",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.4.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
         "status": "active"
       }
     }

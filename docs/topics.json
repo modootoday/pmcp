@@ -3,41 +3,73 @@
     {
       "label": "Testing",
       "packages": [
-        "@testing-library/react",
+        "allure-js-commons",
+        "chai",
+        "deep-eql",
+        "eslint-plugin-testing-library",
+        "expect-type",
+        "fast-check",
         "jasmine-core",
+        "jest-cli",
+        "jest-extended",
         "mocha",
+        "msw",
+        "nyc",
+        "ow",
+        "responselike",
         "sinon",
+        "superstruct",
+        "tinyspy",
         "vitest"
       ]
     },
     {
       "label": "Browser and DOM",
       "packages": [
+        "dexie",
         "happy-dom",
-        "jsdom"
+        "ip-address",
+        "jsdom",
+        "lowdb",
+        "tldts"
       ]
     },
     {
       "label": "React",
       "packages": [
         "@vitejs/plugin-react",
-        "react",
+        "eslint-plugin-react-hooks",
         "react-dom",
-        "react-router"
+        "react-is",
+        "react-markdown",
+        "react-router",
+        "reselect",
+        "zustand"
       ]
     },
     {
       "label": "Command line",
       "packages": [
+        "ansi-escapes",
         "ansi-styles",
         "chalk",
+        "cli-cursor",
+        "cli-spinners",
+        "cliui",
         "commander",
+        "figures",
         "inquirer",
+        "jackspeak",
         "jake",
+        "npm-run-path",
         "slice-ansi",
+        "string-width",
         "supports-color",
         "tsx",
         "wrangler",
+        "wrap-ansi",
+        "yargs",
+        "yargs-parser",
         "yeoman-environment"
       ]
     },
@@ -47,17 +79,28 @@
         "@pothos/core",
         "agent-base",
         "content-type",
+        "data-urls",
+        "express",
         "get-uri",
         "graphql",
         "graphql-yoga",
         "hono",
-        "make-fetch-happen"
+        "http-proxy-agent",
+        "make-fetch-happen",
+        "negotiator",
+        "pac-proxy-agent",
+        "proxy-agent",
+        "socks-proxy-agent",
+        "whatwg-mimetype"
       ]
     },
     {
       "label": "Build and bundling",
       "packages": [
+        "app-builder-lib",
         "autoprefixer",
+        "css-tree",
+        "mdx-bundler",
         "release-it",
         "rolldown",
         "vite"
@@ -67,25 +110,43 @@
       "label": "TypeScript and code",
       "packages": [
         "@babel/plugin-transform-typescript",
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser",
+        "@typescript-eslint/types",
+        "@typescript-eslint/typescript-estree",
+        "@typescript-eslint/utils",
+        "@typescript-eslint/visitor-keys",
         "bun-types",
+        "emittery",
+        "human-signals",
+        "pgsql-ast-parser",
+        "protobufjs",
         "ts-morph",
+        "type-fest",
+        "typescript-eslint",
+        "valibot",
+        "z-schema",
         "zod"
       ]
     },
     {
       "label": "Data stores",
       "packages": [
+        "fake-indexeddb",
+        "firebase",
         "firebase-admin",
         "ioredis",
+        "level-supports",
         "tedious"
       ]
     }
   ],
   "ungrouped": [
     "@playwright/test",
+    "ajv-formats",
     "croner",
     "react-icons",
-    "tailwindcss"
+    "zod-validation-error"
   ],
   "keywords": {
     "@babel/plugin-transform-typescript": [
@@ -103,17 +164,44 @@
       "framework",
       "plugin"
     ],
-    "@testing-library/react": [
-      "testing",
-      "react",
-      "ui",
-      "dom",
-      "jsdom",
-      "unit",
-      "integration",
-      "functional",
-      "end-to-end",
-      "e2e"
+    "@typescript-eslint/eslint-plugin": [
+      "eslint",
+      "eslintplugin",
+      "eslint-plugin",
+      "typescript"
+    ],
+    "@typescript-eslint/parser": [
+      "ast",
+      "ecmascript",
+      "javascript",
+      "typescript",
+      "parser",
+      "syntax",
+      "eslint"
+    ],
+    "@typescript-eslint/types": [
+      "eslint",
+      "typescript",
+      "estree"
+    ],
+    "@typescript-eslint/typescript-estree": [
+      "ast",
+      "estree",
+      "ecmascript",
+      "javascript",
+      "typescript",
+      "parser",
+      "syntax"
+    ],
+    "@typescript-eslint/utils": [
+      "eslint",
+      "typescript",
+      "estree"
+    ],
+    "@typescript-eslint/visitor-keys": [
+      "eslint",
+      "typescript",
+      "estree"
     ],
     "@vitejs/plugin-react": [
       "fast refresh",
@@ -128,6 +216,59 @@
       "base",
       "barebones",
       "https"
+    ],
+    "ajv-formats": [
+      "ajv",
+      "json-schema",
+      "format",
+      "validation"
+    ],
+    "allure-js-commons": [
+      "allure",
+      "codeceptjs",
+      "cypress",
+      "jasmine",
+      "jest",
+      "junit",
+      "mocha",
+      "newman",
+      "playwright",
+      "postman",
+      "report",
+      "reporter",
+      "test",
+      "testing",
+      "testops",
+      "vitest"
+    ],
+    "ansi-escapes": [
+      "ansi",
+      "terminal",
+      "console",
+      "cli",
+      "string",
+      "tty",
+      "escape",
+      "escapes",
+      "formatting",
+      "shell",
+      "xterm",
+      "log",
+      "logging",
+      "command-line",
+      "text",
+      "vt100",
+      "sequence",
+      "control",
+      "code",
+      "codes",
+      "cursor",
+      "iterm",
+      "iterm2",
+      "clear",
+      "screen",
+      "erase",
+      "scrollback"
     ],
     "ansi-styles": [
       "ansi",
@@ -151,6 +292,30 @@
       "command-line",
       "text"
     ],
+    "app-builder-lib": [
+      "electron",
+      "builder",
+      "build",
+      "installer",
+      "install",
+      "packager",
+      "pack",
+      "nsis",
+      "app",
+      "dmg",
+      "pkg",
+      "msi",
+      "exe",
+      "setup",
+      "windows",
+      "os x",
+      "macos",
+      "mac",
+      "appx",
+      "snap",
+      "flatpak",
+      "portable"
+    ],
     "autoprefixer": [
       "autoprefixer",
       "css",
@@ -162,6 +327,13 @@
       "bun",
       "bun.js",
       "types"
+    ],
+    "chai": [
+      "test",
+      "assertion",
+      "assert",
+      "testing",
+      "chai"
     ],
     "chalk": [
       "color",
@@ -184,6 +356,47 @@
       "logging",
       "command-line",
       "text"
+    ],
+    "cli-cursor": [
+      "cli",
+      "cursor",
+      "ansi",
+      "toggle",
+      "display",
+      "show",
+      "hide",
+      "term",
+      "terminal",
+      "console",
+      "tty",
+      "shell",
+      "command-line"
+    ],
+    "cli-spinners": [
+      "cli",
+      "spinner",
+      "spinners",
+      "terminal",
+      "term",
+      "console",
+      "ascii",
+      "unicode",
+      "loading",
+      "indicator",
+      "progress",
+      "busy",
+      "wait",
+      "idle",
+      "json"
+    ],
+    "cliui": [
+      "cli",
+      "command-line",
+      "layout",
+      "design",
+      "console",
+      "wrap",
+      "table"
     ],
     "commander": [
       "commander",
@@ -216,6 +429,144 @@
       "job",
       "isomorphic",
       "crontab"
+    ],
+    "css-tree": [
+      "css",
+      "ast",
+      "tokenizer",
+      "parser",
+      "walker",
+      "lexer",
+      "generator",
+      "utils",
+      "syntax",
+      "validation"
+    ],
+    "data-urls": [
+      "data url",
+      "data uri",
+      "data:",
+      "http",
+      "fetch",
+      "whatwg"
+    ],
+    "deep-eql": [
+      "chai util",
+      "deep equal",
+      "object equal",
+      "testing"
+    ],
+    "dexie": [
+      "indexeddb",
+      "browser",
+      "database"
+    ],
+    "emittery": [
+      "event",
+      "emitter",
+      "eventemitter",
+      "events",
+      "async",
+      "emit",
+      "on",
+      "once",
+      "off",
+      "listener",
+      "subscribe",
+      "unsubscribe",
+      "pubsub",
+      "tiny",
+      "addlistener",
+      "addeventlistener",
+      "dispatch",
+      "dispatcher",
+      "observer",
+      "trigger",
+      "await",
+      "promise",
+      "typescript",
+      "ts",
+      "typed"
+    ],
+    "eslint-plugin-react-hooks": [
+      "eslint",
+      "eslint-plugin",
+      "eslintplugin",
+      "react"
+    ],
+    "eslint-plugin-testing-library": [
+      "eslint",
+      "eslintplugin",
+      "eslint-plugin",
+      "lint",
+      "testing-library",
+      "testing"
+    ],
+    "expect-type": [
+      "typescript",
+      "type-check",
+      "assert",
+      "types",
+      "typings",
+      "test",
+      "testing"
+    ],
+    "express": [
+      "express",
+      "framework",
+      "sinatra",
+      "web",
+      "http",
+      "rest",
+      "restful",
+      "router",
+      "app",
+      "api"
+    ],
+    "fake-indexeddb": [
+      "indexeddb",
+      "datastore",
+      "database",
+      "embedded",
+      "nosql",
+      "in-memory",
+      "polyfill",
+      "shim"
+    ],
+    "fast-check": [
+      "property-based testing",
+      "end-to-end testing",
+      "unit testing",
+      "testing",
+      "quickcheck",
+      "faker",
+      "fuzzer",
+      "fuzz",
+      "jest",
+      "vitest",
+      "random"
+    ],
+    "figures": [
+      "unicode",
+      "cli",
+      "cmd",
+      "command-line",
+      "characters",
+      "symbol",
+      "symbols",
+      "figure",
+      "figures",
+      "fallback"
+    ],
+    "firebase": [
+      "authentication",
+      "database",
+      "firebase",
+      "firebase",
+      "realtime",
+      "storage",
+      "performance",
+      "remote-config"
     ],
     "firebase-admin": [
       "admin",
@@ -277,6 +628,34 @@
       "lambda",
       "nodejs"
     ],
+    "http-proxy-agent": [
+      "http",
+      "proxy",
+      "endpoint",
+      "agent"
+    ],
+    "human-signals": [
+      "signal",
+      "signals",
+      "handlers",
+      "error-handling",
+      "interrupts",
+      "sigterm",
+      "sigint",
+      "irq",
+      "process",
+      "exit",
+      "exit-code",
+      "status",
+      "operating-system",
+      "es6",
+      "javascript",
+      "typescript",
+      "linux",
+      "macos",
+      "windows",
+      "nodejs"
+    ],
     "inquirer": [
       "answer",
       "answers",
@@ -322,6 +701,33 @@
       "sentinel",
       "pipelining"
     ],
+    "ip-address": [
+      "ip",
+      "ipv4",
+      "ipv6",
+      "address",
+      "cidr",
+      "subnet",
+      "netmask",
+      "validate",
+      "validation",
+      "parse",
+      "arpa",
+      "bigint",
+      "browser"
+    ],
+    "jackspeak": [
+      "argument",
+      "parser",
+      "args",
+      "option",
+      "flag",
+      "cli",
+      "command",
+      "line",
+      "parse",
+      "parsing"
+    ],
     "jake": [
       "build",
       "cli",
@@ -335,11 +741,68 @@
       "tdd",
       "bdd"
     ],
+    "jest-cli": [
+      "ava",
+      "babel",
+      "coverage",
+      "easy",
+      "expect",
+      "facebook",
+      "immersive",
+      "instant",
+      "jasmine",
+      "jest",
+      "jsdom",
+      "mocha",
+      "mocking",
+      "painless",
+      "qunit",
+      "runner",
+      "sandboxed",
+      "snapshot",
+      "tap",
+      "tape",
+      "test",
+      "testing",
+      "typescript",
+      "watch"
+    ],
+    "jest-extended": [
+      "jest",
+      "matchers",
+      "extend",
+      "extended",
+      "test",
+      "testing",
+      "assertions"
+    ],
     "jsdom": [
       "dom",
       "html",
       "whatwg",
       "w3c"
+    ],
+    "level-supports": [
+      "abstract-leveldown",
+      "database",
+      "db",
+      "level",
+      "levelup",
+      "manifest"
+    ],
+    "lowdb": [
+      "database",
+      "db",
+      "electron",
+      "embed",
+      "embedded",
+      "flat",
+      "json",
+      "local",
+      "localstorage",
+      "sessionstorage",
+      "browser",
+      "esm"
     ],
     "make-fetch-happen": [
       "http",
@@ -349,6 +812,12 @@
       "caching",
       "cache",
       "subresource integrity"
+    ],
+    "mdx-bundler": [
+      "mdx",
+      "bundler",
+      "mdx-bundler",
+      "esbuild"
     ],
     "mocha": [
       "mocha",
@@ -365,13 +834,121 @@
       "jasmine",
       "playwright"
     ],
-    "react": [
-      "react"
+    "msw": [
+      "api",
+      "mock",
+      "mocking",
+      "worker",
+      "prototype",
+      "server",
+      "service",
+      "handler",
+      "testing",
+      "front-end",
+      "back-end"
+    ],
+    "negotiator": [
+      "http",
+      "content negotiation",
+      "accept",
+      "accept-language",
+      "accept-encoding",
+      "accept-charset"
+    ],
+    "npm-run-path": [
+      "npm",
+      "run",
+      "path",
+      "package",
+      "bin",
+      "binary",
+      "binaries",
+      "script",
+      "cli",
+      "command-line",
+      "execute",
+      "executable"
+    ],
+    "nyc": [
+      "coverage",
+      "reporter",
+      "subprocess",
+      "testing"
+    ],
+    "ow": [
+      "type",
+      "types",
+      "check",
+      "checking",
+      "guard",
+      "guards",
+      "assert",
+      "assertion",
+      "predicate",
+      "predicates",
+      "is",
+      "validate",
+      "validation",
+      "utility",
+      "util",
+      "typeof",
+      "instanceof",
+      "object"
+    ],
+    "pac-proxy-agent": [
+      "pac",
+      "proxy",
+      "agent",
+      "http",
+      "https",
+      "socks",
+      "request",
+      "access"
+    ],
+    "pgsql-ast-parser": [
+      "postgres",
+      "db",
+      "database",
+      "pg",
+      "sql",
+      "pgsql",
+      "postgresql",
+      "node",
+      "parser",
+      "ast"
+    ],
+    "protobufjs": [
+      "protobuf",
+      "protocol-buffers",
+      "serialization",
+      "typescript"
+    ],
+    "proxy-agent": [
+      "http",
+      "https",
+      "socks",
+      "agent",
+      "mapping",
+      "proxy"
     ],
     "react-dom": [
       "react"
     ],
     "react-icons": [],
+    "react-is": [
+      "react"
+    ],
+    "react-markdown": [
+      "ast",
+      "commonmark",
+      "component",
+      "gfm",
+      "markdown",
+      "react",
+      "react-component",
+      "remark",
+      "unified"
+    ],
     "react-router": [
       "react",
       "router",
@@ -403,6 +980,19 @@
       "version",
       "semver",
       "plugin"
+    ],
+    "reselect": [
+      "react",
+      "redux"
+    ],
+    "responselike": [
+      "http",
+      "https",
+      "response",
+      "mock",
+      "test",
+      "request",
+      "responselike"
     ],
     "rolldown": [
       "bundler",
@@ -449,6 +1039,75 @@
       "command-line",
       "text"
     ],
+    "socks-proxy-agent": [
+      "agent",
+      "http",
+      "https",
+      "proxy",
+      "socks",
+      "socks4",
+      "socks4a",
+      "socks5",
+      "socks5h"
+    ],
+    "string-width": [
+      "string",
+      "character",
+      "unicode",
+      "width",
+      "visual",
+      "column",
+      "columns",
+      "fullwidth",
+      "full-width",
+      "wcwidth",
+      "wcswidth",
+      "full",
+      "ansi",
+      "escape",
+      "codes",
+      "cli",
+      "command-line",
+      "terminal",
+      "console",
+      "cjk",
+      "chinese",
+      "japanese",
+      "korean",
+      "fixed-width",
+      "east-asian-width"
+    ],
+    "superstruct": [
+      "api",
+      "array",
+      "assert",
+      "cast",
+      "check",
+      "checker",
+      "collection",
+      "data",
+      "error",
+      "express",
+      "hapi",
+      "interface",
+      "invalid",
+      "joi",
+      "json",
+      "list",
+      "model",
+      "object",
+      "orm",
+      "scalar",
+      "schema",
+      "struct",
+      "throw",
+      "type",
+      "types",
+      "valid",
+      "validate",
+      "validation",
+      "validator"
+    ],
     "supports-color": [
       "color",
       "colour",
@@ -471,7 +1130,6 @@
       "truecolor",
       "16m"
     ],
-    "tailwindcss": [],
     "tedious": [
       "sql",
       "database",
@@ -481,6 +1139,27 @@
       "tds",
       "msnodesql",
       "azure"
+    ],
+    "tinyspy": [
+      "spy",
+      "mock",
+      "typescript",
+      "method"
+    ],
+    "tldts": [
+      "tld",
+      "sld",
+      "domain",
+      "subdomain",
+      "subdomain",
+      "hostname",
+      "browser",
+      "uri",
+      "url",
+      "domain name",
+      "public suffix",
+      "url parsing",
+      "typescript"
     ],
     "ts-morph": [
       "typescript",
@@ -499,6 +1178,39 @@
       "typescript",
       "typescript runner"
     ],
+    "type-fest": [
+      "typescript",
+      "ts",
+      "types",
+      "utility",
+      "util",
+      "utilities",
+      "omit",
+      "merge",
+      "json",
+      "generics"
+    ],
+    "typescript-eslint": [
+      "ast",
+      "ecmascript",
+      "javascript",
+      "typescript",
+      "parser",
+      "syntax",
+      "eslint",
+      "eslintplugin",
+      "eslint-plugin"
+    ],
+    "valibot": [
+      "modular",
+      "typescript",
+      "schema",
+      "validation",
+      "parsing",
+      "bundle-size",
+      "type-safe",
+      "runtime"
+    ],
     "vite": [
       "build-tool",
       "dev-server",
@@ -512,6 +1224,13 @@
       "vitest",
       "test",
       "jest"
+    ],
+    "whatwg-mimetype": [
+      "content-type",
+      "mime type",
+      "mimesniff",
+      "http",
+      "whatwg"
     ],
     "wrangler": [
       "assembly",
@@ -535,6 +1254,53 @@
       "workers",
       "wrangler"
     ],
+    "wrap-ansi": [
+      "wrap",
+      "break",
+      "wordwrap",
+      "wordbreak",
+      "linewrap",
+      "ansi",
+      "styles",
+      "color",
+      "colour",
+      "colors",
+      "terminal",
+      "console",
+      "cli",
+      "string",
+      "tty",
+      "escape",
+      "formatting",
+      "rgb",
+      "256",
+      "shell",
+      "xterm",
+      "log",
+      "logging",
+      "command-line",
+      "text"
+    ],
+    "yargs": [
+      "argument",
+      "args",
+      "option",
+      "parser",
+      "parsing",
+      "cli",
+      "command"
+    ],
+    "yargs-parser": [
+      "argument",
+      "parser",
+      "yargs",
+      "command",
+      "cli",
+      "parsing",
+      "option",
+      "args",
+      "argument"
+    ],
     "yeoman-environment": [
       "development",
       "dev",
@@ -548,12 +1314,41 @@
       "yeoman",
       "app"
     ],
+    "z-schema": [
+      "draft-04",
+      "draft-06",
+      "draft-07",
+      "draft-2019-09",
+      "draft-2020-12",
+      "esm",
+      "json",
+      "json-schema",
+      "json-schema-validator",
+      "jsonschema",
+      "schema",
+      "typescript",
+      "validation",
+      "validator"
+    ],
     "zod": [
       "typescript",
       "schema",
       "validation",
       "type",
       "inference"
+    ],
+    "zod-validation-error": [
+      "zod",
+      "error",
+      "validation"
+    ],
+    "zustand": [
+      "react",
+      "state",
+      "manager",
+      "management",
+      "redux",
+      "store"
     ]
   }
 }
