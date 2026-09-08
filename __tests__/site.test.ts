@@ -244,3 +244,53 @@ it("serves no skill page the catalog no longer names", () => {
   );
   expect(served.filter((route) => !expected.has(route))).toEqual([]);
 });
+
+it("closes every tag it opens", () => {
+  // At two hundred pages a page that renders wrong is not found by looking.
+  // Script and style bodies are stripped before scanning, because a walk that
+  // reads them as markup finds an opening tag in `i < n` -- the blind spot the
+  // sibling brand hit and fixed by writing its scripts around the check
+  // instead of the check around its scripts.
+  const VOID = new Set([
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+  ]);
+  const broken: string[] = [];
+  for (const [route, file] of pages) {
+    const html = readFileSync(file, "utf8")
+      .replaceAll(/<!--[\s\S]*?-->/gu, "")
+      .replaceAll(/(<script\b[^>]*>)[\s\S]*?(<\/script>)/gu, "$1$2")
+      .replaceAll(/(<style\b[^>]*>)[\s\S]*?(<\/style>)/gu, "$1$2");
+    const stack: string[] = [];
+    for (const [, closing, name, selfClosing] of html.matchAll(
+      /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*?(\/?)>/gu,
+    )) {
+      const tag = name!.toLowerCase();
+      if (VOID.has(tag) || tag === "!doctype" || selfClosing === "/") continue;
+      if (closing === "/") {
+        if (stack.pop() !== tag) {
+          broken.push(`${route}: </${tag}> does not close what is open`);
+          break;
+        }
+        continue;
+      }
+      stack.push(tag);
+    }
+    if (stack.length > 0)
+      broken.push(`${route}: <${stack.at(-1)!}> never closed`);
+  }
+  expect(broken).toEqual([]);
+  expect(pages.size).toBeGreaterThan(100);
+});
