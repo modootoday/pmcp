@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "family": "pmcp",
+  "repository": "modootoday/pmcp",
+  "npmOrg": "modootoday",
+  "registry": "https://registry.npmjs.org/",
+  "access": "public",
+  "packages": ["@modootoday/pmcp"],
+  "versions": {
+    "@modootoday/pmcp": "0.1.4"
+  },
+  "sourceAuthority": "modootoday/pmcp"
+}
