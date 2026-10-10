@@ -37,6 +37,7 @@
     {
       "label": "React",
       "packages": [
+        "@tanstack/react-router",
         "@vitejs/plugin-react",
         "eslint-plugin-react-hooks",
         "react",
@@ -112,6 +113,7 @@
       "label": "TypeScript and code",
       "packages": [
         "@babel/plugin-transform-typescript",
+        "@cloudflare/workers-types",
         "@typescript-eslint/eslint-plugin",
         "@typescript-eslint/parser",
         "@typescript-eslint/types",

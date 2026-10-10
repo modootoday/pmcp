@@ -1,6 +1,6 @@
 {
-  "revision": "library-development-1b-20261010",
-  "publishedAt": "2026-10-10T02:11:11.361Z",
+  "revision": "library-development-2a-20261010",
+  "publishedAt": "2026-10-10T02:35:59.308Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -862,47 +862,41 @@
     },
     {
       "productId": "wrangler",
-      "title": "wrangler",
-      "summary": "Use Wrangler ^4.0.0 programmatically from Node.js, while avoiding deprecated v3 APIs, accidental remote data access, and assumptions that the CLI or Worker runtime is available in a plain script.",
+      "title": "Wrangler",
+      "summary": "Generate configuration-driven types and verify handlers using isolated local bindings.",
       "delivery": {
         "packageName": "@modootoday/pmcp-wrangler",
-        "version": "4.0.0",
-        "integrity": "sha512-FOqS2F1VxfMrJvGZrtyJtWCvlNpBh+A0uFMwkwfP3oZnnBD9dF9m+1BL8AwMgLTVRkqwdFHJ5KbPTKkiHfr88g=="
+        "version": "4.0.1",
+        "integrity": "sha512-WLrMI4nfQCn2quiwZxDuWvicYRALKZHUFBQ+K8e3xG/8PjVpVp4rnmjQxUQa3kEao6j5lVARwRCS33zDVsI4Gw=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:c57745c3e5e907bf35dfcd50b1c3e682365c467eb19edee833827587f3882c6e",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 4
-      },
-      "preview": {
-        "headings": [
-          "Scope",
-          "Programmatic exports",
-          "`createTestHarness`",
-          "`unstable_dev`",
-          "`getPlatformProxy`",
-          "`experimental_generateTypes`",
-          "`unstable_startWorker`",
-          "CLI and build behavior",
-          "v4 migration traps",
-          "Local versus remote data",
-          "What this skill does not cover"
-        ],
-        "example": "import { strict as assert } from \"node:assert/strict\";\nimport {\n  createTestHarness,\n  experimental_generateTypes,\n  getPlatformProxy,\n  unstable_dev,\n  unstable_startWorker,\n} from \"wrangler\";\n\nassert.equal(typeof createTestHarness, \"function\");\nassert.equal(typeof experimental_generateTypes, \"function\");\nassert.equal(typeof getPlatformProxy, \"function\");\nassert.equal(typeof unstable_dev, \"function\");\nassert.equal(typeof unstable_startWorker, \"function\");"
-      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:6d45867e137e88b68cf0d70cbfa3948f87fe40ad351f639c7f8e33d111184373",
       "targets": [
         {
           "packageName": "wrangler",
           "range": "^4.0.0",
           "verifiedVersions": [
-            "4.129.1"
+            "4.90.1"
           ]
         }
       ],
       "line": {
         "major": 4,
         "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 11
+      },
+      "preview": {
+        "headings": [
+          "Start from the installed version and configuration",
+          "Generate and check binding types",
+          "Exercise the configured local runtime",
+          "Keep remote operations task-scoped",
+          "Sources"
+        ],
+        "example": "wrangler types worker-configuration.d.ts --config wrangler.json\nwrangler types worker-configuration.d.ts --config wrangler.json --check"
       }
     },
     {
@@ -4597,6 +4591,83 @@
           "Sources"
         ],
         "example": "import { useState } from \"react\";\n\nexport function Counter() {\n  const [count, setCount] = useState(0);\n\n  function incrementTwice() {\n    setCount((previous) => previous + 1);\n    setCount((previous) => previous + 1);\n  }\n\n  return <button onClick={incrementTwice}>{count}</button>;\n}"
+      }
+    },
+    {
+      "productId": "cloudflare-workers-types",
+      "title": "Cloudflare Workers types",
+      "summary": "Compile platform bindings and reject incompatible Worker contracts.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-cloudflare-workers-types",
+        "version": "4.0.0",
+        "integrity": "sha512-1Z5dVUeSY0BLjIzj2ado5D88CXh5E5v0pVGuVmaLWSDYqeeZ7Wqe8ht3YMPVNU+DK5fdDJK3owQXKrEdPvOLzQ=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:5268f24e894685fd36086e24fd6fdd22158e7f4923a33ae5ad2b5cd8c6d6493f",
+      "targets": [
+        {
+          "packageName": "@cloudflare/workers-types",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.20260702.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Choose the application's types or a shared library's types",
+          "Compile against the intended platform",
+          "Keep type evidence separate from runtime evidence",
+          "Sources"
+        ],
+        "example": "interface Env {\n  CACHE: KVNamespace;\n  API: Fetcher;\n}\n\nexport default {\n  async fetch(request, env, ctx) {\n    const cached = await env.CACHE.get(\"message\");\n    if (cached) return new Response(cached);\n    const response = await env.API.fetch(request);\n    ctx.waitUntil(Promise.resolve());\n    return response;\n  },\n} satisfies ExportedHandler<Env>;"
+      }
+    },
+    {
+      "productId": "tanstack-react-router",
+      "title": "TanStack React Router",
+      "summary": "Register typed routes, validate search input and manage loader dependencies and guards.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tanstack-react-router",
+        "version": "1.0.0",
+        "integrity": "sha512-tsquw2ecIh0azIFr3juebkdmPQ8w3jCJBjSPikFq5ShRcDbuAzRCzLcUfDIgVz42vBjszUhnFIhKHLmzECC5mA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b780edd52312ba605fae42ec7e42fd337b7640dc17f19e469b51b158b6ace554",
+      "targets": [
+        {
+          "packageName": "@tanstack/react-router",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.170.33"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Keep the route tree and types connected",
+          "Validate search and connect it to loaders",
+          "Guard navigation without pretending it is server authorization",
+          "Reuse the relevant upstream skill",
+          "Sources"
+        ],
+        "example": "const router = createRouter({ routeTree });\n\ndeclare module \"@tanstack/react-router\" {\n  interface Register {\n    router: typeof router;\n  }\n}\n\nfunction App() {\n  return <RouterProvider router={router} />;\n}"
       }
     }
   ]

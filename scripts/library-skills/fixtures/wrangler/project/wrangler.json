@@ -1,0 +1,13 @@
+{
+  "name": "pmcp-local-bindings-fixture",
+  "main": "worker.js",
+  "compatibility_date": "2026-05-08",
+  "vars": { "MODE": "fixture" },
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "00000000000000000000000000000000",
+      "remote": false
+    }
+  ]
+}

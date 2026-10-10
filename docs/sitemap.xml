@@ -173,6 +173,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/cloudflare-workers-types/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/cloudflare-workers-types/4/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/commander/</loc>
     <priority>0.8</priority>
   </url>
@@ -690,6 +698,14 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/supports-color/11/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/tanstack-react-router/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/tanstack-react-router/1/</loc>
     <priority>0.8</priority>
   </url>
   <url>
