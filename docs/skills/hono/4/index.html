@@ -2,15 +2,15 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>hono 4.x — PMCP</title>
-  <meta name="description" content="Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x." />
+  <title>Hono 4.x — PMCP</title>
+  <meta name="description" content="Validate requests, compose middleware and consume status-aware RPC types across packages." />
   <link rel="canonical" href="https://pmcp.build/skills/hono/4/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
-  <meta property="og:title" content="hono 4.x — PMCP" />
-  <meta property="og:description" content="Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x." />
+  <meta property="og:title" content="Hono 4.x — PMCP" />
+  <meta property="og:description" content="Validate requests, compose middleware and consume status-aware RPC types across packages." />
   <meta property="og:url" content="https://pmcp.build/skills/hono/4/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -36,15 +36,15 @@
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/hono/">Other majors</a></p>
-    <h1>hono 4.x</h1><p>Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x.</p>
-    <dl><dt>For</dt><dd><code>hono@4.13.7</code></dd><dt>Verified</dt><dd>2026-09-07, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-hono@4.0.0</code></dd></dl>
+    <h1>Hono 4.x</h1><p>Validate requests, compose middleware and consume status-aware RPC types across packages.</p>
+    <dl><dt>For</dt><dd><code>hono@4.13.12</code></dd><dt>Verified</dt><dd>2026-10-10, 12 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-hono@4.0.1</code></dd></dl>
     <section class="skill-download"><h2>Use this skill for free</h2>
     <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
     <p><a href="/skills/hono/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/hono/4/package.tgz" download>Download package archive</a></p>
     <pre><code>npm install --save-dev https://pmcp.build/skills/hono/4/package.tgz</code></pre>
     <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
-    <details><summary>Archive integrity</summary><code>sha512-+j5zOhdK6ZvWJGJJepf1sWFXxAidqqFTWv6p4mNb552x0SrDU15Ci3gByWtb/18nwyOlp52cJFxflfygqXLTrA==</code></details></section>
-    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against hono@4.13.7 on 2026-09-07. 4 of 4 examples executed.</p>
+    <details><summary>Archive integrity</summary><code>sha512-jULntcAqbLMqWT2mMU8vpI67qAFmNxtCq9xvZZZybkTdU2xtHAzVEEoDIXR3vBN9P2Ve/MEXnOBdM9uLhxiavw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>The original four request examples were verified against hono@4.13.7 on 2026-09-07. Development fixtures separately verify middleware ordering, invalid JSON responses, RPC client/server type consumption and a Node HTTP request followed by server shutdown; current exact versions are recorded in the catalog.</p>
 <h2>Hono 4.x</h2>
 <h3>Use the current app API</h3>
 <p>Import the recommended preset from <code>hono</code>, construct an app, register routes, and export or pass the app to a runtime server:</p>
@@ -69,7 +69,7 @@ assert.equal(await response.text(), &#39;Hello Hono!&#39;)
 </code></pre>
 <p><code>app.fetch(request, env, event)</code> is the Fetch-compatible handler API. <code>app.request(path, options)</code> is the convenient request helper for programmatic calls. Other documented app methods include HTTP method helpers, <code>all</code>, <code>on</code>, <code>use</code>, <code>route</code>, <code>basePath</code>, <code>notFound</code>, <code>onError</code>, <code>mount</code>, and <code>fire</code>.</p>
 <h3>Context and responses</h3>
-<p>Route and middleware callbacks receive a context object. The documented context surface includes <code>c.req</code>, <code>c.status()</code>, <code>c.text()</code>, <code>c.json()</code>, <code>c.html()</code>, <code>c.set()</code>, <code>c.get()</code>, <code>c.var</code>, <code>c.header()</code>, <code>c.cookie()</code>, <code>c.redirect()</code>, <code>c.notFound()</code>, and <code>c.body()</code>.</p>
+<p>Route and middleware callbacks receive a context object. The documented context surface includes <code>c.req</code>, <code>c.status()</code>, <code>c.text()</code>, <code>c.json()</code>, <code>c.html()</code>, <code>c.set()</code>, <code>c.get()</code>, <code>c.var</code>, <code>c.header()</code>, <code>c.redirect()</code>, <code>c.notFound()</code>, and <code>c.body()</code>. Cookie helpers are imported from <code>hono/cookie</code>.</p>
 <p>Read request headers through <code>c.req.header()</code>, and set the response status with <code>c.status()</code> before returning a response:</p>
 <pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
 import { Hono } from &#39;hono&#39;
@@ -163,9 +163,40 @@ assert.equal(await invalid.text(), &#39;Invalid!&#39;)
 <p>Use the documented exports from those subpaths rather than assuming they are methods on the app or context. In particular, cookie access moved out of <code>c.req</code>, and runtime-key access replaced <code>c.env()</code>.</p>
 <h3>JSX and RPC boundaries</h3>
 <p>JSX requires a <code>.tsx</code> file and compiler configuration with <code>jsx: &quot;react-jsx&quot;</code> and <code>jsxImportSource: &quot;hono/jsx&quot;</code>; JSX is not a plain <code>.ts</code> feature.</p>
-<p>RPC is type-level and build-tool dependent. The server exports <code>typeof route</code> as <code>AppType</code>; separate projects require matching Hono versions, strict TypeScript, project references, and compiled code before consumption. It is not something to validate with a bare <code>bun example.ts</code> script.</p>
-<h3>Not covered</h3>
-<p>This skill does not specify the detailed signatures or standalone examples for every listed app method, the <code>quick</code> and <code>tiny</code> presets, HTML helpers, cookie helpers, <code>testClient</code>, adapter helpers, streaming, <code>hono/dev</code>, static serving, JSX components, RPC client construction, or runtime-specific server setup beyond the documented Node entry point. Consult the package documentation for those details; do not infer older-major APIs.</p>
+<p>RPC is type-level and build-tool dependent. The server exports <code>typeof route</code> as <code>AppType</code>; separate projects need matching Hono versions, strict TypeScript and built declarations before consumption. Preserve project references when the existing build graph uses them. It is not something to validate with a bare <code>bun example.ts</code> script.</p>
+<h3>Build a typed client from the route value</h3>
+<p>Preserve the return type of the chained route registration. Export that route&#39;s type and import it with <code>import type</code> in the client. Keep strict TypeScript and matching Hono versions across both projects.</p>
+<pre><code class="language-ts">import { Hono } from &quot;hono&quot;;
+import { validator } from &quot;hono/validator&quot;;
+
+const route = new Hono().post(
+  &quot;/items&quot;,
+  validator(&quot;json&quot;, (value: { title: string }, c) =&gt; {
+    if (typeof value?.title !== &quot;string&quot;) return c.json({ error: &quot;title&quot; }, 400);
+    return { title: value.title };
+  }),
+  (c) =&gt; c.json({ title: c.req.valid(&quot;json&quot;).title }, 201),
+);
+
+export type AppType = typeof route;
+export default route;
+</code></pre>
+<p>For a separate package, build exported declarations before the consumer typecheck. Use <code>hc&lt;AppType&gt;</code> from <code>hono/client</code>. The JSON input and status-specific response types should fail compilation when the client sends the wrong shape. Request-only tests cannot prove that boundary.</p>
+<h3>Keep serving and runtime boundaries separate</h3>
+<p>Use the runtime&#39;s documented adapter to serve <code>app.fetch</code>; request tests do not start a listener. Verify one valid request, one rejected request and middleware ordering before serving. Set the JSON Content-Type in validator tests. Retain the host&#39;s connection, authentication and shutdown conventions.</p>
+<p>For Node.js, install a compatible <code>@hono/node-server</code> separately and close its returned server during graceful shutdown:</p>
+<pre><code class="language-ts">import { serve } from &quot;@hono/node-server&quot;;
+import app from &quot;./app.js&quot;;
+
+const server = serve({ fetch: app.fetch, port: 3000 });
+process.once(&quot;SIGTERM&quot;, () =&gt; {
+  server.close();
+});
+</code></pre>
+<p>The loopback fixture checks adapter 2.1.4, an assigned local port, response status and body, and listener closure. It does not validate production signal handling, WebSockets, Bun or Deno serving.</p>
+<p>Read <a href="https://hono.dev/docs/guides/rpc">Hono RPC</a> when consuming typed routes, and <a href="https://hono.dev/docs/getting-started/nodejs">Node integration</a> when starting a Node server. Other runtimes need their own documented entry point.</p>
+<h3>Remaining API coverage</h3>
+<p>Detailed signatures for the <code>quick</code> and <code>tiny</code> presets, HTML and cookie helpers, streaming, static serving and JSX components require their own task-specific examples. RPC transport authentication and non-Node server lifecycles remain outside these fixtures. Consult the relevant runtime documentation before deployment.</p>
 </section></article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>

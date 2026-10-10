@@ -2,15 +2,15 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>react-dom 19.x — PMCP</title>
-  <meta name="description" content="Use react-dom ^19.0.0 with React 19 root, server-rendering, portal, scheduling, form-status, and resource APIs. Avoid removed React 18-era entry points and distinguish browser-only APIs from standalone server APIs." />
+  <title>React DOM 19.x — PMCP</title>
+  <meta name="description" content="Create and clean up roots, hydrate matching markup and verify form interaction." />
   <link rel="canonical" href="https://pmcp.build/skills/react-dom/19/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
-  <meta property="og:title" content="react-dom 19.x — PMCP" />
-  <meta property="og:description" content="Use react-dom ^19.0.0 with React 19 root, server-rendering, portal, scheduling, form-status, and resource APIs. Avoid removed React 18-era entry points and distinguish browser-only APIs from standalone server APIs." />
+  <meta property="og:title" content="React DOM 19.x — PMCP" />
+  <meta property="og:description" content="Create and clean up roots, hydrate matching markup and verify form interaction." />
   <meta property="og:url" content="https://pmcp.build/skills/react-dom/19/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -36,31 +36,56 @@
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/react-dom/">Other majors</a></p>
-    <h1>react-dom 19.x</h1><p>Use react-dom ^19.0.0 with React 19 root, server-rendering, portal, scheduling, form-status, and resource APIs. Avoid removed React 18-era entry points and distinguish browser-only APIs from standalone server APIs.</p>
-    <dl><dt>For</dt><dd><code>react-dom@19.2.8</code></dd><dt>Verified</dt><dd>2026-09-07, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-react-dom@19.0.0</code></dd></dl>
+    <h1>React DOM 19.x</h1><p>Create and clean up roots, hydrate matching markup and verify form interaction.</p>
+    <dl><dt>For</dt><dd><code>react-dom@19.2.8</code></dd><dt>Verified</dt><dd>2026-10-10, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-react-dom@19.0.1</code></dd></dl>
     <section class="skill-download"><h2>Use this skill for free</h2>
     <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
     <p><a href="/skills/react-dom/19/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/react-dom/19/package.tgz" download>Download package archive</a></p>
     <pre><code>npm install --save-dev https://pmcp.build/skills/react-dom/19/package.tgz</code></pre>
     <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
-    <details><summary>Archive integrity</summary><code>sha512-nLWZlphEHZoM4lxyAIvoNSrVopYG51dZiSzTH8x60PAiw1HREDn+HEXsLA6JzI6wf4FCQHebkB9m8DTzmXmSLw==</code></details></section>
-    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against react-dom@19.2.8 on 2026-09-07. 2 of 2 examples executed.</p>
+    <details><summary>Archive integrity</summary><code>sha512-kULnRTbD9ACe3rbsaZUSuaEUGx5O0+CiAWk+SnDViJ6qep6/ouCz2eBqDjlOZnx4yLd3MRhGUr5502D8097zaw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>The two standalone server examples were verified against react-dom@19.2.8 on
+2026-09-07. Client lifecycle and hydration verification use the separate DOM
+fixture and must not be counted as DOM-free examples.</p>
 <h2>react-dom ^19.0.0</h2>
 <h3>Scope</h3>
 <p><code>react-dom</code> is for web applications running in a browser DOM. It is not supported for React Native. The documented entry points include <code>react-dom</code>, <code>react-dom/client</code>, <code>react-dom/server</code>, and static APIs under <code>react-dom/static</code>.</p>
 <h3>React 19 root APIs</h3>
 <p>Import client root APIs from <code>react-dom/client</code>, not from <code>react-dom</code>:</p>
-<pre><code class="language-js">import { createRoot, hydrateRoot } from &#39;react-dom/client&#39;;
+<pre><code class="language-js">import { createRoot } from &#39;react-dom/client&#39;;
 
-const root = createRoot(domNode, options?);
+const root = createRoot(clientContainer);
 root.render(reactNode);
-root.unmount();
-
-const hydratedRoot = hydrateRoot(domNode, reactNode, options?);
-hydratedRoot.render(reactNode);
-hydratedRoot.unmount();
 </code></pre>
 <p>Use <code>createRoot</code> for client rendering and <code>hydrateRoot</code> when attaching React to existing server-rendered markup. Keep the returned root if the application needs to render again or unmount later.</p>
+<p>The hydration container already contains matching server HTML. Do not immediately render again or unmount while hydration is starting:</p>
+<pre><code class="language-js">import { hydrateRoot } from &quot;react-dom/client&quot;;
+
+const hydratedRoot = hydrateRoot(serverContainer, matchingReactNode);
+</code></pre>
+<p>Keep react and react-dom on matching versions. Use a stable container owned by
+React, and call root.unmount() before an external owner removes that container.
+Create one root per independently managed React tree rather than a new root for
+every state update.</p>
+<pre><code class="language-tsx">import { createRoot } from &quot;react-dom/client&quot;;
+import { App } from &quot;./app&quot;;
+
+const container = document.getElementById(&quot;app&quot;);
+if (!container) throw new Error(&quot;Missing application container&quot;);
+const root = createRoot(container);
+root.render(&lt;App /&gt;);
+
+export function dispose() {
+  root.unmount();
+}
+</code></pre>
+<p>hydrateRoot expects the initial client tree to match the server HTML. Resolve
+differences in data, locale, time, random values and invalid HTML nesting rather
+than routinely using suppressHydrationWarning. Browser-only content can render
+after an effect when that is the chosen product behavior. Capture recoverable
+hydration errors with onRecoverableError; successful recovery is still evidence
+of a mismatch. Avoid calling root.render before hydration finishes because it can
+discard the server HTML and switch the whole root to client rendering.</p>
 <h4>Common outdated shapes</h4>
 <p>These React 18-era APIs were removed in React 19:</p>
 <ul>
@@ -76,27 +101,27 @@ hydratedRoot.unmount();
 <p>Import the documented server APIs from <code>react-dom/server</code>:</p>
 <pre><code class="language-js">import { renderToString, renderToStaticMarkup } from &#39;react-dom/server&#39;;
 
-renderToString(reactNode, options?);
-renderToStaticMarkup(reactNode, options?);
+renderToString(reactNode);
+renderToStaticMarkup(reactNode);
 </code></pre>
 <p><code>renderToString</code> and <code>renderToStaticMarkup</code> can be used from a plain script without a browser DOM. The server entry point also documents <code>renderToReadableStream</code>, <code>resume</code>, <code>renderToPipeableStream</code>, and <code>resumeToPipeableStream</code>.</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
-import React from &#39;react&#39;;
-import { renderToString } from &#39;react-dom/server&#39;;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import React from &quot;react&quot;;
+import { renderToString } from &quot;react-dom/server&quot;;
 
 const markup = renderToString(
-  React.createElement(&#39;main&#39;, null, React.createElement(&#39;h1&#39;, null, &#39;Hello&#39;)),
+  React.createElement(&quot;main&quot;, null, React.createElement(&quot;h1&quot;, null, &quot;Hello&quot;)),
 );
 
 assert.match(markup, /&lt;main&gt;/);
 assert.match(markup, /&lt;h1&gt;Hello&lt;\/h1&gt;/);
 </code></pre>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
-import React from &#39;react&#39;;
-import { renderToStaticMarkup } from &#39;react-dom/server&#39;;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import React from &quot;react&quot;;
+import { renderToStaticMarkup } from &quot;react-dom/server&quot;;
 
 const markup = renderToStaticMarkup(
-  React.createElement(&#39;button&#39;, { type: &#39;button&#39; }, &#39;Save&#39;),
+  React.createElement(&quot;button&quot;, { type: &quot;button&quot; }, &quot;Save&quot;),
 );
 
 assert.equal(markup, &#39;&lt;button type=&quot;button&quot;&gt;Save&lt;/button&gt;&#39;);
@@ -105,15 +130,21 @@ assert.equal(markup, &#39;&lt;button type=&quot;button&quot;&gt;Save&lt;/button&
 <p>The main entry point documents these APIs:</p>
 <pre><code class="language-js">import { createPortal, flushSync, preconnect } from &#39;react-dom&#39;;
 
-createPortal(children, domNode, key?);
+createPortal(children, domNode);
 flushSync(callback);
 preconnect(href);
 </code></pre>
 <p>Additional resource APIs are <code>prefetchDNS(href)</code>, <code>preload(href, options)</code>, <code>preloadModule(href, options?)</code>, <code>preinit(href, options?)</code>, and <code>preinitModule(href, options?)</code>.</p>
-<p>These APIs target the browser DOM or browser resource-loading behavior and cannot be exercised by the standalone Bun examples in this skill, which run without a DOM, framework, network, or filesystem. Use them in browser application code. Frameworks may already handle resource loading, so the package APIs alone do not replace framework integration.</p>
+<p>These APIs target the browser DOM or browser resource-loading behavior and cannot
+be exercised by the standalone server examples in this skill. A DOM simulator
+can check element behavior but cannot establish browser resource loading or
+layout. Frameworks may already handle resource loading, so the package APIs alone
+do not replace framework integration. Reserve flushSync for integration points
+that require a synchronous DOM update; it can force pending work and affect
+Suspense behavior.</p>
 <h3>Forms and React 19 additions</h3>
 <p><code>useFormStatus</code> is imported from <code>react-dom</code> and exposes form submission status such as <code>pending</code>:</p>
-<pre><code class="language-js">import { useFormStatus } from &#39;react-dom&#39;;
+<pre><code class="language-jsx">import { useFormStatus } from &quot;react-dom&quot;;
 
 function DesignButton() {
   const { pending } = useFormStatus();
@@ -121,8 +152,7 @@ function DesignButton() {
 }
 </code></pre>
 <p>React 19 form actions can be supplied with the <code>action</code> prop:</p>
-<pre><code class="language-jsx">&lt;form action={actionFunction}&gt;
-</code></pre>
+<p>Pass the action function to <code>&lt;form action={actionFunction}&gt;</code> and render its fields inside that form.</p>
 <p>Successful Form Actions reset uncontrolled forms. <code>requestFormReset</code> performs a manual reset. These behaviors require the React/browser form runtime and are not demonstrated in a DOM-free script.</p>
 <h3>Features requiring tooling or framework integration</h3>
 <ul>
@@ -132,12 +162,19 @@ function DesignButton() {
 <li><code>prerender</code> and <code>prerenderToNodeStream</code> wait for data and produce static output; they do not stream content as it loads.</li>
 </ul>
 <h3>Does not cover</h3>
-<p>This skill does not cover browser DOM setup, framework-specific integration, Server Actions routing, Server Components bundler implementation, Suspense-compatible data libraries, detailed root options, streaming server API usage, or the <code>react-dom/static</code> API details. Those topics were not specified by the available research or require an environment beyond a standalone Bun script.</p>
+<p>This skill does not cover framework-specific integration, Server Actions routing,
+Server Components bundler implementation, streaming server API usage or the
+react-dom/static API details. Verify browser rendering with the application&#39;s
+actual browser test environment; the fixture&#39;s DOM simulation checks roots,
+cleanup, form actions and matching-markup hydration without proving layout or
+framework behavior.</p>
 <h3>Sources</h3>
 <ul>
-<li><a href="https://react.dev/reference/react-dom?utm_source=openai">https://react.dev/reference/react-dom?utm_source=openai</a></li>
-<li><a href="https://react.dev/reference/react-dom/preconnect?utm_source=openai">https://react.dev/reference/react-dom/preconnect?utm_source=openai</a></li>
-<li><a href="https://react.dev/blog/2024/12/05/react-19?utm_source=openai">https://react.dev/blog/2024/12/05/react-19?utm_source=openai</a></li>
+<li><a href="https://react.dev/reference/react-dom">React DOM APIs</a></li>
+<li><a href="https://react.dev/reference/react-dom/client/createRoot">Client root lifecycle</a></li>
+<li><a href="https://react.dev/reference/react-dom/client/hydrateRoot">Hydration requirements</a></li>
+<li><a href="https://react.dev/reference/react-dom/preconnect">Resource hints</a></li>
+<li><a href="https://react.dev/blog/2024/12/05/react-19">React 19 release</a></li>
 </ul>
 </section></article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>

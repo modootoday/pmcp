@@ -2,15 +2,15 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>zod schema validation 4.x — PMCP</title>
-  <meta name="description" content="Parse at the boundary, read the failure, and let the schema be the type." />
+  <title>Zod schema validation 4.x — PMCP</title>
+  <meta name="description" content="Validate boundaries with explicit failure handling, transformed types and async parsing." />
   <link rel="canonical" href="https://pmcp.build/skills/zod-schema-validation/4/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
-  <meta property="og:title" content="zod schema validation 4.x — PMCP" />
-  <meta property="og:description" content="Parse at the boundary, read the failure, and let the schema be the type." />
+  <meta property="og:title" content="Zod schema validation 4.x — PMCP" />
+  <meta property="og:description" content="Validate boundaries with explicit failure handling, transformed types and async parsing." />
   <meta property="og:url" content="https://pmcp.build/skills/zod-schema-validation/4/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -36,15 +36,15 @@
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/zod-schema-validation/">Other majors</a></p>
-    <h1>zod schema validation 4.x</h1><p>Parse at the boundary, read the failure, and let the schema be the type.</p>
-    <dl><dt>For</dt><dd><code>zod@4.5.4</code></dd><dt>Verified</dt><dd>2026-09-07, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-zod-schema-validation@4.0.0</code></dd></dl>
+    <h1>Zod schema validation 4.x</h1><p>Validate boundaries with explicit failure handling, transformed types and async parsing.</p>
+    <dl><dt>For</dt><dd><code>zod@4.5.4</code></dd><dt>Verified</dt><dd>2026-10-10, 11 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-zod-schema-validation@4.0.1</code></dd></dl>
     <section class="skill-download"><h2>Use this skill for free</h2>
     <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
     <p><a href="/skills/zod-schema-validation/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/zod-schema-validation/4/package.tgz" download>Download package archive</a></p>
     <pre><code>npm install --save-dev https://pmcp.build/skills/zod-schema-validation/4/package.tgz</code></pre>
     <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
-    <details><summary>Archive integrity</summary><code>sha512-XicOImJVjHWBm97H8k/zZTlAmiFY8WeO1CJlIvWHWdmeQPM7vEMLe98MUwSkoP4pU5N6yi1EjLzuWIS60LeZYQ==</code></details></section>
-    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against zod@4.5.4 on 2026-09-07. 7 of 7 examples executed.</p>
+    <details><summary>Archive integrity</summary><code>sha512-MPurOH1a1V8lAWV/rKEoczdO0yUmX3hEEV9+x3m8x9nTNyHIVulfncfkAwIVh+Iapu7HukvPodHfneW54bu5jA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>The original seven standalone examples were verified against zod@4.5.4 on 2026-09-07. Additional development fixtures cover transform input/output types and async parsing; see the catalog for their latest executed verification.</p>
 <h2>zod</h2>
 <p>Parse at the boundary, then trust the value. The point of a schema is that
 everything past it is typed because it was checked, not because it was cast.</p>
@@ -157,8 +157,26 @@ assert.deepEqual(Query.parse({ page: &quot;2&quot; }), { page: 2 });
 const Body = z.object({ page: z.number() });
 assert.equal(Body.safeParse({ page: &quot;2&quot; }).success, false);
 </code></pre>
-<h3>What this skill does not cover</h3>
-<p>Async refinement, custom error maps, and codec composition each have enough
+<h3>Transform input and output deliberately</h3>
+<p>A transform can change the output type. Use <code>z.input&lt;typeof schema&gt;</code> for callers and <code>z.output&lt;typeof schema&gt;</code> for validated results; <code>z.infer</code> describes the output. Keep transport coercion at the boundary and validate before transforming.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { z } from &quot;zod&quot;;
+
+const Count = z.string().regex(/^\d+$/).transform(Number);
+type CountInput = z.input&lt;typeof Count&gt;;
+type CountOutput = z.output&lt;typeof Count&gt;;
+
+const input: CountInput = &quot;12&quot;;
+const output: CountOutput = Count.parse(input);
+assert.equal(output, 12);
+assert.equal(Count.safeParse(&quot;twelve&quot;).success, false);
+</code></pre>
+<p>An async refinement or transform requires <code>parseAsync</code> or <code>safeParseAsync</code>. A synchronous parse is not an equivalent replacement. Check the success branch before reading data; map issues into the caller&#39;s existing error contract.</p>
+<h3>Development checks and sources</h3>
+<p>Run the project&#39;s existing typecheck and test runner after changing a boundary. Verify accepted data, rejected data, unknown-key handling and transformed output. Preserve the existing error response format.</p>
+<p>Consult <a href="https://zod.dev/api">Zod schemas and transforms</a> for the pinned major. Features added after the catalog&#39;s exact verified version need their own verification.</p>
+<h3>Advanced boundaries</h3>
+<p>Custom error maps and codec composition each have enough
 surface to be their own skill. Discriminated unions are worth reading about
 before modelling a tagged payload as a plain union, because the error a plain
 union produces names every branch it tried.</p>

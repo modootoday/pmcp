@@ -1,34 +1,18 @@
 {
-  "revision": "library-development-1a-20261010",
-  "publishedAt": "2026-10-10T01:56:55.168Z",
+  "revision": "library-development-1b-20261010",
+  "publishedAt": "2026-10-10T02:11:11.361Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
-      "title": "zod schema validation",
-      "summary": "Parse at the boundary, read the failure, and let the schema be the type.",
+      "title": "Zod schema validation",
+      "summary": "Validate boundaries with explicit failure handling, transformed types and async parsing.",
       "delivery": {
         "packageName": "@modootoday/pmcp-zod-schema-validation",
-        "version": "4.0.0",
-        "integrity": "sha512-XicOImJVjHWBm97H8k/zZTlAmiFY8WeO1CJlIvWHWdmeQPM7vEMLe98MUwSkoP4pU5N6yi1EjLzuWIS60LeZYQ=="
+        "version": "4.0.1",
+        "integrity": "sha512-MPurOH1a1V8lAWV/rKEoczdO0yUmX3hEEV9+x3m8x9nTNyHIVulfncfkAwIVh+Iapu7HukvPodHfneW54bu5jA=="
       },
-      "skillRevision": 5,
-      "contentDigest": "sha256:34aac3f525d85c322ea4a840bda3fdfdc828d49aa523631e0ee1fb02025ae4d0",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 7
-      },
-      "preview": {
-        "headings": [
-          "When to reach for it",
-          "Parse or branch, not both",
-          "Unknown keys are dropped, not rejected",
-          "Read the failure, do not stringify it",
-          "Let the schema be the type",
-          "Coerce only where the wire is untyped",
-          "What this skill does not cover"
-        ],
-        "example": "import { z } from \"zod\";\nimport assert from \"node:assert/strict\";\n\nconst Config = z.object({ port: z.number(), host: z.string() });\n\n// safeParse when the caller answers for the failure.\nconst result = Config.safeParse({ port: \"8080\", host: \"localhost\" });\nassert.equal(result.success, false);\n\n// parse when there is no answer but to stop.\nassert.deepEqual(Config.parse({ port: 8080, host: \"localhost\" }), {\n  port: 8080,\n  host: \"localhost\",\n});"
-      },
+      "skillRevision": 6,
+      "contentDigest": "sha256:458a3b24cb671e7c223d7d864e44ea7e904e4966887510ef5eb232a6f49e95dc",
       "targets": [
         {
           "packageName": "zod",
@@ -41,6 +25,24 @@
       "line": {
         "major": 4,
         "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 11
+      },
+      "preview": {
+        "headings": [
+          "When to reach for it",
+          "Parse or branch, not both",
+          "Unknown keys are dropped, not rejected",
+          "Read the failure, do not stringify it",
+          "Let the schema be the type",
+          "Coerce only where the wire is untyped",
+          "Transform input and output deliberately",
+          "Development checks and sources",
+          "Advanced boundaries"
+        ],
+        "example": "import { z } from \"zod\";\nimport assert from \"node:assert/strict\";\n\nconst Config = z.object({ port: z.number(), host: z.string() });\n\n// safeParse when the caller answers for the failure.\nconst result = Config.safeParse({ port: \"8080\", host: \"localhost\" });\nassert.equal(result.success, false);\n\n// parse when there is no answer but to stop.\nassert.deepEqual(Config.parse({ port: 8080, host: \"localhost\" }), {\n  port: 8080,\n  host: \"localhost\",\n});"
       }
     },
     {
@@ -476,18 +478,31 @@
     },
     {
       "productId": "hono",
-      "title": "hono",
-      "summary": "Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x.",
+      "title": "Hono",
+      "summary": "Validate requests, compose middleware and consume status-aware RPC types across packages.",
       "delivery": {
         "packageName": "@modootoday/pmcp-hono",
-        "version": "4.0.0",
-        "integrity": "sha512-+j5zOhdK6ZvWJGJJepf1sWFXxAidqqFTWv6p4mNb552x0SrDU15Ci3gByWtb/18nwyOlp52cJFxflfygqXLTrA=="
+        "version": "4.0.1",
+        "integrity": "sha512-jULntcAqbLMqWT2mMU8vpI67qAFmNxtCq9xvZZZybkTdU2xtHAzVEEoDIXR3vBN9P2Ve/MEXnOBdM9uLhxiavw=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:ca196575d760c951e9135b3356d4002f0f69f31c98bdcaec2e1c12a92c8707b8",
+      "skillRevision": 2,
+      "contentDigest": "sha256:c40001e8cb82efe351d16444bfd3a04868af713b04a9fbff560684f69fea69cf",
+      "targets": [
+        {
+          "packageName": "hono",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.13.12"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      },
       "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 4
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 12
       },
       "preview": {
         "headings": [
@@ -498,53 +513,24 @@
           "Hono 4 migration traps",
           "Other entry points",
           "JSX and RPC boundaries",
-          "Not covered"
+          "Build a typed client from the route value",
+          "Keep serving and runtime boundaries separate",
+          "Remaining API coverage"
         ],
-        "example": "import { strict as assert } from 'node:assert'\nimport { Hono } from 'hono'\n\nconst app = new Hono()\napp.get('/hello', (c) => c.text('Hello Hono!'))\n\nconst response = await app.request('/hello')\nassert.equal(response.status, 200)\nassert.equal(await response.text(), 'Hello Hono!')"
-      },
-      "targets": [
-        {
-          "packageName": "hono",
-          "range": "^4.0.0",
-          "verifiedVersions": [
-            "4.13.7"
-          ]
-        }
-      ],
-      "line": {
-        "major": 4,
-        "status": "active"
+        "example": "import { Hono } from 'hono'\n\nconst app = new Hono()\napp.get('/', (c) => c.text('Hello Hono!'))\n\nexport default app"
       }
     },
     {
       "productId": "react-dom",
-      "title": "react-dom",
-      "summary": "Use react-dom ^19.0.0 with React 19 root, server-rendering, portal, scheduling, form-status, and resource APIs. Avoid removed React 18-era entry points and distinguish browser-only APIs from standalone server APIs.",
+      "title": "React DOM",
+      "summary": "Create and clean up roots, hydrate matching markup and verify form interaction.",
       "delivery": {
         "packageName": "@modootoday/pmcp-react-dom",
-        "version": "19.0.0",
-        "integrity": "sha512-nLWZlphEHZoM4lxyAIvoNSrVopYG51dZiSzTH8x60PAiw1HREDn+HEXsLA6JzI6wf4FCQHebkB9m8DTzmXmSLw=="
+        "version": "19.0.1",
+        "integrity": "sha512-kULnRTbD9ACe3rbsaZUSuaEUGx5O0+CiAWk+SnDViJ6qep6/ouCz2eBqDjlOZnx4yLd3MRhGUr5502D8097zaw=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:cfe2c8e2be493e9db8d268297338843f0fded9bcbd002021ca742e218a588789",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 2
-      },
-      "preview": {
-        "headings": [
-          "Scope",
-          "React 19 root APIs",
-          "Common outdated shapes",
-          "Server rendering",
-          "Browser APIs from `react-dom`",
-          "Forms and React 19 additions",
-          "Features requiring tooling or framework integration",
-          "Does not cover",
-          "Sources"
-        ],
-        "example": "import assert from 'node:assert/strict';\nimport React from 'react';\nimport { renderToString } from 'react-dom/server';\n\nconst markup = renderToString(\n  React.createElement('main', null, React.createElement('h1', null, 'Hello')),\n);\n\nassert.match(markup, /<main>/);\nassert.match(markup, /<h1>Hello<\\/h1>/);"
-      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:815f271faec06937aa4a3f36afa45bfc52c967281cff88f72d9c8e626809921f",
       "targets": [
         {
           "packageName": "react-dom",
@@ -557,6 +543,23 @@
       "line": {
         "major": 19,
         "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Scope",
+          "React 19 root APIs",
+          "Server rendering",
+          "Browser APIs from `react-dom`",
+          "Forms and React 19 additions",
+          "Features requiring tooling or framework integration",
+          "Does not cover",
+          "Sources"
+        ],
+        "example": "import { createRoot } from 'react-dom/client';\n\nconst root = createRoot(clientContainer);\nroot.render(reactNode);"
       }
     },
     {
@@ -4517,6 +4520,83 @@
           "Completion evidence"
         ],
         "example": "import { expect, test } from \"vitest\";\n\ntest(\"rejects an unavailable record\", async () => {\n  const readRecord = async () => {\n    throw new Error(\"unavailable\");\n  };\n\n  await expect(readRecord()).rejects.toThrow(\"unavailable\");\n});"
+      }
+    },
+    {
+      "productId": "tsup",
+      "title": "tsup",
+      "summary": "Build and pack typed ESM/CJS libraries, then verify imports from a consumer project.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tsup",
+        "version": "8.0.0",
+        "integrity": "sha512-V//ANzo2G1YKhJ5wl+f35gI7Tu9LG34aMabFygyBY7c5wY2+K2JxdW8YZ07eY0UFwCYU9oV+6vKlmh27M14+SA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:b53af64824ce133512fa32c73d3f3d2e4d830f8c707d289da79a12e0a90523e7",
+      "targets": [
+        {
+          "packageName": "tsup",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.5.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Choose the package contract before the build",
+          "Diagnose failures at the right boundary",
+          "Verify the distributable",
+          "Sources"
+        ],
+        "example": "import { defineConfig } from \"tsup\";\n\nexport default defineConfig({\n  entry: [\"src/index.ts\"],\n  format: [\"esm\", \"cjs\"],\n  target: \"node22\",\n  platform: \"node\",\n  dts: true,\n  clean: true,\n  external: [\"node:crypto\"],\n  outExtension({ format }) {\n    return { js: format === \"esm\" ? \".js\" : \".cjs\" };\n  },\n});"
+      }
+    },
+    {
+      "productId": "react",
+      "title": "React",
+      "summary": "Manage state, effects and form actions while preserving component and rendering boundaries.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-react",
+        "version": "19.0.0",
+        "integrity": "sha512-2dcr2blaTMn1wgt2aXqje0E90LUl2Fo4zipB7zQ2ki4oespSVub8JiIIk9D9WSYL/64BigjZ2p82NxsvaMVCxg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:d5fcc67ac1a40b53aa13f43c1b9374b054552084ff28a0b58c80fd572efb3550",
+      "targets": [
+        {
+          "packageName": "react",
+          "range": "^19.0.0",
+          "verifiedVersions": [
+            "19.2.8"
+          ]
+        }
+      ],
+      "line": {
+        "major": 19,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "State, identity and closures",
+          "Synchronize with external systems",
+          "Forms and nonurgent updates",
+          "Renderer and server boundaries",
+          "Sources"
+        ],
+        "example": "import { useState } from \"react\";\n\nexport function Counter() {\n  const [count, setCount] = useState(0);\n\n  function incrementTwice() {\n    setCount((previous) => previous + 1);\n    setCount((previous) => previous + 1);\n  }\n\n  return <button onClick={incrementTwice}>{count}</button>;\n}"
       }
     }
   ]

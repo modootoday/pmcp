@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React 19.x — PMCP</title>
+  <meta name="description" content="Manage state, effects and form actions while preserving component and rendering boundaries." />
+  <link rel="canonical" href="https://pmcp.build/skills/react/19/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="React 19.x — PMCP" />
+  <meta property="og:description" content="Manage state, effects and form actions while preserving component and rendering boundaries." />
+  <meta property="og:url" content="https://pmcp.build/skills/react/19/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/react/">Other majors</a></p>
+    <h1>React 19.x</h1><p>Manage state, effects and form actions while preserving component and rendering boundaries.</p>
+    <dl><dt>For</dt><dd><code>react@19.2.8</code></dd><dt>Verified</dt><dd>2026-10-10, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-react@19.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/react/19/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/react/19/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/react/19/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-2dcr2blaTMn1wgt2aXqje0E90LUl2Fo4zipB7zQ2ki4oespSVub8JiIIk9D9WSYL/64BigjZ2p82NxsvaMVCxg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>React 19 component behavior</h2>
+<p>Read the installed React and renderer versions before using version-specific APIs.
+Keep react and react-dom on matching versions. The verification fixture targets
+the existing React DOM line&#39;s 19.2.8 pair; APIs introduced in later minors need
+their own compatibility check.</p>
+<h3>State, identity and closures</h3>
+<p>Keep rendering pure. Call hooks at component or custom-hook top level; React&#39;s
+use API has separate rules and is not a reason to call other hooks conditionally.
+State is a snapshot for a render. Use a functional update when the next value
+depends on the previous value, particularly in timers or multiple queued updates:</p>
+<pre><code class="language-tsx">import { useState } from &quot;react&quot;;
+
+export function Counter() {
+  const [count, setCount] = useState(0);
+
+  function incrementTwice() {
+    setCount((previous) =&gt; previous + 1);
+    setCount((previous) =&gt; previous + 1);
+  }
+
+  return &lt;button onClick={incrementTwice}&gt;{count}&lt;/button&gt;;
+}
+</code></pre>
+<p>Replace state objects rather than mutate them. Keys identify sibling instances;
+use stable data identifiers rather than positions when items can move. Changing a
+key intentionally resets that component&#39;s state. Derive values during render
+instead of copying props into state or effects unless independent state is needed.</p>
+<h3>Synchronize with external systems</h3>
+<p>An effect connects the component to an external system. Include every reactive
+value used by the effect, and mirror setup with cleanup. Development StrictMode
+can run setup, cleanup and setup again; do not suppress that cycle with a ref to
+hide missing cleanup.</p>
+<pre><code class="language-tsx">import { useEffect } from &quot;react&quot;;
+
+export function Connection({ endpoint }: { endpoint: string }) {
+  useEffect(() =&gt; {
+    const controller = new AbortController();
+    let active = true;
+
+    async function connect() {
+      try {
+        const response = await fetch(endpoint, { signal: controller.signal });
+        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        const result = await response.text();
+        if (!active) return;
+        console.log(result);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        console.error(error);
+      }
+    }
+
+    void connect();
+
+    return () =&gt; {
+      active = false;
+      controller.abort();
+    };
+  }, [endpoint]);
+
+  return null;
+}
+</code></pre>
+<p>Use the application&#39;s query/cache layer when it already owns fetching and
+deduplication. An effect example does not replace cache, routing or server data
+loading. Use event handlers for user actions rather than an effect triggered by
+an artificial state flag.</p>
+<h3>Forms and nonurgent updates</h3>
+<p>useActionState receives the previous state before the action arguments. Validate
+FormData at the trust boundary and render the returned state. useFormStatus reads
+the status of a parent form, so put the submit-status component inside that form.</p>
+<pre><code class="language-tsx">import { useActionState } from &quot;react&quot;;
+import { useFormStatus } from &quot;react-dom&quot;;
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return &lt;button disabled={pending}&gt;Save&lt;/button&gt;;
+}
+
+export function NameForm() {
+  const [message, save] = useActionState(
+    async (_previous: string, data: FormData) =&gt; {
+      const value = data.get(&quot;name&quot;);
+      if (typeof value !== &quot;string&quot; || !value.trim()) return &quot;Enter a name&quot;;
+      return `Saved ${value.trim()}`;
+    },
+    &quot;&quot;,
+  );
+
+  return (
+    &lt;form action={save}&gt;
+      &lt;input name=&quot;name&quot; defaultValue=&quot;Ada&quot; /&gt;
+      &lt;SubmitButton /&gt;
+      &lt;output&gt;{message}&lt;/output&gt;
+    &lt;/form&gt;
+  );
+}
+</code></pre>
+<p>Function actions reset uncontrolled fields after successful submission. Return
+expected validation failures as state; use error boundaries for thrown errors.
+Authentication, persistence and Server Action transport remain application or
+framework responsibilities.</p>
+<p>Transitions mark updates that can yield while urgent interactions proceed. Keep
+controlled text-input state urgent. In React 19, state updates after an await may
+need another startTransition call; consult the installed-version documentation.
+Do not treat useTransition as cancellation or a general request-ordering solution.</p>
+<h3>Renderer and server boundaries</h3>
+<p>Use react-dom/client for browser roots and React Native&#39;s renderer for native UI.
+Hooks do not run in a standalone element-construction script; exercise state and
+effects through a renderer. use can read a cached promise from a compatible
+framework or library, not a new promise created during every render. Server
+Components and &quot;use server&quot; require framework integration; do not add those
+directives to ordinary client modules to create a server endpoint.</p>
+<p>For changes to behavior, test a visible state update, cleanup on unmount and the
+relevant form/error path. The DOM fixture also checks hydration of matching server
+markup; it does not establish browser layout, accessibility or framework SSR.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://react.dev/learn/state-as-a-snapshot">State as a snapshot</a></li>
+<li><a href="https://react.dev/learn/queueing-a-series-of-state-updates">Queued state updates</a></li>
+<li><a href="https://react.dev/reference/react/useEffect">Effects and cleanup</a></li>
+<li><a href="https://react.dev/blog/2024/12/05/react-19">React 19 release</a></li>
+<li><a href="https://react.dev/reference/react/useActionState">useActionState</a></li>
+<li><a href="https://react.dev/reference/react/useTransition">useTransition</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

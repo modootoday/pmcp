@@ -21,6 +21,11 @@ The checker verifies every catalog line. Unlisted `SKILL.md` authoring directori
 are reported as `drafts` and remain allowed until deliberately packaged and
 added to the catalog. A successful check does not claim those drafts are released.
 
+When docs/topics.json exists, place every selected package target explicitly in
+one group or in ungrouped before packing. Duplicate placements, malformed groups
+and missing targets fail before any publication writes. The authoring tools do
+not infer a topic or refresh it from a network service.
+
 ## Selection input
 
 ```json

@@ -3,7 +3,7 @@ name: zod-schema-validation
 description: A boundary needs validating and the code either trusts a cast, throws where it should have branched, or hand-rolls an error shape; or a parse failure reaches a person as a stack trace instead of a message naming the field that was wrong.
 ---
 
-Verified against zod@4.5.4 on 2026-09-07. 7 of 7 examples executed.
+The original seven standalone examples were verified against zod@4.5.4 on 2026-09-07. Additional development fixtures cover transform input/output types and async parsing; see the catalog for their latest executed verification.
 
 # zod
 
@@ -147,9 +147,35 @@ const Body = z.object({ page: z.number() });
 assert.equal(Body.safeParse({ page: "2" }).success, false);
 ```
 
-## What this skill does not cover
+## Transform input and output deliberately
 
-Async refinement, custom error maps, and codec composition each have enough
+A transform can change the output type. Use `z.input<typeof schema>` for callers and `z.output<typeof schema>` for validated results; `z.infer` describes the output. Keep transport coercion at the boundary and validate before transforming.
+
+```ts pmcp-example
+import assert from "node:assert/strict";
+import { z } from "zod";
+
+const Count = z.string().regex(/^\d+$/).transform(Number);
+type CountInput = z.input<typeof Count>;
+type CountOutput = z.output<typeof Count>;
+
+const input: CountInput = "12";
+const output: CountOutput = Count.parse(input);
+assert.equal(output, 12);
+assert.equal(Count.safeParse("twelve").success, false);
+```
+
+An async refinement or transform requires `parseAsync` or `safeParseAsync`. A synchronous parse is not an equivalent replacement. Check the success branch before reading data; map issues into the caller's existing error contract.
+
+## Development checks and sources
+
+Run the project's existing typecheck and test runner after changing a boundary. Verify accepted data, rejected data, unknown-key handling and transformed output. Preserve the existing error response format.
+
+Consult [Zod schemas and transforms](https://zod.dev/api) for the pinned major. Features added after the catalog's exact verified version need their own verification.
+
+## Advanced boundaries
+
+Custom error maps and codec composition each have enough
 surface to be their own skill. Discriminated unions are worth reading about
 before modelling a tagged payload as a plain union, because the error a plain
 union produces names every branch it tried.

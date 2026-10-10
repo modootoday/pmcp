@@ -605,6 +605,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/react/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/react/19/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/release-it/</loc>
     <priority>0.8</priority>
   </url>
@@ -714,6 +722,14 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/ts-morph/28/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/tsup/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/tsup/8/</loc>
     <priority>0.8</priority>
   </url>
   <url>

@@ -3,7 +3,7 @@ name: hono
 description: Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x.
 ---
 
-Verified against hono@4.13.7 on 2026-09-07. 4 of 4 examples executed.
+The original four request examples were verified against hono@4.13.7 on 2026-09-07. Development fixtures separately verify middleware ordering, invalid JSON responses, RPC client/server type consumption and a Node HTTP request followed by server shutdown; current exact versions are recorded in the catalog.
 
 # Hono 4.x
 
@@ -40,7 +40,7 @@ assert.equal(await response.text(), 'Hello Hono!')
 
 ## Context and responses
 
-Route and middleware callbacks receive a context object. The documented context surface includes `c.req`, `c.status()`, `c.text()`, `c.json()`, `c.html()`, `c.set()`, `c.get()`, `c.var`, `c.header()`, `c.cookie()`, `c.redirect()`, `c.notFound()`, and `c.body()`.
+Route and middleware callbacks receive a context object. The documented context surface includes `c.req`, `c.status()`, `c.text()`, `c.json()`, `c.html()`, `c.set()`, `c.get()`, `c.var`, `c.header()`, `c.redirect()`, `c.notFound()`, and `c.body()`. Cookie helpers are imported from `hono/cookie`.
 
 Read request headers through `c.req.header()`, and set the response status with `c.status()` before returning a response:
 
@@ -153,8 +153,51 @@ Use the documented exports from those subpaths rather than assuming they are met
 
 JSX requires a `.tsx` file and compiler configuration with `jsx: "react-jsx"` and `jsxImportSource: "hono/jsx"`; JSX is not a plain `.ts` feature.
 
-RPC is type-level and build-tool dependent. The server exports `typeof route` as `AppType`; separate projects require matching Hono versions, strict TypeScript, project references, and compiled code before consumption. It is not something to validate with a bare `bun example.ts` script.
+RPC is type-level and build-tool dependent. The server exports `typeof route` as `AppType`; separate projects need matching Hono versions, strict TypeScript and built declarations before consumption. Preserve project references when the existing build graph uses them. It is not something to validate with a bare `bun example.ts` script.
 
-## Not covered
+## Build a typed client from the route value
 
-This skill does not specify the detailed signatures or standalone examples for every listed app method, the `quick` and `tiny` presets, HTML helpers, cookie helpers, `testClient`, adapter helpers, streaming, `hono/dev`, static serving, JSX components, RPC client construction, or runtime-specific server setup beyond the documented Node entry point. Consult the package documentation for those details; do not infer older-major APIs.
+Preserve the return type of the chained route registration. Export that route's type and import it with `import type` in the client. Keep strict TypeScript and matching Hono versions across both projects.
+
+```ts
+import { Hono } from "hono";
+import { validator } from "hono/validator";
+
+const route = new Hono().post(
+  "/items",
+  validator("json", (value: { title: string }, c) => {
+    if (typeof value?.title !== "string") return c.json({ error: "title" }, 400);
+    return { title: value.title };
+  }),
+  (c) => c.json({ title: c.req.valid("json").title }, 201),
+);
+
+export type AppType = typeof route;
+export default route;
+```
+
+For a separate package, build exported declarations before the consumer typecheck. Use `hc<AppType>` from `hono/client`. The JSON input and status-specific response types should fail compilation when the client sends the wrong shape. Request-only tests cannot prove that boundary.
+
+## Keep serving and runtime boundaries separate
+
+Use the runtime's documented adapter to serve `app.fetch`; request tests do not start a listener. Verify one valid request, one rejected request and middleware ordering before serving. Set the JSON Content-Type in validator tests. Retain the host's connection, authentication and shutdown conventions.
+
+For Node.js, install a compatible `@hono/node-server` separately and close its returned server during graceful shutdown:
+
+```ts
+import { serve } from "@hono/node-server";
+import app from "./app.js";
+
+const server = serve({ fetch: app.fetch, port: 3000 });
+process.once("SIGTERM", () => {
+  server.close();
+});
+```
+
+The loopback fixture checks adapter 2.1.4, an assigned local port, response status and body, and listener closure. It does not validate production signal handling, WebSockets, Bun or Deno serving.
+
+Read [Hono RPC](https://hono.dev/docs/guides/rpc) when consuming typed routes, and [Node integration](https://hono.dev/docs/getting-started/nodejs) when starting a Node server. Other runtimes need their own documented entry point.
+
+## Remaining API coverage
+
+Detailed signatures for the `quick` and `tiny` presets, HTML and cookie helpers, streaming, static serving and JSX components require their own task-specific examples. RPC transport authentication and non-Node server lifecycles remain outside these fixtures. Consult the relevant runtime documentation before deployment.
