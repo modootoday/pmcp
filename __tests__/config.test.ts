@@ -28,6 +28,15 @@ function context(cwd: string, argv: string[] = []): CommandContext {
 }
 
 describe("findConfig", () => {
+  it("does not inherit a parent configuration across a submodule boundary", () => {
+    const dir = project("");
+    const child = join(dir, "vendor/child");
+    mkdirSync(child, { recursive: true });
+    writeFileSync(join(child, ".git"), "gitdir: ../../.git/modules/child\n");
+    expect(findConfig(join(child, "src"))).toBeNull();
+    writeFileSync(join(child, "pmcp.toml"), "");
+    expect(findConfig(join(child, "src"))).toBe(join(child, "pmcp.toml"));
+  });
   it("finds the nearest pmcp.toml walking up from a package", () => {
     const dir = project("");
     expect(findConfig(join(dir, "packages", "alpha"))).toBe(

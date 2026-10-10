@@ -38,6 +38,10 @@ export function installedPackageDirectory(
   for (;;) {
     const candidate = join(directory, "node_modules", name);
     if (existsSync(join(candidate, "package.json"))) return candidate;
+    if (existsSync(join(directory, ".git")))
+      throw new Error(
+        "Installed package manifest was not found in this repository",
+      );
     const parent = dirname(directory);
     if (parent === directory)
       throw new Error("Installed package manifest was not found");
@@ -59,6 +63,8 @@ function locate(
       );
     } catch (error) {
       if (!absent(error)) return { name, reason: "unreadable_manifest" };
+      if (existsSync(join(directory, ".git")))
+        return { name, reason: "not_installed" };
       const parent = dirname(directory);
       if (parent === directory) return { name, reason: "not_installed" };
       directory = parent;

@@ -21,7 +21,7 @@ import {
 
 export const serveCommand: Command = {
   name: "serve",
-  describe: "Run the MCP server on stdio (the default with no command)",
+  describe: "Run the MCP server on stdio (also the default for piped launches)",
   usage:
     "pmcp serve [--root <dir>] [--scope <prefix>] [--marketplace <dir>] [--package <dir>] [--workspace <dir>] [--config <file> | --no-config] [--prompts]",
   options: [

@@ -7,7 +7,7 @@
   "access": "public",
   "packages": ["@modootoday/pmcp"],
   "versions": {
-    "@modootoday/pmcp": "0.14.1"
+    "@modootoday/pmcp": "0.15.0"
   },
   "sourceAuthority": "modootoday/pmcp"
 }

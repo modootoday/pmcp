@@ -6,6 +6,7 @@ import {
   type Command,
 } from "../cli/command.js";
 import { Ui } from "../cli/ui.js";
+import { entryMode } from "../cli/entry.js";
 
 import { indexCommand } from "./reindex.js";
 import { modelsCommand } from "./models.js";
@@ -58,6 +59,7 @@ export interface DispatchOptions {
   readonly ui?: Ui;
   readonly env?: Readonly<Record<string, string | undefined>>;
   readonly cwd?: string;
+  readonly terminal?: { readonly stdin: boolean; readonly stdout: boolean };
 }
 
 /**
@@ -89,12 +91,8 @@ export function dispatch(
     });
   const [verb, ...rest] = rest0;
 
-  // The one divergence from a plain subcommand CLI, and it is the MCP host
-  // contract: a host spawns the bare binary and parses stdout as JSON-RPC.
-  // Only an empty argv takes it; an unrecognised verb still fails below rather
-  // than falling through to a server the caller did not ask for.
   if (verb === undefined) {
-    return run(serveCommand, [], { ui, env, cwd });
+    return defaultEntry(options, { ui, env, cwd });
   }
   if (verb === "--help" || verb === "-h" || verb === "help") {
     const named = COMMANDS.find((command) => command.name === rest[0]);
@@ -130,7 +128,38 @@ export function dispatch(
   return run(command, rest, { ui, env, cwd });
 }
 
-export const VERSION = "0.14.1";
+export const VERSION = "0.15.0";
+
+async function defaultEntry(
+  options: DispatchOptions,
+  context: {
+    ui: Ui;
+    env: Readonly<Record<string, string | undefined>>;
+    cwd: string;
+  },
+): Promise<number> {
+  const terminal = options.terminal ?? {
+    stdin: process.stdin.isTTY === true,
+    stdout: process.stdout.isTTY === true,
+  };
+  const mode = entryMode({
+    ...terminal,
+    term: context.env.TERM,
+    ci: context.env.CI,
+  });
+  if (mode === "server") return run(serveCommand, [], context);
+  if (mode === "terminal") {
+    const { terminalSupport } = await import("../tui/startup/host.js");
+    const support = terminalSupport();
+    if (support.supported) return run(tuiCommand, [], context);
+    context.ui.info(`Terminal workspace unavailable: ${support.reason}`);
+    context.ui.line(
+      "Run pmcp tui doctor for prerequisites, or pmcp serve for MCP.",
+    );
+  }
+  printHelp(context.ui, COMMANDS, PLANNED);
+  return 0;
+}
 
 async function run(
   command: Command,

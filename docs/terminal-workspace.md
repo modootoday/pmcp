@@ -13,6 +13,69 @@ retain their existing group budgets and execution profile.
 
 ## Open a workspace
 
+From a supported interactive terminal, run `pmcp` or `pmcp tui`. The first
+launch chooses an installed main in this order: Codex, Gemini, agy, Grok,
+Claude. It displays the selection and asks before starting. Press Enter to
+start or enter q to cancel. No provider request or group creation occurs before
+this confirmation. Use `--runtime` to choose a supported runtime ID explicitly.
+Provider login and folder trust still use the native screen.
+
+```sh
+pmcp
+pmcp tui --runtime codex-cli
+pmcp tui plan
+```
+
+The start creates a private owned group and read-only view, then reconnects to
+that workspace on later launches. Defaults are 2048 MiB for the group, 768 MiB
+for its main and at most two active sessions. Terminal size selects the existing
+A or compact layout. Taking control remains explicit with Ctrl-g then c.
+This launches a native process; the defaults are cooperative host supervision,
+not a Docker isolation policy. Use an explicitly configured Docker group when
+you require that execution profile.
+
+The nearest `pmcp.toml` within the Git repository determines the project root,
+including from nested cwd. A submodule does not inherit its parent's config;
+use `--config` when you explicitly want a different configuration scope.
+Without a config, the current real directory is the project root. Customize only
+the values you need:
+
+```toml
+[tui]
+runtime = "codex-cli"
+memory_mb = 2048
+session_memory_mb = 768
+max_active = 2
+```
+
+runtime defaults to auto. Supported IDs are codex-cli, gemini-cli, antigravity,
+grok-cli and claude-code. CLI `--runtime` overrides the config for a new main.
+An optional group_file points to a deliberately selected existing owned group
+with a live main; relative paths resolve from the config directory. `--config`
+selects a config file explicitly. Unknown keys and invalid budgets are errors.
+Config budget changes apply to a new group; existing groups keep their grants.
+
+`pmcp tui launch --yes` explicitly confirms the first start without the prompt.
+Launch still requires a supported interactive terminal. `pmcp tui plan` reports
+resolved settings and saved paths without writing or invoking a provider.
+The launcher checkpoint lives under XDG_STATE_HOME/pmcp/launcher, or
+~/.local/state/pmcp/launcher, with private file permissions.
+
+Reopening never adopts an unrelated tmux session or restarts a stopped main.
+A paused group, interrupted start or changed generation requires explicit
+harness inspection and recovery. After explicitly stopping the old owned group,
+`pmcp tui --new` creates a new workspace. Detach preserves the existing native
+process and draft. Closing only the view permits a new presentation over the
+same live group. Keep original state when investigating a failed start.
+If a creation checkpoint has no group path yet, keep it for manual inspection;
+the launcher refuses to infer ownership or restart from that incomplete state.
+
+Piped bare launches and leading MCP server options preserve the existing stdio
+contract. Use `pmcp serve` explicitly in MCP configuration. Unsupported
+interactive hosts show help; they do not wait for JSON-RPC input.
+
+## Advanced view operations
+
 First [create a harness group and its sessions](terminal-harness.md). Set GROUP_FILE
 to that group's private state path, then check prerequisites and create a view:
 

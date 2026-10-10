@@ -134,8 +134,12 @@ export function printHelp(
   ui.line();
   ui.table(commands.map((command) => [command.name, command.describe]));
   ui.line();
-  // Named because it is the invocation a host uses and the one nobody types.
-  ui.line("  With no command, pmcp runs the MCP server on stdio.");
+  ui.line(
+    "  With no command, pmcp opens a terminal workspace on a supported TTY.",
+  );
+  ui.line(
+    "  Piped launches retain MCP stdio. Use pmcp serve explicitly for MCP.",
+  );
   ui.line();
   ui.table([
     ["-q, --quiet", "only errors"],

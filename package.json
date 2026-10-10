@@ -1,6 +1,6 @@
 {
   "name": "@modootoday/pmcp",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "license": "Elastic-2.0",
   "author": "modootoday",
   "description": "Use the skills your packages already ship, and keep your AI tools' project configuration in one place.",
@@ -91,7 +91,8 @@
     "marketplace:check": "bun scripts/build-marketplace.mjs --check",
     "docs:check": "prettier --check --ignore-path /dev/null README.md docs/*.md && npm run marketplace:check && npm run skills:check && npm run site:check",
     "site:deployed": "node scripts/check-deployed.mjs",
-    "prepack": "npm run docs:check && npm run build && npm run typecheck && npm test",
+    "package:verify": "node scripts/verify-package.mjs",
+    "prepack": "npm run docs:check && npm run build && npm run typecheck && npm test && npm run package:verify -- --pack --matrix --report-stderr",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

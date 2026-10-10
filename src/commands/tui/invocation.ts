@@ -27,8 +27,23 @@ export const tuiOptions: readonly OptionSpec[] = [
   },
   {
     name: "config",
-    describe: "Optional mailbox pmcp.toml",
+    describe: "Project pmcp.toml (or mailbox config for create)",
     placeholder: "<file>",
+  },
+  {
+    name: "runtime",
+    describe: "Main native runtime ID for launch",
+    placeholder: "<runtime>",
+  },
+  {
+    name: "yes",
+    describe: "Confirm the first native runtime start",
+    boolean: true,
+  },
+  {
+    name: "new",
+    describe: "Create a workspace after the previous group is stopped",
+    boolean: true,
   },
   {
     name: "actor-file",
@@ -38,6 +53,8 @@ export const tuiOptions: readonly OptionSpec[] = [
 ];
 
 const allowed: Readonly<Record<string, readonly string[]>> = {
+  launch: ["config", "runtime", "yes", "new"],
+  plan: ["config", "runtime"],
   doctor: [],
   create: ["group-file", "columns", "rows", "config", "actor-file"],
   inspect: ["view"],
@@ -59,14 +76,21 @@ const allowed: Readonly<Record<string, readonly string[]>> = {
 };
 
 export interface TuiInvocation {
-  action: Action | "create" | "doctor";
+  action: Action | "create" | "doctor" | "launch" | "plan";
   viewFile?: string;
   create?: CreateInput;
   input: ViewInput;
+  startup?: {
+    config?: string;
+    runtime?: string;
+    fresh?: boolean;
+    confirmed?: boolean;
+  };
 }
 
 export function parseTui(args: ParsedArgs): TuiInvocation {
-  const [action, ...extra] = args.positional;
+  let [action, ...extra] = args.positional;
+  if (action === undefined) action = one(args, "view") ? "open" : "launch";
   const options = action ? allowed[action] : undefined;
   if (!action || !options || extra.length)
     throw new ArgumentError("Provide one supported TUI operation");
@@ -86,6 +110,17 @@ export function parseTui(args: ParsedArgs): TuiInvocation {
     return Number(value);
   };
   if (action === "doctor") return { action, input: {} };
+  if (action === "launch" || action === "plan")
+    return {
+      action,
+      input: {},
+      startup: {
+        config: one(args, "config"),
+        runtime: one(args, "runtime"),
+        fresh: args.flags.has("new"),
+        confirmed: args.flags.has("yes"),
+      },
+    };
   if (action === "create") {
     const config = one(args, "config");
     const actorFile = one(args, "actor-file");

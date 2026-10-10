@@ -9,11 +9,29 @@ import { operate } from "./operations.js";
 import { invokeTui, failedInvocation } from "./invoke.js";
 import { recordCallbackFailure } from "./feedback.js";
 import { TmuxView } from "../adapters/tmux/view.js";
+import { prepareWorkspace } from "../startup/workspace.js";
+import type { StartupRequest } from "../startup/config.js";
 
 const [role, ...argv] = process.argv.slice(2);
 const callback = argv.includes("--callback");
 try {
-  if (role === "attach") {
+  if (role === "startup") {
+    const [encoded, ...extra] = argv;
+    if (
+      !encoded ||
+      extra.length ||
+      encoded.length > 16_384 ||
+      !/^[A-Za-z0-9_-]+$/.test(encoded)
+    )
+      throw new Error("invalid_startup_arguments");
+    const request = JSON.parse(
+      Buffer.from(encoded, "base64url").toString("utf8"),
+    ) as StartupRequest;
+    if (typeof request.cwd !== "string" || !request.cwd)
+      throw new Error("invalid_startup_arguments");
+    const result = await prepareWorkspace(request);
+    process.stdout.write(`${JSON.stringify(result)}\n`);
+  } else if (role === "attach") {
     const [file, sessionId, leaseFile] = argv;
     if (!file || !sessionId) throw new Error("invalid_attachment_arguments");
     await waitFor(() => {
@@ -49,7 +67,7 @@ try {
         tuiOptions,
       ),
     );
-    if (invocation.action === "create" || invocation.action === "doctor")
+    if (["create", "doctor", "launch", "plan"].includes(invocation.action))
       throw new Error("unsupported_worker_operation");
     const result =
       role === "locked"

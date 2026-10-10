@@ -1,5 +1,5 @@
-import { join, resolve } from "node:path";
-import { readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
 import {
   ArgumentError,
   one,
@@ -51,7 +51,17 @@ export function catalogProvider(context: CommandContext): "public" | "hosted" {
 }
 
 export function projectFrom(context: CommandContext): string {
-  return resolve(context.cwd, one(context.args, "project") ?? ".");
+  const explicit = one(context.args, "project");
+  if (explicit) return resolve(context.cwd, explicit);
+  let directory = resolve(context.cwd);
+  for (;;) {
+    if (existsSync(join(directory, "package.json"))) return directory;
+    if (existsSync(join(directory, ".git")) || dirname(directory) === directory)
+      throw new ArgumentError(
+        "No project package.json found; provide --project",
+      );
+    directory = dirname(directory);
+  }
 }
 
 export function apiOrigin(context: CommandContext): string {

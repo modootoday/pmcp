@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { readInstalledDependencies } from "../installed.js";
 import { fingerprint, type InstallPlan } from "./plan.js";
+import { integrityArguments } from "./manager.js";
 
 export interface PackageManagerRunner {
   integrity(packageSpec: string, plan: InstallPlan): string;
@@ -30,10 +31,7 @@ export function createPackageManagerRunner(
       const alreadyVerified = verifiedIntegrity?.get(packageSpec);
       if (alreadyVerified) return alreadyVerified;
       const { manager, project } = plan.context;
-      const args =
-        manager === "npm"
-          ? ["view", packageSpec, "dist.integrity", "--json"]
-          : ["info", packageSpec, "dist.integrity", "--json"];
+      const args = integrityArguments(manager, packageSpec);
       const result = spawnSync(manager, args, {
         cwd: project,
         env: environment(userConfig, baseEnv),

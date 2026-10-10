@@ -117,6 +117,63 @@ it("uses Bun's own add command for a Bun project", () => {
   ]);
 });
 
+it("plans pnpm without scripts and fingerprints workspace policy", () => {
+  const root = project("pnpm");
+  writeFileSync(join(root, "pnpm-workspace.yaml"), "packages: []\n");
+  const result = plan(root);
+  expect(result.command).toMatchObject({ executable: "pnpm", cwd: root });
+  expect(result.command.args).toEqual([
+    "add",
+    "--save-dev",
+    "--save-exact",
+    "--ignore-scripts",
+    "--workspace-root",
+    "@modootoday/pmcp-example@1.0.0",
+  ]);
+  writeFileSync(join(root, "pnpm-workspace.yaml"), "packages: [packages/*]\n");
+  expect(() => applyInstallPlan(result)).toThrow(
+    "project changed after planning",
+  );
+});
+
+it("selects a pnpm member without mutating the workspace root manifest", () => {
+  const root = project("pnpm");
+  const child = join(root, "packages/client");
+  json(join(child, "package.json"), { dependencies: { example: "^2" } });
+  writeFileSync(join(root, "pnpm-workspace.yaml"), "packages: [packages/*]\n");
+  writeFileSync(join(root, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
+  const result = plan(child);
+  expect(result.context.root).toBe(root);
+  expect(result.command.cwd).toBe(child);
+  expect(result.command.args).not.toContain("--workspace-root");
+  expect(result.command.args).toContain("--ignore-scripts");
+});
+
+it("refuses a pnpm excluded member and ambiguous child lock", () => {
+  const root = project("pnpm");
+  const child = join(root, "packages/client");
+  json(join(child, "package.json"), {});
+  writeFileSync(
+    join(root, "pnpm-workspace.yaml"),
+    "packages: [packages/*, '!packages/client']\n",
+  );
+  expect(() => installContext(child)).toThrow("excluded");
+  writeFileSync(join(root, "pnpm-workspace.yaml"), "packages: [packages/*]\n");
+  writeFileSync(join(child, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
+  expect(() => installContext(child)).toThrow(
+    "nested project has its own lockfile",
+  );
+});
+
+it("keeps a submodule manager independent of the parent workspace", () => {
+  const root = project("pnpm");
+  const child = join(root, "packages/child");
+  writeFileSync(join(root, "pnpm-workspace.yaml"), "packages: [packages/*]\n");
+  json(join(child, "package.json"), { packageManager: "npm@11.0.0" });
+  writeFileSync(join(child, ".git"), "gitdir: ../../.git/modules/child\n");
+  expect(installContext(child)).toMatchObject({ root: child, manager: "npm" });
+});
+
 it("rejects disagreeing lockfiles instead of guessing the manager", () => {
   const root = project();
   writeFileSync(join(root, "bun.lock"), "{}");

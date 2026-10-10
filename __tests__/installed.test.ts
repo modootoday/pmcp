@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, expect, it } from "vitest";
 import { readInstalledDependencies } from "../src/installed.js";
+import { installedPackageDirectory } from "../src/installed.js";
 
 const roots: string[] = [];
 afterEach(() => {
@@ -57,6 +58,23 @@ it("reports missing packages rather than using the declared version", () => {
     dependencies: [],
     issues: [{ name: "pmcp-fixture-missing", reason: "not_installed" }],
   });
+});
+
+it("does not borrow a missing submodule dependency from the parent repository", () => {
+  const path = root();
+  const project = join(path, "packages/child");
+  json(join(project, "package.json"), { dependencies: { example: "^2" } });
+  writeFileSync(join(project, ".git"), "gitdir: ../../.git/modules/child\n");
+  json(join(path, "node_modules/example/package.json"), {
+    name: "example",
+    version: "1.0.0",
+  });
+  expect(readInstalledDependencies(project).issues).toEqual([
+    { name: "example", reason: "not_installed" },
+  ]);
+  expect(() => installedPackageDirectory(project, "example")).toThrow(
+    "in this repository",
+  );
 });
 
 it("does not bypass a corrupt local manifest for a hoisted copy", () => {

@@ -152,6 +152,7 @@ export function findConfig(start: string): string | null {
   for (;;) {
     const candidate = join(dir, CONFIG_FILE);
     if (existsSync(candidate)) return candidate;
+    if (existsSync(join(dir, ".git"))) return null;
     const parent = dirname(dir);
     if (parent === dir) return null;
     dir = parent;

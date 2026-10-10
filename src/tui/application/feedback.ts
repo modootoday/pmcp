@@ -4,6 +4,19 @@ import { privateJson } from "../../harness/groups/store.js";
 import { join } from "node:path";
 
 const hints: Readonly<Record<string, string>> = {
+  startup_requires_recovery:
+    "Inspect the saved group with pmcp tui plan and pmcp harness recovery inspect. No runtime was restarted.",
+  startup_group_paused:
+    "The saved group is paused. Resume it explicitly through the harness CLI before reopening.",
+  startup_main_unavailable:
+    "Inspect the saved main and recovery state. Stop the old group explicitly before using pmcp tui --new.",
+  startup_busy: "Another workspace launch is running. Wait and retry.",
+  startup_runtime_conflict:
+    "The saved main uses another runtime. Stop the old group before creating a new workspace.",
+  workspace_already_running:
+    "Reopen the existing workspace, or stop its exact owned group before using --new.",
+  runtime_executable_unavailable:
+    "Install the selected native CLI on PATH, or choose an installed runtime with --runtime.",
   control_connection_lost:
     "The native writer or lease disappeared. Inspect and release control before reconnecting.",
   control_busy:

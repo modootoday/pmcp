@@ -49,7 +49,7 @@
             <tr>
               <td><code>pmcp</code></td>
               <td>
-                run the MCP server on stdio; the same as <code>serve</code>
+                open a workspace on a supported terminal; piped launches run MCP stdio
               </td>
             </tr>
             <tr>
@@ -195,6 +195,15 @@ pmcp project import-mcp --source codex:/path/to/config.toml</code></pre>
         <a href="/project-configuration/">Configuration and guard examples</a>.
       </p>
 
+      <p>
+        Configuration files and the ownership lock are replaced atomically
+        one file at a time. If projection is interrupted, inspect with
+        <code>pmcp project --check</code>, then run <code>pmcp project</code>
+        explicitly to repair drift. Projection does not start a runtime or
+        replay terminal input. The complete set of files is not a single
+        transaction.
+      </p>
+
       <h2 id="doctor">doctor</h2>
       <pre><code>pmcp doctor
 pmcp doctor --memory</code></pre>
@@ -215,7 +224,7 @@ pmcp doctor --memory</code></pre>
       </p>
 
       <h2 id="harness">harness</h2>
-      <pre><code>pmcp harness doctor
+      <pre><code>pmcp harness doctor inspect
 pmcp harness group inspect --group-file "$GROUP_FILE"
 pmcp harness recovery inspect --group-file "$GROUP_FILE"</code></pre>
       <p>
@@ -228,14 +237,15 @@ pmcp harness recovery inspect --group-file "$GROUP_FILE"</code></pre>
       </p>
 
       <h2 id="tui">tui</h2>
-      <pre><code>pmcp --version
-pmcp tui doctor
-pmcp tui create --group-file "$GROUP_FILE" --columns 160 --rows 48
-pmcp tui open --view "$VIEW_FILE"</code></pre>
+      <pre><code>pmcp
+pmcp tui plan
+pmcp tui --runtime codex-cli
+pmcp tui doctor</code></pre>
       <p>
-        PMCP 0.13.0 or later presents an existing harness group as a native main
-        terminal, worker dock and coordination panel. Set
-        <code>VIEW_FILE</code> to the creation receipt's <code>viewFile</code>.
+        Open a native main terminal, worker dock and coordination panel with
+        defaults or an optional <code>[tui]</code> table in
+        <code>pmcp.toml</code>. The first launch confirms the selected runtime;
+        later launches reconnect to this project's owned workspace.
         Views begin read only; control acquisition and stopping a runtime
         require explicit actions. Opening requires an interactive terminal and
         the same Linux host prerequisites as the harness.

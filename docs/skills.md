@@ -78,12 +78,12 @@ existing URLs and immutable archive bytes remain available.
 For native marketplace commands, follow the [README](../README.md).
 Gemini and Antigravity need their own package formats for selected library plugins;
 do not assume that identically named manifest files accept the same schema.
-After the next npm release, `pmcp marketplace export <plugin> --runtime <tool>
+Since 0.14.0, `pmcp marketplace export <plugin> --runtime <tool>
 --output <new-directory>` materializes a selected package without altering native
 settings or installing it. Use the native manager to review and install that folder.
 Existing export destinations are preserved.
 
-The built-in catalog on repository main is available without remote fetching.
+The built-in catalog is available without remote fetching.
 `--no-builtin` or `[catalog] builtin = false` opts out; library APIs continue to
 read explicitly supplied catalog roots. `--marketplace <directory>` reads installed
 Claude, Codex and Grok local descriptors, rejects path escapes and does not fetch
@@ -91,7 +91,7 @@ remote plugin sources. Add a remote marketplace with its native manager first.
 
 Public npm skill installation uses the bundled catalog, a matching installed
 dependency version and immutable free archive URLs. It verifies archive integrity,
-content-only metadata, instruction digests and installed file bytes. npm or Bun
+content-only metadata, instruction digests and installed file bytes. npm, Bun or pnpm
 changes the project and lockfile only after confirmation, with scripts disabled.
 `--provider hosted` remains a separate service path with its own access policy.
 Native plugin installation does not automatically version-match dependencies:

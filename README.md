@@ -37,7 +37,7 @@ npm install --save-dev @modootoday/pmcp
 For Claude Code, register the MCP server from the project directory:
 
 ```sh
-claude mcp add pmcp -- npx @modootoday/pmcp
+claude mcp add pmcp -- npx @modootoday/pmcp serve
 ```
 
 Other MCP hosts can use a stdio entry:
@@ -47,7 +47,7 @@ Other MCP hosts can use a stdio entry:
   "mcpServers": {
     "pmcp": {
       "command": "npx",
-      "args": ["@modootoday/pmcp"]
+      "args": ["@modootoday/pmcp", "serve"]
     }
   }
 }
@@ -143,12 +143,30 @@ manager. Provider login, folder trust and tool approvals remain native.
 
 ```sh
 npx @modootoday/pmcp --version
-npx @modootoday/pmcp harness doctor
+npx @modootoday/pmcp harness doctor inspect
 npx @modootoday/pmcp tui doctor
 ```
 
-Follow the [native terminal guide](docs/terminal-harness.md) to create an owned
-group and sessions, then [open a terminal workspace](docs/terminal-workspace.md).
+On a supported interactive host, open the workspace with:
+
+```sh
+pmcp
+```
+
+The first launch shows the selected native main runtime and asks before starting
+it. No group or view JSON is required. Later launches reconnect to the workspace
+created for this project. Native login and folder trust stay with the runtime.
+Use `pmcp tui --runtime codex-cli` to choose the main, or set an optional default:
+
+```toml
+[tui]
+runtime = "codex-cli"
+```
+
+`pmcp tui plan` previews the settings without starting anything. The
+[terminal workspace guide](docs/terminal-workspace.md) covers defaults, custom
+configuration and advanced controls. The [native terminal guide](docs/terminal-harness.md)
+explains explicit group and session operations.
 Views start read only; acquiring control and stopping a runtime are explicit
 actions. This optional CLI feature does not add execution tools to the MCP server.
 
@@ -166,11 +184,11 @@ pmcp validate
 ```
 
 `available` checks catalog packages against your installed dependencies.
-`install` and `sync` pin exact versions with npm or Bun and require confirmation
+`install` and `sync` use npm, Bun or pnpm and require confirmation
 before changing your manifest and lockfile. `--dry-run` previews the work.
 Use `--catalog <file>` to read a saved catalog response.
 
-On repository main, these commands use the bundled public catalog by default.
+These commands use the bundled public catalog by default.
 Public installation downloads verified content-only archives without PMCP login.
 Use `--provider hosted` or an explicit `--api` for a separately hosted service.
 CLI discovery includes the free marketplace unless `--no-builtin` is passed or
@@ -181,7 +199,27 @@ skills.modoo.today is a separate service built on PMCP. Your runtime's provider
 login remains with that runtime.
 
 Run `pmcp --help` or `pmcp <command> --help` for options.
-With no command, pmcp serves MCP on stdio.
+With no command, a supported interactive terminal opens the workspace. Piped
+launches retain MCP stdio; `pmcp serve` selects MCP explicitly. Unsupported
+interactive hosts show help and prerequisite guidance.
+
+## Compatibility
+
+| Surface                                | Current qualification                                                                                                                        |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| CLI and MCP on Linux amd64             | Published 0.14.1 passed offline installation and 22 contracts per image: Node 22.22.2 on Debian 12 and Alpine 3.23.4; Bun 1.3.0 on Debian 12 |
+| Optional terminal workspace            | Linux with tmux, flock, Node 22+ and a working user systemd manager; controlled native executable fixtures qualified the transport           |
+| Public skill installation              | npm, Bun and pnpm 10.17.1; confirmation required, scripts disabled                                                                           |
+| Native plugin export                   | Claude, Codex, Gemini, Grok and agy formats; export does not install or activate a vendor plugin                                             |
+| pnpm workspace installation            | Selects the member, preserves root dependencies and updates the shared lockfile                                                              |
+| Yarn skill installation                | Refused without changing project files; Yarn PnP is not supported                                                                            |
+| macOS, Windows and other architectures | Not qualified by the Linux Docker tests                                                                                                      |
+
+Provider authentication, native children and vendor behavior have separate
+qualification scopes. An installed executable or exported manifest is not proof
+that every native feature works. Public package CI checks actual packed-archive
+installation, CLI startup, MCP and SQLite before publication; isolated projects
+on a host are distinct from Docker and OS qualification.
 
 ## Guides
 

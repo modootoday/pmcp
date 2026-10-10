@@ -13,8 +13,6 @@ import {
   readdirSync,
   readlinkSync,
   rmSync,
-  symlinkSync,
-  writeFileSync,
 } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { parse } from "smol-toml";
@@ -32,6 +30,7 @@ import {
 } from "./package-rules.js";
 import { censusDirs, plan } from "./plan.js";
 import type { ProjectSpec } from "./spec.js";
+import { replaceFile, replaceLink } from "./write.js";
 
 export const LOCK_FILE = "pmcp.lock";
 const BEGIN = "# >>> pmcp project (edit pmcp.toml, not this block) >>>";
@@ -413,9 +412,11 @@ export function project(
     if (present(spec.root, output)) continue;
     const abs = join(spec.root, output.path);
     mkdirSync(dirname(abs), { recursive: true });
-    rmSync(abs, { force: true, recursive: true });
-    if (output.kind === "link") symlinkSync(output.target, abs);
-    else writeFileSync(abs, output.content);
+    if (output.kind === "link") {
+      replaceLink(abs, output.target);
+      continue;
+    }
+    replaceFile(abs, output.content);
   }
 
   let pruned = 0;
@@ -465,7 +466,7 @@ export function project(
     if (same(before, after)) continue;
     if (!existsSync(abs) && Object.keys(after).length === 0) continue;
     mkdirSync(dirname(abs), { recursive: true });
-    writeFileSync(abs, `${JSON.stringify(after, null, 2)}\n`);
+    replaceFile(abs, `${JSON.stringify(after, null, 2)}\n`);
   }
 
   for (const [file, content] of blockFiles) {
@@ -483,7 +484,7 @@ export function project(
     }
     if (after === before) continue;
     mkdirSync(dirname(abs), { recursive: true });
-    writeFileSync(abs, after);
+    replaceFile(abs, after);
   }
 
   // Top-level package rule links of the older layout: removed once their file is linked below.
@@ -510,7 +511,7 @@ export function project(
     }
   }
 
-  writeFileSync(
+  replaceFile(
     join(spec.root, LOCK_FILE),
     `${JSON.stringify({ version: 1, outputs: outputs.filter((output) => output.kind !== "json" || output.managed === undefined || output.managed.length > 0).map(lockEntry) }, null, 2)}\n`,
   );

@@ -1,9 +1,9 @@
-import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, relative, resolve, sep } from "node:path";
 import semver from "semver";
 import type { InstalledInventory } from "../installed.js";
 import type { RemoteCatalog, RemoteEntry } from "../remote/catalog.js";
+import type { InstallContext } from "./context.js";
+import { installationCommand } from "./manager.js";
+export { installContext, fingerprint, type InstallContext } from "./context.js";
 
 export interface SkillMatch {
   readonly targetName: string;
@@ -33,123 +33,6 @@ export function matchingSkills(
     }
   }
   return matches;
-}
-
-interface ProjectManifest {
-  readonly packageManager?: string;
-  readonly workspaces?: unknown;
-  readonly dependencies?: Record<string, string>;
-  readonly devDependencies?: Record<string, string>;
-  readonly optionalDependencies?: Record<string, string>;
-}
-const LOCKS = [
-  "package-lock.json",
-  "npm-shrinkwrap.json",
-  "bun.lock",
-  "bun.lockb",
-  "yarn.lock",
-  "pnpm-lock.yaml",
-];
-
-export interface InstallContext {
-  readonly project: string;
-  readonly root: string;
-  readonly manager: "npm" | "bun";
-  readonly manifest: ProjectManifest;
-  readonly files: readonly string[];
-  readonly fingerprint: string;
-}
-
-export function fingerprint(files: readonly string[]): string {
-  const hash = createHash("sha256");
-  for (const file of files) {
-    hash.update(file).update("\0");
-    try {
-      hash.update(readFileSync(file));
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-      hash.update("absent");
-    }
-    hash.update("\0");
-  }
-  return hash.digest("hex");
-}
-
-function manifestAt(directory: string): ProjectManifest {
-  const value: unknown = JSON.parse(
-    readFileSync(join(directory, "package.json"), "utf8"),
-  );
-  if (!value || typeof value !== "object" || Array.isArray(value))
-    throw new Error("invalid project manifest");
-  return value as ProjectManifest;
-}
-
-export function installContext(directory: string): InstallContext {
-  const project = resolve(directory);
-  const manifest = manifestAt(project);
-  let root = project;
-  let ancestor = project;
-  for (;;) {
-    if (ancestor !== project && existsSync(join(ancestor, "package.json"))) {
-      const candidate = manifestAt(ancestor);
-      if (candidate.workspaces !== undefined) {
-        root = ancestor;
-        break;
-      }
-      if (LOCKS.some((file) => existsSync(join(ancestor, file)))) break;
-    }
-    if (existsSync(join(ancestor, ".git")) || dirname(ancestor) === ancestor)
-      break;
-    ancestor = dirname(ancestor);
-  }
-  const owner = manifestAt(root);
-  const lockNames = LOCKS.filter((file) => existsSync(join(root, file)));
-  const lockManagers = new Set(
-    lockNames.map((file) => {
-      if (file.startsWith("bun.")) return "bun";
-      if (file === "package-lock.json" || file === "npm-shrinkwrap.json")
-        return "npm";
-      return "unsupported";
-    }),
-  );
-  if (lockManagers.size > 1 || lockManagers.has("unsupported"))
-    throw new Error("conflicting or unsupported package manager lockfiles");
-  const declared = owner.packageManager?.match(
-    /^(npm|bun)@\d+\.\d+\.\d+(?:[-+].+)?$/u,
-  )?.[1];
-  if (owner.packageManager !== undefined && !declared)
-    throw new Error("only npm and Bun projects are supported");
-  const locked = [...lockManagers][0];
-  if (declared && locked && declared !== locked)
-    throw new Error("packageManager and lockfile disagree");
-  const manager = declared ?? locked;
-  if (manager !== "npm" && manager !== "bun")
-    throw new Error(
-      "declare packageManager or install project dependencies first",
-    );
-  if (
-    root !== project &&
-    LOCKS.some((file) => existsSync(join(project, file)))
-  ) {
-    throw new Error(
-      "nested project has its own lockfile; resolve the workspace boundary first",
-    );
-  }
-  const files = [
-    ...new Set([
-      join(root, "package.json"),
-      join(project, "package.json"),
-      ...LOCKS.map((file) => join(root, file)),
-    ]),
-  ];
-  return {
-    project,
-    root,
-    manager,
-    manifest,
-    files,
-    fingerprint: fingerprint(files),
-  };
 }
 
 export interface InstallPlan {
@@ -252,33 +135,11 @@ export function planInstall(options: {
   const specs = deliveries.map(
     (entry) => `${entry.packageName}@${entry.version}`,
   );
-  let args: string[];
-  if (context.manager === "npm") {
-    args = [
-      "install",
-      "--save-dev",
-      "--save-exact",
-      "--ignore-scripts",
-      "--no-audit",
-      "--no-fund",
-    ];
-    if (context.project !== context.root)
-      args.push(
-        `--workspace=${relative(context.root, context.project).split(sep).join("/")}`,
-      );
-  } else {
-    args = ["add", "--dev", "--exact", "--ignore-scripts"];
-  }
-  args.push(...specs);
   return {
     catalogRevision: catalog.revision,
     context,
     changes: deliveries,
     recalled,
-    command: {
-      executable: context.manager,
-      args,
-      cwd: context.manager === "npm" ? context.root : context.project,
-    },
+    command: installationCommand(context, specs),
   };
 }
