@@ -31,7 +31,7 @@ import type { MailboxService } from "./mailbox/service.js";
 /** Reported to the host on connect. */
 export const SERVER_NAME = "pmcp";
 
-export const SERVER_VERSION = "0.13.1";
+export const SERVER_VERSION = "0.14.0";
 
 /**
  * Registers the skill_* tools on a server.

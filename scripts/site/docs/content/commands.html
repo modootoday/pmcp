@@ -51,7 +51,7 @@
 pmcp marketplace export typescript-5 --runtime agy --output ./typescript-plugin
 agy plugin install ./typescript-plugin</code></pre>
       <p>
-        On repository main, list the bundled free plugins or export one selected
+        List the bundled free plugins or export one selected
         native package. Choose <code>claude</code>, <code>codex</code>,
         <code>gemini</code>, <code>grok</code> or <code>agy</code>. An export
         preserves existing destinations and does not edit runtime configuration
@@ -60,9 +60,9 @@ agy plugin install ./typescript-plugin</code></pre>
         <code>[catalog] builtin = false</code> is configured.
       </p>
       <p>
-        These additions and the anonymous install provider await the next npm
-        release; npm 0.13.1 retains its existing CLI behavior. GitHub native
-        marketplace installation and free website downloads are already available.
+        These additions and the anonymous install provider are included in
+        PMCP 0.14.0. GitHub native marketplace installation and free website
+        downloads are available independently.
       </p>
       <p>
         An empty catalog is a finding rather than a success. It exits
@@ -262,11 +262,11 @@ pmcp sync [--project &lt;dir&gt;] [--dry-run | --yes]</code></pre>
         catalogue published — not its name and version, which any registry can
         claim. <code>sync</code> updates the ones already declared and removes
         nothing else.
-        Repository main uses the free bundled public catalog by default and
+        PMCP 0.14.0 uses the free bundled public catalog by default and
         verifies immutable archives and installed resources without login.
         Explicit <code>--provider hosted</code> or <code>--api</code> selects a
-        separate service's credentialed distribution. npm 0.13.1 still uses
-        hosted distribution; its users can install free website archives directly.
+        separate service's credentialed distribution. Older versions retain
+        their previous provider behavior; free website archives remain available.
       </p>
       <p>
         Both show the project and lockfile changes and stop:

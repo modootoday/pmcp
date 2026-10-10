@@ -81,7 +81,7 @@ PMCP MCP bridge. Gemini can install that bridge with
 `gemini extensions install https://github.com/modootoday/pmcp`.
 Native confirmation and runtime provider login remain with each tool.
 
-On repository main, the CLI also bundles the free catalog and can export one
+Since 0.14.0, the CLI bundles the free catalog and can export one
 plugin for Claude, Codex, Gemini, Grok or Antigravity:
 
 ```sh
@@ -91,9 +91,8 @@ agy plugin install ./typescript-plugin
 ```
 
 The marketplace export command, bundled catalog and anonymous `install` provider
-are awaiting the next npm release; npm 0.13.1 retains its existing CLI behavior.
-GitHub native marketplace installation and the website's free archives are
-available independently. See the [skills guide](docs/skills.md) for layouts,
+are included in npm 0.14.0. GitHub native marketplace installation and the
+website's free archives are available independently. See the [skills guide](docs/skills.md) for layouts,
 runtime-specific formats and version selection.
 
 To include your workspace's own skills, create `pmcp.toml` at the project root:

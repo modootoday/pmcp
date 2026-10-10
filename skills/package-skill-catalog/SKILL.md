@@ -26,9 +26,9 @@ remain free and do not require a PMCP account.
 
 ## Install deliberately
 
-The marketplace export command and public default provider are available on
-repository main and await the next npm release. npm 0.13.1 retains its hosted
-install behavior; its users can install free website archives or native plugins.
+PMCP 0.14.0 includes the marketplace export command and public default provider.
+Older versions retain their previous install behavior; their users can install
+free website archives or native plugins.
 
 Choose one library major with the native plugin manager, or use pmcp marketplace
 export to create a runtime-specific plugin directory. Installing a skill does not
