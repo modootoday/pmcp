@@ -123,6 +123,7 @@
         "protobufjs",
         "ts-morph",
         "type-fest",
+        "typescript",
         "typescript-eslint",
         "valibot",
         "z-schema",

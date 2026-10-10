@@ -349,3 +349,77 @@ it("detects archive integrity and reference drift during read-only verification"
     "Archive reference differs from source",
   );
 });
+
+it("requires explicit topic placement before publishing a newly selected target", () => {
+  const fixture = fixtureRoot();
+  const topicPath = join(fixture.root, "docs/topics.json");
+  writeFileSync(
+    topicPath,
+    JSON.stringify({
+      groups: [{ label: "Validation", packages: ["example-library"] }],
+      ungrouped: [],
+    }),
+  );
+  fixture.metadata.entries[0]!.targets[0]!.packageName = "second-library";
+  fixture.evidence.entries["example-library/1"].fixtures[0]!.targetPackage =
+    "second-library";
+  const catalogBefore = readFileSync(join(fixture.root, "docs/catalog.json"));
+  expect(() =>
+    preparePublication(fixture.root, fixture.metadata, fixture.evidence),
+  ).toThrow("Catalog target has no topic placement: second-library");
+  expect(readFileSync(join(fixture.root, "docs/catalog.json"))).toEqual(
+    catalogBefore,
+  );
+  expect(readFileSync(join(fixture.directory, "package.tgz"))).toEqual(
+    fixture.archive,
+  );
+  writeFileSync(
+    topicPath,
+    JSON.stringify({
+      groups: [
+        {
+          label: "Validation",
+          packages: ["example-library", "second-library"],
+        },
+      ],
+      ungrouped: [],
+    }),
+  );
+  writePublication(
+    preparePublication(fixture.root, fixture.metadata, fixture.evidence),
+  );
+  expect(checkLibrarySkills(fixture.root).entries).toBe(1);
+});
+
+it("rejects duplicate placements across grouped and ungrouped topics without mutation", () => {
+  const fixture = fixtureRoot();
+  const topicPath = join(fixture.root, "docs/topics.json");
+  const topics = JSON.stringify({
+    groups: [{ label: "Validation", packages: ["example-library"] }],
+    ungrouped: ["example-library"],
+  });
+  writeFileSync(topicPath, topics);
+  expect(() => checkLibrarySkills(fixture.root)).toThrow(
+    "Duplicate topic placement: example-library",
+  );
+  expect(() =>
+    preparePublication(fixture.root, fixture.metadata, fixture.evidence),
+  ).toThrow("Duplicate topic placement: example-library");
+  expect(readFileSync(topicPath, "utf8")).toBe(topics);
+});
+
+it("rejects malformed topic arrays and unnamed groups before preparing publication", () => {
+  const fixture = fixtureRoot();
+  const topicPath = join(fixture.root, "docs/topics.json");
+  for (const invalid of [
+    { groups: null, ungrouped: [] },
+    { groups: [], ungrouped: "example-library" },
+    { groups: [{ label: "", packages: ["example-library"] }], ungrouped: [] },
+    { groups: [{ label: "Validation", packages: [null] }], ungrouped: [] },
+  ]) {
+    writeFileSync(topicPath, JSON.stringify(invalid));
+    expect(() =>
+      preparePublication(fixture.root, fixture.metadata, fixture.evidence),
+    ).toThrow(/Topic/iu);
+  }
+});

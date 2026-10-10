@@ -15,6 +15,7 @@ import { readCatalog, skillDirectory, validateCatalog } from "./catalog.mjs";
 import { verifyArchive } from "./check.mjs";
 import { verifyEvidence } from "./evidence.mjs";
 import { contentDigest, readSkillFiles } from "./source.mjs";
+import { validateTopics } from "./topics.mjs";
 
 function immutableRelease(directory, version, bytes) {
   const releases = join(directory, "releases");
@@ -187,6 +188,7 @@ export function preparePublication(root, metadata, evidence) {
     entries,
   };
   validateCatalog(updated);
+  validateTopics(root, updated);
   if (updated.revision === catalog.revision)
     throw new Error("Catalog revision must change");
   writes.push({

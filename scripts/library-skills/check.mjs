@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { integrity, readArchive } from "./archive.mjs";
 import { readCatalog, skillDirectory } from "./catalog.mjs";
 import { contentDigest, readSkillFiles } from "./source.mjs";
+import { validateTopics } from "./topics.mjs";
 
 export function verifyArchive(entry, bytes, source) {
   if (integrity(bytes) !== entry.delivery.integrity)
@@ -61,6 +62,7 @@ export function verifyArchive(entry, bytes, source) {
 
 export function checkLibrarySkills(root) {
   const catalog = readCatalog(root);
+  validateTopics(root, catalog);
   for (const entry of catalog.entries) {
     const directory = skillDirectory(root, entry);
     const { source, skill, files } = readSkillFiles(directory);
