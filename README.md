@@ -141,9 +141,8 @@ coordination panel in one terminal workspace. The optional harness and TUI need
 Linux, tmux, util-linux flock, Node.js 22 or later and a working user systemd
 manager. Provider login, folder trust and tool approvals remain native.
 
-npm 0.15.0 includes the original workspace launcher. The numbered runtime
-picker, worker menu, worker-start and recovery flows below are available in
-development source and await the next npm release.
+PMCP 0.16.0 adds the numbered runtime picker, worker menu, worker-start and
+read-only recovery flows below.
 
 ```sh
 npx @modootoday/pmcp --version

@@ -14,8 +14,7 @@ retain their existing group budgets and execution profile.
 ## Open a workspace
 
 The numbered runtime picker, worker menu and worker-start/recovery commands in
-this guide target development source. npm 0.15.0 includes the original launcher;
-these additions await the next release.
+this guide require PMCP 0.16.0 or later.
 
 From a supported interactive terminal, run `pmcp` or `pmcp tui`. The first
 launch lists installed runtimes, with a default in this order: Codex, Gemini,
