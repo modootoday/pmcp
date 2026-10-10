@@ -17,7 +17,7 @@ assert.equal(await bcrypt.compare("Wrong password", hash), false);
 checks.push("async compare rejects a different password");
 assert.equal(bcrypt.getRounds(hash), 4);
 checks.push("stored cost is readable for a future rehash decision");
-const boundary = "가".repeat(24);
+const boundary = "\uac00".repeat(24);
 assert.equal(Buffer.byteLength(boundary, "utf8"), 72);
 assert.equal(validatePassword(boundary), boundary);
 checks.push("UTF-8 guard accepts exactly 72 bytes");
