@@ -2,17 +2,9 @@ import { ArgumentError, type Command } from "../cli/command.js";
 import { REMOTE_OPTIONS, remoteCatalog } from "./remote-options.js";
 import { sayStanding } from "./standing.js";
 
-/**
- * What a skill contains, before paying for it.
- *
- * A summary sentence cannot carry the decision, because what is being sold is
- * the writing. This shows the contents and one complete example, taken from the
- * skill's own bytes rather than described, so the sample cannot drift from the
- * thing it samples.
- */
 export const previewCommand: Command = {
   name: "preview",
-  describe: "Show what a skill contains before subscribing",
+  describe: "Show a skill's contents and a complete example",
   usage: "pmcp preview <skill-package> [--json]",
   options: REMOTE_OPTIONS,
 
@@ -41,8 +33,6 @@ export const previewCommand: Command = {
             summary: entry.summary,
             package: `${entry.delivery.packageName}@${entry.delivery.version}`,
             evidence: entry.evidence,
-            // A script deciding on our behalf needs the recall as much as a
-            // person does, and more so: it will not read the prose.
             line: entry.line,
             targets: entry.targets,
             preview: entry.preview,
@@ -63,8 +53,6 @@ export const previewCommand: Command = {
         )
         .join("; ")}\n\n`,
     );
-    // Before the contents, not after: someone deciding whether to pay should
-    // meet a recall before they meet the sample that makes them want it.
     sayStanding(context, entry.line);
     if (!entry.preview) {
       context.ui.data(
@@ -79,8 +67,6 @@ export const previewCommand: Command = {
       }
       context.ui.data("\n");
     }
-    // The sample is a real example from the skill, assertions included: a
-    // reader can run it and see for themselves.
     context.ui.data(
       `One example from this skill\n\n${entry.preview.example}\n`,
     );

@@ -23,12 +23,19 @@ import {
 } from "./site/pages/paths.mjs";
 import { notFound } from "./site/pages/not-found.mjs";
 import { skillResources } from "./site/skills/sources.mjs";
+import {
+  manualPageResources,
+  readManualLibrarySkills,
+} from "./library-skills/manual.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const args = process.argv.slice(2);
 if (args.length !== 0 && (args.length !== 2 || args[0] !== "--base-path"))
   throw new Error("Usage: node scripts/prepare-pages.mjs [--base-path /pmcp]");
 const basePath = normalizeBasePath(args[1] ?? "");
+const catalog = readSkillCatalog();
+const manualPilots = readManualLibrarySkills(root, catalog);
+const manualResources = manualPageResources(manualPilots);
 const output = join(root, ".release/pages");
 rmSync(output, { recursive: true, force: true });
 mkdirSync(output, { recursive: true });
@@ -37,7 +44,7 @@ const routes = [
   "/",
   "/examples/",
   "/observations/",
-  ...skillRoutes(readSkillCatalog().entries),
+  ...skillRoutes(catalog.entries),
   ...documents.map((document) => document.route),
 ];
 for (const route of routes) {
@@ -50,12 +57,17 @@ for (const route of routes) {
   );
 }
 
-for (const entry of readSkillCatalog().entries) {
+for (const entry of catalog.entries) {
   const route = skillRoute(entry);
   for (const name of skillResources(join(root, "docs", route))) {
     mkdirSync(join(output, route, name, ".."), { recursive: true });
     copyFileSync(join(root, "docs", route, name), join(output, route, name));
   }
+}
+for (const [path, bytes] of manualResources) {
+  const destination = join(output, path);
+  mkdirSync(join(destination, ".."), { recursive: true });
+  writeFileSync(destination, bytes);
 }
 for (const name of ["catalog.json", "observations.json", "topics.json"])
   copyFileSync(join(root, "docs", name), join(output, name));

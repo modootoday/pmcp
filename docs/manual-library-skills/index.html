@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manual library skills — pmcp</title>
+  <meta name="description" content="Choose Python, Rust or Go library instructions and load a local collection explicitly." />
+  <link rel="canonical" href="https://pmcp.build/manual-library-skills/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Manual library skills — pmcp" />
+  <meta property="og:description" content="Choose Python, Rust or Go library instructions and load a local collection explicitly." />
+  <meta property="og:url" content="https://pmcp.build/manual-library-skills/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/manual-library-skills/" aria-current="page">Manual library skills</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Manual library skills</p><h1>Manually selected library skills</h1>
+<p><a href="/">Back to the overview</a></p>
+<p>These three library-major pilots provide free public instructions for Python,
+Rust and Go libraries. Select them yourself and copy them into a local collection
+you choose. No PMCP login, subscription or registry account is required to read
+the files or load that collection.</p>
+<div class="scroll"><table><thead><tr><th>Ecosystem</th><th>Library</th><th>Selected version</th><th>Instructions</th></tr></thead><tbody><tr><td>PyPI</td><td><code>pydantic</code> 2</td><td><code>2.13.4</code></td><td><a href="/skills/pydantic/2/SKILL.md">Pydantic SKILL.md</a></td></tr>
+<tr><td>crates.io</td><td><code>serde_json</code> 1</td><td><code>1.0.149</code>, with Serde <code>1.0.228</code></td><td><a href="/skills/serde-json/1/SKILL.md">serde_json SKILL.md</a></td></tr>
+<tr><td>Go modules</td><td><code>github.com/google/uuid</code> 1</td><td><code>v1.6.0</code></td><td><a href="/skills/google-uuid/1/SKILL.md">Google UUID SKILL.md</a></td></tr></tbody></table></div>
+<p>Selected versions identify each pilot&#39;s scope. They are not a statement that
+every project, feature or AI runtime has been verified. Each SKILL.md contains
+its own supported task boundaries and links to primary documentation and
+licenses. Keep those sources when copying or adapting the instructions.</p>
+<h2>Choose a collection and copy only the skills you need</h2>
+<p>Place each downloaded file under its frontmatter name:</p>
+<pre><code>chosen-collection/
+  skills/
+    pydantic/
+      SKILL.md
+    serde-json/
+      SKILL.md
+    google-uuid/
+      SKILL.md</code></pre>
+<p>Include only your selected files; all three are not required locally. The
+collection may be a plain directory without a package.json. Keep SKILL.md
+frontmatter, source links and any accompanying reference files intact. The
+collection&#39;s directory name is a local discovery label, not a registry package
+identity.</p>
+<h2>Register the collection explicitly</h2>
+<p>For a direct CLI invocation:</p>
+<pre><code>pmcp serve --package /absolute/path/to/chosen-collection</code></pre>
+<p>Or merge the chosen path into the existing project&#39;s pmcp.toml:</p>
+<pre><code>[catalog]
+packages = [&quot;./chosen-collection&quot;]</code></pre>
+<p>Preserve other catalog entries rather than replacing them with this example.
+Project-relative paths resolve from the configuration&#39;s directory. The
+existing <code>skill_catalog</code>, <code>skill_find</code> and <code>skill_call</code> tools can then discover
+and read the selected local instructions. Leave folder trust and tool approval
+to the native AI runtime.</p>
+<h2>Understand the manual boundary</h2>
+<p>PMCP does not automatically detect these pilots from PyPI, Cargo or Go
+dependencies. They are separate from the managed npm skill catalog and are
+not installed through <code>pmcp available</code> or <code>pmcp install</code>. Serving a local
+collection does not install a library, download a compiler or run its examples.</p>
+<p>Loading an instruction file also does not establish model execution evidence.
+Check the project&#39;s installed library major, lockfile and environment before
+applying guidance, and run the appropriate project checks after code changes.
+This explicit workflow supplements the package skill discovery described in
+the <a href="/skills-reference/">skills reference</a>.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

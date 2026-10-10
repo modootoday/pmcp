@@ -14,6 +14,13 @@ export const guides = [
       "Discover installed skills and use PMCP tools, resources and prompts.",
   },
   {
+    source: "manual-library-skills.md",
+    route: "/manual-library-skills/",
+    title: "Manual library skills",
+    description:
+      "Choose Python, Rust or Go library instructions and load a local collection explicitly.",
+  },
+  {
     source: "embeddings.md",
     route: "/embeddings/",
     title: "Embedding models",

@@ -33,8 +33,6 @@ export const availableCommand: Command = {
         context.ui.data(
           `${match.targetName}@${match.targetVersion}\t${match.entry.delivery.packageName}@${match.entry.delivery.version}\t${status}\n`,
         );
-        // What the run proved, so the decision to buy is made on evidence
-        // rather than on a summary line.
         const { verifiedOn, examplesExecuted } = match.entry.evidence;
         context.ui.line(
           `    ${examplesExecuted} examples executed${verifiedOn ? ` on ${verifiedOn}` : ""}`,
@@ -49,7 +47,7 @@ export const availableCommand: Command = {
       if (matches.length > 0) {
         context.ui.info(
           "preview",
-          `${invocation()} preview <package> shows a full example before you subscribe`,
+          `${invocation()} preview <package> shows the contents and a complete example`,
         );
       }
       for (const issue of inventory.issues)

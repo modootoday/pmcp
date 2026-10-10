@@ -1,10 +1,10 @@
 {
-  "revision": "library-development-3-20261010",
-  "publishedAt": "2026-10-10T03:19:21.755Z",
+  "revision": "public-library-development-20261010",
+  "publishedAt": "2026-10-10T03:37:13.099Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
-      "title": "Zod schema validation",
+      "title": "zod",
       "summary": "Validate boundaries with explicit failure handling, transformed types and async parsing.",
       "delivery": {
         "packageName": "@modootoday/pmcp-zod-schema-validation",
@@ -47,7 +47,7 @@
     },
     {
       "productId": "zod-schema-validation",
-      "title": "zod schema validation",
+      "title": "zod",
       "summary": "Parse at the boundary, read the failure, and let the schema be the type.",
       "delivery": {
         "packageName": "@modootoday/pmcp-zod-schema-validation",
@@ -346,7 +346,7 @@
     },
     {
       "productId": "vite",
-      "title": "Vite",
+      "title": "vite",
       "summary": "Build React applications with Vite 8 and verify public environment and preview behavior.",
       "delivery": {
         "packageName": "@modootoday/pmcp-vite",
@@ -438,7 +438,7 @@
     },
     {
       "productId": "pothos-core",
-      "title": "Pothos",
+      "title": "@pothos/core",
       "summary": "Build strongly typed GraphQL fields and verify resolver contracts.",
       "delivery": {
         "packageName": "@modootoday/pmcp-pothos-core",
@@ -476,7 +476,7 @@
     },
     {
       "productId": "hono",
-      "title": "Hono",
+      "title": "hono",
       "summary": "Validate requests, compose middleware and consume status-aware RPC types across packages.",
       "delivery": {
         "packageName": "@modootoday/pmcp-hono",
@@ -520,7 +520,7 @@
     },
     {
       "productId": "react-dom",
-      "title": "React DOM",
+      "title": "react-dom",
       "summary": "Create and clean up roots, hydrate matching markup and verify form interaction.",
       "delivery": {
         "packageName": "@modootoday/pmcp-react-dom",
@@ -650,7 +650,7 @@
     },
     {
       "productId": "playwright-test",
-      "title": "Playwright Test",
+      "title": "@playwright/test",
       "summary": "Run isolated browser assertions with locator waits and guaranteed fixture teardown.",
       "delivery": {
         "packageName": "@modootoday/pmcp-playwright-test",
@@ -691,7 +691,7 @@
     },
     {
       "productId": "vitejs-plugin-react",
-      "title": "Vite React plugin",
+      "title": "@vitejs/plugin-react",
       "summary": "Configure the Vite 8 React pipeline and verify the supported plugin version.",
       "delivery": {
         "packageName": "@modootoday/pmcp-vitejs-plugin-react",
@@ -773,7 +773,7 @@
     },
     {
       "productId": "graphql-yoga",
-      "title": "GraphQL Yoga",
+      "title": "graphql-yoga",
       "summary": "Serve request-scoped GraphQL execution and distinguish transport and resolver errors.",
       "delivery": {
         "packageName": "@modootoday/pmcp-graphql-yoga",
@@ -853,7 +853,7 @@
     },
     {
       "productId": "wrangler",
-      "title": "Wrangler",
+      "title": "wrangler",
       "summary": "Generate configuration-driven types and verify handlers using isolated local bindings.",
       "delivery": {
         "packageName": "@modootoday/pmcp-wrangler",
@@ -4433,7 +4433,7 @@
     },
     {
       "productId": "typescript",
-      "title": "TypeScript",
+      "title": "typescript",
       "summary": "Choose module resolution for the runtime and verify declaration exports in consumer projects.",
       "delivery": {
         "packageName": "@modootoday/pmcp-typescript",
@@ -4472,7 +4472,7 @@
     },
     {
       "productId": "vitest",
-      "title": "Vitest",
+      "title": "vitest",
       "summary": "Run isolated tests with module mocks, timer lifecycle and explicit async assertions.",
       "delivery": {
         "packageName": "@modootoday/pmcp-vitest",
@@ -4549,7 +4549,7 @@
     },
     {
       "productId": "react",
-      "title": "React",
+      "title": "react",
       "summary": "Manage state, effects and form actions while preserving component and rendering boundaries.",
       "delivery": {
         "packageName": "@modootoday/pmcp-react",
@@ -4588,7 +4588,7 @@
     },
     {
       "productId": "cloudflare-workers-types",
-      "title": "Cloudflare Workers types",
+      "title": "@cloudflare/workers-types",
       "summary": "Compile platform bindings and reject incompatible Worker contracts.",
       "delivery": {
         "packageName": "@modootoday/pmcp-cloudflare-workers-types",
@@ -4626,7 +4626,7 @@
     },
     {
       "productId": "tanstack-react-router",
-      "title": "TanStack React Router",
+      "title": "@tanstack/react-router",
       "summary": "Register typed routes, validate search input and manage loader dependencies and guards.",
       "delivery": {
         "packageName": "@modootoday/pmcp-tanstack-react-router",
@@ -4665,7 +4665,7 @@
     },
     {
       "productId": "vite",
-      "title": "Vite",
+      "title": "vite",
       "summary": "Build React applications and keep browser environment values within the public boundary.",
       "delivery": {
         "packageName": "@modootoday/pmcp-vite",
@@ -4704,7 +4704,7 @@
     },
     {
       "productId": "vitejs-plugin-react",
-      "title": "Vite React plugin",
+      "title": "@vitejs/plugin-react",
       "summary": "Configure React transformation with the supported Vite major and verify production output.",
       "delivery": {
         "packageName": "@modootoday/pmcp-vitejs-plugin-react",
@@ -4742,7 +4742,7 @@
     },
     {
       "productId": "tailwindcss",
-      "title": "Tailwind CSS",
+      "title": "tailwindcss",
       "summary": "Integrate the CSS-first Vite pipeline and verify detected utility output.",
       "delivery": {
         "packageName": "@modootoday/pmcp-tailwindcss",
@@ -4780,7 +4780,7 @@
     },
     {
       "productId": "tailwindcss",
-      "title": "Tailwind CSS",
+      "title": "tailwindcss",
       "summary": "Compile configured content paths and verify utility output using the v3 PostCSS pipeline.",
       "delivery": {
         "packageName": "@modootoday/pmcp-tailwindcss",
@@ -4818,7 +4818,7 @@
     },
     {
       "productId": "testing-library-react",
-      "title": "React Testing Library",
+      "title": "@testing-library/react",
       "summary": "Test accessible interactions and async state with user events and explicit cleanup.",
       "delivery": {
         "packageName": "@modootoday/pmcp-testing-library-react",
@@ -4856,7 +4856,7 @@
     },
     {
       "productId": "graphql",
-      "title": "GraphQL",
+      "title": "graphql",
       "summary": "Validate and execute typed schemas with variables and explicit error handling.",
       "delivery": {
         "packageName": "@modootoday/pmcp-graphql",
@@ -4931,7 +4931,7 @@
     },
     {
       "productId": "bullmq",
-      "title": "BullMQ",
+      "title": "bullmq",
       "summary": "Run bounded workers with retries, failure events and graceful shutdown.",
       "delivery": {
         "packageName": "@modootoday/pmcp-bullmq",
@@ -4969,7 +4969,7 @@
     },
     {
       "productId": "clickhouse-client",
-      "title": "ClickHouse Node client",
+      "title": "@clickhouse/client",
       "summary": "Insert and query typed values with parameters, streams and explicit client cleanup.",
       "delivery": {
         "packageName": "@modootoday/pmcp-clickhouse-client",
@@ -5006,7 +5006,7 @@
     },
     {
       "productId": "clickhouse-client-web",
-      "title": "ClickHouse web client",
+      "title": "@clickhouse/client-web",
       "summary": "Consume Fetch streams and preserve numeric precision within the web client API.",
       "delivery": {
         "packageName": "@modootoday/pmcp-clickhouse-client-web",
@@ -5081,7 +5081,7 @@
     },
     {
       "productId": "yaml",
-      "title": "YAML",
+      "title": "yaml",
       "summary": "Parse and update YAML configuration with diagnostics and bounded aliases.",
       "delivery": {
         "packageName": "@modootoday/pmcp-yaml",
@@ -5155,7 +5155,7 @@
     },
     {
       "productId": "prettier",
-      "title": "Prettier",
+      "title": "prettier",
       "summary": "Resolve project formatting rules and verify targeted CLI formatting.",
       "delivery": {
         "packageName": "@modootoday/pmcp-prettier",
@@ -5193,7 +5193,7 @@
     },
     {
       "productId": "eslint",
-      "title": "ESLint",
+      "title": "eslint",
       "summary": "Configure and verify flat lint rules using the installed ESLint 9 toolchain.",
       "delivery": {
         "packageName": "@modootoday/pmcp-eslint",
@@ -5231,7 +5231,7 @@
     },
     {
       "productId": "eslint",
-      "title": "ESLint",
+      "title": "eslint",
       "summary": "Verify flat lint configuration against ESLint 10 and preserve upgrade boundaries.",
       "delivery": {
         "packageName": "@modootoday/pmcp-eslint",
@@ -5269,7 +5269,7 @@
     },
     {
       "productId": "modelcontextprotocol-sdk",
-      "title": "MCP TypeScript SDK",
+      "title": "@modelcontextprotocol/sdk",
       "summary": "Register strict tool contracts and verify real client calls over a v1 memory transport.",
       "delivery": {
         "packageName": "@modootoday/pmcp-modelcontextprotocol-sdk",
@@ -5307,7 +5307,7 @@
     },
     {
       "productId": "modelcontextprotocol-server",
-      "title": "MCP TypeScript server",
+      "title": "@modelcontextprotocol/server",
       "summary": "Expose Standard Schema tools and verify modern protocol calls through an in-process handler.",
       "delivery": {
         "packageName": "@modootoday/pmcp-modelcontextprotocol-server",
@@ -5344,7 +5344,7 @@
     },
     {
       "productId": "modelcontextprotocol-client",
-      "title": "MCP TypeScript client",
+      "title": "@modelcontextprotocol/client",
       "summary": "Negotiate the modern protocol and handle structured output, failures and client teardown.",
       "delivery": {
         "packageName": "@modootoday/pmcp-modelcontextprotocol-client",

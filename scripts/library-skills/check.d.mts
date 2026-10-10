@@ -4,6 +4,7 @@ export function checkLibrarySkills(root: string): {
   entries: number;
   revision: string;
   drafts?: string[];
+  manualPilots?: number;
 };
 export function verifyArchive(
   entry: RemoteEntry,

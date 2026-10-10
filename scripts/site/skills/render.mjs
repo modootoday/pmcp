@@ -26,6 +26,7 @@ export function renderSkillIndex(catalog) {
   return `<h1>Free package skills</h1>
     <p>Instructions written for specific package versions. Read, download and use them without a PMCP account, subscription or payment.</p>
     <p>Choose the major that matches your project. Verification records describe the recorded run; they do not certify every future package release.</p>
+    <p>For Python, Rust or Go libraries, <a href="/manual-library-skills/">choose free instructions and load a local collection explicitly</a>.</p>
     <label class="search-box"><span>Find a package</span><input id="skills-filter" data-skill-search type="search" placeholder="Try hono, zod or 4.x" hidden /><span id="skills-count" aria-live="polite">${catalog.entries.length} skill lines</span></label>
     <div data-skill-catalog>${table(catalog.entries)}<p data-skill-empty hidden>No matching package skill. Clear the filter to see all lines.</p></div>
     <p>Catalog snapshot: <code>${escape(catalog.revision)}</code>, published ${escape(catalog.publishedAt.slice(0, 10))}. <a href="/observations/">Read the sandbox ledger</a>.</p>`;

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { validateSkillDisplayTitles } from "../../library-skills/display.mjs";
 
 const root = new URL("../../../", import.meta.url);
 
@@ -6,6 +7,7 @@ export function readSkillCatalog() {
   const catalog = JSON.parse(
     readFileSync(new URL("docs/catalog.json", root), "utf8"),
   );
+  validateSkillDisplayTitles(catalog.entries);
   const identities = new Set();
   for (const entry of catalog.entries) {
     if (

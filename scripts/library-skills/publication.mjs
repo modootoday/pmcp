@@ -14,6 +14,7 @@ import { createArchive, integrity } from "./archive.mjs";
 import { readCatalog, skillDirectory, validateCatalog } from "./catalog.mjs";
 import { verifyArchive } from "./check.mjs";
 import { verifyEvidence } from "./evidence.mjs";
+import { skillDisplayTitle } from "./display.mjs";
 import { contentDigest, readSkillFiles } from "./source.mjs";
 import { validateTopics } from "./topics.mjs";
 
@@ -124,7 +125,7 @@ export function preparePublication(root, metadata, evidence) {
       ) + 1;
     const entry = {
       productId: selection.productId,
-      title: selection.title,
+      title: skillDisplayTitle(selection.targets),
       summary: selection.summary,
       delivery: { ...selection.delivery },
       skillRevision: revision,

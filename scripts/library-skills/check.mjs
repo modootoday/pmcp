@@ -4,6 +4,7 @@ import { integrity, readArchive } from "./archive.mjs";
 import { readCatalog, skillDirectory } from "./catalog.mjs";
 import { contentDigest, readSkillFiles } from "./source.mjs";
 import { validateTopics } from "./topics.mjs";
+import { readManualLibrarySkills } from "./manual.mjs";
 
 export function verifyArchive(entry, bytes, source) {
   if (integrity(bytes) !== entry.delivery.integrity)
@@ -63,6 +64,7 @@ export function verifyArchive(entry, bytes, source) {
 export function checkLibrarySkills(root) {
   const catalog = readCatalog(root);
   validateTopics(root, catalog);
+  const manualPilots = readManualLibrarySkills(root, catalog);
   for (const entry of catalog.entries) {
     const directory = skillDirectory(root, entry);
     const { source, skill, files } = readSkillFiles(directory);
@@ -84,6 +86,7 @@ export function checkLibrarySkills(root) {
   const identities = new Set(
     catalog.entries.map((entry) => `${entry.productId}/${entry.line.major}`),
   );
+  for (const pilot of manualPilots) identities.add(pilot.identity);
   for (const product of readdirSync(join(root, "docs/skills"), {
     withFileTypes: true,
   })) {
@@ -104,6 +107,7 @@ export function checkLibrarySkills(root) {
     entries: catalog.entries.length,
     revision: catalog.revision,
   };
+  if (manualPilots.length) result.manualPilots = manualPilots.length;
   if (drafts.length) result.drafts = drafts.sort();
   return result;
 }

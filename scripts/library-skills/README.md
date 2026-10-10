@@ -36,7 +36,7 @@ not infer a topic or refresh it from a network service.
     {
       "productId": "example-library",
       "major": 1,
-      "title": "Example library",
+      "title": "example-library",
       "summary": "Validate application input with the public library API.",
       "delivery": {
         "packageName": "@modootoday/pmcp-example-library",
@@ -65,6 +65,24 @@ are required and limited to 1,024 characters. Bodies are limited to 500 lines.
 status is retained when omitted. Optional `preview` follows the catalog schema.
 Every selected line receives the next unused revision for its product, including
 other majors. Unselected entries retain their exact values and order.
+
+## Display names
+
+The public catalog title is the exact target npm package name, including a
+scope when present: react, @vitejs/plugin-react, or @testing-library/react.
+Use the same title for every major of a product. Display the major separately;
+do not append a version, expand a brand name, or introduce an alternative
+capitalization in the title.
+
+Publication derives titles from targets rather than trusting the selection's
+legacy title field. For multiple targets, it deduplicates exact package names,
+sorts them in code-unit order, and joins them with `+`. It does not choose a
+primary package. Empty targets are invalid. Site generation rejects titles that
+do not match this rule or differ between majors of the same product.
+
+These display names do not rename productId, SKILL.md frontmatter name, target
+identities, delivery packages, or download paths. Correcting a catalog title
+alone does not change the skill source or archive bytes.
 
 ## Executed fixture evidence
 

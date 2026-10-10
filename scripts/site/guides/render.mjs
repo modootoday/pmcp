@@ -1,11 +1,19 @@
 import { Marked } from "marked";
 import { escape } from "../../page.mjs";
 import { guides } from "./catalog.mjs";
+import { manualLibraryDescriptors } from "../../library-skills/manual.mjs";
+
+const manualSources = new Set(
+  manualLibraryDescriptors.map(
+    (entry) => `/${entry.path.slice("docs/".length)}`,
+  ),
+);
 
 function resolveLink(href) {
   if (href.startsWith("#")) return href;
   if (/^https?:\/\//u.test(href)) return href;
   const [file, fragment] = href.split("#");
+  if (manualSources.has(file)) return href;
   if (file === "../README.md") return fragment ? `/#${fragment}` : "/";
   const guide = guides.find((entry) => entry.source === file);
   if (!guide) throw new Error(`Unsupported guide link: ${href}`);

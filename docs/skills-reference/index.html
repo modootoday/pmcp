@@ -26,6 +26,7 @@
 <a href="/install/">Installation</a>
 <a href="/project-configuration/">Project configuration</a>
 <a href="/skills-reference/" aria-current="page">Skills and MCP reference</a>
+<a href="/manual-library-skills/">Manual library skills</a>
 <a href="/embeddings/">Embedding models</a>
 <a href="/mailbox/">Local mailbox</a>
 <a href="/hosting/">HTTP hosting</a>
@@ -84,6 +85,12 @@ Commands are listed as skills. The others are listed under their own kind and
 are left out of <code>skill_catalog</code> and <code>skill_find</code> unless <code>kind</code> asks for them
 (<code>agent</code>, <code>hook</code>, <code>mcp</code>, or <code>any</code>); <code>skill_describe</code>, <code>skill_read</code> and
 <code>skill_call</code> work on every kind.</p>
+<h2>Manually selected Python, Rust and Go library skills</h2>
+<p>Public Pydantic, serde_json and Google UUID instructions are free to read and
+copy into a local collection. Register that collection explicitly; these pilots
+are not automatically matched from PyPI, Cargo or Go dependencies. Follow the
+<a href="/manual-library-skills/">manual library skills guide</a> for download paths and
+the existing CLI configuration workflow.</p>
 <h2>MCP Skills extension</h2>
 <p>The server also declares <code>io.modelcontextprotocol/skills</code> (SEP-2640): it
 answers <code>skills/list</code> and <code>skills/get</code> (both with <code>ttlMs</code> and <code>cacheScope</code>), with

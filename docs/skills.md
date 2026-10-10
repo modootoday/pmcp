@@ -59,6 +59,14 @@ are left out of `skill_catalog` and `skill_find` unless `kind` asks for them
 (`agent`, `hook`, `mcp`, or `any`); `skill_describe`, `skill_read` and
 `skill_call` work on every kind.
 
+## Manually selected Python, Rust and Go library skills
+
+Public Pydantic, serde_json and Google UUID instructions are free to read and
+copy into a local collection. Register that collection explicitly; these pilots
+are not automatically matched from PyPI, Cargo or Go dependencies. Follow the
+[manual library skills guide](manual-library-skills.md) for download paths and
+the existing CLI configuration workflow.
+
 ## MCP Skills extension
 
 The server also declares `io.modelcontextprotocol/skills` (SEP-2640): it

@@ -26,6 +26,7 @@
 <a href="/install/">Installation</a>
 <a href="/project-configuration/">Project configuration</a>
 <a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/manual-library-skills/">Manual library skills</a>
 <a href="/embeddings/">Embedding models</a>
 <a href="/mailbox/">Local mailbox</a>
 <a href="/hosting/">HTTP hosting</a>
@@ -38,6 +39,7 @@
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><h1>Free package skills</h1>
     <p>Instructions written for specific package versions. Read, download and use them without a PMCP account, subscription or payment.</p>
     <p>Choose the major that matches your project. Verification records describe the recorded run; they do not certify every future package release.</p>
+    <p>For Python, Rust or Go libraries, <a href="/manual-library-skills/">choose free instructions and load a local collection explicitly</a>.</p>
     <label class="search-box"><span>Find a package</span><input id="skills-filter" data-skill-search type="search" placeholder="Try hono, zod or 4.x" hidden /><span id="skills-count" aria-live="polite">132 skill lines</span></label>
     <div data-skill-catalog><div class="scroll"><table><thead><tr><th>Skill / major</th><th>Verified package version</th><th>Recorded verification</th></tr></thead><tbody><tr data-skill-row data-search="agent-base agent-base 9.x agent-base@9.0.0">
     <td><a href="/skills/agent-base/9/">agent-base 9.x</a><span class="tag">active</span></td>
@@ -85,7 +87,7 @@
     <td>2026-10-10<br />7 examples</td>
     </tr>
 <tr data-skill-row data-search="bullmq bullmq 5.x bullmq@5.81.4">
-    <td><a href="/skills/bullmq/5/">BullMQ 5.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/bullmq/5/">bullmq 5.x</a><span class="tag">active</span></td>
     <td><code>bullmq@5.81.4</code></td>
     <td>2026-10-10<br />10 examples</td>
     </tr>
@@ -114,13 +116,13 @@
     <td><code>cli-spinners@3.4.0</code></td>
     <td>2026-09-08<br />3 examples</td>
     </tr>
-<tr data-skill-row data-search="clickhouse node client clickhouse-client 1.x @clickhouse/client@1.23.1">
-    <td><a href="/skills/clickhouse-client/1/">ClickHouse Node client 1.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@clickhouse/client clickhouse-client 1.x @clickhouse/client@1.23.1">
+    <td><a href="/skills/clickhouse-client/1/">@clickhouse/client 1.x</a><span class="tag">active</span></td>
     <td><code>@clickhouse/client@1.23.1</code></td>
     <td>2026-10-10<br />7 examples</td>
     </tr>
-<tr data-skill-row data-search="clickhouse web client clickhouse-client-web 1.x @clickhouse/client-web@1.23.1">
-    <td><a href="/skills/clickhouse-client-web/1/">ClickHouse web client 1.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@clickhouse/client-web clickhouse-client-web 1.x @clickhouse/client-web@1.23.1">
+    <td><a href="/skills/clickhouse-client-web/1/">@clickhouse/client-web 1.x</a><span class="tag">active</span></td>
     <td><code>@clickhouse/client-web@1.23.1</code></td>
     <td>2026-10-10<br />7 examples</td>
     </tr>
@@ -129,8 +131,8 @@
     <td><code>cliui@9.0.1</code></td>
     <td>2026-09-08<br />7 examples</td>
     </tr>
-<tr data-skill-row data-search="cloudflare workers types cloudflare-workers-types 4.x @cloudflare/workers-types@4.20260702.1">
-    <td><a href="/skills/cloudflare-workers-types/4/">Cloudflare Workers types 4.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@cloudflare/workers-types cloudflare-workers-types 4.x @cloudflare/workers-types@4.20260702.1">
+    <td><a href="/skills/cloudflare-workers-types/4/">@cloudflare/workers-types 4.x</a><span class="tag">active</span></td>
     <td><code>@cloudflare/workers-types@4.20260702.1</code></td>
     <td>2026-10-10<br />3 examples</td>
     </tr>
@@ -175,12 +177,12 @@
     <td>2026-09-08<br />9 examples</td>
     </tr>
 <tr data-skill-row data-search="eslint eslint 10.x eslint@10.10.0">
-    <td><a href="/skills/eslint/10/">ESLint 10.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/eslint/10/">eslint 10.x</a><span class="tag">active</span></td>
     <td><code>eslint@10.10.0</code></td>
     <td>2026-10-10<br />4 examples</td>
     </tr>
 <tr data-skill-row data-search="eslint eslint 9.x eslint@9.39.5">
-    <td><a href="/skills/eslint/9/">ESLint 9.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/eslint/9/">eslint 9.x</a><span class="tag">active</span></td>
     <td><code>eslint@9.39.5</code></td>
     <td>2026-10-10<br />4 examples</td>
     </tr>
@@ -240,12 +242,12 @@
     <td>2026-09-07<br />6 examples</td>
     </tr>
 <tr data-skill-row data-search="graphql graphql 16.x graphql@16.13.1">
-    <td><a href="/skills/graphql/16/">GraphQL 16.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/graphql/16/">graphql 16.x</a><span class="tag">active</span></td>
     <td><code>graphql@16.13.1</code></td>
     <td>2026-10-10<br />8 examples</td>
     </tr>
-<tr data-skill-row data-search="graphql yoga graphql-yoga 5.x graphql-yoga@5.22.0">
-    <td><a href="/skills/graphql-yoga/5/">GraphQL Yoga 5.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="graphql-yoga graphql-yoga 5.x graphql-yoga@5.22.0">
+    <td><a href="/skills/graphql-yoga/5/">graphql-yoga 5.x</a><span class="tag">active</span></td>
     <td><code>graphql-yoga@5.22.0</code></td>
     <td>2026-10-10<br />8 examples</td>
     </tr>
@@ -255,7 +257,7 @@
     <td>2026-09-07<br />5 examples</td>
     </tr>
 <tr data-skill-row data-search="hono hono 4.x hono@4.13.12">
-    <td><a href="/skills/hono/4/">Hono 4.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/hono/4/">hono 4.x</a><span class="tag">active</span></td>
     <td><code>hono@4.13.12</code></td>
     <td>2026-10-10<br />12 examples</td>
     </tr>
@@ -344,18 +346,18 @@
     <td><code>mocha@12.0.0</code></td>
     <td>2026-09-08<br />2 examples</td>
     </tr>
-<tr data-skill-row data-search="mcp typescript client modelcontextprotocol-client 2.x @modelcontextprotocol/client@2.0.0">
-    <td><a href="/skills/modelcontextprotocol-client/2/">MCP TypeScript client 2.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@modelcontextprotocol/client modelcontextprotocol-client 2.x @modelcontextprotocol/client@2.0.0">
+    <td><a href="/skills/modelcontextprotocol-client/2/">@modelcontextprotocol/client 2.x</a><span class="tag">active</span></td>
     <td><code>@modelcontextprotocol/client@2.0.0</code></td>
     <td>2026-10-10<br />9 examples</td>
     </tr>
-<tr data-skill-row data-search="mcp typescript sdk modelcontextprotocol-sdk 1.x @modelcontextprotocol/sdk@1.30.0">
-    <td><a href="/skills/modelcontextprotocol-sdk/1/">MCP TypeScript SDK 1.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@modelcontextprotocol/sdk modelcontextprotocol-sdk 1.x @modelcontextprotocol/sdk@1.30.0">
+    <td><a href="/skills/modelcontextprotocol-sdk/1/">@modelcontextprotocol/sdk 1.x</a><span class="tag">active</span></td>
     <td><code>@modelcontextprotocol/sdk@1.30.0</code></td>
     <td>2026-10-10<br />8 examples</td>
     </tr>
-<tr data-skill-row data-search="mcp typescript server modelcontextprotocol-server 2.x @modelcontextprotocol/server@2.0.0">
-    <td><a href="/skills/modelcontextprotocol-server/2/">MCP TypeScript server 2.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@modelcontextprotocol/server modelcontextprotocol-server 2.x @modelcontextprotocol/server@2.0.0">
+    <td><a href="/skills/modelcontextprotocol-server/2/">@modelcontextprotocol/server 2.x</a><span class="tag">active</span></td>
     <td><code>@modelcontextprotocol/server@2.0.0</code></td>
     <td>2026-10-10<br />9 examples</td>
     </tr>
@@ -394,18 +396,18 @@
     <td><code>pgsql-ast-parser@12.0.2</code></td>
     <td>2026-09-08<br />5 examples</td>
     </tr>
-<tr data-skill-row data-search="playwright test playwright-test 1.x @playwright/test@1.63.0">
-    <td><a href="/skills/playwright-test/1/">Playwright Test 1.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@playwright/test playwright-test 1.x @playwright/test@1.63.0">
+    <td><a href="/skills/playwright-test/1/">@playwright/test 1.x</a><span class="tag">active</span></td>
     <td><code>@playwright/test@1.63.0</code></td>
     <td>2026-10-10<br />3 examples</td>
     </tr>
-<tr data-skill-row data-search="pothos pothos-core 4.x @pothos/core@4.13.1">
-    <td><a href="/skills/pothos-core/4/">Pothos 4.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@pothos/core pothos-core 4.x @pothos/core@4.13.1">
+    <td><a href="/skills/pothos-core/4/">@pothos/core 4.x</a><span class="tag">active</span></td>
     <td><code>@pothos/core@4.13.1</code></td>
     <td>2026-10-10<br />8 examples</td>
     </tr>
 <tr data-skill-row data-search="prettier prettier 3.x prettier@3.9.9">
-    <td><a href="/skills/prettier/3/">Prettier 3.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/prettier/3/">prettier 3.x</a><span class="tag">active</span></td>
     <td><code>prettier@3.9.9</code></td>
     <td>2026-10-10<br />3 examples</td>
     </tr>
@@ -420,12 +422,12 @@
     <td>2026-09-08<br />3 examples</td>
     </tr>
 <tr data-skill-row data-search="react react 19.x react@19.2.8">
-    <td><a href="/skills/react/19/">React 19.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/react/19/">react 19.x</a><span class="tag">active</span></td>
     <td><code>react@19.2.8</code></td>
     <td>2026-10-10<br />5 examples</td>
     </tr>
-<tr data-skill-row data-search="react dom react-dom 19.x react-dom@19.2.8">
-    <td><a href="/skills/react-dom/19/">React DOM 19.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="react-dom react-dom 19.x react-dom@19.2.8">
+    <td><a href="/skills/react-dom/19/">react-dom 19.x</a><span class="tag">active</span></td>
     <td><code>react-dom@19.2.8</code></td>
     <td>2026-10-10<br />5 examples</td>
     </tr>
@@ -509,18 +511,18 @@
     <td><code>supports-color@11.0.0</code></td>
     <td>2026-09-08<br />3 examples</td>
     </tr>
-<tr data-skill-row data-search="tailwind css tailwindcss 4.x tailwindcss@4.3.3">
-    <td><a href="/skills/tailwindcss/4/">Tailwind CSS 4.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="tailwindcss tailwindcss 4.x tailwindcss@4.3.3">
+    <td><a href="/skills/tailwindcss/4/">tailwindcss 4.x</a><span class="tag">active</span></td>
     <td><code>tailwindcss@4.3.3</code></td>
     <td>2026-10-10<br />6 examples</td>
     </tr>
-<tr data-skill-row data-search="tailwind css tailwindcss 3.x tailwindcss@3.4.19">
-    <td><a href="/skills/tailwindcss/3/">Tailwind CSS 3.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="tailwindcss tailwindcss 3.x tailwindcss@3.4.19">
+    <td><a href="/skills/tailwindcss/3/">tailwindcss 3.x</a><span class="tag">active</span></td>
     <td><code>tailwindcss@3.4.19</code></td>
     <td>2026-10-10<br />3 examples</td>
     </tr>
-<tr data-skill-row data-search="tanstack react router tanstack-react-router 1.x @tanstack/react-router@1.170.33">
-    <td><a href="/skills/tanstack-react-router/1/">TanStack React Router 1.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@tanstack/react-router tanstack-react-router 1.x @tanstack/react-router@1.170.33">
+    <td><a href="/skills/tanstack-react-router/1/">@tanstack/react-router 1.x</a><span class="tag">active</span></td>
     <td><code>@tanstack/react-router@1.170.33</code></td>
     <td>2026-10-10<br />8 examples</td>
     </tr>
@@ -529,8 +531,8 @@
     <td><code>tedious@20.0.0</code></td>
     <td>2026-09-08<br />3 examples</td>
     </tr>
-<tr data-skill-row data-search="react testing library testing-library-react 16.x @testing-library/react@16.3.3">
-    <td><a href="/skills/testing-library-react/16/">React Testing Library 16.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@testing-library/react testing-library-react 16.x @testing-library/react@16.3.3">
+    <td><a href="/skills/testing-library-react/16/">@testing-library/react 16.x</a><span class="tag">active</span></td>
     <td><code>@testing-library/react@16.3.3</code></td>
     <td>2026-10-10<br />3 examples</td>
     </tr>
@@ -565,7 +567,7 @@
     <td>2026-09-08<br />3 examples</td>
     </tr>
 <tr data-skill-row data-search="typescript typescript 5.x typescript@5.9.3">
-    <td><a href="/skills/typescript/5/">TypeScript 5.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/typescript/5/">typescript 5.x</a><span class="tag">active</span></td>
     <td><code>typescript@5.9.3</code></td>
     <td>2026-10-10<br />6 examples</td>
     </tr>
@@ -610,22 +612,22 @@
     <td>2026-09-08<br />6 examples</td>
     </tr>
 <tr data-skill-row data-search="vite vite 8.x vite@8.2.2">
-    <td><a href="/skills/vite/8/">Vite 8.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/vite/8/">vite 8.x</a><span class="tag">active</span></td>
     <td><code>vite@8.2.2</code></td>
     <td>2026-10-10<br />6 examples</td>
     </tr>
 <tr data-skill-row data-search="vite vite 7.x vite@7.3.6">
-    <td><a href="/skills/vite/7/">Vite 7.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/vite/7/">vite 7.x</a><span class="tag">active</span></td>
     <td><code>vite@7.3.6</code></td>
     <td>2026-10-10<br />5 examples</td>
     </tr>
-<tr data-skill-row data-search="vite react plugin vitejs-plugin-react 6.x @vitejs/plugin-react@6.1.1">
-    <td><a href="/skills/vitejs-plugin-react/6/">Vite React plugin 6.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@vitejs/plugin-react vitejs-plugin-react 6.x @vitejs/plugin-react@6.1.1">
+    <td><a href="/skills/vitejs-plugin-react/6/">@vitejs/plugin-react 6.x</a><span class="tag">active</span></td>
     <td><code>@vitejs/plugin-react@6.1.1</code></td>
     <td>2026-10-10<br />6 examples</td>
     </tr>
-<tr data-skill-row data-search="vite react plugin vitejs-plugin-react 5.x @vitejs/plugin-react@5.2.0">
-    <td><a href="/skills/vitejs-plugin-react/5/">Vite React plugin 5.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="@vitejs/plugin-react vitejs-plugin-react 5.x @vitejs/plugin-react@5.2.0">
+    <td><a href="/skills/vitejs-plugin-react/5/">@vitejs/plugin-react 5.x</a><span class="tag">active</span></td>
     <td><code>@vitejs/plugin-react@5.2.0</code></td>
     <td>2026-10-10<br />5 examples</td>
     </tr>
@@ -635,7 +637,7 @@
     <td>2026-09-07<br />5 examples</td>
     </tr>
 <tr data-skill-row data-search="vitest vitest 4.x vitest@4.1.11">
-    <td><a href="/skills/vitest/4/">Vitest 4.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/vitest/4/">vitest 4.x</a><span class="tag">active</span></td>
     <td><code>vitest@4.1.11</code></td>
     <td>2026-10-10<br />8 examples</td>
     </tr>
@@ -645,7 +647,7 @@
     <td>2026-09-08<br />6 examples</td>
     </tr>
 <tr data-skill-row data-search="wrangler wrangler 4.x wrangler@4.90.1">
-    <td><a href="/skills/wrangler/4/">Wrangler 4.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/wrangler/4/">wrangler 4.x</a><span class="tag">active</span></td>
     <td><code>wrangler@4.90.1</code></td>
     <td>2026-10-10<br />11 examples</td>
     </tr>
@@ -655,7 +657,7 @@
     <td>2026-09-08<br />6 examples</td>
     </tr>
 <tr data-skill-row data-search="yaml yaml 2.x yaml@2.9.0">
-    <td><a href="/skills/yaml/2/">YAML 2.x</a><span class="tag">active</span></td>
+    <td><a href="/skills/yaml/2/">yaml 2.x</a><span class="tag">active</span></td>
     <td><code>yaml@2.9.0</code></td>
     <td>2026-10-10<br />3 examples</td>
     </tr>
@@ -679,13 +681,13 @@
     <td><code>z-schema@12.4.5</code></td>
     <td>2026-09-08<br />7 examples</td>
     </tr>
-<tr data-skill-row data-search="zod schema validation zod-schema-validation 4.x zod@4.5.4">
-    <td><a href="/skills/zod-schema-validation/4/">Zod schema validation 4.x</a><span class="tag">active</span></td>
+<tr data-skill-row data-search="zod zod-schema-validation 4.x zod@4.5.4">
+    <td><a href="/skills/zod-schema-validation/4/">zod 4.x</a><span class="tag">active</span></td>
     <td><code>zod@4.5.4</code></td>
     <td>2026-10-10<br />11 examples</td>
     </tr>
-<tr data-skill-row data-search="zod schema validation zod-schema-validation 3.x zod@3.25.76">
-    <td><a href="/skills/zod-schema-validation/3/">zod schema validation 3.x</a><span class="tag">frozen</span></td>
+<tr data-skill-row data-search="zod zod-schema-validation 3.x zod@3.25.76">
+    <td><a href="/skills/zod-schema-validation/3/">zod 3.x</a><span class="tag">frozen</span></td>
     <td><code>zod@3.25.76</code></td>
     <td>2026-09-07<br />7 examples</td>
     </tr>
@@ -699,7 +701,7 @@
     <td><code>zustand@5.0.15</code></td>
     <td>2026-09-08<br />3 examples</td>
     </tr></tbody></table></div><p data-skill-empty hidden>No matching package skill. Clear the filter to see all lines.</p></div>
-    <p>Catalog snapshot: <code>library-development-3-20261010</code>, published 2026-10-10. <a href="/observations/">Read the sandbox ledger</a>.</p></article></div></main><footer class="site-footer">
+    <p>Catalog snapshot: <code>public-library-development-20261010</code>, published 2026-10-10. <a href="/observations/">Read the sandbox ledger</a>.</p></article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>
 <a href="/project-configuration/">Configuration</a>
@@ -713,5 +715,5 @@
 <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
 <a href="/licence/">Licence</a></div>
     <p class="copyright">© 2026 modootoday.</p>
-  </footer></div></div><script type="module" src="/assets/landing/index-57RUCI6I.js"></script>
+  </footer></div></div><script type="module" src="/assets/landing/index-H4QUHJSG.js"></script>
 </body></html>
