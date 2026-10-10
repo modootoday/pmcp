@@ -2,15 +2,15 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>@vitejs/plugin-react 6.x — PMCP</title>
-  <meta name="description" content="Practical usage of @vitejs/plugin-react v6.0.0, including its Vite plugin factory, configuration options, React Compiler preset, v5-to-v6 Babel migration, and preamble requirements." />
+  <title>Vite React plugin 6.x — PMCP</title>
+  <meta name="description" content="Configure the Vite 8 React pipeline and verify the supported plugin version." />
   <link rel="canonical" href="https://pmcp.build/skills/vitejs-plugin-react/6/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
-  <meta property="og:title" content="@vitejs/plugin-react 6.x — PMCP" />
-  <meta property="og:description" content="Practical usage of @vitejs/plugin-react v6.0.0, including its Vite plugin factory, configuration options, React Compiler preset, v5-to-v6 Babel migration, and preamble requirements." />
+  <meta property="og:title" content="Vite React plugin 6.x — PMCP" />
+  <meta property="og:description" content="Configure the Vite 8 React pipeline and verify the supported plugin version." />
   <meta property="og:url" content="https://pmcp.build/skills/vitejs-plugin-react/6/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -36,15 +36,18 @@
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/vitejs-plugin-react/">Other majors</a></p>
-    <h1>@vitejs/plugin-react 6.x</h1><p>Practical usage of @vitejs/plugin-react v6.0.0, including its Vite plugin factory, configuration options, React Compiler preset, v5-to-v6 Babel migration, and preamble requirements.</p>
-    <dl><dt>For</dt><dd><code>@vitejs/plugin-react@6.1.1</code></dd><dt>Verified</dt><dd>2026-09-07, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-vitejs-plugin-react@6.0.0</code></dd></dl>
+    <h1>Vite React plugin 6.x</h1><p>Configure the Vite 8 React pipeline and verify the supported plugin version.</p>
+    <dl><dt>For</dt><dd><code>@vitejs/plugin-react@6.1.1</code></dd><dt>Verified</dt><dd>2026-10-10, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-vitejs-plugin-react@6.0.1</code></dd></dl>
     <section class="skill-download"><h2>Use this skill for free</h2>
     <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
     <p><a href="/skills/vitejs-plugin-react/6/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/vitejs-plugin-react/6/package.tgz" download>Download package archive</a></p>
     <pre><code>npm install --save-dev https://pmcp.build/skills/vitejs-plugin-react/6/package.tgz</code></pre>
     <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
-    <details><summary>Archive integrity</summary><code>sha512-cH76bKfXpourKdJTN1GIzrDZetK76rVQvBpdJ8HZuivrXNBrxeMeE5xSChgEl+NetIT7zvGX8oRxSWW/Bz0yUQ==</code></details></section>
+    <details><summary>Archive integrity</summary><code>sha512-dA1RqhD4BX/7emgjnZ261mzqxUSj9ZkxVydwNIj6YvU51yFspB4vWSxcs06Ws5Wn8Di2Mi7sxJB0+DqvUhoLqw==</code></details></section>
     <section class="skill-source"><h2>Complete instructions</h2><p>Verified against @vitejs/plugin-react@6.1.1 on 2026-09-07. 2 of 2 examples executed.</p>
+<p>The historical checks below inspect standalone exports only. The separate Vite 8
+fixture checks application build and dev transforms with this plugin; it does not
+exercise interactive Fast Refresh, SSR or React Compiler.</p>
 <h2>@vitejs/plugin-react (^6.0.0)</h2>
 <h3>What this package is</h3>
 <p><code>@vitejs/plugin-react</code> is a Vite/Rolldown plugin for React. Its default export creates Vite plugins; it is not a standalone JSX transformer or test runner.</p>
@@ -55,15 +58,15 @@
 </ul>
 <p>The package metadata marks raw Rollup as incompatible because the plugin uses Vite/Rolldown-specific APIs. Configure it through Vite rather than trying to run it as a generic Rollup plugin.</p>
 <h3>Normal configuration</h3>
-<pre><code class="language-ts">import { defineConfig } from &#39;vite&#39;
-import react from &#39;@vitejs/plugin-react&#39;
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
+import react from &quot;@vitejs/plugin-react&quot;;
 
 export default defineConfig({
   plugins: [react()],
-})
+});
 </code></pre>
 <p>The default export is:</p>
-<pre><code class="language-ts">function viteReact(opts?: Options): Plugin[]
+<pre><code class="language-ts">function viteReact(opts?: Options): Plugin[];
 </code></pre>
 <p>The default behavior is:</p>
 <ul>
@@ -74,38 +77,36 @@ export default defineConfig({
 </ul>
 <p>Available options:</p>
 <pre><code class="language-ts">interface Options {
-  include?: string | RegExp | Array&lt;string | RegExp&gt;
-  exclude?: string | RegExp | Array&lt;string | RegExp&gt;
-  jsxImportSource?: string
-  jsxRuntime?: &#39;classic&#39; | &#39;automatic&#39;
-  reactRefreshHost?: string
+  include?: string | RegExp | Array&lt;string | RegExp&gt;;
+  exclude?: string | RegExp | Array&lt;string | RegExp&gt;;
+  jsxImportSource?: string;
+  jsxRuntime?: &quot;classic&quot; | &quot;automatic&quot;;
+  reactRefreshHost?: string;
 }
 </code></pre>
 <p>For example, include MDX files explicitly:</p>
-<pre><code class="language-ts">import { defineConfig } from &#39;vite&#39;
-import react from &#39;@vitejs/plugin-react&#39;
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
+import react from &quot;@vitejs/plugin-react&quot;;
 
 export default defineConfig({
-  plugins: [
-    react({ include: /\.(mdx|js|jsx|ts|tsx)$/ }),
-  ],
-})
+  plugins: [react({ include: /\.(mdx|js|jsx|ts|tsx)$/ })],
+});
 </code></pre>
 <p>Use <code>jsxRuntime: &#39;classic&#39;</code> only when the project needs the classic JSX runtime. Otherwise, the automatic runtime is the default.</p>
 <h4>Standalone API shape check</h4>
 <p>The package is normally exercised by Vite. This direct script checks the part that can be reached without a Vite config or runner: creating the plugin array.</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import react from &#39;@vitejs/plugin-react&#39;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import react from &quot;@vitejs/plugin-react&quot;;
 
 const plugins = react({
   include: /\.(tsx|jsx)$/,
   exclude: /\/node_modules\//,
-  jsxImportSource: &#39;react&#39;,
-  jsxRuntime: &#39;automatic&#39;,
-})
+  jsxImportSource: &quot;react&quot;,
+  jsxRuntime: &quot;automatic&quot;,
+});
 
-assert.equal(Array.isArray(plugins), true)
-assert.equal(plugins.length &gt; 0, true)
+assert.equal(Array.isArray(plugins), true);
+assert.equal(plugins.length &gt; 0, true);
 </code></pre>
 <h3>Babel configuration changed in v6</h3>
 <p>Do not use the v5 configuration shape:</p>
@@ -119,18 +120,18 @@ assert.equal(plugins.length &gt; 0, true)
 })
 </code></pre>
 <p>In v6, Babel is no longer a plugin dependency, and the <code>babel</code> option and related features were removed. Configure Babel with <code>@rolldown/plugin-babel</code> as a separate Vite plugin:</p>
-<pre><code class="language-ts">import { defineConfig } from &#39;vite&#39;
-import react from &#39;@vitejs/plugin-react&#39;
-import babel from &#39;@rolldown/plugin-babel&#39;
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
+import react from &quot;@vitejs/plugin-react&quot;;
+import babel from &quot;@rolldown/plugin-babel&quot;;
 
 export default defineConfig({
   plugins: [
     react(),
     babel({
-      plugins: [&#39;@babel/plugin-proposal-throw-expressions&#39;],
+      plugins: [&quot;@babel/plugin-proposal-throw-expressions&quot;],
     }),
   ],
-})
+});
 </code></pre>
 <p>The important migration is that <code>react()</code> and <code>babel(...)</code> are separate entries in the <code>plugins</code> array.</p>
 <h3>React Compiler</h3>
@@ -138,9 +139,9 @@ export default defineConfig({
 <pre><code class="language-sh">npm install -D @rolldown/plugin-babel babel-plugin-react-compiler
 </code></pre>
 <p>Then configure both plugins:</p>
-<pre><code class="language-ts">import { defineConfig } from &#39;vite&#39;
-import react, { reactCompilerPreset } from &#39;@vitejs/plugin-react&#39;
-import babel from &#39;@rolldown/plugin-babel&#39;
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
+import react, { reactCompilerPreset } from &quot;@vitejs/plugin-react&quot;;
+import babel from &quot;@rolldown/plugin-babel&quot;;
 
 export default defineConfig({
   plugins: [
@@ -149,7 +150,7 @@ export default defineConfig({
       presets: [reactCompilerPreset()],
     }),
   ],
-})
+});
 </code></pre>
 <p>Supported preset options are:</p>
 <ul>
@@ -160,26 +161,30 @@ export default defineConfig({
 <pre><code class="language-ts">babel({
   presets: [
     reactCompilerPreset({
-      compilationMode: &#39;annotation&#39;,
-      target: &#39;18&#39;,
+      compilationMode: &quot;annotation&quot;,
+      target: &quot;18&quot;,
     }),
   ],
-})
+});
 </code></pre>
 <p>The helper&#39;s shape is:</p>
 <pre><code class="language-ts">reactCompilerPreset(options?): RolldownBabelPreset
 </code></pre>
 <p>A plain script can reach the named export, although actual compiler transformation requires the Vite/Rolldown Babel integration and its peer dependencies:</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import { reactCompilerPreset } from &#39;@vitejs/plugin-react&#39;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { reactCompilerPreset } from &quot;@vitejs/plugin-react&quot;;
 
-assert.equal(typeof reactCompilerPreset, &#39;function&#39;)
+assert.equal(typeof reactCompilerPreset, &quot;function&quot;);
 </code></pre>
 <h3>Fast Refresh and the preamble</h3>
 <p>The plugin supports Fast Refresh. For SSR HMR, initialization must happen through Vite&#39;s <code>transformIndexHtml</code> or through the package&#39;s preamble entry:</p>
-<pre><code class="language-ts">import &#39;@vitejs/plugin-react/preamble&#39;
+<pre><code class="language-ts">import &quot;@vitejs/plugin-react/preamble&quot;;
 </code></pre>
-<p>The package export <code>./preamble</code> points to <code>./types/preamble.d.ts</code>, so this entry is types-only at package level. It is not a standalone runtime helper to execute in a direct Bun script.</p>
+<p>The manifest points this entry at a type declaration, while Vite&#39;s plugin resolves
+the runtime preamble during application transformation. Use the entry through
+Vite&#39;s SSR/client pipeline. Its manifest alone does not mean the Vite integration
+has no runtime implementation, and direct Node/Bun imports are not an equivalent
+test of that integration.</p>
 <p>Without the equivalent initialization, the documented failure is:</p>
 <pre><code class="language-text">Uncaught Error: @vitejs/plugin-react can&#39;t detect preamble. Something is wrong.
 </code></pre>
@@ -189,11 +194,16 @@ assert.equal(typeof reactCompilerPreset, &#39;function&#39;)
 <li>Installing or configuring this as a raw Rollup plugin. v6 is coupled to Vite/Rolldown APIs.</li>
 <li>Assuming <code>reactCompilerPreset()</code> replaces <code>@rolldown/plugin-babel</code> and <code>babel-plugin-react-compiler</code>. It does not; configure both plugins and install the peer dependencies.</li>
 <li>Forgetting that v6 requires Vite 8+. Vite 7 and earlier are unsupported.</li>
-<li>Treating <code>@vitejs/plugin-react/preamble</code> as a normal runtime utility. The package export is types-only; use the documented Vite/SSR integration context.</li>
+<li>Importing <code>@vitejs/plugin-react/preamble</code> as a standalone Node runtime utility.
+Use the documented Vite integration that supplies its runtime initialization.</li>
 <li>Expecting a direct script to transform JSX. The package&#39;s normal transformation and Fast Refresh behavior are exercised by Vite.</li>
 </ul>
 <h3>Does not cover</h3>
-<p>This skill does not cover Vite application setup, Vite&#39;s full plugin-hook lifecycle, SSR implementation, <code>transformIndexHtml</code> configuration, Rolldown Babel plugin options beyond the shown integration, Babel plugin authoring, React Compiler behavior itself, or JSX transformation outside Vite. Those require the corresponding tools and configuration rather than this package alone.</p>
+<p>This skill does not cover SSR implementation, the complete Vite plugin lifecycle,
+Babel plugin authoring, React Compiler behavior or JSX transformation outside
+Vite. Compiler options introduced by later minors need the installed version&#39;s
+source and peer checks; do not enable an experimental compiler as part of an
+ordinary plugin configuration fix.</p>
 <p>Sources:</p>
 <ul>
 <li><a href="https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/package.json?utm_source=openai">https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/package.json?utm_source=openai</a></li>

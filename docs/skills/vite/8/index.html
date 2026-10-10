@@ -2,15 +2,15 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>vite 8.x — PMCP</title>
-  <meta name="description" content="Use Vite 8's programmatic JavaScript API and avoid Vite 7/Rollup-era configuration shapes." />
+  <title>Vite 8.x — PMCP</title>
+  <meta name="description" content="Build React applications with Vite 8 and verify public environment and preview behavior." />
   <link rel="canonical" href="https://pmcp.build/skills/vite/8/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
-  <meta property="og:title" content="vite 8.x — PMCP" />
-  <meta property="og:description" content="Use Vite 8's programmatic JavaScript API and avoid Vite 7/Rollup-era configuration shapes." />
+  <meta property="og:title" content="Vite 8.x — PMCP" />
+  <meta property="og:description" content="Build React applications with Vite 8 and verify public environment and preview behavior." />
   <meta property="og:url" content="https://pmcp.build/skills/vite/8/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -36,17 +36,54 @@
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/vite/">Other majors</a></p>
-    <h1>vite 8.x</h1><p>Use Vite 8's programmatic JavaScript API and avoid Vite 7/Rollup-era configuration shapes.</p>
-    <dl><dt>For</dt><dd><code>vite@8.2.2</code></dd><dt>Verified</dt><dd>2026-09-07, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-vite@8.0.0</code></dd></dl>
+    <h1>Vite 8.x</h1><p>Build React applications with Vite 8 and verify public environment and preview behavior.</p>
+    <dl><dt>For</dt><dd><code>vite@8.2.2</code></dd><dt>Verified</dt><dd>2026-10-10, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-vite@8.0.1</code></dd></dl>
     <section class="skill-download"><h2>Use this skill for free</h2>
     <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
     <p><a href="/skills/vite/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/vite/8/package.tgz" download>Download package archive</a></p>
     <pre><code>npm install --save-dev https://pmcp.build/skills/vite/8/package.tgz</code></pre>
     <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
-    <details><summary>Archive integrity</summary><code>sha512-xUDogofoTnFVXHQASaYG8rcEGs6GJZfHM5+XwQpgyarG3DPcgBaiBgMUVHyaPbG2gvM9zgx8ZSiANAHvsIU+yg==</code></details></section>
+    <details><summary>Archive integrity</summary><code>sha512-zIkpWHR7Q+WzAGL8KiDix5rVcHoS2cAOD6fJ5e9RXnr/9GuiB6d4W4S94ibIw2C/tBu2+L38W6dlQV8Eps6Dfw==</code></details></section>
     <section class="skill-source"><h2>Complete instructions</h2><p>Verified against vite@8.2.2 on 2026-09-07. 4 of 4 examples executed.</p>
+<p>Those four checks exercise standalone API examples. The application fixture
+separately exercises a build and development server; a successful import or
+configuration helper does not prove an application builds or renders correctly.</p>
 <h2>Vite 8 (<code>^8.0.0</code>)</h2>
 <p>Use this skill when writing code against Vite 8&#39;s npm API. Vite 8 requires Node <code>20.19+</code> or <code>22.12+</code>, and uses Rolldown and Oxc instead of Rollup and esbuild.</p>
+<h3>Application workflow</h3>
+<p>Read the installed Vite, Node and framework-plugin versions. Use the project&#39;s
+package manager and existing scripts. The fixture pairs Vite 8.2.2 with
+@vitejs/plugin-react 6.1.1, React/React DOM 19.2.8 and Tailwind 4.3.3.
+Do not migrate an existing Vite 7 app merely because this guide covers Vite 8.</p>
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
+import react from &quot;@vitejs/plugin-react&quot;;
+
+export default defineConfig({
+  plugins: [react()],
+  base: &quot;/app/&quot;,
+});
+</code></pre>
+<p>Vite removes TypeScript syntax without application typechecking. Keep the
+project&#39;s TypeScript check. Use base to model a deployment prefix and inspect the
+generated HTML&#39;s asset URLs. A development server&#39;s optimizer and a production
+build are different stages; validate both when changing dependency or plugin
+resolution. Vite preview checks build output and is not a production web server.</p>
+<p>VITE_-prefixed environment variables become public browser data. Keep credentials
+outside that prefix, and never define the entire process.env object in a client
+bundle. Mode selects environment files; NODE_ENV is a separate setting. Restart
+the development server when environment files change and verify production
+replacement rather than assuming development values persist.</p>
+<p>For custom HTML serving, run transformIndexHtml so framework plugin initialization
+is included. Programmatic consumers must close every dev or preview server in a
+finally block. Bind a fixture to loopback and leave automatic browser opening off.
+The application fixture checks TSX build, base-aware assets, environment exposure,
+React Refresh HTML initialization, Tailwind generation and server shutdown. It
+does not prove browser layout, interactive HMR or SSR behavior.</p>
+<p>For sequential build/dev API calls in one owned process, create fresh plugin
+instances for each configuration. Build resolution can retain production
+NODE_ENV and plugin state. Set the intended development environment before dev
+server creation and restore the caller&#39;s environment afterward; mode is not a
+reset of NODE_ENV.</p>
 <h3>Programmatic API</h3>
 <p>Import API functions from <code>vite</code> in a plain Node/Bun script. The documented APIs include:</p>
 <ul>
@@ -67,90 +104,104 @@
 <p><code>mergeConfig</code> accepts object-form configuration. Use it for merging defaults and overrides rather than assuming it accepts a config function.</p>
 <p><code>loadEnv(mode, envDir, prefixes)</code> loads matching <code>.env</code> variables. Its default prefix is <code>VITE_</code>; pass a string or array when using other prefixes.</p>
 <p><code>resolveConfig</code> takes an inline config plus a command of <code>&#39;build&#39;</code> or <code>&#39;serve&#39;</code>. Its optional parameters select the default mode, default <code>NODE_ENV</code>, and preview mode.</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import { mergeConfig } from &#39;vite&#39;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { mergeConfig } from &quot;vite&quot;;
 
 const result = mergeConfig(
-  { server: { port: 3000 }, define: { A: &#39;1&#39; } },
-  { server: { strictPort: true }, define: { B: &#39;2&#39; } },
-)
+  { server: { port: 3000 }, define: { A: &quot;1&quot; } },
+  { server: { strictPort: true }, define: { B: &quot;2&quot; } },
+);
 
-assert.equal(result.server.port, 3000)
-assert.equal(result.server.strictPort, true)
-assert.equal(result.define.A, &#39;1&#39;)
-assert.equal(result.define.B, &#39;2&#39;)
+assert.equal(result.server.port, 3000);
+assert.equal(result.server.strictPort, true);
+assert.equal(result.define.A, &quot;1&quot;);
+assert.equal(result.define.B, &quot;2&quot;);
 </code></pre>
 <h3>Oxc JavaScript/TypeScript transforms</h3>
 <p>Use <code>transformWithOxc</code> for standalone JavaScript or TypeScript transformation. It returns the transformed result and exposes warnings separately; the returned shape omits the Oxc <code>errors</code> field and includes <code>warnings</code>.</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import { transformWithOxc } from &#39;vite&#39;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { transformWithOxc } from &quot;vite&quot;;
 
 const result = await transformWithOxc(
-  &#39;const answer: number = 42&#39;,
-  &#39;example.ts&#39;,
-)
+  &quot;const answer: number = 42&quot;,
+  &quot;example.ts&quot;,
+);
 
-assert.equal(typeof result.code, &#39;string&#39;)
-assert.equal(result.warnings.length, 0)
-assert.match(result.code, /42/)
+assert.equal(typeof result.code, &quot;string&quot;);
+assert.equal(result.warnings.length, 0);
+assert.match(result.code, /42/);
 </code></pre>
 <h3>CSS preprocessing</h3>
 <p><code>preprocessCSS(code, filename, config)</code> handles CSS and supported preprocessor filenames including <code>.css</code>, <code>.scss</code>, <code>.sass</code>, <code>.less</code>, <code>.styl</code>, and <code>.stylus</code>. The corresponding preprocessor must be installed for preprocessor syntaxes. Supply a resolved Vite config.</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import { preprocessCSS, resolveConfig } from &#39;vite&#39;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { preprocessCSS, resolveConfig } from &quot;vite&quot;;
 
-const config = await resolveConfig({}, &#39;serve&#39;)
-const result = await preprocessCSS(&#39;body { color: red; }&#39;, &#39;example.css&#39;, config)
+const config = await resolveConfig({}, &quot;serve&quot;);
+const result = await preprocessCSS(
+  &quot;body { color: red; }&quot;,
+  &quot;example.css&quot;,
+  config,
+);
 
-assert.equal(typeof result.code, &#39;string&#39;)
-assert.match(result.code, /color:\s*red/)
+assert.equal(typeof result.code, &quot;string&quot;);
+assert.match(result.code, /color:\s*red/);
 </code></pre>
 <h3>Path normalization</h3>
 <p><code>normalizePath</code> is a standalone helper for normalizing plugin paths. Do not assume it converts backslashes in every environment; on the environment used here, a path that is already slash-normalized is preserved.</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import { normalizePath } from &#39;vite&#39;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { normalizePath } from &quot;vite&quot;;
 
-const normalized = normalizePath(&#39;src/components/Button.tsx&#39;)
-assert.equal(normalized, &#39;src/components/Button.tsx&#39;)
+const normalized = normalizePath(&quot;src/components/Button.tsx&quot;);
+assert.equal(normalized, &quot;src/components/Button.tsx&quot;);
 </code></pre>
 <h3>Dev and preview servers</h3>
 <p>Create a development server with <code>createServer</code>, then call <code>listen()</code> yourself. The documented pattern is:</p>
-<pre><code class="language-ts">import { createServer } from &#39;vite&#39;
+<pre><code class="language-ts">import { createServer } from &quot;vite&quot;;
 
 const server = await createServer({
   configFile: false,
   root: import.meta.dirname,
   server: { port: 1337 },
-})
-await server.listen()
-server.printUrls()
-server.bindCLIShortcuts({ print: true })
+});
+await server.listen();
+server.printUrls();
+server.bindCLIShortcuts({ print: true });
 </code></pre>
 <p>Use <code>server.close()</code> when the script is finished. The server API also provides request transformation, HTML transformation, SSR module loading, and module reloading.</p>
 <p>Create a preview server with <code>preview(inlineConfig)</code>. Its documented pattern is:</p>
-<pre><code class="language-ts">import { preview } from &#39;vite&#39;
+<pre><code class="language-ts">import { preview } from &quot;vite&quot;;
 
 const previewServer = await preview({
-  preview: { port: 8080, open: true },
-})
-previewServer.printUrls()
-previewServer.bindCLIShortcuts({ print: true })
+  preview: { port: 8080, open: false },
+});
+previewServer.printUrls();
+previewServer.bindCLIShortcuts({ print: true });
 </code></pre>
 <p>These APIs start HTTP servers and require an owning tool to manage listening, ports, and shutdown. They are described here but are not exercised by the standalone examples because those examples run without network access.</p>
+<p>The separate API fixture uses a loopback server with server.watch set to null,
+automatic dependency discovery disabled and an empty optimization include list
+after framework configuration. It verifies HTML injection, TSX transformation
+and actual server shutdown, not file-change HMR, dependency pre-bundling or
+browser execution. Do not copy that optimizer configuration into a browser
+application with CommonJS dependencies.
+See <a href="https://vite.dev/config/dep-optimization-options">dependency optimization options</a>
+and <a href="https://vite.dev/config/server-options#server-watch">server file watching</a>.
+The <a href="https://vite.dev/guide/api-plugin#config">plugin config hook</a> can clear an
+include list when ordinary merging preserves framework-injected dependencies.</p>
 <h3>Production builds</h3>
 <p>Call <code>build(inlineConfig)</code> for a production build. The documented inline configuration can specify <code>root</code>, <code>base</code>, and <code>build.rolldownOptions</code>:</p>
-<pre><code class="language-ts">import path from &#39;node:path&#39;
-import { build } from &#39;vite&#39;
+<pre><code class="language-ts">import path from &quot;node:path&quot;;
+import { build } from &quot;vite&quot;;
 
 await build({
-  root: path.resolve(import.meta.dirname, &#39;./project&#39;),
-  base: &#39;/foo/&#39;,
+  root: path.resolve(import.meta.dirname, &quot;./project&quot;),
+  base: &quot;/foo/&quot;,
   build: {
     rolldownOptions: {
       // Rolldown options
     },
   },
-})
+});
 </code></pre>
 <p>Catch the thrown error as a Vite 8 bundle error and inspect <code>.errors</code> when present. A real build also requires a project input, so it is not exercised by the standalone examples, which cannot use filesystem setup.</p>
 <h3>Vite 8 configuration migration</h3>
@@ -158,7 +209,7 @@ await build({
 <pre><code class="language-ts">export default {
   build: { rolldownOptions: {} },
   worker: { rolldownOptions: {} },
-}
+};
 </code></pre>
 <p>Older Vite 7 examples commonly use <code>build.rollupOptions</code> and <code>worker.rollupOptions</code>. They remain deprecated aliases in Vite 8, so new code should use the Rolldown names.</p>
 <p>Other migration rules:</p>
@@ -175,15 +226,26 @@ await build({
 </ul>
 <h3>CLI and config-file scope</h3>
 <p>Automatic config discovery, <code>vite.config.js</code>/<code>.ts</code>, <code>--config</code>, <code>vite</code>, <code>vite dev</code>, <code>vite serve</code>, and <code>vite build</code> are runner/CLI behavior rather than standalone API calls. Config files can use either an object or <code>defineConfig</code>, for example:</p>
-<pre><code class="language-ts">import { defineConfig } from &#39;vite&#39;
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
 
 export default defineConfig({
   // configuration
-})
+});
 </code></pre>
 <p>By default, Vite bundles a config with Rolldown into a temporary file; <code>--configLoader native</code> selects native loading.</p>
 <h3>Not covered</h3>
-<p>This skill does not cover project scaffolding, framework integrations, plugin authoring, detailed inline configuration fields beyond the researched API, the complete <code>ResolvedConfig</code> or Rolldown type definitions, filesystem/project setup for builds, or operational port management and lifecycle details for servers beyond the documented API surface above.</p>
+<p>This skill does not cover framework SSR integration, plugin authoring, the complete
+ResolvedConfig or Rolldown type definitions, browser layout or React Compiler
+adoption. Use the application&#39;s actual browser and framework checks for those
+boundaries.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://vite.dev/guide/">Vite getting started</a></li>
+<li><a href="https://vite.dev/guide/env-and-mode">Environment variables</a></li>
+<li><a href="https://vite.dev/guide/build">Production builds</a></li>
+<li><a href="https://vite.dev/guide/api-javascript">JavaScript API</a></li>
+<li><a href="https://vite.dev/guide/migration">Vite 7 to 8 migration</a></li>
+</ul>
 </section></article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>

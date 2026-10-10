@@ -1,0 +1,9 @@
+{
+  "name": "pmcp-tailwind3-verification",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "tailwindcss": "3.4.19",
+    "postcss": "8.5.28"
+  }
+}

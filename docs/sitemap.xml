@@ -701,6 +701,18 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/tailwindcss/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/tailwindcss/3/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/tailwindcss/4/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/tanstack-react-router/</loc>
     <priority>0.8</priority>
   </url>
@@ -714,6 +726,14 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/tedious/20/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/testing-library-react/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/testing-library-react/16/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -841,11 +861,19 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/vite/7/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/vite/8/</loc>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/skills/vitejs-plugin-react/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/vitejs-plugin-react/5/</loc>
     <priority>0.8</priority>
   </url>
   <url>

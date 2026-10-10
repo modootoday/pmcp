@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tailwind CSS 4.x — PMCP</title>
+  <meta name="description" content="Integrate the CSS-first Vite pipeline and verify detected utility output." />
+  <link rel="canonical" href="https://pmcp.build/skills/tailwindcss/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Tailwind CSS 4.x — PMCP" />
+  <meta property="og:description" content="Integrate the CSS-first Vite pipeline and verify detected utility output." />
+  <meta property="og:url" content="https://pmcp.build/skills/tailwindcss/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/tailwindcss/">Other majors</a></p>
+    <h1>Tailwind CSS 4.x</h1><p>Integrate the CSS-first Vite pipeline and verify detected utility output.</p>
+    <dl><dt>For</dt><dd><code>tailwindcss@4.3.3</code></dd><dt>Verified</dt><dd>2026-10-10, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-tailwindcss@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/tailwindcss/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/tailwindcss/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/tailwindcss/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-grJCc1aj3xcYZMBgqHze5NkSMLSB/qhoQYQsABpRdJbcawElf5dS1x43yqmM3c91oqNlmO6licSep8xQ35no9A==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>Tailwind CSS 4</h2>
+<p>Read the installed versions and the application&#39;s browser support policy.
+Tailwind 4 targets modern CSS features and requires Safari 16.4+, Chrome 111+
+and Firefox 128+. Keep Tailwind 3.4 when the product still needs older browsers.
+The fixture uses tailwindcss and @tailwindcss/vite 4.3.3 with Vite 8.2.2.</p>
+<h3>Select the existing integration</h3>
+<p>For Vite, configure @tailwindcss/vite alongside the application&#39;s other plugins:</p>
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
+import react from &quot;@vitejs/plugin-react&quot;;
+import tailwindcss from &quot;@tailwindcss/vite&quot;;
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+</code></pre>
+<p>For PostCSS, use @tailwindcss/postcss; tailwindcss itself is no longer the
+PostCSS plugin. CLI usage belongs to @tailwindcss/cli. Choose one appropriate
+integration rather than processing the same stylesheet through multiple paths.</p>
+<p>The Vite fixture verifies that integration only. PostCSS and CLI instructions
+must not be described as executed by it.</p>
+<h3>Define themes and source boundaries</h3>
+<p>Import Tailwind from the application&#39;s stylesheet. Use @theme for design tokens
+that should generate utilities, and regular CSS variables for values that do not
+need that utility-generation contract:</p>
+<pre><code class="language-css">@import &quot;tailwindcss&quot;;
+@theme {
+  --color-accent: #135790;
+}
+</code></pre>
+<p>Tailwind scans source as text and needs complete class tokens. Prefer explicit
+class lookup tables over constructing partial strings. Check the scan root and
+ignored paths when utilities from a workspace dependency are missing. @source
+can include a path not discovered automatically and is relative to the stylesheet.</p>
+<p>For a tightly scoped stylesheet, opt out of automatic discovery deliberately:</p>
+<pre><code class="language-css">@import &quot;tailwindcss&quot; source(none);
+@source &#39;./src&#39;;
+</code></pre>
+<p>Do not apply this restricted source boundary globally without checking the
+application&#39;s other templates and shared components.</p>
+<h3>Migrate only within the requested scope</h3>
+<p>Review changes in default border/ring colors, shadow/radius scales, outline
+behavior, variants and removed utilities. A stylesheet compiling successfully
+does not establish visual equivalence. JavaScript configuration is not discovered
+automatically; a retained config needs the documented @config integration, and
+not all Tailwind 3 options are supported unchanged.</p>
+<p>Keep the project&#39;s cascade and third-party stylesheet ordering deliberate. For
+layout changes, verify generated selectors and computed styles in a supported
+browser. The fixture checks the Vite production build, source detection and a
+custom theme utility; it does not establish appearance, responsive breakpoints
+or compatibility with every application stylesheet.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://tailwindcss.com/docs/installation/using-vite">Tailwind Vite installation</a></li>
+<li><a href="https://tailwindcss.com/docs/installation/using-postcss">Tailwind PostCSS installation</a></li>
+<li><a href="https://tailwindcss.com/docs/detecting-classes-in-source-files">Source detection</a></li>
+<li><a href="https://tailwindcss.com/docs/theme">Theme variables</a></li>
+<li><a href="https://tailwindcss.com/docs/upgrade-guide">Upgrade guide</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

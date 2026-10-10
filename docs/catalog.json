@@ -1,6 +1,6 @@
 {
-  "revision": "library-development-2a-20261010",
-  "publishedAt": "2026-10-10T02:35:59.308Z",
+  "revision": "library-development-2b-20261010",
+  "publishedAt": "2026-10-10T03:06:48.978Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -346,34 +346,15 @@
     },
     {
       "productId": "vite",
-      "title": "vite",
-      "summary": "Use Vite 8's programmatic JavaScript API and avoid Vite 7/Rollup-era configuration shapes.",
+      "title": "Vite",
+      "summary": "Build React applications with Vite 8 and verify public environment and preview behavior.",
       "delivery": {
         "packageName": "@modootoday/pmcp-vite",
-        "version": "8.0.0",
-        "integrity": "sha512-xUDogofoTnFVXHQASaYG8rcEGs6GJZfHM5+XwQpgyarG3DPcgBaiBgMUVHyaPbG2gvM9zgx8ZSiANAHvsIU+yg=="
+        "version": "8.0.1",
+        "integrity": "sha512-zIkpWHR7Q+WzAGL8KiDix5rVcHoS2cAOD6fJ5e9RXnr/9GuiB6d4W4S94ibIw2C/tBu2+L38W6dlQV8Eps6Dfw=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:05fb9f9070a0741c2fe832d2ed518127dc0285fa35d01e0173034b56b91bc774",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 4
-      },
-      "preview": {
-        "headings": [
-          "Programmatic API",
-          "Configuration utilities",
-          "Oxc JavaScript/TypeScript transforms",
-          "CSS preprocessing",
-          "Path normalization",
-          "Dev and preview servers",
-          "Production builds",
-          "Vite 8 configuration migration",
-          "CLI and config-file scope",
-          "Not covered"
-        ],
-        "example": "import assert from 'node:assert/strict'\nimport { mergeConfig } from 'vite'\n\nconst result = mergeConfig(\n  { server: { port: 3000 }, define: { A: '1' } },\n  { server: { strictPort: true }, define: { B: '2' } },\n)\n\nassert.equal(result.server.port, 3000)\nassert.equal(result.server.strictPort, true)\nassert.equal(result.define.A, '1')\nassert.equal(result.define.B, '2')"
-      },
+      "skillRevision": 3,
+      "contentDigest": "sha256:52c834502cb862af2b5567c9ffc6847c98e635fdfa457aa4fe91cfa2d972b0b3",
       "targets": [
         {
           "packageName": "vite",
@@ -386,6 +367,27 @@
       "line": {
         "major": 8,
         "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Application workflow",
+          "Programmatic API",
+          "Configuration utilities",
+          "Oxc JavaScript/TypeScript transforms",
+          "CSS preprocessing",
+          "Path normalization",
+          "Dev and preview servers",
+          "Production builds",
+          "Vite 8 configuration migration",
+          "CLI and config-file scope",
+          "Not covered",
+          "Sources"
+        ],
+        "example": "import { defineConfig } from \"vite\";\nimport react from \"@vitejs/plugin-react\";\n\nexport default defineConfig({\n  plugins: [react()],\n  base: \"/app/\",\n});"
       }
     },
     {
@@ -652,15 +654,15 @@
     },
     {
       "productId": "playwright-test",
-      "title": "@playwright/test",
-      "summary": "Use @playwright/test 1.x correctly: distinguish its runner-managed test API from standalone imports, configure projects, define fixtures, and compose test/assertion extensions.",
+      "title": "Playwright Test",
+      "summary": "Run isolated browser assertions with locator waits and guaranteed fixture teardown.",
       "delivery": {
         "packageName": "@modootoday/pmcp-playwright-test",
-        "version": "1.0.1",
-        "integrity": "sha512-Y0NDwRnbmmbJJtNICTHRx/LicLp2OrIX58y/jY+Jb+kJV3irj3zFJ27+k7DHMnRvT4a+z+6MXYB0O7RDuo/uUQ=="
+        "version": "1.0.2",
+        "integrity": "sha512-tkOhO8opzbTEKHhUKS35AW1h3tdZk2kDt8KkFaYWkPHZTc0WoBJ1bKJAVk7jaMjrR4e+yZXuBKX0ZFJlz1L9fg=="
       },
-      "skillRevision": 2,
-      "contentDigest": "sha256:c433f23c7dbb934f24dc1a7436de9cab04f94843df8a1ee0b36ed1cd00a3f11b",
+      "skillRevision": 3,
+      "contentDigest": "sha256:6c59c4d5ff23aedcb4feb533460d44b934c3a8ffcd6c934130786e12e796484d",
       "targets": [
         {
           "packageName": "@playwright/test",
@@ -675,53 +677,33 @@
         "status": "active"
       },
       "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 5
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 3
       },
       "preview": {
         "headings": [
           "Scope and package shape",
           "The common shape mistake",
           "Plain-script surface",
-          "Generic `expect`",
-          "Configuration with `defineConfig`",
-          "Device descriptors",
-          "Custom fixtures with `test.extend`",
-          "Combining test and assertion extensions",
           "Runner-only operations",
-          "What this skill does not cover"
+          "Execute the actual runner",
+          "Does not cover",
+          "Sources"
         ],
-        "example": "import { expect } from '@playwright/test';\n\nconst value = { status: 'ready', count: 2 };\nexpect(value.status).toBe('ready');\nexpect(value.count).toBeGreaterThan(1);\nexpect(value).toEqual({ status: 'ready', count: 2 });"
+        "example": "import { test, expect } from \"@playwright/test\";"
       }
     },
     {
       "productId": "vitejs-plugin-react",
-      "title": "@vitejs/plugin-react",
-      "summary": "Practical usage of @vitejs/plugin-react v6.0.0, including its Vite plugin factory, configuration options, React Compiler preset, v5-to-v6 Babel migration, and preamble requirements.",
+      "title": "Vite React plugin",
+      "summary": "Configure the Vite 8 React pipeline and verify the supported plugin version.",
       "delivery": {
         "packageName": "@modootoday/pmcp-vitejs-plugin-react",
-        "version": "6.0.0",
-        "integrity": "sha512-cH76bKfXpourKdJTN1GIzrDZetK76rVQvBpdJ8HZuivrXNBrxeMeE5xSChgEl+NetIT7zvGX8oRxSWW/Bz0yUQ=="
+        "version": "6.0.1",
+        "integrity": "sha512-dA1RqhD4BX/7emgjnZ261mzqxUSj9ZkxVydwNIj6YvU51yFspB4vWSxcs06Ws5Wn8Di2Mi7sxJB0+DqvUhoLqw=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:8951b35120a6131c8a5995191301376ac3fbad8ebaa9b3ba59a734cbadf94788",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 2
-      },
-      "preview": {
-        "headings": [
-          "What this package is",
-          "Normal configuration",
-          "Standalone API shape check",
-          "Babel configuration changed in v6",
-          "React Compiler",
-          "Fast Refresh and the preamble",
-          "Common mistakes",
-          "Does not cover"
-        ],
-        "example": "import assert from 'node:assert/strict'\nimport react from '@vitejs/plugin-react'\n\nconst plugins = react({\n  include: /\\.(tsx|jsx)$/,\n  exclude: /\\/node_modules\\//,\n  jsxImportSource: 'react',\n  jsxRuntime: 'automatic',\n})\n\nassert.equal(Array.isArray(plugins), true)\nassert.equal(plugins.length > 0, true)"
-      },
+      "skillRevision": 3,
+      "contentDigest": "sha256:905913c9236644139abf3dfe9258a64cb88ecf406f8840d25b36652b72cda1b8",
       "targets": [
         {
           "packageName": "@vitejs/plugin-react",
@@ -734,6 +716,22 @@
       "line": {
         "major": 6,
         "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "What this package is",
+          "Normal configuration",
+          "Babel configuration changed in v6",
+          "React Compiler",
+          "Fast Refresh and the preamble",
+          "Common mistakes",
+          "Does not cover"
+        ],
+        "example": "import { defineConfig } from \"vite\";\nimport react from \"@vitejs/plugin-react\";\n\nexport default defineConfig({\n  plugins: [react()],\n});"
       }
     },
     {
@@ -4668,6 +4666,197 @@
           "Sources"
         ],
         "example": "const router = createRouter({ routeTree });\n\ndeclare module \"@tanstack/react-router\" {\n  interface Register {\n    router: typeof router;\n  }\n}\n\nfunction App() {\n  return <RouterProvider router={router} />;\n}"
+      }
+    },
+    {
+      "productId": "vite",
+      "title": "Vite",
+      "summary": "Build React applications and keep browser environment values within the public boundary.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-vite",
+        "version": "7.0.0",
+        "integrity": "sha512-Qm3NdBtXV0Mek4aVYwMKrYGwGNB9KqBnBwV07/IUJKb9hFqAD+ZwISTQ0iq3j0ZTHlVHqFjgboxoPzlSUXpjMw=="
+      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:20647531971f60bc47f8e7dc84d5c8f2ca2c6cf1a8c3d5d0107847b2833f9764",
+      "targets": [
+        {
+          "packageName": "vite",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.3.6"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Configure the existing application",
+          "Environment and security boundaries",
+          "Build, preview and development lifecycle",
+          "Diagnose by stage",
+          "Sources"
+        ],
+        "example": "import { defineConfig } from \"vite\";\nimport react from \"@vitejs/plugin-react\";\n\nexport default defineConfig({\n  plugins: [react()],\n  base: \"/app/\",\n  build: { target: \"es2022\" },\n});"
+      }
+    },
+    {
+      "productId": "vitejs-plugin-react",
+      "title": "Vite React plugin",
+      "summary": "Configure React transformation with the supported Vite major and verify production output.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-vitejs-plugin-react",
+        "version": "5.0.0",
+        "integrity": "sha512-yqwnPdhUwjLjjGKyifH/Mf0ihyRyLyuDeAQCBoQ5VyqUqyfxSbe/ahJAvcdmKCd0dCQYgn8EvKUPu46NtBvXbg=="
+      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:0d3a91a0315bbe7f979b05f1977cc5accf7442b2c1a340a24501868f4eedf7f0",
+      "targets": [
+        {
+          "packageName": "@vitejs/plugin-react",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.2.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 5
+      },
+      "preview": {
+        "headings": [
+          "Configure through Vite",
+          "Keep Babel options in their version boundary",
+          "Diagnose Fast Refresh",
+          "Sources"
+        ],
+        "example": "import { defineConfig } from \"vite\";\nimport react from \"@vitejs/plugin-react\";\n\nexport default defineConfig({\n  plugins: [react()],\n});"
+      }
+    },
+    {
+      "productId": "tailwindcss",
+      "title": "Tailwind CSS",
+      "summary": "Integrate the CSS-first Vite pipeline and verify detected utility output.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tailwindcss",
+        "version": "4.0.0",
+        "integrity": "sha512-grJCc1aj3xcYZMBgqHze5NkSMLSB/qhoQYQsABpRdJbcawElf5dS1x43yqmM3c91oqNlmO6licSep8xQ35no9A=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:bfb08d158090840c48e48e11f4cee08d07519a1b6608e8eb6e0715752576c0a7",
+      "targets": [
+        {
+          "packageName": "tailwindcss",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.3.3"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Select the existing integration",
+          "Define themes and source boundaries",
+          "Migrate only within the requested scope",
+          "Sources"
+        ],
+        "example": "import { defineConfig } from \"vite\";\nimport react from \"@vitejs/plugin-react\";\nimport tailwindcss from \"@tailwindcss/vite\";\n\nexport default defineConfig({\n  plugins: [react(), tailwindcss()],\n});"
+      }
+    },
+    {
+      "productId": "tailwindcss",
+      "title": "Tailwind CSS",
+      "summary": "Compile configured content paths and verify utility output using the v3 PostCSS pipeline.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-tailwindcss",
+        "version": "3.0.0",
+        "integrity": "sha512-npFkmoFQVS+yR7pDrfJH+hQlaLCWE2wmewb6fQSqx0ktMhpK7ULr1RYJzRgBOp8S6//jVWvkYq7bj1SAwKc8jA=="
+      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:8d33b5b977e939ee0c379211d4075d42e144591ce60378357d667bb8500a6fd3",
+      "targets": [
+        {
+          "packageName": "tailwindcss",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.4.19"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Find missing utilities",
+          "Match the build integration",
+          "Verify the result",
+          "Sources"
+        ],
+        "example": "export default {\n  content: {\n    relative: true,\n    files: [\"./index.html\", \"./src/**/*.{js,ts,jsx,tsx}\"],\n  },\n  theme: {\n    extend: { colors: { accent: \"#135790\" } },\n  },\n};"
+      }
+    },
+    {
+      "productId": "testing-library-react",
+      "title": "React Testing Library",
+      "summary": "Test accessible interactions and async state with user events and explicit cleanup.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-testing-library-react",
+        "version": "16.0.0",
+        "integrity": "sha512-fljGbhDb7GWNm4llPCB5E2Pir7tmnPSkbWXbKEtyq/+KO0IEuA/V5Qc+C3ddwSBbpB0heaKa0dEsmEEG1s4UUw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:0320f1f6785c27568993582d56a18017a8a29c07d11a96817e5d1f71ae85ce77",
+      "targets": [
+        {
+          "packageName": "@testing-library/react",
+          "range": "^16.0.0",
+          "verifiedVersions": [
+            "16.3.3"
+          ]
+        }
+      ],
+      "line": {
+        "major": 16,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Configure the actual environment",
+          "Describe the user-visible contract",
+          "Synchronize and isolate",
+          "Sources"
+        ],
+        "example": "import { afterEach } from \"vitest\";\nimport { cleanup } from \"@testing-library/react\";\n\nafterEach(cleanup);"
       }
     }
   ]

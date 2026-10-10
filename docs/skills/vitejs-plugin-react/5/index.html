@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vite React plugin 5.x — PMCP</title>
+  <meta name="description" content="Configure React transformation with the supported Vite major and verify production output." />
+  <link rel="canonical" href="https://pmcp.build/skills/vitejs-plugin-react/5/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Vite React plugin 5.x — PMCP" />
+  <meta property="og:description" content="Configure React transformation with the supported Vite major and verify production output." />
+  <meta property="og:url" content="https://pmcp.build/skills/vitejs-plugin-react/5/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/vitejs-plugin-react/">Other majors</a></p>
+    <h1>Vite React plugin 5.x</h1><p>Configure React transformation with the supported Vite major and verify production output.</p>
+    <dl><dt>For</dt><dd><code>@vitejs/plugin-react@5.2.0</code></dd><dt>Verified</dt><dd>2026-10-10, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-vitejs-plugin-react@5.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/vitejs-plugin-react/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/vitejs-plugin-react/5/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/vitejs-plugin-react/5/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-yqwnPdhUwjLjjGKyifH/Mf0ihyRyLyuDeAQCBoQ5VyqUqyfxSbe/ahJAvcdmKCd0dCQYgn8EvKUPu46NtBvXbg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>Vite React plugin 5</h2>
+<p>The fixture uses @vitejs/plugin-react 5.2.0 with Vite 7.3.6 and React 19.2.8.
+Check the installed plugin&#39;s peer range. Version 5.2.0 accepts Vite 4–8, but a
+major-wide claim must not assume earlier plugin patches have the same range.
+Plugin 6 requires Vite 8 and changes the Babel configuration surface.</p>
+<h3>Configure through Vite</h3>
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
+import react from &quot;@vitejs/plugin-react&quot;;
+
+export default defineConfig({
+  plugins: [react()],
+});
+</code></pre>
+<p>Use the automatic JSX runtime unless the application&#39;s existing integration needs
+the classic runtime. Preserve the node_modules exclusion. Expand include only for
+source types that another plugin converts appropriately, such as MDX. This plugin
+is not a standalone JSX transpiler or a test runner.</p>
+<h3>Keep Babel options in their version boundary</h3>
+<p>Plugin 5 supports a babel option. Add a Babel plugin only for a demonstrated
+transform requirement and install that plugin explicitly:</p>
+<pre><code class="language-ts">react({
+  babel: {
+    plugins: [&quot;babel-plugin-react-compiler&quot;],
+  },
+});
+</code></pre>
+<p>React Compiler use is a separate compiler adoption decision. The ordinary build
+fixture does not exercise it. In plugin 6 the babel option is removed; use its
+documented separate @rolldown/plugin-babel integration when working on that major.</p>
+<h3>Diagnose Fast Refresh</h3>
+<p>Fast Refresh needs the HTML preamble. Vite&#39;s normal HTML flow injects it;
+custom SSR HTML serving must call transformIndexHtml or use the documented
+@vitejs/plugin-react/preamble entry through Vite. A manifest&#39;s types declaration
+for that entry does not describe the complete Vite-resolved runtime behavior.
+Do not import it as a standalone Node utility.</p>
+<p>Keep component exports stable. Mixed component and noncomponent exports can
+invalidate a Refresh boundary and propagate updates; inspect the exported values
+and the application&#39;s Refresh lint rules before treating this as a state bug.</p>
+<p>For a plugin configuration change, verify a real Vite build and development TSX
+transformation. For interactive Refresh or SSR changes, use an actual browser and
+the application&#39;s server integration. Merely obtaining a plugin array does not
+exercise those behaviors.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://github.com/vitejs/vite-plugin-react/tree/plugin-react%405.2.0/packages/plugin-react">Vite React plugin 5 source</a></li>
+<li><a href="https://registry.npmjs.org/%40vitejs%2Fplugin-react/5.2.0">Plugin 5.2.0 package metadata</a></li>
+<li><a href="https://v7.vite.dev/guide/api-javascript">Vite JavaScript API</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

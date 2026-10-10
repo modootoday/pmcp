@@ -1,9 +1,13 @@
 ---
 name: vitejs-plugin-react
-description: Practical usage of @vitejs/plugin-react v6.0.0, including its Vite plugin factory, configuration options, React Compiler preset, v5-to-v6 Babel migration, and preamble requirements.
+description: Configure @vitejs/plugin-react 6 with Vite 8, diagnose JSX and Fast Refresh initialization, and separate Babel or React Compiler adoption from ordinary application builds.
 ---
 
 Verified against @vitejs/plugin-react@6.1.1 on 2026-09-07. 2 of 2 examples executed.
+
+The historical checks below inspect standalone exports only. The separate Vite 8
+fixture checks application build and dev transforms with this plugin; it does not
+exercise interactive Fast Refresh, SSR or React Compiler.
 
 # @vitejs/plugin-react (^6.0.0)
 
@@ -21,18 +25,18 @@ The package metadata marks raw Rollup as incompatible because the plugin uses Vi
 ## Normal configuration
 
 ```ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-})
+});
 ```
 
 The default export is:
 
 ```ts
-function viteReact(opts?: Options): Plugin[]
+function viteReact(opts?: Options): Plugin[];
 ```
 
 The default behavior is:
@@ -46,25 +50,23 @@ Available options:
 
 ```ts
 interface Options {
-  include?: string | RegExp | Array<string | RegExp>
-  exclude?: string | RegExp | Array<string | RegExp>
-  jsxImportSource?: string
-  jsxRuntime?: 'classic' | 'automatic'
-  reactRefreshHost?: string
+  include?: string | RegExp | Array<string | RegExp>;
+  exclude?: string | RegExp | Array<string | RegExp>;
+  jsxImportSource?: string;
+  jsxRuntime?: "classic" | "automatic";
+  reactRefreshHost?: string;
 }
 ```
 
 For example, include MDX files explicitly:
 
 ```ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [
-    react({ include: /\.(mdx|js|jsx|ts|tsx)$/ }),
-  ],
-})
+  plugins: [react({ include: /\.(mdx|js|jsx|ts|tsx)$/ })],
+});
 ```
 
 Use `jsxRuntime: 'classic'` only when the project needs the classic JSX runtime. Otherwise, the automatic runtime is the default.
@@ -74,18 +76,18 @@ Use `jsxRuntime: 'classic'` only when the project needs the classic JSX runtime.
 The package is normally exercised by Vite. This direct script checks the part that can be reached without a Vite config or runner: creating the plugin array.
 
 ```ts pmcp-example
-import assert from 'node:assert/strict'
-import react from '@vitejs/plugin-react'
+import assert from "node:assert/strict";
+import react from "@vitejs/plugin-react";
 
 const plugins = react({
   include: /\.(tsx|jsx)$/,
   exclude: /\/node_modules\//,
-  jsxImportSource: 'react',
-  jsxRuntime: 'automatic',
-})
+  jsxImportSource: "react",
+  jsxRuntime: "automatic",
+});
 
-assert.equal(Array.isArray(plugins), true)
-assert.equal(plugins.length > 0, true)
+assert.equal(Array.isArray(plugins), true);
+assert.equal(plugins.length > 0, true);
 ```
 
 ## Babel configuration changed in v6
@@ -106,18 +108,18 @@ react({
 In v6, Babel is no longer a plugin dependency, and the `babel` option and related features were removed. Configure Babel with `@rolldown/plugin-babel` as a separate Vite plugin:
 
 ```ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
 
 export default defineConfig({
   plugins: [
     react(),
     babel({
-      plugins: ['@babel/plugin-proposal-throw-expressions'],
+      plugins: ["@babel/plugin-proposal-throw-expressions"],
     }),
   ],
-})
+});
 ```
 
 The important migration is that `react()` and `babel(...)` are separate entries in the `plugins` array.
@@ -133,9 +135,9 @@ npm install -D @rolldown/plugin-babel babel-plugin-react-compiler
 Then configure both plugins:
 
 ```ts
-import { defineConfig } from 'vite'
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import { defineConfig } from "vite";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
 
 export default defineConfig({
   plugins: [
@@ -144,7 +146,7 @@ export default defineConfig({
       presets: [reactCompilerPreset()],
     }),
   ],
-})
+});
 ```
 
 Supported preset options are:
@@ -158,11 +160,11 @@ For example:
 babel({
   presets: [
     reactCompilerPreset({
-      compilationMode: 'annotation',
-      target: '18',
+      compilationMode: "annotation",
+      target: "18",
     }),
   ],
-})
+});
 ```
 
 The helper's shape is:
@@ -174,10 +176,10 @@ reactCompilerPreset(options?): RolldownBabelPreset
 A plain script can reach the named export, although actual compiler transformation requires the Vite/Rolldown Babel integration and its peer dependencies:
 
 ```ts pmcp-example
-import assert from 'node:assert/strict'
-import { reactCompilerPreset } from '@vitejs/plugin-react'
+import assert from "node:assert/strict";
+import { reactCompilerPreset } from "@vitejs/plugin-react";
 
-assert.equal(typeof reactCompilerPreset, 'function')
+assert.equal(typeof reactCompilerPreset, "function");
 ```
 
 ## Fast Refresh and the preamble
@@ -185,10 +187,14 @@ assert.equal(typeof reactCompilerPreset, 'function')
 The plugin supports Fast Refresh. For SSR HMR, initialization must happen through Vite's `transformIndexHtml` or through the package's preamble entry:
 
 ```ts
-import '@vitejs/plugin-react/preamble'
+import "@vitejs/plugin-react/preamble";
 ```
 
-The package export `./preamble` points to `./types/preamble.d.ts`, so this entry is types-only at package level. It is not a standalone runtime helper to execute in a direct Bun script.
+The manifest points this entry at a type declaration, while Vite's plugin resolves
+the runtime preamble during application transformation. Use the entry through
+Vite's SSR/client pipeline. Its manifest alone does not mean the Vite integration
+has no runtime implementation, and direct Node/Bun imports are not an equivalent
+test of that integration.
 
 Without the equivalent initialization, the documented failure is:
 
@@ -202,12 +208,17 @@ Uncaught Error: @vitejs/plugin-react can't detect preamble. Something is wrong.
 - Installing or configuring this as a raw Rollup plugin. v6 is coupled to Vite/Rolldown APIs.
 - Assuming `reactCompilerPreset()` replaces `@rolldown/plugin-babel` and `babel-plugin-react-compiler`. It does not; configure both plugins and install the peer dependencies.
 - Forgetting that v6 requires Vite 8+. Vite 7 and earlier are unsupported.
-- Treating `@vitejs/plugin-react/preamble` as a normal runtime utility. The package export is types-only; use the documented Vite/SSR integration context.
+- Importing `@vitejs/plugin-react/preamble` as a standalone Node runtime utility.
+  Use the documented Vite integration that supplies its runtime initialization.
 - Expecting a direct script to transform JSX. The package's normal transformation and Fast Refresh behavior are exercised by Vite.
 
 ## Does not cover
 
-This skill does not cover Vite application setup, Vite's full plugin-hook lifecycle, SSR implementation, `transformIndexHtml` configuration, Rolldown Babel plugin options beyond the shown integration, Babel plugin authoring, React Compiler behavior itself, or JSX transformation outside Vite. Those require the corresponding tools and configuration rather than this package alone.
+This skill does not cover SSR implementation, the complete Vite plugin lifecycle,
+Babel plugin authoring, React Compiler behavior or JSX transformation outside
+Vite. Compiler options introduced by later minors need the installed version's
+source and peer checks; do not enable an experimental compiler as part of an
+ordinary plugin configuration fix.
 
 Sources:
 

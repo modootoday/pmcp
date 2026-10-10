@@ -3,6 +3,7 @@
     {
       "label": "Testing",
       "packages": [
+        "@testing-library/react",
         "allure-js-commons",
         "chai",
         "deep-eql",
@@ -105,6 +106,7 @@
         "mdx-bundler",
         "release-it",
         "rolldown",
+        "tailwindcss",
         "tsup",
         "vite"
       ]

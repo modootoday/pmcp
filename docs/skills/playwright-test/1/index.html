@@ -2,15 +2,15 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>@playwright/test 1.x — PMCP</title>
-  <meta name="description" content="Use @playwright/test 1.x correctly: distinguish its runner-managed test API from standalone imports, configure projects, define fixtures, and compose test/assertion extensions." />
+  <title>Playwright Test 1.x — PMCP</title>
+  <meta name="description" content="Run isolated browser assertions with locator waits and guaranteed fixture teardown." />
   <link rel="canonical" href="https://pmcp.build/skills/playwright-test/1/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
-  <meta property="og:title" content="@playwright/test 1.x — PMCP" />
-  <meta property="og:description" content="Use @playwright/test 1.x correctly: distinguish its runner-managed test API from standalone imports, configure projects, define fixtures, and compose test/assertion extensions." />
+  <meta property="og:title" content="Playwright Test 1.x — PMCP" />
+  <meta property="og:description" content="Run isolated browser assertions with locator waits and guaranteed fixture teardown." />
   <meta property="og:url" content="https://pmcp.build/skills/playwright-test/1/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -36,20 +36,23 @@
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/playwright-test/">Other majors</a></p>
-    <h1>@playwright/test 1.x</h1><p>Use @playwright/test 1.x correctly: distinguish its runner-managed test API from standalone imports, configure projects, define fixtures, and compose test/assertion extensions.</p>
-    <dl><dt>For</dt><dd><code>@playwright/test@1.63.0</code></dd><dt>Verified</dt><dd>2026-09-07, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-playwright-test@1.0.1</code></dd></dl>
+    <h1>Playwright Test 1.x</h1><p>Run isolated browser assertions with locator waits and guaranteed fixture teardown.</p>
+    <dl><dt>For</dt><dd><code>@playwright/test@1.63.0</code></dd><dt>Verified</dt><dd>2026-10-10, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-playwright-test@1.0.2</code></dd></dl>
     <section class="skill-download"><h2>Use this skill for free</h2>
     <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
     <p><a href="/skills/playwright-test/1/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/playwright-test/1/package.tgz" download>Download package archive</a></p>
     <pre><code>npm install --save-dev https://pmcp.build/skills/playwright-test/1/package.tgz</code></pre>
     <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
-    <details><summary>Archive integrity</summary><code>sha512-Y0NDwRnbmmbJJtNICTHRx/LicLp2OrIX58y/jY+Jb+kJV3irj3zFJ27+k7DHMnRvT4a+z+6MXYB0O7RDuo/uUQ==</code></details></section>
+    <details><summary>Archive integrity</summary><code>sha512-tkOhO8opzbTEKHhUKS35AW1h3tdZk2kDt8KkFaYWkPHZTc0WoBJ1bKJAVk7jaMjrR4e+yZXuBKX0ZFJlz1L9fg==</code></details></section>
     <section class="skill-source"><h2>Complete instructions</h2><p>Verified against @playwright/test@1.63.0 on 2026-09-07. 5 of 5 examples executed.</p>
+<p>The five historical examples below exercise standalone imports and API shape.
+They do not run browser tests. The separate runner fixture verifies Chromium
+interaction, context isolation and custom fixture setup/teardown.</p>
 <h2>@playwright/test</h2>
 <h3>Scope and package shape</h3>
 <p><code>@playwright/test</code> is the Playwright Test runner package. The <code>^1.0.0</code> range stays within the 1.x major; the researched npm entry currently shows <code>1.63.0</code>.</p>
 <p>The package entry point re-exports <code>playwright/test</code> and its default export. The main authoring surface is:</p>
-<pre><code class="language-ts">import { test, expect } from &#39;@playwright/test&#39;;
+<pre><code class="language-ts">import { test, expect } from &quot;@playwright/test&quot;;
 </code></pre>
 <p><code>test(title, body)</code> and <code>test(title, details, body)</code> declare tests. <code>expect(value)</code> provides generic assertions and web-first asynchronous assertions.</p>
 <p>Tests are normally executed by the Playwright runner:</p>
@@ -59,10 +62,10 @@ npx playwright test
 <p>The runner supplies fixtures such as <code>{ page }</code>, handles isolation, retries, workers, and reporters, and consumes configuration. A fixture argument is not created merely by calling a test function in an ordinary script.</p>
 <h3>The common shape mistake</h3>
 <p>Do not translate older Puppeteer or Jest-style code directly into this package. The older pattern manually launches a browser, creates a page, uses <code>describe</code>/<code>it</code>, and manages lifecycle with hooks. The Playwright Test shape imports <code>test</code> and <code>expect</code>, and receives an isolated fixture from the runner:</p>
-<pre><code class="language-ts">import { test, expect } from &#39;@playwright/test&#39;;
+<pre><code class="language-ts">import { test, expect } from &quot;@playwright/test&quot;;
 
-test(&#39;basic test&#39;, async ({ page }) =&gt; {
-  await page.goto(&#39;https://playwright.dev/&#39;);
+test(&quot;basic test&quot;, async ({ page }) =&gt; {
+  await page.goto(&quot;https://playwright.dev/&quot;);
   await expect(page).toHaveTitle(/Playwright/);
 });
 </code></pre>
@@ -72,66 +75,74 @@ test(&#39;basic test&#39;, async ({ page }) =&gt; {
 <p>The following examples are deliberately runnable as independent files with <code>bun example.ts</code>. They do not start the test runner, launch a browser, use the network, or require a config file.</p>
 <h4>Generic <code>expect</code></h4>
 <p><code>expect</code> can be used for ordinary synchronous assertions without a runner.</p>
-<pre><code class="language-ts">import { expect } from &#39;@playwright/test&#39;;
+<pre><code class="language-ts">import { expect } from &quot;@playwright/test&quot;;
 
-const value = { status: &#39;ready&#39;, count: 2 };
-expect(value.status).toBe(&#39;ready&#39;);
+const value = { status: &quot;ready&quot;, count: 2 };
+expect(value.status).toBe(&quot;ready&quot;);
 expect(value.count).toBeGreaterThan(1);
-expect(value).toEqual({ status: &#39;ready&#39;, count: 2 });
+expect(value).toEqual({ status: &quot;ready&quot;, count: 2 });
 </code></pre>
 <h4>Configuration with <code>defineConfig</code></h4>
 <p><code>defineConfig</code> returns configuration for the Playwright runner. It does not execute the runner in a plain script.</p>
-<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
-import { defineConfig } from &#39;@playwright/test&#39;;
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { defineConfig } from &quot;@playwright/test&quot;;
 
 const config = defineConfig({ fullyParallel: true });
 assert.equal(config.fullyParallel, true);
 </code></pre>
 <h4>Device descriptors</h4>
 <p><code>devices</code> supplies device descriptors for project configuration. The descriptor can be inspected without launching a browser.</p>
-<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
-import { devices } from &#39;@playwright/test&#39;;
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { devices } from &quot;@playwright/test&quot;;
 
-const desktopChrome = devices[&#39;Desktop Chrome&#39;];
+const desktopChrome = devices[&quot;Desktop Chrome&quot;];
 assert.ok(desktopChrome);
-assert.equal(typeof desktopChrome, &#39;object&#39;);
+assert.equal(typeof desktopChrome, &quot;object&quot;);
 </code></pre>
 <h4>Custom fixtures with <code>test.extend</code></h4>
 <p><code>test.extend()</code> creates a test object with custom fixtures. The fixture callback is consumed when the Playwright runner executes a test; creating the extended test object itself is safe in a plain script.</p>
-<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
-import { test as base } from &#39;@playwright/test&#39;;
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { test as base } from &quot;@playwright/test&quot;;
 
 const customTest = base.extend&lt;{ account: { username: string } }&gt;({
   account: async ({}, use) =&gt; {
-    await use({ username: &#39;user&#39; });
+    await use({ username: &quot;user&quot; });
   },
 });
 
-assert.equal(typeof customTest, &#39;function&#39;);
-assert.equal(typeof customTest.extend, &#39;function&#39;);
+assert.equal(typeof customTest, &quot;function&quot;);
+assert.equal(typeof customTest.extend, &quot;function&quot;);
 </code></pre>
 <p>A normal fixture-backed spec exports or uses this extended test with the runner:</p>
-<pre><code class="language-ts">import { test as base, expect } from &#39;@playwright/test&#39;;
+<pre><code class="language-ts">import { test as base, expect } from &quot;@playwright/test&quot;;
 
 export const test = base.extend&lt;{ account: { username: string } }&gt;({
   account: async ({}, use) =&gt; {
-    await use({ username: &#39;user&#39; });
+    await use({ username: &quot;user&quot; });
   },
 });
 
-export { expect } from &#39;@playwright/test&#39;;
+export { expect } from &quot;@playwright/test&quot;;
 </code></pre>
-<p>Built-in fixtures documented by the research include <code>page</code>, <code>context</code>, <code>browser</code>, <code>browserName</code>, <code>request</code>, and <code>mount</code>. Their values are prepared by Playwright Test rather than by a direct script.</p>
+<p>Built-in fixtures include page, context, browser, browserName and request. Their
+values are prepared by Playwright Test rather than by a direct script. mount
+belongs to the separate component-testing packages; it is not supplied by the
+ordinary @playwright/test runner.</p>
 <h4>Combining test and assertion extensions</h4>
 <p><code>mergeTests</code> combines fixture-bearing test objects, while <code>mergeExpects</code> combines assertion libraries. These are composition helpers for runner-oriented test modules.</p>
-<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
-import { mergeTests, mergeExpects, test as base, expect as baseExpect } from &#39;@playwright/test&#39;;
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import {
+  mergeTests,
+  mergeExpects,
+  test as base,
+  expect as baseExpect,
+} from &quot;@playwright/test&quot;;
 
 const mergedTest = mergeTests(base, base);
 const mergedExpect = mergeExpects(baseExpect, baseExpect);
 
-assert.equal(typeof mergedTest, &#39;function&#39;);
-assert.equal(typeof mergedExpect, &#39;function&#39;);
+assert.equal(typeof mergedTest, &quot;function&quot;);
+assert.equal(typeof mergedExpect, &quot;function&quot;);
 </code></pre>
 <h3>Runner-only operations</h3>
 <p>Use a Playwright spec and invoke the runner for:</p>
@@ -143,8 +154,56 @@ assert.equal(typeof mergedExpect, &#39;function&#39;);
 <li>Configuration supplied through <code>defineConfig</code>.</li>
 </ul>
 <p>The runner can also be invoked with <code>npx playwright test --ui</code>, and its report can be displayed with <code>npx playwright show-report</code>.</p>
-<h3>What this skill does not cover</h3>
-<p>This skill does not cover the complete <code>test</code> API, every matcher, browser-launching details, locator usage, request APIs, fixture lifecycle details, configuration options beyond the researched examples, CLI flags beyond those shown, reporter configuration, or the separate <code>playwright</code> library API. It also does not provide a standalone replacement for the Playwright Test runner; runner-managed tests must be exercised by the tool itself.</p>
+<h3>Execute the actual runner</h3>
+<p>Use the installed package&#39;s browser revisions. Updating Playwright can require
+updating its browsers; inspect executable availability before downloading or
+forcing a different executable. A cached Chromium from another revision is not
+proof that the selected Playwright version is supported. Use the project&#39;s
+approved browser-install procedure when installation is necessary.</p>
+<pre><code class="language-ts">import { defineConfig } from &quot;@playwright/test&quot;;
+
+export default defineConfig({
+  testDir: &quot;./tests&quot;,
+  workers: 1,
+  retries: 0,
+  forbidOnly: true,
+  use: { headless: true },
+  projects: [{ name: &quot;chromium&quot;, use: { browserName: &quot;chromium&quot; } }],
+});
+</code></pre>
+<p>Workers and retries are product-specific choices; one worker and no retries keep
+a bounded verification fixture explicit. Review failed checks before masking them
+with retries. Await locator actions and web-first assertions. Prefer accessible
+role/name locators over CSS internals or arbitrary sleep delays.</p>
+<pre><code class="language-ts">test(&quot;increments the visible count&quot;, async ({ page }) =&gt; {
+  await page.goto(&quot;/&quot;);
+  await page.getByRole(&quot;button&quot;, { name: &quot;Increment&quot;, exact: true }).click();
+  await expect(page.getByRole(&quot;status&quot;)).toHaveText(&quot;1&quot;);
+});
+</code></pre>
+<p>For application navigation, configure baseURL and an owned webServer with a
+readiness URL, bounded startup timeout and teardown. Do not attach a fixture to
+an unrelated existing production server. Use page.setContent for a deliberately
+self-contained DOM/browser fixture; it does not verify application routing,
+network behavior or deployment assets.</p>
+<p>Browser contexts isolate tests. Keep authentication state and credentials out of
+published fixtures. Custom fixtures bracket their resources around await use
+and clean up afterward. Inspect the runner report for unexpected, skipped and
+flaky results, not just a zero process exit code. The current fixture runs two
+browser tests and separately verifies the recorded lifecycle teardown.</p>
+<h3>Does not cover</h3>
+<p>This skill does not cover every matcher, component-testing mount APIs,
+application authentication, production deployment or the separate playwright
+library&#39;s complete API. Use the actual project environment for routing and
+end-to-end integration; standalone helpers do not replace the runner.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://playwright.dev/docs/test-configuration">Runner configuration</a></li>
+<li><a href="https://playwright.dev/docs/browsers">Browser installation and revisions</a></li>
+<li><a href="https://playwright.dev/docs/test-fixtures">Test fixtures</a></li>
+<li><a href="https://playwright.dev/docs/locators">Locators</a></li>
+<li><a href="https://playwright.dev/docs/test-webserver">Owned web servers</a></li>
+</ul>
 </section></article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>

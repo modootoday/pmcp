@@ -1,0 +1,13 @@
+{
+  "name": "pmcp-vite8-verification",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "vite": "8.2.2",
+    "@vitejs/plugin-react": "6.1.1",
+    "tailwindcss": "4.3.3",
+    "@tailwindcss/vite": "4.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}

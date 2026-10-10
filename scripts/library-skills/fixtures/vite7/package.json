@@ -1,0 +1,11 @@
+{
+  "name": "pmcp-vite7-verification",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "vite": "7.3.6",
+    "@vitejs/plugin-react": "5.2.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}

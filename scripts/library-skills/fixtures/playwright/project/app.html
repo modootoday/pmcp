@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Browser fixture</title>
+  </head>
+  <body>
+    <button type="button" id="increment">Increment</button>
+    <output role="status" id="count">0</output>
+    <script>
+      let count = 0;
+      document.getElementById("increment").addEventListener("click", () => {
+        count += 1;
+        document.getElementById("count").textContent = String(count);
+      });
+    </script>
+  </body>
+</html>

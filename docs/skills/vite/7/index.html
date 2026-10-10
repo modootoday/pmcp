@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vite 7.x — PMCP</title>
+  <meta name="description" content="Build React applications and keep browser environment values within the public boundary." />
+  <link rel="canonical" href="https://pmcp.build/skills/vite/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Vite 7.x — PMCP" />
+  <meta property="og:description" content="Build React applications and keep browser environment values within the public boundary." />
+  <meta property="og:url" content="https://pmcp.build/skills/vite/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/vite/">Other majors</a></p>
+    <h1>Vite 7.x</h1><p>Build React applications and keep browser environment values within the public boundary.</p>
+    <dl><dt>For</dt><dd><code>vite@7.3.6</code></dd><dt>Verified</dt><dd>2026-10-10, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-vite@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/vite/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/vite/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/vite/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-Qm3NdBtXV0Mek4aVYwMKrYGwGNB9KqBnBwV07/IUJKb9hFqAD+ZwISTQ0iq3j0ZTHlVHqFjgboxoPzlSUXpjMw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>Vite 7 application workflows</h2>
+<p>Read the installed Vite, Node and plugin versions first. Vite 7 requires Node
+20.19+ or 22.12+. The fixture uses Vite 7.3.6 with @vitejs/plugin-react 5.2.0;
+plugin-react 6 requires Vite 8 and must not be added to a Vite 7 configuration.</p>
+<h3>Configure the existing application</h3>
+<p>Preserve the project&#39;s framework plugin, entry HTML and package manager. Vite
+transforms TypeScript syntax but does not perform application typechecking; run
+the project&#39;s TypeScript check separately.</p>
+<pre><code class="language-ts">import { defineConfig } from &quot;vite&quot;;
+import react from &quot;@vitejs/plugin-react&quot;;
+
+export default defineConfig({
+  plugins: [react()],
+  base: &quot;/app/&quot;,
+  build: { target: &quot;es2022&quot; },
+});
+</code></pre>
+<p>Use base for the deployment prefix and verify the built HTML&#39;s asset references.
+Do not fix a subpath deployment by hardcoding asset paths throughout components.
+Import assets from application modules when they belong to the build graph; use
+public for files that need their original filename and are copied without bundling.</p>
+<h3>Environment and security boundaries</h3>
+<p>Client code reads import.meta.env. VITE_-prefixed variables are exposed to client
+code and must contain public data only. Values are strings except Vite&#39;s built-in
+boolean properties. Changing envPrefix or define can expose additional values;
+do not serialize process.env into a browser bundle.</p>
+<p>Mode selects the .env files, while NODE_ENV has a different responsibility.
+Restart the dev server after changing environment files. Test the selected mode
+and production artifact instead of relying on a value seen in a development tab.</p>
+<h3>Build, preview and development lifecycle</h3>
+<p>Use the existing scripts for vite, vite build and vite preview. A preview server
+checks the built application and is not the production web server. Validate the
+application&#39;s runtime through its actual browser test runner when behavior,
+accessibility or CSS layout changes.</p>
+<p>Programmatic integration must own shutdown:</p>
+<pre><code class="language-ts">import { createServer } from &quot;vite&quot;;
+
+const server = await createServer({
+  server: { host: &quot;127.0.0.1&quot;, port: 0, open: false },
+});
+
+try {
+  await server.listen();
+  await server.transformRequest(&quot;/src/main.tsx&quot;);
+} finally {
+  await server.close();
+}
+</code></pre>
+<p>Use transformIndexHtml in a custom HTML-serving integration so plugin-injected
+scripts, including React&#39;s Fast Refresh initialization, are present. Serving the
+original index.html unchanged bypasses this integration.</p>
+<p>When running build and dev APIs in one owned process, instantiate plugins
+separately for each configuration. Build resolution can set NODE_ENV to production
+and plugins can retain command-specific state. Restore the intended development
+environment explicitly before creating the dev server and restore the caller&#39;s
+environment afterward; changing mode alone does not reset NODE_ENV.</p>
+<h3>Diagnose by stage</h3>
+<ul>
+<li>Dev succeeds but build fails: inspect build inputs, import resolution, target
+and Rollup plugin behavior. Do not assume the development dependency optimizer
+establishes production compatibility.</li>
+<li>Build succeeds but deployment loses assets: check base, server routing and the
+produced asset URLs before changing component paths.</li>
+<li>JSX appears untransformed or Refresh fails: inspect the React plugin, file
+include filters and transformed HTML. Keep component exports compatible with
+Fast Refresh instead of disabling updates globally.</li>
+<li>Types fail but the bundle works: fix the TypeScript project and declaration
+boundaries; Vite does not replace the compiler check.</li>
+</ul>
+<p>Vite 7 uses build.rollupOptions and esbuild-oriented transformation settings.
+Keep Vite 8 migration choices separate. The fixture checks a production build,
+public-variable replacement, base-aware assets, development TSX transformation,
+Refresh HTML injection and shutdown. It does not prove browser rendering or SSR.
+The API fixture disables file watching with server.watch set to null, disables
+dependency discovery and uses an empty optimization include list after framework
+configuration. It does not validate file-change HMR or dependency pre-bundling,
+or claim that these settings are suitable for a browser application. CommonJS
+dependencies normally need optimization during development.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://v7.vite.dev/guide/">Vite 7 getting started</a></li>
+<li><a href="https://v7.vite.dev/guide/env-and-mode">Vite 7 environment variables</a></li>
+<li><a href="https://v7.vite.dev/guide/build">Vite 7 production builds</a></li>
+<li><a href="https://v7.vite.dev/guide/api-javascript">Vite 7 JavaScript API</a></li>
+<li><a href="https://vite.dev/config/dep-optimization-options">Dependency optimization options</a></li>
+<li><a href="https://vite.dev/config/server-options#server-watch">Server file watching</a></li>
+<li><a href="https://vite.dev/guide/api-plugin#config">Plugin configuration hooks</a></li>
+<li><a href="https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react">Vite React plugin</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

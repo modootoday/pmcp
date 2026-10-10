@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React Testing Library 16.x — PMCP</title>
+  <meta name="description" content="Test accessible interactions and async state with user events and explicit cleanup." />
+  <link rel="canonical" href="https://pmcp.build/skills/testing-library-react/16/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="React Testing Library 16.x — PMCP" />
+  <meta property="og:description" content="Test accessible interactions and async state with user events and explicit cleanup." />
+  <meta property="og:url" content="https://pmcp.build/skills/testing-library-react/16/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/testing-library-react/">Other majors</a></p>
+    <h1>React Testing Library 16.x</h1><p>Test accessible interactions and async state with user events and explicit cleanup.</p>
+    <dl><dt>For</dt><dd><code>@testing-library/react@16.3.3</code></dd><dt>Verified</dt><dd>2026-10-10, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-testing-library-react@16.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/testing-library-react/16/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/testing-library-react/16/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/testing-library-react/16/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-fljGbhDb7GWNm4llPCB5E2Pir7tmnPSkbWXbKEtyq/+KO0IEuA/V5Qc+C3ddwSBbpB0heaKa0dEsmEEG1s4UUw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>React Testing Library 16</h2>
+<p>Read the project&#39;s runner, environment and installed peer versions. React Testing
+Library 16 works with React 18 or 19 and needs DOM Testing Library 10. The fixture
+uses @testing-library/react 16.3.3, @testing-library/dom 10.4.2,
+@testing-library/user-event 14.6.7 and matching React/React DOM 19.2.8.
+These companion packages have different majors; their versions must not be
+inferred from the React Testing Library version.</p>
+<h3>Configure the actual environment</h3>
+<p>Use the application&#39;s existing Jest or Vitest runner. React Testing Library does
+not require Jest. Set a DOM environment such as jsdom and use the runner&#39;s
+compatible assertion library. A plain Node import does not create document.</p>
+<p>For Vitest with globals disabled, register cleanup explicitly:</p>
+<pre><code class="language-ts">import { afterEach } from &quot;vitest&quot;;
+import { cleanup } from &quot;@testing-library/react&quot;;
+
+afterEach(cleanup);
+</code></pre>
+<p>When the existing runner already supplies automatic cleanup, preserve its single
+cleanup owner instead of stacking multiple independent setup systems. Custom
+matchers such as toBeInTheDocument need @testing-library/jest-dom configured for
+the selected runner; they are not supplied by React Testing Library itself.</p>
+<h3>Describe the user-visible contract</h3>
+<p>Prefer role with accessible name, then labels or text appropriate to the task.
+Use a test ID when the semantic surface cannot identify the intended element.
+Avoid querying generated classes, component instances or internal state.</p>
+<pre><code class="language-tsx">import { render, screen } from &quot;@testing-library/react&quot;;
+import userEvent from &quot;@testing-library/user-event&quot;;
+import { expect, test } from &quot;vitest&quot;;
+import { NameForm } from &quot;./name-form&quot;;
+
+test(&quot;saves the entered name&quot;, async () =&gt; {
+  const user = userEvent.setup();
+  render(&lt;NameForm /&gt;);
+  await user.type(screen.getByRole(&quot;textbox&quot;, { name: &quot;Name&quot; }), &quot;Ada&quot;);
+  await user.click(screen.getByRole(&quot;button&quot;, { name: &quot;Save&quot; }));
+  expect((await screen.findByRole(&quot;status&quot;)).textContent).toBe(&quot;Saved Ada&quot;);
+});
+</code></pre>
+<p>This is an application test pattern; NameForm belongs to the consumer application.
+The fixture supplies its own bounded component and mocked persistence function.</p>
+<p>Use getBy for something already present, queryBy for absence and findBy when it
+will appear asynchronously. Scope repeated UI with within rather than choosing an
+arbitrary array position. Await user-event interactions; it models event sequences
+and interactability more closely than a single fireEvent call. Reserve fireEvent
+for the low-level interaction that the chosen test genuinely needs.</p>
+<h3>Synchronize and isolate</h3>
+<p>React Testing Library wraps its renderer operations in act. Prefer awaited user
+interactions and asynchronous queries before adding a manual act wrapper. A warning
+often indicates unfinished work or a test that stops before the behavior settles.
+Use waitFor for a condition, not an arbitrary sleep, and keep side effects outside
+its retried callback.</p>
+<p>Create userEvent.setup inside each test. When using fake timers, pass the runner&#39;s
+timer-advancement function through advanceTimers and restore real timers after
+the test; setting delay: null can hide an incorrect timer integration.</p>
+<p>Unmount components and verify cleanup when the behavior involves subscriptions or
+external resources. Mock at the application&#39;s actual boundary and exercise a
+failure path as well as success. Keep DOM globals local to the chosen test
+environment; layout, navigation and browser APIs require a real browser test.</p>
+<p>The fixture runs three actual Vitest/jsdom tests: asynchronous save success,
+error presentation and effect cleanup on unmount. It does not establish browser
+layout, React Native behavior or framework-specific rendering.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://testing-library.com/docs/react-testing-library/setup/">React Testing Library setup</a></li>
+<li><a href="https://testing-library.com/docs/queries/about/">DOM query semantics</a></li>
+<li><a href="https://testing-library.com/docs/user-event/setup/">user-event setup</a></li>
+<li><a href="https://testing-library.com/docs/user-event/options/">user-event options and timers</a></li>
+<li><a href="https://testing-library.com/docs/react-testing-library/api/">React Testing Library API</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>
