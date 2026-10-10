@@ -1,540 +1,247 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Terminal workspace — pmcp</title>
-    <meta
-      name="description"
-      content="View a native main runtime and its workers with read-only observation and explicit control."
-    />
-    <link rel="canonical" href="https://pmcp.build/terminal-workspace/" />
-    <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
-    <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="PMCP" />
-    <meta property="og:title" content="Terminal workspace — pmcp" />
-    <meta
-      property="og:description"
-      content="View a native main runtime and its workers with read-only observation and explicit control."
-    />
-    <meta property="og:url" content="https://pmcp.build/terminal-workspace/" />
-  </head>
-  <body>
-    <a class="skip" href="#main">Skip to content</a>
-    <div id="frame">
-      <div class="site">
-        <header class="site-header">
-          <a class="wordmark" href="/" aria-label="PMCP homepage"
-            >pmcp<span>_</span></a
-          >
-          <nav aria-label="Main navigation">
-            <a href="/#capabilities">Product</a>
-            <a href="/skills/">Free skills</a>
-            <a href="/examples/">Examples</a>
-            <a href="/guide/">Docs</a>
-            <a href="https://github.com/modootoday/pmcp">GitHub</a>
-          </nav>
-          <a class="button header-start" href="/guide/">Get started</a>
-        </header>
-        <main id="main">
-          <div class="docs-layout">
-            <aside>
-              <details open>
-                <summary>Documentation</summary>
-                <nav aria-label="Documentation">
-                  <a href="/guide/">Getting started</a>
-                  <a href="/install/">Installation</a>
-                  <a href="/project-configuration/">Project configuration</a>
-                  <a href="/skills-reference/">Skills and MCP reference</a>
-                  <a href="/manual-library-skills/">Manual library skills</a>
-                  <a href="/embeddings/">Embedding models</a>
-                  <a href="/mailbox/">Local mailbox</a>
-                  <a href="/hosting/">HTTP hosting</a>
-                  <a href="/terminal-harness/">Native terminal control</a>
-                  <a href="/terminal-workspace/" aria-current="page"
-                    >Terminal workspace</a
-                  >
-                  <a href="/authoring/">Authoring skills</a>
-                  <a href="/commands/">Command reference</a>
-                  <a href="/compare/">Working model</a>
-                  <a href="/licence/">Licence</a>
-                </nav>
-              </details>
-            </aside>
-            <article class="docs-body">
-              <p class="breadcrumb">
-                <a href="/guide/">Docs</a> / Terminal workspace
-              </p>
-              <h1>Terminal workspace</h1>
-              <p>
-                Use <code>pmcp tui</code> to view an existing main runtime and
-                its workers in one terminal. The main conversation stays in its
-                native interface. PMCP adds a worker dock, coordination panel
-                and explicit control switching. Provider login, folder trust and
-                tool approvals stay in their native screens.
-              </p>
-              <p>
-                This feature requires PMCP 0.13.0 or later. The host requires
-                Linux, tmux, util-linux flock, Node.js 22 or later and a working
-                user systemd manager. The PMCP CLI supports Node or Bun; pane
-                helpers use Node. The presentation gets its own 512 MiB,
-                128-task, one-CPU scope. Native sessions retain their existing
-                group budgets and execution profile.
-              </p>
-              <h2>Open a workspace</h2>
-              <p>
-                The numbered runtime picker, worker menu and
-                worker-start/recovery commands in this guide target development
-                source. npm 0.15.0 includes the original launcher; these
-                additions await the next release.
-              </p>
-              <p>
-                From a supported interactive terminal, run <code>pmcp</code> or
-                <code>pmcp tui</code>. The first launch lists installed
-                runtimes, with a default in this order: Codex, Gemini, agy,
-                Grok, Claude. Enter accepts that default; a number selects
-                another runtime. Confirm with Enter at the start prompt, or
-                enter q to cancel. No provider request or group creation occurs
-                before this confirmation. Use <code>--runtime</code> to skip the
-                picker and choose a supported runtime ID explicitly. Provider
-                login and folder trust still use the native screen.
-              </p>
-              <pre><code>pmcp
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Terminal workspace — pmcp</title>
+  <meta name="description" content="View a native main runtime and its workers with read-only observation and explicit control." />
+  <link rel="canonical" href="https://pmcp.build/terminal-workspace/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Terminal workspace — pmcp" />
+  <meta property="og:description" content="View a native main runtime and its workers with read-only observation and explicit control." />
+  <meta property="og:url" content="https://pmcp.build/terminal-workspace/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/manual-library-skills/">Manual library skills</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/" aria-current="page">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Terminal workspace</p><h1>Terminal workspace</h1>
+<p>Use <code>pmcp tui</code> to view an existing main runtime and its workers in one terminal.
+The main conversation stays in its native interface. PMCP adds a worker dock,
+coordination panel and explicit control switching. Provider login, folder trust
+and tool approvals stay in their native screens.</p>
+<p>This feature requires PMCP 0.13.0 or later. The host requires Linux, tmux,
+util-linux flock, Node.js 22 or later and a working
+user systemd manager. The PMCP CLI supports Node or Bun; pane helpers use Node.
+The presentation gets its own 512 MiB, 128-task, one-CPU scope. Native sessions
+retain their existing group budgets and execution profile.</p>
+<h2>Open a workspace</h2>
+<p>The numbered runtime picker, worker menu and worker-start/recovery commands in
+this guide target development source. npm 0.15.0 includes the original launcher;
+these additions await the next release.</p>
+<p>From a supported interactive terminal, run <code>pmcp</code> or <code>pmcp tui</code>. The first
+launch lists installed runtimes, with a default in this order: Codex, Gemini,
+agy, Grok, Claude. Enter accepts that default; a number selects another runtime.
+Confirm with Enter at the start prompt, or enter q to cancel. No provider request
+or group creation occurs before this confirmation. Use <code>--runtime</code> to skip the
+picker and choose a supported runtime ID explicitly.
+Provider login and folder trust still use the native screen.</p>
+<pre><code>pmcp
 pmcp tui --runtime codex-cli
 pmcp tui plan</code></pre>
-              <p>
-                The start creates a private owned group and read-only view, then
-                reconnects to that workspace on later launches. Defaults are
-                2048 MiB for the group, 768 MiB for its main and at most two
-                active sessions. Terminal size selects the existing A or compact
-                layout. Taking control remains explicit with Ctrl-g then c. This
-                launches a native process; the defaults are cooperative host
-                supervision, not a Docker isolation policy. Use an explicitly
-                configured Docker group when you require that execution profile.
-              </p>
-              <p>
-                After opening a workspace, start a worker without preparing a
-                session JSON file:
-              </p>
-              <pre><code>pmcp tui start-worker --runtime gemini-cli</code></pre>
-              <p>
-                This explicitly starts a worker in the saved project workspace.
-                It uses the configured session memory by default;
-                <code>--memory-mb</code> overrides that reservation. The
-                existing group retains its allowed runtimes, execution profile
-                and budgets. An unavailable main, paused group or stale
-                generation blocks the start. Native login, folder trust and tool
-                approvals remain in the worker&#39;s own screen.
-              </p>
-              <p>
-                In the view, Ctrl-g then n opens a worker picker. It releases
-                input control without submitting the main draft. Select a
-                granted installed runtime and confirm its start; q cancels
-                without creating a worker. The new worker reserves the same
-                memory as the live main, within the existing group limits.
-                Selection does not switch the input target or acquire control.
-                To use a different reservation or an advanced view, run:
-              </p>
-              <pre><code>pmcp tui start-worker --view &quot;$VIEW_FILE&quot; --runtime gemini-cli --memory-mb 512</code></pre>
-              <p>
-                Use either --view or --config. A view start uses its owned group
-                and generation; it does not discover another project workspace.
-                Docker runtime availability follows that group&#39;s command
-                policy rather than host native executables. This worker menu is
-                qualified on native groups; Docker execution remains subject to
-                its separately tested CLI and profile grants.
-              </p>
-              <p>
-                The nearest <code>pmcp.toml</code> within the Git repository
-                determines the project root, including from nested cwd. A
-                submodule does not inherit its parent&#39;s config; use
-                <code>--config</code> when you explicitly want a different
-                configuration scope. Without a config, the current real
-                directory is the project root. Customize only the values you
-                need:
-              </p>
-              <pre><code>[tui]
+<p>The start creates a private owned group and read-only view, then reconnects to
+that workspace on later launches. Defaults are 2048 MiB for the group, 768 MiB
+for its main and at most two active sessions. Terminal size selects the existing
+A or compact layout. Taking control remains explicit with Ctrl-g then c.
+This launches a native process; the defaults are cooperative host supervision,
+not a Docker isolation policy. Use an explicitly configured Docker group when
+you require that execution profile.</p>
+<p>After opening a workspace, start a worker without preparing a session JSON file:</p>
+<pre><code>pmcp tui start-worker --runtime gemini-cli</code></pre>
+<p>This explicitly starts a worker in the saved project workspace. It uses the
+configured session memory by default; <code>--memory-mb</code> overrides that reservation.
+The existing group retains its allowed runtimes, execution profile and budgets.
+An unavailable main, paused group or stale generation blocks the start. Native
+login, folder trust and tool approvals remain in the worker&#39;s own screen.</p>
+<p>In the view, Ctrl-g then n opens a worker picker. It releases input control
+without submitting the main draft. Select a granted installed runtime and
+confirm its start; q cancels without creating a worker. The new worker reserves
+the same memory as the live main, within the existing group limits. Selection
+does not switch the input target or acquire control. To use a different
+reservation or an advanced view, run:</p>
+<pre><code>pmcp tui start-worker --view &quot;$VIEW_FILE&quot; --runtime gemini-cli --memory-mb 512</code></pre>
+<p>Use either --view or --config. A view start uses its owned group and generation;
+it does not discover another project workspace. Docker runtime availability
+follows that group&#39;s command policy rather than host native executables.
+This worker menu is qualified on native groups; Docker execution remains subject
+to its separately tested CLI and profile grants.</p>
+<p>The nearest <code>pmcp.toml</code> within the Git repository determines the project root,
+including from nested cwd. A submodule does not inherit its parent&#39;s config;
+use <code>--config</code> when you explicitly want a different configuration scope.
+Without a config, the current real directory is the project root. Customize only
+the values you need:</p>
+<pre><code>[tui]
 runtime = &quot;codex-cli&quot;
 memory_mb = 2048
 session_memory_mb = 768
 max_active = 2</code></pre>
-              <p>
-                runtime defaults to auto. Supported IDs are codex-cli,
-                gemini-cli, antigravity, grok-cli and claude-code. CLI
-                <code>--runtime</code> overrides the config for a new main. An
-                optional group_file points to a deliberately selected existing
-                owned group with a live main; relative paths resolve from the
-                config directory. <code>--config</code> selects a config file
-                explicitly. Unknown keys and invalid budgets are errors. Config
-                budget changes apply to a new group; existing groups keep their
-                grants.
-              </p>
-              <p>
-                <code>pmcp tui launch --yes</code> explicitly confirms the first
-                start without the prompt. Launch still requires a supported
-                interactive terminal. <code>pmcp tui plan</code> reports
-                resolved settings and saved paths without writing or invoking a
-                provider. The launcher checkpoint lives under
-                XDG_STATE_HOME/pmcp/launcher, or ~/.local/state/pmcp/launcher,
-                with private file permissions.
-              </p>
-              <p>
-                Reopening never adopts an unrelated tmux session or restarts a
-                stopped main. A paused group, interrupted start or changed
-                generation requires explicit harness inspection and recovery.
-                After explicitly stopping the old owned group,
-                <code>pmcp tui --new</code> creates a new workspace. Detach
-                preserves the existing native process and draft. Closing only
-                the view permits a new presentation over the same live group.
-                Keep original state when investigating a failed start. If a
-                creation checkpoint has no group path yet, keep it for manual
-                inspection; the launcher refuses to infer ownership or restart
-                from that incomplete state.
-              </p>
-              <p>
-                Piped bare launches and leading MCP server options preserve the
-                existing stdio contract. Use <code>pmcp serve</code> explicitly
-                in MCP configuration. Unsupported interactive hosts show help;
-                they do not wait for JSON-RPC input.
-              </p>
-              <h2>Advanced view operations</h2>
-              <p>
-                First
-                <a href="/terminal-harness/"
-                  >create a harness group and its sessions</a
-                >. Set GROUP_FILE to that group&#39;s private state path, then
-                check prerequisites and create a view:
-              </p>
-              <pre><code>pmcp --version
+<p>runtime defaults to auto. Supported IDs are codex-cli, gemini-cli, antigravity,
+grok-cli and claude-code. CLI <code>--runtime</code> overrides the config for a new main.
+An optional group_file points to a deliberately selected existing owned group
+with a live main; relative paths resolve from the config directory. <code>--config</code>
+selects a config file explicitly. Unknown keys and invalid budgets are errors.
+Config budget changes apply to a new group; existing groups keep their grants.</p>
+<p><code>pmcp tui launch --yes</code> explicitly confirms the first start without the prompt.
+Launch still requires a supported interactive terminal. <code>pmcp tui plan</code> reports
+resolved settings and saved paths without writing or invoking a provider.
+The launcher checkpoint lives under XDG_STATE_HOME/pmcp/launcher, or
+~/.local/state/pmcp/launcher, with private file permissions.</p>
+<p>Reopening never adopts an unrelated tmux session or restarts a stopped main.
+A paused group, interrupted start or changed generation requires explicit
+harness inspection and recovery. After explicitly stopping the old owned group,
+<code>pmcp tui --new</code> creates a new workspace. Detach preserves the existing native
+process and draft. Closing only the view permits a new presentation over the
+same live group. Keep original state when investigating a failed start.
+If a creation checkpoint has no group path yet, keep it for manual inspection;
+the launcher refuses to infer ownership or restart from that incomplete state.</p>
+<p>Piped bare launches and leading MCP server options preserve the existing stdio
+contract. Use <code>pmcp serve</code> explicitly in MCP configuration. Unsupported
+interactive hosts show help; they do not wait for JSON-RPC input.</p>
+<h2>Advanced view operations</h2>
+<p>First <a href="/terminal-harness/">create a harness group and its sessions</a>. Set GROUP_FILE
+to that group&#39;s private state path, then check prerequisites and create a view:</p>
+<pre><code>pmcp --version
 pmcp tui doctor
 pmcp tui create --group-file &quot;$GROUP_FILE&quot; --columns 160 --rows 48</code></pre>
-              <p>Set VIEW_FILE to viewFile from the JSON receipt:</p>
-              <pre><code>pmcp tui inspect --view &quot;$VIEW_FILE&quot;
+<p>Set VIEW_FILE to viewFile from the JSON receipt:</p>
+<pre><code>pmcp tui inspect --view &quot;$VIEW_FILE&quot;
 pmcp tui open --view &quot;$VIEW_FILE&quot;</code></pre>
-              <p>
-                Only open requires an interactive terminal. Create can take its
-                dimensions from the current terminal; give both dimensions
-                explicitly when calling from a script. At 120 columns by 32 rows
-                or larger, main fills the left, workers appear on the right, and
-                coordination occupies four bottom rows. Smaller terminals keep a
-                full-width main and a separate management window. The minimum is
-                40 by 12. Views refer to an existing owned group and do not
-                start a provider.
-              </p>
-              <p>
-                Doctor checks host prerequisites, including access to the
-                systemd user manager, and lists native executables found on
-                PATH. An installed executable is not proof of authentication or
-                successful native behavior. The report leaves native acceptance
-                unassessed and does not read authentication profiles.
-              </p>
-              <div class="scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Finding</th>
-                      <th>Next step</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Missing tmux or flock</td>
-                      <td>
-                        Install tmux or util-linux for your Linux distribution
-                        and check PATH in this terminal.
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Unsupported Node</td>
-                      <td>
-                        Select Node.js 22 or later through your existing version
-                        manager, then check node --version.
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Unreachable user manager</td>
-                      <td>
-                        Run systemctl --user status in the same login session;
-                        restore manager access before launching. Doctor does not
-                        start services.
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Missing native runtime</td>
-                      <td>
-                        Install the vendor&#39;s CLI and select its runtime ID
-                        explicitly. Installation alone does not establish login
-                        or folder trust.
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Unsupported terminal host</td>
-                      <td>
-                        Use a qualified Linux host for this workspace. Other
-                        PMCP features keep their own prerequisites.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p>
-                Doctor does not invoke a native runtime, inspect private
-                authentication files, test a model reply or prove cgroup
-                delegation. Native acceptance and isolated execution require
-                separate measurements against the exact installed version.
-              </p>
-              <h3>Measured terminal behavior</h3>
-              <p>
-                Linux acceptance on 2026-10-10 covered the following native
-                main/worker pairs. Each run checked read-only observation,
-                explicit worker input with an actual reply, main draft
-                preservation, resize and detach/reconnect. These bounded checks
-                do not certify every vendor feature or another authentication
-                profile.
-              </p>
-              <div class="scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Native runtime</th>
-                      <th>Tested version</th>
-                      <th>Main and worker terminal checks</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Codex</td>
-                      <td>0.161.0</td>
-                      <td>Passed</td>
-                    </tr>
-                    <tr>
-                      <td>Gemini CLI</td>
-                      <td>0.63.0</td>
-                      <td>Passed</td>
-                    </tr>
-                    <tr>
-                      <td>Grok CLI</td>
-                      <td>1.0.50</td>
-                      <td>Passed</td>
-                    </tr>
-                    <tr>
-                      <td>agy</td>
-                      <td>1.3.3</td>
-                      <td>Passed</td>
-                    </tr>
-                    <tr>
-                      <td>Claude Code</td>
-                      <td>Not measured in this wave</td>
-                      <td>Deferred</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p>
-                Separate synthetic PTY checks cover multiline Korean paste,
-                read-only mouse input, owned history and nested tmux. They do
-                not establish each vendor&#39;s own editing or mouse behavior.
-                Use Ctrl-g then h to read owned history without sending input.
-                Claude acceptance, other operating systems and physical host
-                loss remain outside these results. Docker installation and
-                native credential isolation have separate qualification; this
-                terminal run does not replace them.
-              </p>
-              <h2>Observe and control</h2>
-              <p>Press Ctrl-g, release it, then press a key:</p>
-              <div class="scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Key</th>
-                      <th>Action</th>
-                      <th>CLI operation</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>m</td>
-                      <td>Return to main and release worker control</td>
-                      <td>main</td>
-                    </tr>
-                    <tr>
-                      <td>w or 1–4</td>
-                      <td>Observe a worker</td>
-                      <td>observe --index 1</td>
-                    </tr>
-                    <tr>
-                      <td>n</td>
-                      <td>Choose and confirm a new worker</td>
-                      <td>worker-menu</td>
-                    </tr>
-                    <tr>
-                      <td>c</td>
-                      <td>Request control of the current native target</td>
-                      <td>control</td>
-                    </tr>
-                    <tr>
-                      <td>r</td>
-                      <td>Release control</td>
-                      <td>release</td>
-                    </tr>
-                    <tr>
-                      <td>h</td>
-                      <td>Read owned native history</td>
-                      <td>history</td>
-                    </tr>
-                    <tr>
-                      <td>b</td>
-                      <td>Show configured inbox metadata</td>
-                      <td>mailbox</td>
-                    </tr>
-                    <tr>
-                      <td>g</td>
-                      <td>Open compact management window</td>
-                      <td>management</td>
-                    </tr>
-                    <tr>
-                      <td>d</td>
-                      <td>Detach the view, preserving runtimes</td>
-                      <td>detach</td>
-                    </tr>
-                    <tr>
-                      <td>!</td>
-                      <td>Dismiss the last visible error</td>
-                      <td>dismiss</td>
-                    </tr>
-                    <tr>
-                      <td>?</td>
-                      <td>Show key help</td>
-                      <td>Help in the status line</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p>
-                CLI operations use pmcp tui OPERATION --view
-                &quot;$VIEW_FILE&quot;. Worker indices follow the dock; CLI
-                observe supports all available indices. Press Ctrl-g twice to
-                forward Ctrl-g to the native interface. Native Ctrl-b remains
-                available when you hold control. A surrounding tmux may consume
-                its own prefix first.
-              </p>
-              <p>
-                The status line identifies MAIN or WORKER, its session and
-                OBSERVE / INPUT OFF. Control progresses through REQUESTING
-                CONTROL and CONNECTING WRITER to CONTROL READY. A lease alone
-                does not enable typing: PMCP checks that the writable native
-                client is attached to the selected pane&#39;s TTY. Only CONTROL
-                READY shows INPUT ON. Input stays blocked during acquisition and
-                release. A control lease identifies the writer, not which native
-                prompt or approval menu is active.
-              </p>
-              <p>
-                Another writer causes a visible error with a next step. Failures
-                remain in the status line, coordination panel and inspect
-                receipt until explicitly dismissed. Resize does not clear them.
-                CONTROL UNKNOWN blocks input and requires inspection. PMCP never
-                replays uncertain input. An input receipt or mailbox ACK does
-                not establish model completion. Provider state remains unknown.
-              </p>
-              <h2>History and mailbox</h2>
-              <p>
-                History reads only the owned runtime pane, bounded to 2000 lines
-                and 64 KiB. It does not include shell history from before the
-                runtime. The history panel supports tmux copy mode; returning to
-                main preserves its native draft. Closing the view removes its
-                private history cache.
-              </p>
-              <p>
-                To observe inbox metadata, supply an explicitly chosen mailbox
-                observer actor:
-              </p>
-              <pre><code>pmcp tui create --group-file &quot;$GROUP_FILE&quot; --columns 160 --rows 48 --config ./pmcp.toml --actor-file &quot;$OBSERVER_ACTOR_FILE&quot;</code></pre>
-              <p>
-                The actor must have no live attachment. PMCP uses the existing
-                mailbox service and refuses a conflicting attachment. The panel
-                shows message, thread and reply IDs. It never reads bodies,
-                marks messages read, acknowledges them, submits input or wakes a
-                runtime. Use the <a href="/mailbox/">mailbox CLI</a> for those
-                explicit actions. The view stores the private credential file
-                reference, not its contents.
-              </p>
-              <h2>Detach, close and stop</h2>
-              <p>
-                Detach preserves processes and drafts. Reopening returns to
-                read-only main observation after releasing this view&#39;s
-                control. A lost outer terminal also requests release; a crash or
-                unreachable manager may prevent confirmation. Inspect before
-                retrying, without replaying input:
-              </p>
-              <pre><code>pmcp harness recovery inspect --group-file &quot;$GROUP_FILE&quot;
+<p>Only open requires an interactive terminal. Create can take its dimensions from
+the current terminal; give both dimensions explicitly when calling from a script.
+At 120 columns by 32 rows or larger, main fills the left, workers appear on the
+right, and coordination occupies four bottom rows. Smaller terminals keep a
+full-width main and a separate management window. The minimum is 40 by 12.
+Views refer to an existing owned group and do not start a provider.</p>
+<p>Doctor checks host prerequisites, including access to the systemd user manager,
+and lists native executables found on PATH. An installed executable is not proof
+of authentication or successful native behavior. The report leaves native
+acceptance unassessed and does not read authentication profiles.</p>
+<div class="scroll"><table><thead><tr><th>Finding</th><th>Next step</th></tr></thead><tbody><tr><td>Missing tmux or flock</td><td>Install tmux or util-linux for your Linux distribution and check PATH in this terminal.</td></tr>
+<tr><td>Unsupported Node</td><td>Select Node.js 22 or later through your existing version manager, then check node --version.</td></tr>
+<tr><td>Unreachable user manager</td><td>Run systemctl --user status in the same login session; restore manager access before launching. Doctor does not start services.</td></tr>
+<tr><td>Missing native runtime</td><td>Install the vendor&#39;s CLI and select its runtime ID explicitly. Installation alone does not establish login or folder trust.</td></tr>
+<tr><td>Unsupported terminal host</td><td>Use a qualified Linux host for this workspace. Other PMCP features keep their own prerequisites.</td></tr></tbody></table></div>
+<p>Doctor does not invoke a native runtime, inspect private authentication files,
+test a model reply or prove cgroup delegation. Native acceptance and isolated
+execution require separate measurements against the exact installed version.</p>
+<h3>Measured terminal behavior</h3>
+<p>Linux acceptance on 2026-10-10 covered the following native main/worker pairs.
+Each run checked read-only observation, explicit worker input with an actual
+reply, main draft preservation, resize and detach/reconnect. These bounded
+checks do not certify every vendor feature or another authentication profile.</p>
+<div class="scroll"><table><thead><tr><th>Native runtime</th><th>Tested version</th><th>Main and worker terminal checks</th></tr></thead><tbody><tr><td>Codex</td><td>0.161.0</td><td>Passed</td></tr>
+<tr><td>Gemini CLI</td><td>0.63.0</td><td>Passed</td></tr>
+<tr><td>Grok CLI</td><td>1.0.50</td><td>Passed</td></tr>
+<tr><td>agy</td><td>1.3.3</td><td>Passed</td></tr>
+<tr><td>Claude Code</td><td>Not measured in this wave</td><td>Deferred</td></tr></tbody></table></div>
+<p>Separate synthetic PTY checks cover multiline Korean paste, read-only mouse
+input, owned history and nested tmux. They do not establish each vendor&#39;s
+own editing or mouse behavior. Use Ctrl-g then h to read owned history without
+sending input. Claude acceptance, other operating systems and physical host
+loss remain outside these results. Docker installation and native credential
+isolation have separate qualification; this terminal run does not replace them.</p>
+<h2>Observe and control</h2>
+<p>Press Ctrl-g, release it, then press a key:</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Action</th><th>CLI operation</th></tr></thead><tbody><tr><td>m</td><td>Return to main and release worker control</td><td>main</td></tr>
+<tr><td>w or 1–4</td><td>Observe a worker</td><td>observe --index 1</td></tr>
+<tr><td>n</td><td>Choose and confirm a new worker</td><td>worker-menu</td></tr>
+<tr><td>c</td><td>Request control of the current native target</td><td>control</td></tr>
+<tr><td>r</td><td>Release control</td><td>release</td></tr>
+<tr><td>h</td><td>Read owned native history</td><td>history</td></tr>
+<tr><td>b</td><td>Show configured inbox metadata</td><td>mailbox</td></tr>
+<tr><td>g</td><td>Open compact management window</td><td>management</td></tr>
+<tr><td>d</td><td>Detach the view, preserving runtimes</td><td>detach</td></tr>
+<tr><td>!</td><td>Dismiss the last visible error</td><td>dismiss</td></tr>
+<tr><td>?</td><td>Show key help</td><td>Help in the status line</td></tr></tbody></table></div>
+<p>CLI operations use pmcp tui OPERATION --view &quot;$VIEW_FILE&quot;. Worker indices follow
+the dock; CLI observe supports all available indices. Press Ctrl-g twice to
+forward Ctrl-g to the native interface. Native Ctrl-b remains available when
+you hold control. A surrounding tmux may consume its own prefix first.</p>
+<p>The status line identifies MAIN or WORKER, its session and OBSERVE / INPUT OFF.
+Control progresses through REQUESTING CONTROL and
+CONNECTING WRITER to CONTROL READY. A lease alone does not enable typing: PMCP
+checks that the writable native client is attached to the selected pane&#39;s TTY.
+Only CONTROL READY shows INPUT ON.
+Input stays blocked during acquisition and release. A control lease identifies
+the writer, not which native prompt or approval menu is active.</p>
+<p>Another writer causes a visible error with a next step. Failures remain in the
+status line, coordination panel and inspect receipt until explicitly dismissed.
+Resize does not clear them. CONTROL UNKNOWN blocks input and requires inspection.
+PMCP never replays uncertain input. An input receipt or mailbox ACK does not
+establish model completion. Provider state remains unknown.</p>
+<h2>History and mailbox</h2>
+<p>History reads only the owned runtime pane, bounded to 2000 lines and 64 KiB.
+It does not include shell history from before the runtime. The history panel
+supports tmux copy mode; returning to main preserves its native draft. Closing
+the view removes its private history cache.</p>
+<p>To observe inbox metadata, supply an explicitly chosen mailbox observer actor:</p>
+<pre><code>pmcp tui create --group-file &quot;$GROUP_FILE&quot; --columns 160 --rows 48 --config ./pmcp.toml --actor-file &quot;$OBSERVER_ACTOR_FILE&quot;</code></pre>
+<p>The actor must have no live attachment. PMCP uses the existing mailbox service
+and refuses a conflicting attachment. The panel shows message, thread and reply
+IDs. It never reads bodies, marks messages read, acknowledges them, submits input
+or wakes a runtime. Use the <a href="/mailbox/">mailbox CLI</a> for those explicit actions.
+The view stores the private credential file reference, not its contents.</p>
+<h2>Detach, close and stop</h2>
+<p>Detach preserves processes and drafts. Reopening returns to read-only main
+observation after releasing this view&#39;s control. A lost outer terminal also
+requests release; a crash or unreachable manager may prevent confirmation.
+Inspect before retrying, without replaying input:</p>
+<pre><code>pmcp harness recovery inspect --group-file &quot;$GROUP_FILE&quot;
 pmcp harness attach inspect --group-file &quot;$GROUP_FILE&quot; --session &quot;$SESSION&quot;</code></pre>
-              <p>
-                For a workspace opened through bare pmcp, inspect the saved
-                launcher without starting a runtime:
-              </p>
-              <pre><code>pmcp tui recovery</code></pre>
-              <p>
-                This reads the checkpoint and validates its saved group
-                ownership and generation. It reports exact inspection commands
-                and, where applicable, explicit resume, stop or fresh-launch
-                commands. It does not execute them or certify that a process is
-                still alive. An explicitly selected configuration is preserved
-                in the proposed fresh-launch command:
-              </p>
-              <pre><code>pmcp tui recovery --config /path/to/pmcp.toml</code></pre>
-              <p>
-                If creation stopped before a group reference was saved, the
-                result is manual-inspection. Preserve the reported checkpoint
-                and examine owned launch evidence before changing it. Matching
-                project paths alone cannot establish ownership. Paused work
-                stays paused, and uncertain input is never replayed.
-              </p>
-              <p>
-                Close ends the presentation and preserves all native runtimes:
-              </p>
-              <pre><code>pmcp tui close --view &quot;$VIEW_FILE&quot;</code></pre>
-              <p>
-                Stop names the exact current native target and requires
-                confirmation:
-              </p>
-              <pre><code>pmcp tui stop --view &quot;$VIEW_FILE&quot; --confirm-session &quot;$SESSION&quot;</code></pre>
-              <p>
-                There is no stop keyboard shortcut. Group replacement
-                invalidates a view&#39;s generation: create a fresh view instead
-                of transferring old authority. These controls are CLI-only and
-                cannot be invoked through the MCP server.
-              </p>
-            </article>
-          </div>
-        </main>
-        <footer class="site-footer">
-          <div>
-            <a class="wordmark" href="/">pmcp<span>_</span></a>
-            <p>Native tools. Shared possibilities.</p>
-            <p>Source available under Elastic License 2.0.</p>
-          </div>
-          <div>
-            <strong>Learn</strong><a href="/guide/">Getting started</a>
-            <a href="/project-configuration/">Configuration</a>
-            <a href="/examples/">Skill example</a>
-            <a href="/skills/">Free package skills</a>
-          </div>
-          <div>
-            <strong>Build</strong><a href="/commands/">CLI reference</a>
-            <a href="/terminal-harness/">Native sessions</a>
-            <a href="/mailbox/">Mailbox</a>
-            <a href="/authoring/">Ship a skill</a>
-          </div>
-          <div>
-            <strong>Project</strong
-            ><a href="https://github.com/modootoday/pmcp">GitHub</a>
-            <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
-            <a href="/licence/">Licence</a>
-          </div>
-          <p class="copyright">© 2026 modootoday.</p>
-        </footer>
-      </div>
-    </div>
-  </body>
-</html>
+<p>For a workspace opened through bare pmcp, inspect the saved launcher without
+starting a runtime:</p>
+<pre><code>pmcp tui recovery</code></pre>
+<p>This reads the checkpoint and validates its saved group ownership and
+generation. It reports exact inspection commands and, where applicable,
+explicit resume, stop or fresh-launch commands. It does not execute them or
+certify that a process is still alive. An explicitly selected configuration
+is preserved in the proposed fresh-launch command:</p>
+<pre><code>pmcp tui recovery --config /path/to/pmcp.toml</code></pre>
+<p>If creation stopped before a group reference was saved, the result is
+manual-inspection. Preserve the reported checkpoint and examine owned launch
+evidence before changing it. Matching project paths alone cannot establish
+ownership. Paused work stays paused, and uncertain input is never replayed.</p>
+<p>Close ends the presentation and preserves all native runtimes:</p>
+<pre><code>pmcp tui close --view &quot;$VIEW_FILE&quot;</code></pre>
+<p>Stop names the exact current native target and requires confirmation:</p>
+<pre><code>pmcp tui stop --view &quot;$VIEW_FILE&quot; --confirm-session &quot;$SESSION&quot;</code></pre>
+<p>There is no stop keyboard shortcut. Group replacement invalidates a view&#39;s
+generation: create a fresh view instead of transferring old authority. These
+controls are CLI-only and cannot be invoked through the MCP server.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>
