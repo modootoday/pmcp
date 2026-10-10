@@ -1,0 +1,9 @@
+{
+  "name": "pmcp-redis-library-fixture",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "bullmq": "5.81.4",
+    "ioredis": "5.11.1"
+  }
+}

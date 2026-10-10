@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GraphQL 16.x — PMCP</title>
+  <meta name="description" content="Validate and execute typed schemas with variables and explicit error handling." />
+  <link rel="canonical" href="https://pmcp.build/skills/graphql/16/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="GraphQL 16.x — PMCP" />
+  <meta property="og:description" content="Validate and execute typed schemas with variables and explicit error handling." />
+  <meta property="og:url" content="https://pmcp.build/skills/graphql/16/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/graphql/">Other majors</a></p>
+    <h1>GraphQL 16.x</h1><p>Validate and execute typed schemas with variables and explicit error handling.</p>
+    <dl><dt>For</dt><dd><code>graphql@16.13.1</code></dd><dt>Verified</dt><dd>2026-10-10, 8 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-graphql@16.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/graphql/16/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/graphql/16/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/graphql/16/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-sDOaVUMEC8HD5oMfxfqLrTJWVkSCQvyytfNXFzrAfseT8Xji6ZwvjnrstRnClYTgCucNVnLNeF77yQQAGugfWg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>GraphQL.js 16</h2>
+<p>Inspect the installed version, schema construction, server adapter and test commands first. Preserve the project&#39;s package manager, module mode and validation policy. This line targets <code>graphql@16.13.1</code>; it does not establish compatibility with GraphQL 17.</p>
+<h3>Validate and execute</h3>
+<p>Call <code>validateSchema(schema)</code> before exposing a newly constructed schema. Checking only that a query type exists misses invalid names and other schema errors.</p>
+<p><code>graphql({ schema, source, variableValues, contextValue })</code> parses, validates and executes. Await its result so asynchronous resolvers are supported. <code>graphqlSync</code> is suitable only when execution is synchronous.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { buildSchema, graphql, validateSchema } from &quot;graphql&quot;;
+
+const schema = buildSchema(&quot;type Query { greeting(name: String!): String! }&quot;);
+assert.deepEqual(validateSchema(schema), []);
+const result = await graphql({
+  schema,
+  source: &quot;query Greeting($name: String!) { greeting(name: $name) }&quot;,
+  variableValues: { name: &quot;Ada&quot; },
+  rootValue: { greeting: ({ name }: { name: string }) =&gt; `Hello ${name}` },
+});
+assert.equal(result.errors, undefined);
+assert.equal(result.data?.greeting, &quot;Hello Ada&quot;);
+</code></pre>
+<p>For pre-parsed documents, use <code>parse(source)</code>, then <code>validate(schema, document)</code>, and call <code>execute</code> only after the validation errors are empty. <code>execute</code> does not replace document validation. A cached document&#39;s validation depends on the schema and validation rules as well as the document.</p>
+<p>Pass request identity and dependencies through <code>contextValue</code>; do not store request state in global resolver objects.</p>
+<h3>Test the failure boundary</h3>
+<ul>
+<li>A numeric value for a <code>String!</code> variable must produce an error before operation execution. Verify <code>errors</code> and absent <code>data</code> for variable coercion failure.</li>
+<li>An unknown field must fail document validation. Do not call <code>execute</code> on that invalid document.</li>
+<li>Resolver failures can return partial <code>data</code> with <code>errors</code>. Non-null propagation can make a parent field or all data null; inspect both fields.</li>
+<li>GraphQL.js does not choose HTTP status or mask sensitive resolver details. Test those through the actual server adapter.</li>
+</ul>
+<p>Execution result objects may have a null prototype. Assert relevant fields or normalize through an actual JSON serialization boundary rather than assuming deep equality with an ordinary object literal.</p>
+<h3>Integrate without another schema</h3>
+<p>Pothos <code>builder.toSchema()</code> produces a standard <code>GraphQLSchema</code>. Validate it, then pass that same schema to GraphQL.js or Yoga <code>createYoga({ schema })</code>. Inspect peer dependency ranges before changing the GraphQL major.</p>
+<p>The companion fixture targets schema validation, invalid variables/documents, typed Pothos resolvers, execution, request context and Yoga masking. Its HTTP requests are in process; it does not test a listener, deployment or WebSocket. Record successful execution separately from the selected version target.</p>
+<h3>Primary sources</h3>
+<ul>
+<li><a href="https://www.graphql-js.org/api-v16/graphql/">GraphQL.js 16 API</a></li>
+<li><a href="https://www.graphql-js.org/api-v16/execution/">Execution API</a></li>
+<li><a href="https://pothos-graphql.dev/docs/guide/schema-builder">Pothos schema builder</a></li>
+<li><a href="https://the-guild.dev/graphql/yoga-server/docs/features/context">Yoga context</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

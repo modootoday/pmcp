@@ -2,15 +2,15 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>graphql-yoga 5.x — PMCP</title>
-  <meta name="description" content="Use graphql-yoga ^5.0.0 to build a Fetch-compatible GraphQL handler, execute it directly in scripts, and configure documented readiness and error-handling plugins. Avoid legacy Yoga v2/v4 server shapes." />
+  <title>GraphQL Yoga 5.x — PMCP</title>
+  <meta name="description" content="Serve request-scoped GraphQL execution and distinguish transport and resolver errors." />
   <link rel="canonical" href="https://pmcp.build/skills/graphql-yoga/5/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
-  <meta property="og:title" content="graphql-yoga 5.x — PMCP" />
-  <meta property="og:description" content="Use graphql-yoga ^5.0.0 to build a Fetch-compatible GraphQL handler, execute it directly in scripts, and configure documented readiness and error-handling plugins. Avoid legacy Yoga v2/v4 server shapes." />
+  <meta property="og:title" content="GraphQL Yoga 5.x — PMCP" />
+  <meta property="og:description" content="Serve request-scoped GraphQL execution and distinguish transport and resolver errors." />
   <meta property="og:url" content="https://pmcp.build/skills/graphql-yoga/5/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -36,137 +36,63 @@
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/graphql-yoga/">Other majors</a></p>
-    <h1>graphql-yoga 5.x</h1><p>Use graphql-yoga ^5.0.0 to build a Fetch-compatible GraphQL handler, execute it directly in scripts, and configure documented readiness and error-handling plugins. Avoid legacy Yoga v2/v4 server shapes.</p>
-    <dl><dt>For</dt><dd><code>graphql-yoga@5.22.0</code></dd><dt>Verified</dt><dd>2026-09-07, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-graphql-yoga@5.0.0</code></dd></dl>
+    <h1>GraphQL Yoga 5.x</h1><p>Serve request-scoped GraphQL execution and distinguish transport and resolver errors.</p>
+    <dl><dt>For</dt><dd><code>graphql-yoga@5.22.0</code></dd><dt>Verified</dt><dd>2026-10-10, 8 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-graphql-yoga@5.0.1</code></dd></dl>
     <section class="skill-download"><h2>Use this skill for free</h2>
     <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
     <p><a href="/skills/graphql-yoga/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/graphql-yoga/5/package.tgz" download>Download package archive</a></p>
     <pre><code>npm install --save-dev https://pmcp.build/skills/graphql-yoga/5/package.tgz</code></pre>
     <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
-    <details><summary>Archive integrity</summary><code>sha512-WolJpGN7Gm9r3TEbusAvqlFppc2FgphlAqTnGV6vPfdFVtEFNiXQogLOGz6BGr2Z+tz93knOCNxM4ro03+A6pQ==</code></details></section>
-    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against graphql-yoga@5.22.0 on 2026-09-07. 3 of 3 examples executed.</p>
-<h2>graphql-yoga ^5.0.0</h2>
-<h3>Current API shape</h3>
-<p>Import from <code>graphql-yoga</code>, not <code>@graphql-yoga/node</code>.</p>
-<p>Build an executable <code>GraphQLSchema</code> with <code>createSchema({ typeDefs, resolvers })</code>, then pass that schema to <code>createYoga({ schema })</code>. The returned Yoga instance is a Fetch-compatible handler and exposes <code>.fetch()</code>.</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import { createSchema, createYoga } from &#39;graphql-yoga&#39;
+    <details><summary>Archive integrity</summary><code>sha512-pyVQp5JvqDcPFvZephQ+yyIkIP55r5AmIYzjvFFPJ8b8dvwPmsK87Gj+TqoVU/qe3hl5LYaJe4YU0X+ZTDKJYA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>GraphQL Yoga 5</h2>
+<p>Historical validation of the earlier revision: Verified against graphql-yoga@5.22.0 on 2026-09-07. 3 of 3 examples executed. Those checks did not exercise readiness responses or masking output. Current fixture evidence is recorded separately.</p>
+<p>Inspect the installed Yoga/GraphQL versions, schema builder, context type and runtime adapter first. Import <code>createYoga</code> from <code>graphql-yoga</code>, not legacy <code>@graphql-yoga/node</code>. Preserve existing plugins and server configuration.</p>
+<h3>Handle a request</h3>
+<p>Build the schema with the project&#39;s builder or <code>createSchema</code>, require <code>validateSchema(schema)</code> to return no errors, then pass it to <code>createYoga</code>. Build request-specific context in the callback.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { validateSchema } from &quot;graphql&quot;;
+import { createSchema, createYoga } from &quot;graphql-yoga&quot;;
 
 const schema = createSchema({
-  typeDefs: /* GraphQL */ `
-    type Query {
-      hello: String
-    }
-  `,
+  typeDefs: &quot;type Query { requestId: String! }&quot;,
   resolvers: {
     Query: {
-      hello: () =&gt; &#39;world&#39;
-    }
-  }
-})
-
-const yoga = createYoga({ schema })
-
-const response = await yoga.fetch(&#39;http://yoga/graphql&#39;, {
-  method: &#39;POST&#39;,
-  headers: { &#39;Content-Type&#39;: &#39;application/json&#39; },
-  body: JSON.stringify({ query: &#39;{ hello }&#39; })
-})
-
-assert.equal(response.status, 200)
-assert.deepEqual(await response.json(), {
-  data: { hello: &#39;world&#39; }
-})
-</code></pre>
-<p><code>yoga.fetch()</code> simulates an HTTP request for in-process execution or testing. It does not send a real network request.</p>
-<h3>Running Yoga with Node HTTP</h3>
-<p><code>createYoga()</code> does not own the Node server lifecycle. Adapt it with Node&#39;s <code>node:http</code> server and call <code>listen()</code> yourself:</p>
-<pre><code class="language-ts">import { createServer } from &#39;node:http&#39;
-import { createYoga } from &#39;graphql-yoga&#39;
-
-const yoga = createYoga({ schema })
-const server = createServer(yoga)
-server.listen(4000)
-</code></pre>
-<p>A plain script can exercise the handler with <code>.fetch()</code>, but a real endpoint requires Node&#39;s HTTP server or another runtime/framework adapter. GraphiQL is provided by the running HTTP endpoint, not by schema construction alone.</p>
-<p>Yoga no longer owns <code>.start()</code> or <code>.stop()</code>, and it does not configure the Node HTTP server.</p>
-<h3>Readiness checks</h3>
-<p>Configure the readiness plugin with <code>useReadinessCheck({ endpoint, check })</code>. The check may be asynchronous:</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import { createSchema, createYoga, useReadinessCheck } from &#39;graphql-yoga&#39;
-
-const schema = createSchema({
-  typeDefs: &#39;type Query { hello: String }&#39;,
-  resolvers: { Query: { hello: () =&gt; &#39;world&#39; } }
-})
-
-let checked = false
+      requestId: (
+        _parent: unknown,
+        _args: unknown,
+        context: { requestId: string },
+      ) =&gt; context.requestId,
+    },
+  },
+});
+assert.deepEqual(validateSchema(schema), []);
 const yoga = createYoga({
   schema,
-  plugins: [
-    useReadinessCheck({
-      endpoint: &#39;/ready&#39;,
-      check: async () =&gt; {
-        checked = true
-      }
-    })
-  ]
-})
-
-assert.equal(typeof yoga.fetch, &#39;function&#39;)
-assert.equal(checked, false)
+  context: ({ request }) =&gt; ({
+    requestId: request.headers.get(&quot;x-request-id&quot;) ?? &quot;anonymous&quot;,
+  }),
+  maskedErrors: { isDev: false },
+});
+const response = await yoga.fetch(&quot;http://fixture/graphql&quot;, {
+  method: &quot;POST&quot;,
+  headers: { &quot;Content-Type&quot;: &quot;application/json&quot;, &quot;x-request-id&quot;: &quot;first&quot; },
+  body: JSON.stringify({ query: &quot;{ requestId }&quot; }),
+});
+assert.equal(response.status, 200);
+assert.deepEqual(await response.json(), { data: { requestId: &quot;first&quot; } });
 </code></pre>
-<p>The documented research establishes the configuration and callback shape, but not the exact readiness response body or status behavior. Do not infer those details from this skill.</p>
-<h3>Error coordinates and masking</h3>
-<p>Enable error-coordinate handling with <code>useErrorCoordinate()</code>. Configure masking through <code>maskedErrors.maskError</code>; the package exports the <code>maskError</code> utility:</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
-import {
-  createSchema,
-  createYoga,
-  maskError,
-  useErrorCoordinate
-} from &#39;graphql-yoga&#39;
-
-const schema = createSchema({
-  typeDefs: &#39;type Query { hello: String }&#39;,
-  resolvers: { Query: { hello: () =&gt; &#39;world&#39; } }
-})
-
-const yoga = createYoga({
-  schema,
-  plugins: [useErrorCoordinate()],
-  maskedErrors: {
-    maskError: (error, message, isDev) =&gt;
-      maskError(error, message, isDev)
-  }
-})
-
-assert.equal(typeof yoga.fetch, &#39;function&#39;)
-</code></pre>
-<p>The available research establishes these imports and call shapes, but does not specify masking output or coordinate metadata. Do not add behavior-dependent assertions without checking the package documentation.</p>
-<h3>v5 migration traps</h3>
+<p><code>yoga.fetch</code> invokes the handler in process; it does not start a server or send an external request. For Node serving, adapt through <code>node:http</code> <code>createServer(yoga)</code> and manage listen, errors and close through that server. Yoga does not own <code>.start()</code> or <code>.stop()</code>.</p>
+<h3>Isolate context and errors</h3>
+<p>Pass a Pothos schema directly. If Pothos context caching is used, merge a fresh <code>initContextCache()</code> into each request context. Never reuse a mutable context across requests.</p>
+<p>Keep unexpected-error masking enabled in production. Deliberately exposed domain errors need reviewed public messages; internal <code>Error</code> details must not leak. HTTP status alone does not establish GraphQL success: inspect <code>errors</code> and partial/null <code>data</code>.</p>
+<p>Test requests with distinct context values, invalid variables and an unexpected resolver error. Assert internal error text is absent from the response. Test status decisions through the configured adapter rather than assuming a universal status rule.</p>
+<p>Configure plugins on the existing server. A readiness configuration check is not an endpoint test. In v5, plugins added through <code>onPluginInit</code>/<code>addPlugin</code> follow the adding plugin; confirm installed plugin documentation before changing order.</p>
+<p>The interoperability fixture targets Yoga 5.22.0, GraphQL 16.13.1 and Pothos 4.13.1. It tests in-process requests and masking, not browser GraphiQL, readiness plugins, subscriptions, deployed HTTP lifecycle or authentication policy.</p>
+<h3>Primary sources</h3>
 <ul>
-<li>Node.js 16 support was dropped in v5.</li>
-<li>Use the single <code>graphql-yoga</code> package. Older examples using <code>@graphql-yoga/node</code> are not the current import shape.</li>
-<li>Use <code>createYoga</code>, not the older Yoga <code>createServer</code> API.</li>
-<li>Pass a ready <code>GraphQLSchema</code> to <code>createYoga</code>; use <code>createSchema({ typeDefs, resolvers })</code> as the documented bridge when starting from SDL and resolver maps.</li>
-<li>Yoga no longer owns <code>.start()</code> or <code>.stop()</code>, and it does not configure the Node HTTP server. Use <code>node:http</code> or the adapter for the runtime you deploy on.</li>
-<li>Do not copy the old pattern of calling <code>server.start()</code>.</li>
-<li>When a plugin adds another plugin through <code>onPluginInit</code> / <code>addPlugin</code>, v5 inserts the dependency immediately after the adding plugin. In v4, added plugins were appended to the end. Ordering-sensitive code must account for this change:</li>
-</ul>
-<pre><code class="language-ts">const plugin: Plugin = {
-  onPluginInit({ addPlugin }) {
-    addPlugin(useAnotherPlugin())
-  }
-}
-</code></pre>
-<h3>What this skill does not cover</h3>
-<p>The research does not specify the exact readiness response, error-masking output, error-coordinate format, plugin type imports, deployment adapters, GraphiQL customization, or detailed server lifecycle management. It also does not cover schema features beyond the documented <code>createSchema</code> bridge and <code>.fetch()</code> execution example. The actual HTTP server lifecycle and browser GraphiQL experience must be exercised through the runtime tool or adapter rather than a standalone script.</p>
-<p>Sources:</p>
-<ul>
-<li><a href="https://the-guild.dev/graphql/yoga-server/docs?utm_source=openai">https://the-guild.dev/graphql/yoga-server/docs?utm_source=openai</a></li>
-<li><a href="https://the-guild.dev/graphql/yoga-server/docs/migration/migration-from-yoga-v4?utm_source=openai">https://the-guild.dev/graphql/yoga-server/docs/migration/migration-from-yoga-v4?utm_source=openai</a></li>
-<li><a href="https://the-guild.dev/graphql/yoga-server/tutorial/basic/03-graphql-server?utm_source=openai">https://the-guild.dev/graphql/yoga-server/tutorial/basic/03-graphql-server?utm_source=openai</a></li>
+<li><a href="https://the-guild.dev/graphql/yoga-server/docs/features/context">Context</a></li>
+<li><a href="https://the-guild.dev/graphql/yoga-server/docs/features/error-masking">Error masking</a></li>
+<li><a href="https://the-guild.dev/graphql/yoga-server/docs/migration/migration-from-yoga-v4">Migration from v4</a></li>
 </ul>
 </section></article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>

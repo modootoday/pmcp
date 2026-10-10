@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ClickHouse Node client 1.x — PMCP</title>
+  <meta name="description" content="Insert and query typed values with parameters, streams and explicit client cleanup." />
+  <link rel="canonical" href="https://pmcp.build/skills/clickhouse-client/1/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="ClickHouse Node client 1.x — PMCP" />
+  <meta property="og:description" content="Insert and query typed values with parameters, streams and explicit client cleanup." />
+  <meta property="og:url" content="https://pmcp.build/skills/clickhouse-client/1/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/clickhouse-client/">Other majors</a></p>
+    <h1>ClickHouse Node client 1.x</h1><p>Insert and query typed values with parameters, streams and explicit client cleanup.</p>
+    <dl><dt>For</dt><dd><code>@clickhouse/client@1.23.1</code></dd><dt>Verified</dt><dd>2026-10-10, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-clickhouse-client@1.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/clickhouse-client/1/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/clickhouse-client/1/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/clickhouse-client/1/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-KDOJtPe/jSsEezt9tF5UAOd+1FYJj5zz3FZd26KpptvMi/P9bSds0h2PKyaOu4HaYbMWEq/d422rer3Y3yxWSg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>ClickHouse JavaScript Node client 1</h2>
+<p>Inspect installed SDK/server versions, the connection factory, schema and formats first. This line targets <code>@clickhouse/client@1.23.1</code>. Reuse the application&#39;s credential lifecycle; do not add raw HTTP queries or production credentials.</p>
+<h3>Query with parameters</h3>
+<p>Create a client through the existing factory or <code>createClient</code> with explicitly selected URL, credentials and database. A Node client owns HTTP pooling; close it when its owning process finishes.</p>
+<p><code>keep_alive.enabled</code> is shared with the web SDK. Node additionally supports socket settings such as <code>keep_alive.idle_socket_ttl</code>, custom <code>http_agent</code> and TLS certificate buffers. Preserve the runtime-specific connection factory when sharing query code.</p>
+<pre><code class="language-ts">import { randomUUID } from &quot;node:crypto&quot;;
+import { createClient } from &quot;@clickhouse/client&quot;;
+
+type Row = { id: string; label: string };
+
+export async function findRows(
+  client: ReturnType&lt;typeof createClient&gt;,
+  label: string,
+) {
+  const result = await client.query({
+    query: &quot;SELECT id, label FROM rows WHERE label = {label:String}&quot;,
+    query_params: { label },
+    format: &quot;JSONEachRow&quot;,
+    query_id: randomUUID(),
+  });
+  return await result.json&lt;Row&gt;();
+}
+</code></pre>
+<p>Use ClickHouse typed placeholders such as <code>{label:String}</code> and <code>{id:UInt64}</code>. Do not interpolate values or copy <code>$1</code>/<code>?</code> conventions. <code>json&lt;Row&gt;()</code> supplies static types, not runtime validation.</p>
+<h3>Insert and release</h3>
+<p>Use <code>client.insert({ table, values, format: &quot;JSONEachRow&quot; })</code> for arrays or documented Node readable streams. Use <code>command</code> for DDL and <code>query</code> for results. Preserve project table naming and insert settings.</p>
+<p>UInt64/Int64 JSON results are strings by default. Keep values beyond JavaScript&#39;s safe integer range as strings or explicit bigint; avoid <code>Number(value)</code> and disabling quoted large integers. Precision-sensitive decimals need an explicit representation such as a <code>toString</code> expression and application validation.</p>
+<p>Consume a result once via <code>json</code>, <code>text</code> or its stream. Node streams emit chunks of row wrappers; decode each with <code>row.json()</code>. Fully consume or close abandoned results, then close the owning client. A caller timeout is not proof the server operation stopped; query IDs support tracing and operational follow-up.</p>
+<p>Use bounded <code>request_timeout</code> and server-side limits. Log query identity without credentials or sensitive parameters. SDK errors must remain visible rather than becoming fabricated empty results.</p>
+<p>The fixture uses an explicit isolated loopback endpoint and unique temporary database through the SDK. It targets inserts, literal-safe parameters, UInt64 strings, Node streams, failure propagation and the companion web client, then drops only its database. It does not establish browser CORS, Worker deployment, TLS, failover, streaming inserts or server cancellation.</p>
+<h3>Primary sources and upstream skill reuse</h3>
+<ul>
+<li><a href="https://clickhouse.com/docs/integrations/language-clients/js/index">Official JS client documentation</a></li>
+<li><a href="https://github.com/ClickHouse/clickhouse-js/tree/2c9823bb27b428015cfb982d406381f2523429e7/skills/clickhouse-js-node-troubleshooting">Official Node troubleshooting skill</a>, Apache-2.0 licensed. Consult it for deeper Node troubleshooting; it excludes browser and Worker runtimes. These instructions are original text rather than copied upstream prose.</li>
+<li><a href="https://github.com/ClickHouse/clickhouse-js">Upstream</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

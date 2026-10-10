@@ -125,6 +125,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/bullmq/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/bullmq/5/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/bun-types/</loc>
     <priority>0.8</priority>
   </url>
@@ -162,6 +170,22 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/cli-spinners/3/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/clickhouse-client-web/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/clickhouse-client-web/1/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/clickhouse-client/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/clickhouse-client/1/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -337,6 +361,10 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/graphql/16/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/graphql/17/</loc>
     <priority>0.8</priority>
   </url>
@@ -382,6 +410,10 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/ioredis/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/ioredis/5/</loc>
     <priority>0.8</priority>
   </url>
   <url>

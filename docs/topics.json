@@ -139,6 +139,9 @@
     {
       "label": "Data stores",
       "packages": [
+        "@clickhouse/client",
+        "@clickhouse/client-web",
+        "bullmq",
         "fake-indexeddb",
         "firebase",
         "firebase-admin",

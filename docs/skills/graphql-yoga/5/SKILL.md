@@ -1,155 +1,68 @@
 ---
 name: graphql-yoga
-description: Use graphql-yoga ^5.0.0 to build a Fetch-compatible GraphQL handler, execute it directly in scripts, and configure documented readiness and error-handling plugins. Avoid legacy Yoga v2/v4 server shapes.
+description: Use graphql-yoga 5 to serve a validated schema through a Fetch handler, create per-request context, mask unexpected resolver errors and test the HTTP/GraphQL boundary. Use for Yoga services and Pothos integration while preserving the project's adapter and server lifecycle.
 ---
 
-Verified against graphql-yoga@5.22.0 on 2026-09-07. 3 of 3 examples executed.
+# GraphQL Yoga 5
 
-# graphql-yoga ^5.0.0
+Historical validation of the earlier revision: Verified against graphql-yoga@5.22.0 on 2026-09-07. 3 of 3 examples executed. Those checks did not exercise readiness responses or masking output. Current fixture evidence is recorded separately.
 
-## Current API shape
+Inspect the installed Yoga/GraphQL versions, schema builder, context type and runtime adapter first. Import `createYoga` from `graphql-yoga`, not legacy `@graphql-yoga/node`. Preserve existing plugins and server configuration.
 
-Import from `graphql-yoga`, not `@graphql-yoga/node`.
+## Handle a request
 
-Build an executable `GraphQLSchema` with `createSchema({ typeDefs, resolvers })`, then pass that schema to `createYoga({ schema })`. The returned Yoga instance is a Fetch-compatible handler and exposes `.fetch()`.
+Build the schema with the project's builder or `createSchema`, require `validateSchema(schema)` to return no errors, then pass it to `createYoga`. Build request-specific context in the callback.
 
-```ts pmcp-example
-import assert from 'node:assert/strict'
-import { createSchema, createYoga } from 'graphql-yoga'
+```ts
+import assert from "node:assert/strict";
+import { validateSchema } from "graphql";
+import { createSchema, createYoga } from "graphql-yoga";
 
 const schema = createSchema({
-  typeDefs: /* GraphQL */ `
-    type Query {
-      hello: String
-    }
-  `,
+  typeDefs: "type Query { requestId: String! }",
   resolvers: {
     Query: {
-      hello: () => 'world'
-    }
-  }
-})
-
-const yoga = createYoga({ schema })
-
-const response = await yoga.fetch('http://yoga/graphql', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ query: '{ hello }' })
-})
-
-assert.equal(response.status, 200)
-assert.deepEqual(await response.json(), {
-  data: { hello: 'world' }
-})
-```
-
-`yoga.fetch()` simulates an HTTP request for in-process execution or testing. It does not send a real network request.
-
-## Running Yoga with Node HTTP
-
-`createYoga()` does not own the Node server lifecycle. Adapt it with Node's `node:http` server and call `listen()` yourself:
-
-```ts
-import { createServer } from 'node:http'
-import { createYoga } from 'graphql-yoga'
-
-const yoga = createYoga({ schema })
-const server = createServer(yoga)
-server.listen(4000)
-```
-
-A plain script can exercise the handler with `.fetch()`, but a real endpoint requires Node's HTTP server or another runtime/framework adapter. GraphiQL is provided by the running HTTP endpoint, not by schema construction alone.
-
-Yoga no longer owns `.start()` or `.stop()`, and it does not configure the Node HTTP server.
-
-## Readiness checks
-
-Configure the readiness plugin with `useReadinessCheck({ endpoint, check })`. The check may be asynchronous:
-
-```ts pmcp-example
-import assert from 'node:assert/strict'
-import { createSchema, createYoga, useReadinessCheck } from 'graphql-yoga'
-
-const schema = createSchema({
-  typeDefs: 'type Query { hello: String }',
-  resolvers: { Query: { hello: () => 'world' } }
-})
-
-let checked = false
+      requestId: (
+        _parent: unknown,
+        _args: unknown,
+        context: { requestId: string },
+      ) => context.requestId,
+    },
+  },
+});
+assert.deepEqual(validateSchema(schema), []);
 const yoga = createYoga({
   schema,
-  plugins: [
-    useReadinessCheck({
-      endpoint: '/ready',
-      check: async () => {
-        checked = true
-      }
-    })
-  ]
-})
-
-assert.equal(typeof yoga.fetch, 'function')
-assert.equal(checked, false)
+  context: ({ request }) => ({
+    requestId: request.headers.get("x-request-id") ?? "anonymous",
+  }),
+  maskedErrors: { isDev: false },
+});
+const response = await yoga.fetch("http://fixture/graphql", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "x-request-id": "first" },
+  body: JSON.stringify({ query: "{ requestId }" }),
+});
+assert.equal(response.status, 200);
+assert.deepEqual(await response.json(), { data: { requestId: "first" } });
 ```
 
-The documented research establishes the configuration and callback shape, but not the exact readiness response body or status behavior. Do not infer those details from this skill.
+`yoga.fetch` invokes the handler in process; it does not start a server or send an external request. For Node serving, adapt through `node:http` `createServer(yoga)` and manage listen, errors and close through that server. Yoga does not own `.start()` or `.stop()`.
 
-## Error coordinates and masking
+## Isolate context and errors
 
-Enable error-coordinate handling with `useErrorCoordinate()`. Configure masking through `maskedErrors.maskError`; the package exports the `maskError` utility:
+Pass a Pothos schema directly. If Pothos context caching is used, merge a fresh `initContextCache()` into each request context. Never reuse a mutable context across requests.
 
-```ts pmcp-example
-import assert from 'node:assert/strict'
-import {
-  createSchema,
-  createYoga,
-  maskError,
-  useErrorCoordinate
-} from 'graphql-yoga'
+Keep unexpected-error masking enabled in production. Deliberately exposed domain errors need reviewed public messages; internal `Error` details must not leak. HTTP status alone does not establish GraphQL success: inspect `errors` and partial/null `data`.
 
-const schema = createSchema({
-  typeDefs: 'type Query { hello: String }',
-  resolvers: { Query: { hello: () => 'world' } }
-})
+Test requests with distinct context values, invalid variables and an unexpected resolver error. Assert internal error text is absent from the response. Test status decisions through the configured adapter rather than assuming a universal status rule.
 
-const yoga = createYoga({
-  schema,
-  plugins: [useErrorCoordinate()],
-  maskedErrors: {
-    maskError: (error, message, isDev) =>
-      maskError(error, message, isDev)
-  }
-})
+Configure plugins on the existing server. A readiness configuration check is not an endpoint test. In v5, plugins added through `onPluginInit`/`addPlugin` follow the adding plugin; confirm installed plugin documentation before changing order.
 
-assert.equal(typeof yoga.fetch, 'function')
-```
+The interoperability fixture targets Yoga 5.22.0, GraphQL 16.13.1 and Pothos 4.13.1. It tests in-process requests and masking, not browser GraphiQL, readiness plugins, subscriptions, deployed HTTP lifecycle or authentication policy.
 
-The available research establishes these imports and call shapes, but does not specify masking output or coordinate metadata. Do not add behavior-dependent assertions without checking the package documentation.
+## Primary sources
 
-## v5 migration traps
-
-- Node.js 16 support was dropped in v5.
-- Use the single `graphql-yoga` package. Older examples using `@graphql-yoga/node` are not the current import shape.
-- Use `createYoga`, not the older Yoga `createServer` API.
-- Pass a ready `GraphQLSchema` to `createYoga`; use `createSchema({ typeDefs, resolvers })` as the documented bridge when starting from SDL and resolver maps.
-- Yoga no longer owns `.start()` or `.stop()`, and it does not configure the Node HTTP server. Use `node:http` or the adapter for the runtime you deploy on.
-- Do not copy the old pattern of calling `server.start()`.
-- When a plugin adds another plugin through `onPluginInit` / `addPlugin`, v5 inserts the dependency immediately after the adding plugin. In v4, added plugins were appended to the end. Ordering-sensitive code must account for this change:
-
-```ts
-const plugin: Plugin = {
-  onPluginInit({ addPlugin }) {
-    addPlugin(useAnotherPlugin())
-  }
-}
-```
-
-## What this skill does not cover
-
-The research does not specify the exact readiness response, error-masking output, error-coordinate format, plugin type imports, deployment adapters, GraphiQL customization, or detailed server lifecycle management. It also does not cover schema features beyond the documented `createSchema` bridge and `.fetch()` execution example. The actual HTTP server lifecycle and browser GraphiQL experience must be exercised through the runtime tool or adapter rather than a standalone script.
-
-Sources:
-- https://the-guild.dev/graphql/yoga-server/docs?utm_source=openai
-- https://the-guild.dev/graphql/yoga-server/docs/migration/migration-from-yoga-v4?utm_source=openai
-- https://the-guild.dev/graphql/yoga-server/tutorial/basic/03-graphql-server?utm_source=openai
+- [Context](https://the-guild.dev/graphql/yoga-server/docs/features/context)
+- [Error masking](https://the-guild.dev/graphql/yoga-server/docs/features/error-masking)
+- [Migration from v4](https://the-guild.dev/graphql/yoga-server/docs/migration/migration-from-yoga-v4)

@@ -1,6 +1,6 @@
 {
-  "revision": "library-development-2b-20261010",
-  "publishedAt": "2026-10-10T03:06:48.978Z",
+  "revision": "library-development-2data-20261010",
+  "publishedAt": "2026-10-10T03:14:03.017Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -438,32 +438,15 @@
     },
     {
       "productId": "pothos-core",
-      "title": "@pothos/core",
-      "summary": "Use @pothos/core ^4.0.0 to build executable GraphQL schemas, account for v4 nullability and ID defaults, use context caching, and write/register typed plugins.",
+      "title": "Pothos",
+      "summary": "Build strongly typed GraphQL fields and verify resolver contracts.",
       "delivery": {
         "packageName": "@modootoday/pmcp-pothos-core",
-        "version": "4.0.0",
-        "integrity": "sha512-J4xc27xKLuNfzE1W4wvn59UCy6HSO6UgqNgGXJpeg/mc7LGH9AJh1UQNPl7xTowJGM3DHIgOoBNV0DSX7H9DFw=="
+        "version": "4.0.1",
+        "integrity": "sha512-4hs8hkxrZXTWoRpRzX+s6hHDOQa+h8Y4C+dsm4J4HtbVjnT/g5VEmxDwNRWXJorIVfG68AIwjtjd17gCHP68dQ=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:622f8658dc917c2c01309589068be5daf895d651bba1b153a8c849d60b4b6216",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 7
-      },
-      "preview": {
-        "headings": [
-          "Requirements",
-          "Build a schema",
-          "Restore v3 defaults when migrating",
-          "ID scalar changes",
-          "Context cache",
-          "ObjectRef and shared object fields",
-          "Plugins",
-          "What this skill does not cover"
-        ],
-        "example": "import assert from 'node:assert/strict';\nimport SchemaBuilder from '@pothos/core';\n\nconst builder = new SchemaBuilder({});\n\nbuilder.queryType({\n  fields: (t) => ({\n    hello: t.string({\n      args: {\n        name: t.arg.string(),\n      },\n      resolve: (_parent, { name }) => `hello, ${name || 'World'}`,\n    }),\n  }),\n});\n\nconst schema = builder.toSchema();\nconst query = schema.getQueryType();\nassert.ok(query);\nassert.ok(query.getFields().hello);\nassert.equal(query.getFields().hello.type.toString(), 'String');\nassert.equal(query.getFields().hello.args[0]?.name, 'name');"
-      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:df8d7752c6de1da321cbaf871fef429c16f1c9b164c174a7bfbb687e630239a7",
       "targets": [
         {
           "packageName": "@pothos/core",
@@ -476,6 +459,19 @@
       "line": {
         "major": 4,
         "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Add a typed field",
+          "Preserve schema defaults",
+          "Serve with request context",
+          "Primary sources"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport SchemaBuilder from \"@pothos/core\";\nimport { graphql, validateSchema } from \"graphql\";\n\ntype Context = { requestId: string };\nconst builder = new SchemaBuilder<{ Context: Context }>({});\nbuilder.queryType({\n  fields: (t) => ({\n    greeting: t.string({\n      nullable: false,\n      args: { name: t.arg.string({ required: true }) },\n      resolve: (_parent, { name }, context) =>\n        `${context.requestId}: Hello ${name}`,\n    }),\n  }),\n});\nconst schema = builder.toSchema();\nassert.deepEqual(validateSchema(schema), []);\nconst result = await graphql({\n  schema,\n  source: \"query Greeting($name: String!) { greeting(name: $name) }\",\n  variableValues: { name: \"Ada\" },\n  contextValue: { requestId: \"first\" },\n});\nassert.equal(result.errors, undefined);\nassert.equal(result.data?.greeting, \"first: Hello Ada\");"
       }
     },
     {
@@ -777,30 +773,15 @@
     },
     {
       "productId": "graphql-yoga",
-      "title": "graphql-yoga",
-      "summary": "Use graphql-yoga ^5.0.0 to build a Fetch-compatible GraphQL handler, execute it directly in scripts, and configure documented readiness and error-handling plugins. Avoid legacy Yoga v2/v4 server shapes.",
+      "title": "GraphQL Yoga",
+      "summary": "Serve request-scoped GraphQL execution and distinguish transport and resolver errors.",
       "delivery": {
         "packageName": "@modootoday/pmcp-graphql-yoga",
-        "version": "5.0.0",
-        "integrity": "sha512-WolJpGN7Gm9r3TEbusAvqlFppc2FgphlAqTnGV6vPfdFVtEFNiXQogLOGz6BGr2Z+tz93knOCNxM4ro03+A6pQ=="
+        "version": "5.0.1",
+        "integrity": "sha512-pyVQp5JvqDcPFvZephQ+yyIkIP55r5AmIYzjvFFPJ8b8dvwPmsK87Gj+TqoVU/qe3hl5LYaJe4YU0X+ZTDKJYA=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:1a8f22ec7449d2d0c36b5dfa3024ab4a8328193c5dbf72fb518ff20918d3c20d",
-      "evidence": {
-        "verifiedOn": "2026-09-07",
-        "examplesExecuted": 3
-      },
-      "preview": {
-        "headings": [
-          "Current API shape",
-          "Running Yoga with Node HTTP",
-          "Readiness checks",
-          "Error coordinates and masking",
-          "v5 migration traps",
-          "What this skill does not cover"
-        ],
-        "example": "import assert from 'node:assert/strict'\nimport { createSchema, createYoga } from 'graphql-yoga'\n\nconst schema = createSchema({\n  typeDefs: /* GraphQL */ `\n    type Query {\n      hello: String\n    }\n  `,\n  resolvers: {\n    Query: {\n      hello: () => 'world'\n    }\n  }\n})\n\nconst yoga = createYoga({ schema })\n\nconst response = await yoga.fetch('http://yoga/graphql', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ query: '{ hello }' })\n})\n\nassert.equal(response.status, 200)\nassert.deepEqual(await response.json(), {\n  data: { hello: 'world' }\n})"
-      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:56da0b5eb0feee97856d5066237bd315d983914fc8ab3130b612613ad3d1a314",
       "targets": [
         {
           "packageName": "graphql-yoga",
@@ -813,6 +794,18 @@
       "line": {
         "major": 5,
         "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Handle a request",
+          "Isolate context and errors",
+          "Primary sources"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport { validateSchema } from \"graphql\";\nimport { createSchema, createYoga } from \"graphql-yoga\";\n\nconst schema = createSchema({\n  typeDefs: \"type Query { requestId: String! }\",\n  resolvers: {\n    Query: {\n      requestId: (\n        _parent: unknown,\n        _args: unknown,\n        context: { requestId: string },\n      ) => context.requestId,\n    },\n  },\n});\nassert.deepEqual(validateSchema(schema), []);\nconst yoga = createYoga({\n  schema,\n  context: ({ request }) => ({\n    requestId: request.headers.get(\"x-request-id\") ?? \"anonymous\",\n  }),\n  maskedErrors: { isDev: false },\n});\nconst response = await yoga.fetch(\"http://fixture/graphql\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\", \"x-request-id\": \"first\" },\n  body: JSON.stringify({ query: \"{ requestId }\" }),\n});\nassert.equal(response.status, 200);\nassert.deepEqual(await response.json(), { data: { requestId: \"first\" } });"
       }
     },
     {
@@ -4857,6 +4850,194 @@
           "Sources"
         ],
         "example": "import { afterEach } from \"vitest\";\nimport { cleanup } from \"@testing-library/react\";\n\nafterEach(cleanup);"
+      }
+    },
+    {
+      "productId": "graphql",
+      "title": "GraphQL",
+      "summary": "Validate and execute typed schemas with variables and explicit error handling.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-graphql",
+        "version": "16.0.0",
+        "integrity": "sha512-sDOaVUMEC8HD5oMfxfqLrTJWVkSCQvyytfNXFzrAfseT8Xji6ZwvjnrstRnClYTgCucNVnLNeF77yQQAGugfWg=="
+      },
+      "skillRevision": 3,
+      "contentDigest": "sha256:aeb12c295b0159170f6841cba62433550749bfeb35e9de2b750591d9c86c5da5",
+      "targets": [
+        {
+          "packageName": "graphql",
+          "range": "^16.0.0",
+          "verifiedVersions": [
+            "16.13.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 16,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Validate and execute",
+          "Test the failure boundary",
+          "Integrate without another schema",
+          "Primary sources"
+        ],
+        "example": "import assert from \"node:assert/strict\";\nimport { buildSchema, graphql, validateSchema } from \"graphql\";\n\nconst schema = buildSchema(\"type Query { greeting(name: String!): String! }\");\nassert.deepEqual(validateSchema(schema), []);\nconst result = await graphql({\n  schema,\n  source: \"query Greeting($name: String!) { greeting(name: $name) }\",\n  variableValues: { name: \"Ada\" },\n  rootValue: { greeting: ({ name }: { name: string }) => `Hello ${name}` },\n});\nassert.equal(result.errors, undefined);\nassert.equal(result.data?.greeting, \"Hello Ada\");"
+      }
+    },
+    {
+      "productId": "ioredis",
+      "title": "ioredis",
+      "summary": "Manage Redis commands, connection recovery and resource cleanup.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-ioredis",
+        "version": "5.0.0",
+        "integrity": "sha512-L7/VTx9Kn+gg2y/n6/CNRR14gHfimAAZATdmybmyU9a3mWA1aoGGy1waBZW0zjgMZz1PXAs8uYtLK+IWR2q+PA=="
+      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:8ef5a788852177b31cf511b54c112e3f0f2effb79d3feb88206b25c6abd99f40",
+      "targets": [
+        {
+          "packageName": "ioredis",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.11.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 10
+      },
+      "preview": {
+        "headings": [
+          "Choose connection policy",
+          "Interpret results and modes",
+          "Primary sources and upstream skill reuse"
+        ],
+        "example": "import Redis from \"ioredis\";\n\nexport function createProducer(\n  redisUrl: string,\n  reportError: (error: Error) => void,\n) {\n  const client = new Redis(redisUrl, {\n    lazyConnect: true,\n    connectTimeout: 2000,\n    maxRetriesPerRequest: 1,\n    enableOfflineQueue: false,\n  });\n  client.on(\"error\", reportError);\n  return client;\n}\n\nexport async function increment(client: Redis, key: string) {\n  const results = await client\n    .pipeline()\n    .set(key, \"1\")\n    .incr(key)\n    .get(key)\n    .exec();\n  if (!results) throw new Error(\"Pipeline did not return results\");\n  for (const [error] of results) {\n    if (error) throw error;\n  }\n  return results[2][1];\n}"
+      }
+    },
+    {
+      "productId": "bullmq",
+      "title": "BullMQ",
+      "summary": "Run bounded workers with retries, failure events and graceful shutdown.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-bullmq",
+        "version": "5.0.0",
+        "integrity": "sha512-KVKMWV+g/74bvUOUvJRMvTXdMZP4Wkkx3BWtEpU3XVX4KENtC71c/pk6B8IYGVB2HYY3wzR2aJh6bjFTsUW2WA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:071f9753b0ac6459d6f416187d6f9156d1d48ee7a79e151d87b1bd7829bc22c9",
+      "targets": [
+        {
+          "packageName": "bullmq",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.81.4"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 10
+      },
+      "preview": {
+        "headings": [
+          "Produce and consume",
+          "Verify state",
+          "Own shutdown",
+          "Primary sources"
+        ],
+        "example": "import type Redis from \"ioredis\";\nimport { Queue, Worker } from \"bullmq\";\n\nexport function createWorkflow(\n  producer: Redis,\n  workerConnection: Redis,\n  prefix: string,\n) {\n  const queue = new Queue(\"jobs\", { connection: producer, prefix });\n  const worker = new Worker(\n    \"jobs\",\n    async (job) => {\n      if (typeof job.data.value !== \"number\") throw new Error(\"Invalid value\");\n      return job.data.value * 2;\n    },\n    { connection: workerConnection, prefix, concurrency: 1 },\n  );\n  return { queue, worker };\n}"
+      }
+    },
+    {
+      "productId": "clickhouse-client",
+      "title": "ClickHouse Node client",
+      "summary": "Insert and query typed values with parameters, streams and explicit client cleanup.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-clickhouse-client",
+        "version": "1.0.0",
+        "integrity": "sha512-KDOJtPe/jSsEezt9tF5UAOd+1FYJj5zz3FZd26KpptvMi/P9bSds0h2PKyaOu4HaYbMWEq/d422rer3Y3yxWSg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:f3381bc71705da564977405f425cf5977f98d8b1161a354e7326685799694859",
+      "targets": [
+        {
+          "packageName": "@clickhouse/client",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.23.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Query with parameters",
+          "Insert and release",
+          "Primary sources and upstream skill reuse"
+        ],
+        "example": "import { randomUUID } from \"node:crypto\";\nimport { createClient } from \"@clickhouse/client\";\n\ntype Row = { id: string; label: string };\n\nexport async function findRows(\n  client: ReturnType<typeof createClient>,\n  label: string,\n) {\n  const result = await client.query({\n    query: \"SELECT id, label FROM rows WHERE label = {label:String}\",\n    query_params: { label },\n    format: \"JSONEachRow\",\n    query_id: randomUUID(),\n  });\n  return await result.json<Row>();\n}"
+      }
+    },
+    {
+      "productId": "clickhouse-client-web",
+      "title": "ClickHouse web client",
+      "summary": "Consume Fetch streams and preserve numeric precision within the web client API.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-clickhouse-client-web",
+        "version": "1.0.0",
+        "integrity": "sha512-wCNo6Jn0wfYTTx5wPpEjg52c4TcVkzKu4HoR8cx0aByxA42O8l9nm/yLTElJcHvbbzKheQSYg18FGSeHRKn2ig=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:923beb317e8597deabbc4f67f5822df97651fbb3ee34d94bd14cd527f1642499",
+      "targets": [
+        {
+          "packageName": "@clickhouse/client-web",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.23.1"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Use the web contract",
+          "Consume Web Streams",
+          "Keep credentials at the runtime boundary",
+          "Primary sources and provenance"
+        ],
+        "example": "import { createClient } from \"@clickhouse/client-web\";\n\ntype Row = { id: string; label: string };\n\nexport async function findRows(\n  client: ReturnType<typeof createClient>,\n  label: string,\n) {\n  const result = await client.query({\n    query: \"SELECT id, label FROM rows WHERE label = {label:String}\",\n    query_params: { label },\n    format: \"JSONEachRow\",\n  });\n  return await result.json<Row>();\n}"
       }
     }
   ]

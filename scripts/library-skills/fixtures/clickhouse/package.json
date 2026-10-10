@@ -1,0 +1,13 @@
+{
+  "name": "pmcp-clickhouse-library-fixture",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@clickhouse/client": "1.23.1",
+    "@clickhouse/client-web": "1.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BullMQ 5.x — PMCP</title>
+  <meta name="description" content="Run bounded workers with retries, failure events and graceful shutdown." />
+  <link rel="canonical" href="https://pmcp.build/skills/bullmq/5/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="BullMQ 5.x — PMCP" />
+  <meta property="og:description" content="Run bounded workers with retries, failure events and graceful shutdown." />
+  <meta property="og:url" content="https://pmcp.build/skills/bullmq/5/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/bullmq/">Other majors</a></p>
+    <h1>BullMQ 5.x</h1><p>Run bounded workers with retries, failure events and graceful shutdown.</p>
+    <dl><dt>For</dt><dd><code>bullmq@5.81.4</code></dd><dt>Verified</dt><dd>2026-10-10, 10 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-bullmq@5.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/bullmq/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/bullmq/5/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/bullmq/5/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-KVKMWV+g/74bvUOUvJRMvTXdMZP4Wkkx3BWtEpU3XVX4KENtC71c/pk6B8IYGVB2HYY3wzR2aJh6bjFTsUW2WA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>BullMQ 5</h2>
+<p>Inspect the installed versions, queues, prefixes, Redis topology and worker lifecycle first. This line targets BullMQ 5.81.4 with ioredis 5.11.1. Preserve project concurrency, retention and retry policy.</p>
+<h3>Produce and consume</h3>
+<p>Use matching queue names and prefixes for <code>Queue</code>, <code>Worker</code> and <code>QueueEvents</code>. Request producers need bounded failure; worker connections need <code>maxRetriesPerRequest: null</code>. <code>QueueEvents</code> needs its own blocking connection; do not share a Pub/Sub connection.</p>
+<pre><code class="language-ts">import type Redis from &quot;ioredis&quot;;
+import { Queue, Worker } from &quot;bullmq&quot;;
+
+export function createWorkflow(
+  producer: Redis,
+  workerConnection: Redis,
+  prefix: string,
+) {
+  const queue = new Queue(&quot;jobs&quot;, { connection: producer, prefix });
+  const worker = new Worker(
+    &quot;jobs&quot;,
+    async (job) =&gt; {
+      if (typeof job.data.value !== &quot;number&quot;) throw new Error(&quot;Invalid value&quot;);
+      return job.data.value * 2;
+    },
+    { connection: workerConnection, prefix, concurrency: 1 },
+  );
+  return { queue, worker };
+}
+</code></pre>
+<p>The caller must create <code>workerConnection</code> with <code>maxRetriesPerRequest: null</code>, register operational error listeners and own shutdown. Add jobs with <code>queue.add(name, data, { attempts, backoff })</code>; TypeScript job types do not validate incoming JSON.</p>
+<h3>Verify state</h3>
+<p>Wait for worker and <code>QueueEvents</code> readiness. In bounded integration tests, use <code>job.waitUntilFinished(queueEvents, timeout)</code> and check stored state. A return value and <code>completed</code> state differ from a rejected waiter and <code>failed</code> state.</p>
+<p>Use a transient failure that succeeds on a configured later attempt and a permanent failure that exhausts attempts. Inspect <code>attemptsMade</code> on a refreshed job, not a stale object. An error event is not a completed job.</p>
+<p>Retries and stalled recovery can execute work more than once. Make side effects idempotent. <code>jobId</code> deduplicates additions only while that job exists; removing a completed job permits reuse. Job IDs do not establish exactly-once delivery.</p>
+<h3>Own shutdown</h3>
+<p><code>await worker.close()</code> stops taking jobs and waits for active work. It has no overall deadline; the host must bound shutdown and choose a forced-stop policy. Close workers, queue event consumers, queues and finally caller-owned Redis clients. A queue does not own an independently supplied ioredis client.</p>
+<p>Tests need a unique prefix and cleanup of only their queue after workers stop. Never obliterate an application queue as fixture setup. Review Redis <code>noeviction</code> with the service owner instead of modifying shared configuration from a helper.</p>
+<p>The fixture targets one worker, concurrency 1, completion, retry, permanent failure, a network interruption and graceful close during active work. It does not establish production stalled-job recovery, multiple-worker coordination, repeatable scheduling, Cluster/Sentinel or BullMQ Pro behavior.</p>
+<h3>Primary sources</h3>
+<ul>
+<li><a href="https://docs.bullmq.io/guide/connections">Connections</a></li>
+<li><a href="https://docs.bullmq.io/guide/workers/graceful-shutdown">Graceful shutdown</a></li>
+<li><a href="https://docs.bullmq.io/guide/going-to-production">Production guidance</a></li>
+<li><a href="https://github.com/taskforcesh/bullmq">Upstream</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>
