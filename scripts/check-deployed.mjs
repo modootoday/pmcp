@@ -1,17 +1,8 @@
 #!/usr/bin/env node
-/**
- * Compares what the site serves against what was built.
- *
- * The pages pass through a CDN that rewrites HTML, and one of those rewrites
- * read every "package@version" as an email address and replaced the version a
- * skill was verified against with an obfuscation link. Nothing in a build or a
- * unit test can see that: the bytes only differ once served.
- *
- * Run: node scripts/check-deployed.mjs [--site https://pmcp.build]
- */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { normalizeBasePath, projectHtml } from "./site/pages/paths.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const docs = join(root, "docs");
@@ -19,6 +10,7 @@ const docs = join(root, "docs");
 const flag = process.argv.indexOf("--site");
 const site = flag < 0 ? "https://pmcp.build" : process.argv[flag + 1];
 if (!site) throw new Error("--site needs a base URL");
+const basePath = normalizeBasePath(new URL(site).pathname);
 
 function routes() {
   const found = new Map();
@@ -40,12 +32,7 @@ function routes() {
   return found;
 }
 
-/**
- * The pages carry no external script of their own, so any of them in a served
- * page came from the edge. Those are removed before comparing and reported
- * separately: an appended analytics tag is a different thing from a rewrite of
- * the content, and folding them together would hide the second.
- */
+// CDN-injected scripts are reported separately from content changes.
 const EXTERNAL_SCRIPT =
   /<script\b[^>]*\bsrc="https?:\/\/[^"]*"[^>]*>\s*<\/script>\n?/giu;
 
@@ -63,10 +50,10 @@ const injectedBy = new Map();
 let checked = 0;
 
 for (const [route, file] of [...routes()].sort()) {
-  const expected = readFileSync(file, "utf8");
+  const expected = projectHtml(readFileSync(file, "utf8"), basePath);
   let served;
   try {
-    const response = await fetch(new URL(route, site), {
+    const response = await fetch(new URL(`${basePath}${route}`, site), {
       headers: { "cache-control": "no-cache", accept: "text/html" },
       signal: AbortSignal.timeout(15_000),
     });
@@ -86,8 +73,6 @@ for (const [route, file] of [...routes()].sort()) {
   }
   served = cleaned.html;
   if (served === expected) continue;
-  // Report the first divergence rather than the whole file: a rewrite shows up
-  // as one substitution, and a diff of two full pages hides it.
   let at = 0;
   while (
     at < served.length &&
@@ -101,9 +86,6 @@ for (const [route, file] of [...routes()].sort()) {
     expected: expected.slice(at, at + 90),
     served: served.slice(at, at + 90),
   };
-  // An edge that reindents the page is not an edge that changed what it says.
-  // Only the second is a defect, and folding them together would train a
-  // reader to ignore the first failure they see.
   const squeeze = (html) => html.replace(/\s+/gu, " ").trim();
   if (squeeze(served) === squeeze(expected)) reformatted.push(divergence);
   else differing.push(divergence);
