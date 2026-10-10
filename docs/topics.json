@@ -79,6 +79,9 @@
     {
       "label": "HTTP and servers",
       "packages": [
+        "@modelcontextprotocol/client",
+        "@modelcontextprotocol/sdk",
+        "@modelcontextprotocol/server",
         "@pothos/core",
         "agent-base",
         "content-type",
@@ -124,6 +127,7 @@
         "@typescript-eslint/visitor-keys",
         "bun-types",
         "emittery",
+        "eslint",
         "human-signals",
         "pgsql-ast-parser",
         "protobufjs",
@@ -148,6 +152,21 @@
         "ioredis",
         "level-supports",
         "tedious"
+      ]
+    },
+    {
+      "label": "Configuration and formatting",
+      "packages": [
+        "prettier",
+        "semver",
+        "smol-toml",
+        "yaml"
+      ]
+    },
+    {
+      "label": "Security",
+      "packages": [
+        "bcryptjs"
       ]
     }
   ],

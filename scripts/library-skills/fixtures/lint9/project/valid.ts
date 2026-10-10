@@ -1,0 +1,1 @@
+void Promise.resolve("handled");

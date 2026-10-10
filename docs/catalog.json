@@ -1,6 +1,6 @@
 {
-  "revision": "library-development-2data-20261010",
-  "publishedAt": "2026-10-10T03:14:03.017Z",
+  "revision": "library-development-3-20261010",
+  "publishedAt": "2026-10-10T03:19:21.755Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -4011,30 +4011,14 @@
     {
       "productId": "typescript-eslint",
       "title": "typescript-eslint",
-      "summary": "Use typescript-eslint v8's unified flat-config package, extension lists, presets, and typed-linting configuration. Avoid carrying forward the split-package or legacy ESLint configuration shape unless the project explicitly uses legacy config.",
+      "summary": "Check typed lint rules and diagnostics with both supported ESLint fixture majors.",
       "delivery": {
         "packageName": "@modootoday/pmcp-typescript-eslint",
-        "version": "8.0.0",
-        "integrity": "sha512-lQYuw/lRtzKHjAd4H07NzrgOrR8hKCh16Lh8LZhkLcz4dYPXm4fVJpJzxicvvsIjRlB6jD1kpL1LBCJ1Obtvyw=="
+        "version": "8.0.1",
+        "integrity": "sha512-IJdEVcSCY4rR6AIQoahMFv/qBN7AGmtLsrcOHnh9Id6BPb6TdpzgjkN+0sbw50hOYUfnKfHBdFGm8HV/UIOo8Q=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:557ef2939e69697c5e40877f33dfaed6f9241880911336af57a93658a45ca600",
-      "evidence": {
-        "verifiedOn": "2026-09-08",
-        "examplesExecuted": 3
-      },
-      "preview": {
-        "headings": [
-          "Use the unified package first",
-          "File extensions and globs",
-          "Main package exports",
-          "Typed linting",
-          "Parser utilities",
-          "Legacy configuration warning",
-          "What this skill does not cover"
-        ],
-        "example": "import assert from 'node:assert/strict';\nimport tseslint from 'typescript-eslint';\n\nassert.deepEqual(tseslint.extensions.ts, ['mts', 'ts', 'cts', 'tsx']);\nassert.deepEqual(tseslint.extensions.js, ['mjs', 'js', 'cjs', 'jsx']);\nassert.deepEqual(\n  [...tseslint.extensions.jsts].sort(),\n  ['mjs', 'js', 'cjs', 'jsx', 'mts', 'ts', 'cts', 'tsx'].sort(),\n);\n\nconst customGlob = `src/**/*.{${tseslint.extensions.ts.join(',')}}`;\nassert.equal(customGlob, 'src/**/*.{mts,ts,cts,tsx}');"
-      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:257d86f2775086c380f51565409070a92b5afa026d516675990e7a7644c207a6",
       "targets": [
         {
           "packageName": "typescript-eslint",
@@ -4047,6 +4031,24 @@
       "line": {
         "major": 8,
         "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Use the unified package first",
+          "File extensions and globs",
+          "Main package exports",
+          "Typed linting",
+          "Parser utilities",
+          "Legacy configuration warning",
+          "Execute typed linting",
+          "What this skill does not cover",
+          "Sources"
+        ],
+        "example": "npm i -D typescript-eslint@8"
       }
     },
     {
@@ -5038,6 +5040,382 @@
           "Primary sources and provenance"
         ],
         "example": "import { createClient } from \"@clickhouse/client-web\";\n\ntype Row = { id: string; label: string };\n\nexport async function findRows(\n  client: ReturnType<typeof createClient>,\n  label: string,\n) {\n  const result = await client.query({\n    query: \"SELECT id, label FROM rows WHERE label = {label:String}\",\n    query_params: { label },\n    format: \"JSONEachRow\",\n  });\n  return await result.json<Row>();\n}"
+      }
+    },
+    {
+      "productId": "semver",
+      "title": "semver",
+      "summary": "Compare exact versions and ranges with explicit prerelease policy.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-semver",
+        "version": "7.0.0",
+        "integrity": "sha512-Rpu/KhDNbbZLy6Zh7Np7S0ahiqKMf9qQ2aF21sylFp4VTrdB/0fPO8wh1+3OXNpubrGZf8t7/ciQ+ALRyMNhlA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:0f74c21ee99d5d15b0e4c92bd1abf2d3b4d02a46d1dee3f379d21deb528c014b",
+      "targets": [
+        {
+          "packageName": "semver",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.8.5"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 2
+      },
+      "preview": {
+        "headings": [
+          "Validate before comparison",
+          "Keep compatibility policy explicit",
+          "Sources"
+        ],
+        "example": "import semver from \"semver\";\n\nexport function accepts(version, range) {\n  if (!semver.valid(version)) return false;\n  if (!semver.validRange(range)) return false;\n  return semver.satisfies(version, range);\n}"
+      }
+    },
+    {
+      "productId": "yaml",
+      "title": "YAML",
+      "summary": "Parse and update YAML configuration with diagnostics and bounded aliases.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-yaml",
+        "version": "2.0.0",
+        "integrity": "sha512-Cx8RUg3YJhW6Vut1YCgxEaPo8ZicWyMw66cKJKNSQNsWjTNwBq2QATeXyvLstDhNj9MrrLe8/UIurORUm42O0w=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2ecfe73b5a74a3f9d35e539000f95e2b6e97b7952da849f4dc9aa6e06a931846",
+      "targets": [
+        {
+          "packageName": "yaml",
+          "range": "^2.0.0",
+          "verifiedVersions": [
+            "2.9.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 2,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Parse and report diagnostics",
+          "Choose schema and conversion boundaries",
+          "Sources"
+        ],
+        "example": "import { parseDocument } from \"yaml\";\n\nexport function updatePort(source, port) {\n  const document = parseDocument(source);\n  if (document.errors.length) throw document.errors[0];\n  document.setIn([\"service\", \"port\"], port);\n  return document.toString();\n}"
+      }
+    },
+    {
+      "productId": "smol-toml",
+      "title": "smol-toml",
+      "summary": "Round-trip TOML configuration while preserving explicit integer policy.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-smol-toml",
+        "version": "1.0.0",
+        "integrity": "sha512-VtD3O7NaPYfF75I2uL0MRaCbKvLiTy+QOgTFoIpEyPnxZGiDPOpnlrDRgBSI/Ksp/gdCrrI0rhIQMM00OX04dw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:a997d84979c03ee2e5bf1035ef2b80d18ce1cf046d123bf91142849563f0c635",
+      "targets": [
+        {
+          "packageName": "smol-toml",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.8.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Parse, validate and serialize",
+          "Preserve the intended value types",
+          "Sources"
+        ],
+        "example": "import { parse, stringify } from \"smol-toml\";\n\nexport function updateHost(source, host) {\n  const settings = parse(source);\n  if (!settings.service || typeof settings.service !== \"object\") {\n    throw new Error(\"Missing service table\");\n  }\n  settings.service.host = host;\n  return stringify(settings);\n}"
+      }
+    },
+    {
+      "productId": "prettier",
+      "title": "Prettier",
+      "summary": "Resolve project formatting rules and verify targeted CLI formatting.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-prettier",
+        "version": "3.0.0",
+        "integrity": "sha512-L753bmirWVJE+KtkO2a0JxLzmLj666O7U/jAdQR+s3idMEK5nPjWvLJeubROf5Ey3efK3Y9cvsQPlpftOFBUeA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2e1426264ba4d5dafb3e7489575ce26cc4fcf3a859b1d9e4c9718de69d689cbf",
+      "targets": [
+        {
+          "packageName": "prettier",
+          "range": "^3.0.0",
+          "verifiedVersions": [
+            "3.9.9"
+          ]
+        }
+      ],
+      "line": {
+        "major": 3,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 3
+      },
+      "preview": {
+        "headings": [
+          "Choose the file and existing configuration",
+          "Use the asynchronous API correctly",
+          "Verify the formatting workflow",
+          "Sources"
+        ],
+        "example": "prettier --check src/component.tsx\nprettier --write src/component.tsx"
+      }
+    },
+    {
+      "productId": "eslint",
+      "title": "ESLint",
+      "summary": "Configure and verify flat lint rules using the installed ESLint 9 toolchain.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-eslint",
+        "version": "9.0.0",
+        "integrity": "sha512-828I9JBQ6a4DxYYekQIRpnEGIjXfvKj0gFiRV0EajFzFX1sXYh7qmeMQTk78SwQc4WQYiGFvdBh6or0/NqvQSw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:2ecdebed7c0e99d4e676ea6164568b52e3726a0e8f36f0c0abdfc6eb808fb35c",
+      "targets": [
+        {
+          "packageName": "eslint",
+          "range": "^9.0.0",
+          "verifiedVersions": [
+            "9.39.5"
+          ]
+        }
+      ],
+      "line": {
+        "major": 9,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Use flat config deliberately",
+          "Typed linting",
+          "Verify diagnostics and fixes",
+          "Sources"
+        ],
+        "example": "import { defineConfig } from \"eslint/config\";\n\nexport default defineConfig({\n  files: [\"src/**/*.{js,mjs}\"],\n  rules: { \"no-unused-vars\": \"error\" },\n});"
+      }
+    },
+    {
+      "productId": "eslint",
+      "title": "ESLint",
+      "summary": "Verify flat lint configuration against ESLint 10 and preserve upgrade boundaries.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-eslint",
+        "version": "10.0.0",
+        "integrity": "sha512-IS8nDMpwOnhCOaHZTWxd4BuWzshGhyFTottxq7zr5b6c2WcNlyGmct+U68CulIJAO9OA7RRVxNHWAjjfEze+ZQ=="
+      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:d036e5eb7bfffac26db50f0d8f061442a4adc7d950c2d0e0fc8068a2fe310fd7",
+      "targets": [
+        {
+          "packageName": "eslint",
+          "range": "^10.0.0",
+          "verifiedVersions": [
+            "10.10.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 10,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 4
+      },
+      "preview": {
+        "headings": [
+          "Account for major-specific lookup",
+          "Scope typed configuration",
+          "Run and verify",
+          "Sources"
+        ],
+        "example": "import { defineConfig } from \"eslint/config\";\n\nexport default defineConfig(\n  { ignores: [\"generated/**\"] },\n  { files: [\"src/**/*.js\"], rules: { \"no-unused-vars\": \"error\" } },\n);"
+      }
+    },
+    {
+      "productId": "modelcontextprotocol-sdk",
+      "title": "MCP TypeScript SDK",
+      "summary": "Register strict tool contracts and verify real client calls over a v1 memory transport.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-modelcontextprotocol-sdk",
+        "version": "1.0.0",
+        "integrity": "sha512-xUyixHsYBeLqg0Tvmg4xDnwkwW1dilwZwLkS1DBe1WCB/yghm1zcLTvghFptnpOsx7uN+umxvUi7HKWSd8I0tg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:3d14cc7eb321359af5b9cad8d574d680bf633a771679ed4cc7a8839048a5ddca",
+      "targets": [
+        {
+          "packageName": "@modelcontextprotocol/sdk",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.30.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Define a tool contract before its handler",
+          "Separate tool failures from transport failures",
+          "Test through an actual client",
+          "Sources"
+        ],
+        "example": "import { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport { z } from \"zod/v3\";\n\nconst server = new McpServer({ name: \"items\", version: \"1.0.0\" });\nserver.registerTool(\n  \"read-item\",\n  {\n    description: \"Read an item by its identifier\",\n    inputSchema: z.object({ itemId: z.string().min(1) }).strict(),\n    outputSchema: z.object({ itemId: z.string(), title: z.string() }),\n    annotations: { readOnlyHint: true },\n  },\n  async ({ itemId }) => {\n    const item = { itemId, title: \"Example item\" };\n    return {\n      content: [{ type: \"text\", text: item.title }],\n      structuredContent: item,\n    };\n  },\n);"
+      }
+    },
+    {
+      "productId": "modelcontextprotocol-server",
+      "title": "MCP TypeScript server",
+      "summary": "Expose Standard Schema tools and verify modern protocol calls through an in-process handler.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-modelcontextprotocol-server",
+        "version": "2.0.0",
+        "integrity": "sha512-KDYf01z3/9Jz0sQ6jVsUuQ1mbiBGbswaRDGMFnUzjYKQqrdfM4q1ZucsrQaKc2oJAJo8h8g+p8UKh7aHN86MlA=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:9799920f0e98be93e1251601e8cf350391d0641f9b3172f870cea1fbbe9477d6",
+      "targets": [
+        {
+          "packageName": "@modelcontextprotocol/server",
+          "range": "^2.0.0",
+          "verifiedVersions": [
+            "2.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 2,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 9
+      },
+      "preview": {
+        "headings": [
+          "Register explicit Standard Schema contracts",
+          "Keep serving and integration tests distinct",
+          "Sources"
+        ],
+        "example": "import { McpServer } from \"@modelcontextprotocol/server\";\nimport { z } from \"zod/v4\";\n\nfunction createServer() {\n  const server = new McpServer({ name: \"items\", version: \"1.0.0\" });\n  server.registerTool(\n    \"read-item\",\n    {\n      description: \"Read an item by its identifier\",\n      inputSchema: z.object({ itemId: z.string().min(1) }).strict(),\n      outputSchema: z.object({ itemId: z.string(), title: z.string() }),\n      annotations: { readOnlyHint: true },\n    },\n    async ({ itemId }) => ({\n      content: [{ type: \"text\", text: \"Example item\" }],\n      structuredContent: { itemId, title: \"Example item\" },\n    }),\n  );\n  return server;\n}"
+      }
+    },
+    {
+      "productId": "modelcontextprotocol-client",
+      "title": "MCP TypeScript client",
+      "summary": "Negotiate the modern protocol and handle structured output, failures and client teardown.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-modelcontextprotocol-client",
+        "version": "2.0.0",
+        "integrity": "sha512-Wjhy/64P71s7s6s2Ptb4cMw7fn5PhYAo2aPAzWYO31zWTpR6RPuNjZEFCotf8357uTCqYGgv/vQVrR9fzkU79g=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:3844abd32ca24777c490fce9c84eecc60dd1d0d5a2ce7361fc2250d706db01e1",
+      "targets": [
+        {
+          "packageName": "@modelcontextprotocol/client",
+          "range": "^2.0.0",
+          "verifiedVersions": [
+            "2.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 2,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 9
+      },
+      "preview": {
+        "headings": [
+          "Connect, inspect, call, and close",
+          "Handle both kinds of failure",
+          "Test without contacting an endpoint",
+          "Sources"
+        ],
+        "example": "import {\n  Client,\n  StreamableHTTPClientTransport,\n} from \"@modelcontextprotocol/client\";\n\nconst client = new Client(\n  { name: \"items-client\", version: \"1.0.0\" },\n  { versionNegotiation: { mode: \"auto\" } },\n);\nconst transport = new StreamableHTTPClientTransport(endpoint);\n\ntry {\n  await client.connect(transport);\n  const available = await client.listTools();\n  const result = await client.callTool({\n    name: \"read-item\",\n    arguments: { itemId: \"42\" },\n  });\n  if (result.isError) throw new Error(\"The item operation failed\");\n  consumeResult(available, result.structuredContent);\n} finally {\n  await client.close();\n}"
+      }
+    },
+    {
+      "productId": "bcryptjs",
+      "title": "bcryptjs",
+      "summary": "Hash and compare asynchronously with explicit UTF-8 byte limits and stored cost inspection.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-bcryptjs",
+        "version": "2.0.0",
+        "integrity": "sha512-lnvVRR90F0A6IEQ5r++bhrEWyLrfMrSmWW5i5Nj7wlvPFBaiad4zLLf7bCZkenv8rWIQ2/uSJd7cUZhlOIkAvw=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:08929fce7707375739f73ba1a60e5d6e87d6cfea9f3186f1ae2d95702d57892a",
+      "targets": [
+        {
+          "packageName": "bcryptjs",
+          "range": "^2.0.0",
+          "verifiedVersions": [
+            "2.4.3"
+          ]
+        }
+      ],
+      "line": {
+        "major": 2,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 7
+      },
+      "preview": {
+        "headings": [
+          "Enforce the byte limit before hashing",
+          "Use async operations and preserve the encoded hash",
+          "Make rehash a verified-login decision",
+          "Sources"
+        ],
+        "example": "function validatePassword(password) {\n  if (typeof password !== \"string\") {\n    throw new TypeError(\"Password must be a string\");\n  }\n  if (Buffer.byteLength(password, \"utf8\") > 72) {\n    throw new RangeError(\"Password exceeds bcrypt's 72-byte limit\");\n  }\n  return password;\n}"
       }
     }
   ]

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YAML 2.x — PMCP</title>
+  <meta name="description" content="Parse and update YAML configuration with diagnostics and bounded aliases." />
+  <link rel="canonical" href="https://pmcp.build/skills/yaml/2/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="YAML 2.x — PMCP" />
+  <meta property="og:description" content="Parse and update YAML configuration with diagnostics and bounded aliases." />
+  <meta property="og:url" content="https://pmcp.build/skills/yaml/2/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/yaml/">Other majors</a></p>
+    <h1>YAML 2.x</h1><p>Parse and update YAML configuration with diagnostics and bounded aliases.</p>
+    <dl><dt>For</dt><dd><code>yaml@2.9.0</code></dd><dt>Verified</dt><dd>2026-10-10, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-yaml@2.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/yaml/2/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/yaml/2/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/yaml/2/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-Cx8RUg3YJhW6Vut1YCgxEaPo8ZicWyMw66cKJKNSQNsWjTNwBq2QATeXyvLstDhNj9MrrLe8/UIurORUm42O0w==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>yaml 2 configuration workflows</h2>
+<p>Inspect the installed version, selected YAML schema and the configuration owner&#39;s
+validation rules. The fixture targets yaml 2.9.0. The parser does not replace the
+application&#39;s schema validation.</p>
+<h3>Parse and report diagnostics</h3>
+<p>parse converts to plain values and throws on parse errors. parseDocument provides
+the document tree and errors/warnings for a diagnostic workflow. Check errors
+before consuming or writing that document; a returned object is not evidence of
+a valid configuration.</p>
+<pre><code class="language-js">import { parseDocument } from &quot;yaml&quot;;
+
+export function updatePort(source, port) {
+  const document = parseDocument(source);
+  if (document.errors.length) throw document.errors[0];
+  document.setIn([&quot;service&quot;, &quot;port&quot;], port);
+  return document.toString();
+}
+</code></pre>
+<p>The Document API retains comments and structure where supported. Plain
+parse→stringify regenerates representation and should not be used to promise
+comment-preserving edits. Review the written diff when formatting or anchors
+matter to the owner.</p>
+<h3>Choose schema and conversion boundaries</h3>
+<p>YAML 1.2 is the default. YAML 1.1 has different scalar interpretation, so select
+it only when the consumer requires it. Quote ambiguous scalar strings when their
+intended type should be explicit.</p>
+<p>Duplicate keys are errors by default. Do not disable that check to accept an
+ambiguous configuration silently. Alias conversion is controlled by
+maxAliasCount; zero disallows alias expansion, while a negative value disables
+the limit. Keep the caller&#39;s intended bounded policy for untrusted inputs.</p>
+<p>Validate the resulting plain object before applying it. Avoid merging user data
+into global configuration with an unrestricted recursive merge merely because
+the YAML syntax parsed. Custom schemas and tags need their own conversion tests.</p>
+<p>The fixture verifies a commented document update, duplicate-key diagnostics and
+alias-conversion limits. It does not validate arbitrary application schemas.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://eemeli.org/yaml/">yaml Document API, parsing options and diagnostics</a></li>
+<li><a href="https://github.com/eemeli/yaml">yaml source and package releases</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

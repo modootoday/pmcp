@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MCP TypeScript client 2.x — PMCP</title>
+  <meta name="description" content="Negotiate the modern protocol and handle structured output, failures and client teardown." />
+  <link rel="canonical" href="https://pmcp.build/skills/modelcontextprotocol-client/2/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="MCP TypeScript client 2.x — PMCP" />
+  <meta property="og:description" content="Negotiate the modern protocol and handle structured output, failures and client teardown." />
+  <meta property="og:url" content="https://pmcp.build/skills/modelcontextprotocol-client/2/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/modelcontextprotocol-client/">Other majors</a></p>
+    <h1>MCP TypeScript client 2.x</h1><p>Negotiate the modern protocol and handle structured output, failures and client teardown.</p>
+    <dl><dt>For</dt><dd><code>@modelcontextprotocol/client@2.0.0</code></dd><dt>Verified</dt><dd>2026-10-10, 9 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-modelcontextprotocol-client@2.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/modelcontextprotocol-client/2/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/modelcontextprotocol-client/2/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/modelcontextprotocol-client/2/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-Wjhy/64P71s7s6s2Ptb4cMw7fn5PhYAo2aPAzWYO31zWTpR6RPuNjZEFCotf8357uTCqYGgv/vQVrR9fzkU79g==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>MCP TypeScript client 2.x</h2>
+<p>Use <code>Client</code> from <code>@modelcontextprotocol/client</code>. The v1
+<code>@modelcontextprotocol/sdk/client/index.js</code> import is a different package line.
+Pick the transport according to the server endpoint rather than treating every
+MCP server as a subprocess.</p>
+<h3>Connect, inspect, call, and close</h3>
+<pre><code class="language-ts">import {
+  Client,
+  StreamableHTTPClientTransport,
+} from &quot;@modelcontextprotocol/client&quot;;
+
+const client = new Client(
+  { name: &quot;items-client&quot;, version: &quot;1.0.0&quot; },
+  { versionNegotiation: { mode: &quot;auto&quot; } },
+);
+const transport = new StreamableHTTPClientTransport(endpoint);
+
+try {
+  await client.connect(transport);
+  const available = await client.listTools();
+  const result = await client.callTool({
+    name: &quot;read-item&quot;,
+    arguments: { itemId: &quot;42&quot; },
+  });
+  if (result.isError) throw new Error(&quot;The item operation failed&quot;);
+  consumeResult(available, result.structuredContent);
+} finally {
+  await client.close();
+}
+</code></pre>
+<p>The application supplies <code>endpoint</code> and <code>consumeResult</code>. Discover tools before
+depending on their names and shapes. Use the tool&#39;s advertised contract and
+validate data at the application boundary; a TypeScript cast does not validate
+an unfamiliar server&#39;s output.</p>
+<p>Inspect <code>getProtocolEra()</code> and <code>getNegotiatedProtocolVersion()</code> after connecting
+when behavior depends on the negotiated protocol. An installed v2 client can
+connect to a legacy server, so the package version alone is insufficient.
+Use operation deadlines and explicit retry rules for side-effecting tools;
+repeating a timed-out call can duplicate work.</p>
+<h3>Handle both kinds of failure</h3>
+<p>Expected tool failures resolve with <code>isError: true</code> and model-readable <code>content</code>.
+Do not consume their <code>structuredContent</code> as successful application data.
+Transport or protocol failures may reject. Preserve useful error context
+without logging credential headers or access tokens.</p>
+<p>Strict schemas can reject missing, wrong-type and unknown arguments. Fix the
+caller according to the discovered contract rather than weakening validation
+to make a test pass. Read-only annotations describe the server&#39;s intent; they
+do not authorize calls on the user&#39;s behalf.</p>
+<h3>Test without contacting an endpoint</h3>
+<p>Inject a custom transport <code>fetch</code> that constructs a <code>Request</code> and passes it to
+<code>createMcpHandler</code> from <code>@modelcontextprotocol/server</code>. The URL is an identifier
+in this fixture; the injected function must never fall back to network fetch.
+Use a modern-only handler and assert the negotiated protocol, tool discovery,
+successful data and invalid argument/domain error results.</p>
+<p>Close the client, then the handler, even when an assertion fails. This fixture
+exercises actual HTTP serialization in-process. Paired memory transport covers
+2025-era behavior; it does not prove modern protocol support. Neither fixture
+proves OAuth, remote endpoint security or stdio child lifecycle.</p>
+<p>Keep provider authentication in the documented client auth integration. Do not
+copy native runtime account files into a fixture or reinterpret a tool error
+as a reason to replace an OAuth session.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://ts.sdk.modelcontextprotocol.io/v2/">Official client and transport documentation</a></li>
+<li><a href="https://ts.sdk.modelcontextprotocol.io/v2/testing.html">Credential-free client/server roundtrip</a></li>
+<li><a href="https://ts.sdk.modelcontextprotocol.io/v2/migration/upgrade-to-v2.html">Version and API migration boundaries</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

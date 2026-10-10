@@ -125,6 +125,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/bcryptjs/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/bcryptjs/2/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/bullmq/</loc>
     <priority>0.8</priority>
   </url>
@@ -282,6 +290,18 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/eslint-plugin-testing-library/7/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/eslint/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/eslint/10/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/eslint/9/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -517,6 +537,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/modelcontextprotocol-client/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/modelcontextprotocol-client/2/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/modelcontextprotocol-sdk/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/modelcontextprotocol-sdk/1/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/modelcontextprotocol-server/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/modelcontextprotocol-server/2/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/msw/</loc>
     <priority>0.8</priority>
   </url>
@@ -586,6 +630,14 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/pothos-core/4/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/prettier/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/prettier/3/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -685,6 +737,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/semver/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/semver/7/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/sinon/</loc>
     <priority>0.8</priority>
   </url>
@@ -698,6 +758,14 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/slice-ansi/9/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/smol-toml/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/smol-toml/1/</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -946,6 +1014,14 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/wrap-ansi/10/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/yaml/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/yaml/2/</loc>
     <priority>0.8</priority>
   </url>
   <url>

@@ -1,0 +1,11 @@
+{
+  "name": "pmcp-configuration-verification",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "semver": "7.8.5",
+    "yaml": "2.9.0",
+    "smol-toml": "1.8.0",
+    "prettier": "3.9.9"
+  }
+}

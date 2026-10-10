@@ -3,14 +3,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>typescript-eslint 8.x — PMCP</title>
-  <meta name="description" content="Use typescript-eslint v8's unified flat-config package, extension lists, presets, and typed-linting configuration. Avoid carrying forward the split-package or legacy ESLint configuration shape unless the project explicitly uses legacy config." />
+  <meta name="description" content="Check typed lint rules and diagnostics with both supported ESLint fixture majors." />
   <link rel="canonical" href="https://pmcp.build/skills/typescript-eslint/8/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
   <meta property="og:title" content="typescript-eslint 8.x — PMCP" />
-  <meta property="og:description" content="Use typescript-eslint v8's unified flat-config package, extension lists, presets, and typed-linting configuration. Avoid carrying forward the split-package or legacy ESLint configuration shape unless the project explicitly uses legacy config." />
+  <meta property="og:description" content="Check typed lint rules and diagnostics with both supported ESLint fixture majors." />
   <meta property="og:url" content="https://pmcp.build/skills/typescript-eslint/8/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -36,15 +36,18 @@
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/typescript-eslint/">Other majors</a></p>
-    <h1>typescript-eslint 8.x</h1><p>Use typescript-eslint v8's unified flat-config package, extension lists, presets, and typed-linting configuration. Avoid carrying forward the split-package or legacy ESLint configuration shape unless the project explicitly uses legacy config.</p>
-    <dl><dt>For</dt><dd><code>typescript-eslint@8.70.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-typescript-eslint@8.0.0</code></dd></dl>
+    <h1>typescript-eslint 8.x</h1><p>Check typed lint rules and diagnostics with both supported ESLint fixture majors.</p>
+    <dl><dt>For</dt><dd><code>typescript-eslint@8.70.0</code></dd><dt>Verified</dt><dd>2026-10-10, 8 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-typescript-eslint@8.0.1</code></dd></dl>
     <section class="skill-download"><h2>Use this skill for free</h2>
     <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
     <p><a href="/skills/typescript-eslint/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/typescript-eslint/8/package.tgz" download>Download package archive</a></p>
     <pre><code>npm install --save-dev https://pmcp.build/skills/typescript-eslint/8/package.tgz</code></pre>
     <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
-    <details><summary>Archive integrity</summary><code>sha512-lQYuw/lRtzKHjAd4H07NzrgOrR8hKCh16Lh8LZhkLcz4dYPXm4fVJpJzxicvvsIjRlB6jD1kpL1LBCJ1Obtvyw==</code></details></section>
+    <details><summary>Archive integrity</summary><code>sha512-IJdEVcSCY4rR6AIQoahMFv/qBN7AGmtLsrcOHnh9Id6BPb6TdpzgjkN+0sbw50hOYUfnKfHBdFGm8HV/UIOo8Q==</code></details></section>
     <section class="skill-source"><h2>Complete instructions</h2><p>Verified against typescript-eslint@8.70.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<p>Those historical examples inspect exports and configuration composition only.
+The separate ESLint 9/10 fixtures exercise actual typed linting and project
+service behavior; their execution evidence is tracked separately.</p>
 <h2>typescript-eslint v8</h2>
 <h3>Use the unified package first</h3>
 <p>For v8, install the unified package:</p>
@@ -52,12 +55,12 @@
 </code></pre>
 <p>The main package exports <code>config</code>, <code>configs</code>, <code>extensions</code>, <code>globs</code>, <code>parser</code>, <code>plugin</code>, and <code>FlatConfig</code>. Its <code>parser</code> and <code>plugin</code> exports provide the TypeScript parser and ESLint plugin surfaces.</p>
 <p>The preferred v8 setup is ESLint flat config. The recommended and stylistic presets already configure the TypeScript parser and plugin, so do not manually register them when using those presets.</p>
-<pre><code class="language-js">import js from &#39;@eslint/js&#39;;
-import { defineConfig } from &#39;eslint/config&#39;;
-import tseslint from &#39;typescript-eslint&#39;;
+<pre><code class="language-js">import js from &quot;@eslint/js&quot;;
+import { defineConfig } from &quot;eslint/config&quot;;
+import tseslint from &quot;typescript-eslint&quot;;
 
 export default defineConfig({
-  files: [&#39;**/*.{js,ts}&#39;],
+  files: [&quot;**/*.{js,ts}&quot;],
   extends: [js.configs.recommended, tseslint.configs.recommended],
 });
 </code></pre>
@@ -69,41 +72,41 @@ export default defineConfig({
 <li><code>extensions.js</code>: <code>[&#39;mjs&#39;, &#39;js&#39;, &#39;cjs&#39;, &#39;jsx&#39;]</code></li>
 <li><code>extensions.jsts</code>: both sets; do not rely on the order of this combined list</li>
 </ul>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
-import tseslint from &#39;typescript-eslint&#39;;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import tseslint from &quot;typescript-eslint&quot;;
 
-assert.deepEqual(tseslint.extensions.ts, [&#39;mts&#39;, &#39;ts&#39;, &#39;cts&#39;, &#39;tsx&#39;]);
-assert.deepEqual(tseslint.extensions.js, [&#39;mjs&#39;, &#39;js&#39;, &#39;cjs&#39;, &#39;jsx&#39;]);
+assert.deepEqual(tseslint.extensions.ts, [&quot;mts&quot;, &quot;ts&quot;, &quot;cts&quot;, &quot;tsx&quot;]);
+assert.deepEqual(tseslint.extensions.js, [&quot;mjs&quot;, &quot;js&quot;, &quot;cjs&quot;, &quot;jsx&quot;]);
 assert.deepEqual(
   [...tseslint.extensions.jsts].sort(),
-  [&#39;mjs&#39;, &#39;js&#39;, &#39;cjs&#39;, &#39;jsx&#39;, &#39;mts&#39;, &#39;ts&#39;, &#39;cts&#39;, &#39;tsx&#39;].sort(),
+  [&quot;mjs&quot;, &quot;js&quot;, &quot;cjs&quot;, &quot;jsx&quot;, &quot;mts&quot;, &quot;ts&quot;, &quot;cts&quot;, &quot;tsx&quot;].sort(),
 );
 
-const customGlob = `src/**/*.{${tseslint.extensions.ts.join(&#39;,&#39;)}}`;
-assert.equal(customGlob, &#39;src/**/*.{mts,ts,cts,tsx}&#39;);
+const customGlob = `src/**/*.{${tseslint.extensions.ts.join(&quot;,&quot;)}}`;
+assert.equal(customGlob, &quot;src/**/*.{mts,ts,cts,tsx}&quot;);
 </code></pre>
 <h3>Main package exports</h3>
 <p>A plain script can inspect and compose the main package exports without running ESLint:</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
-import tseslint from &#39;typescript-eslint&#39;;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import tseslint from &quot;typescript-eslint&quot;;
 
-assert.equal(typeof tseslint.config, &#39;function&#39;);
-assert.equal(typeof tseslint.parser, &#39;object&#39;);
-assert.equal(typeof tseslint.plugin, &#39;object&#39;);
-assert.equal(typeof tseslint.configs.recommended, &#39;object&#39;);
-assert.ok(tseslint.extensions.ts.includes(&#39;ts&#39;));
-assert.ok(tseslint.extensions.js.includes(&#39;js&#39;));
+assert.equal(typeof tseslint.config, &quot;function&quot;);
+assert.equal(typeof tseslint.parser, &quot;object&quot;);
+assert.equal(typeof tseslint.plugin, &quot;object&quot;);
+assert.equal(typeof tseslint.configs.recommended, &quot;object&quot;);
+assert.ok(tseslint.extensions.ts.includes(&quot;ts&quot;));
+assert.ok(tseslint.extensions.js.includes(&quot;js&quot;));
 </code></pre>
 <p>Do not assume that the parser export has a <code>parse</code> method. The package exposes the parser object, but that particular method is not part of the verified standalone surface.</p>
 <p>The <code>config</code> helper is still available for compatibility, but new configuration should use ESLint&#39;s <code>defineConfig</code>. When using <code>config</code>, pass ESLint configuration objects rather than legacy string-based <code>extends</code> entries.</p>
-<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
-import tseslint from &#39;typescript-eslint&#39;;
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import tseslint from &quot;typescript-eslint&quot;;
 
 const result = tseslint.config({
-  files: [&#39;**/*.ts&#39;],
+  files: [&quot;**/*.ts&quot;],
   extends: [tseslint.configs.recommended],
   rules: {
-    &#39;@typescript-eslint/array-type&#39;: &#39;error&#39;,
+    &quot;@typescript-eslint/array-type&quot;: &quot;error&quot;,
   },
 });
 
@@ -112,19 +115,19 @@ assert.ok(result.length &gt; 0);
 </code></pre>
 <h3>Typed linting</h3>
 <p>Type-aware rules need TypeScript project/type information. They are not enabled merely by selecting a TypeScript parser. In flat config, use parser options with <code>projectService: true</code>:</p>
-<pre><code class="language-js">import tseslint from &#39;typescript-eslint&#39;;
+<pre><code class="language-js">import { defineConfig } from &quot;eslint/config&quot;;
+import tseslint from &quot;typescript-eslint&quot;;
 
-export default [
-  {
-    files: [&#39;**/*.ts&#39;],
-    extends: [tseslint.configs.recommendedTypeChecked],
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-      },
+export default defineConfig({
+  files: [&quot;src/**/*.ts&quot;],
+  extends: [tseslint.configs.recommendedTypeChecked],
+  languageOptions: {
+    parserOptions: {
+      projectService: true,
+      tsconfigRootDir: import.meta.dirname,
     },
   },
-];
+});
 </code></pre>
 <p>The type-checked preset names in v8 are <code>recommendedTypeChecked</code> and <code>stylisticTypeChecked</code>. The hyphenated names <code>recommended-type-checked</code> and <code>stylistic-type-checked</code> are the legacy names commonly shown in older configuration examples.</p>
 <p><code>projectService</code> uses TypeScript&#39;s editor-style service and generally replaces manually specifying <code>project</code> paths or creating a separate <code>tsconfig.eslint.json</code>. It is parser configuration consumed by ESLint; it is not a standalone typed-linting switch for an arbitrary script.</p>
@@ -134,22 +137,44 @@ export default [
 <h3>Legacy configuration warning</h3>
 <p>Older projects may still use the split packages and <code>.eslintrc</code> shape:</p>
 <pre><code class="language-js">module.exports = {
-  extends: [&#39;eslint:recommended&#39;, &#39;plugin:@typescript-eslint/recommended&#39;],
-  parser: &#39;@typescript-eslint/parser&#39;,
-  plugins: [&#39;@typescript-eslint&#39;],
+  extends: [&quot;eslint:recommended&quot;, &quot;plugin:@typescript-eslint/recommended&quot;],
+  parser: &quot;@typescript-eslint/parser&quot;,
+  plugins: [&quot;@typescript-eslint&quot;],
   root: true,
 };
 </code></pre>
 <p>That setup requires separately installed <code>@typescript-eslint/parser</code> and <code>@typescript-eslint/eslint-plugin</code> and is run through ESLint. Do not translate it mechanically into v8 flat config: use the unified <code>typescript-eslint</code> package and its exported presets instead. v8 supports ESLint v9 and flat config; v7 was the first version with flat-config support.</p>
+<h3>Execute typed linting</h3>
+<p>Version 8.70.0&#39;s peer range supports ESLint 8.57+, 9 and 10, and TypeScript
+<code>&gt;=4.8.4 &lt;6.1</code>. Earlier 8.x patches can have different supported ranges. Check the
+installed parser/plugin versions instead of installing a second incompatible
+copy as a workaround.</p>
+<p>Run the project&#39;s installed ESLint CLI on a real file inside its tsconfig.
+projectService uses the editor-style project boundary; files outside it need
+a separate untyped scope or a deliberately narrow default-project allowance.
+Keep allowDefaultProject bounded rather than matching all source files.</p>
+<pre><code class="language-sh">eslint src/example.ts --max-warnings=0
+eslint --print-config src/example.ts
+</code></pre>
+<p>Verify a type-aware rule with a source case that actually needs type information,
+such as an unhandled promise. Check both the intended failing case and a valid
+handled case. Parsing or importing the rule preset alone is not a typed-lint
+verification. Keep compiler diagnostics under the project&#39;s own typecheck.</p>
 <h3>What this skill does not cover</h3>
 <ul>
-<li>Running ESLint, loading an <code>eslint.config.*</code> file, or invoking the ESLint CLI.</li>
 <li>The detailed contents of every preset or every rule.</li>
 <li>Creating a real TypeScript <code>Program</code> from a filesystem project.</li>
 <li>The standalone <code>@typescript-eslint/project-service</code> API, including <code>createProjectService</code>, its settings, and lifecycle.</li>
 <li>The separate <code>@typescript-eslint/utils</code> package and its exported AST, scope, and utility APIs.</li>
 <li>Parser utility methods not verified on the unified package&#39;s standalone parser export.</li>
 <li>Legacy ESLint configuration migration details beyond the v8 versus older configuration shapes described above.</li>
+</ul>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://typescript-eslint.io/packages/typescript-eslint/">Unified package</a></li>
+<li><a href="https://typescript-eslint.io/getting-started/typed-linting/">Typed linting and project service</a></li>
+<li><a href="https://typescript-eslint.io/troubleshooting/typed-linting/">Troubleshooting typed linting</a></li>
+<li><a href="https://eslint.org/docs/latest/use/configure/configuration-files">ESLint flat configuration</a></li>
 </ul>
 </section></article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
