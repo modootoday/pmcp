@@ -1,6 +1,6 @@
 ---
 name: typescript-eslint-types
-description: Use @typescript-eslint/types ^8 as the lightweight TypeScript-ESTree AST type package: runtime AST enums plus exported parser, project-service, and AST declarations. It is an internal package, not a parser, runner, CLI, or standalone AST-producing tool.
+description: "Use @typescript-eslint/types ^8 as the lightweight TypeScript-ESTree AST type package: runtime AST enums plus exported parser, project-service, and AST declarations. It is an internal package, not a parser, runner, CLI, or standalone AST-producing tool."
 ---
 
 Verified against @typescript-eslint/types@8.70.0 on 2026-09-08. 2 of 2 examples executed.

@@ -1,6 +1,6 @@
 ---
 name: playwright-test
-description: Use @playwright/test 1.x correctly: distinguish its runner-managed test API from standalone imports, configure projects, define fixtures, and compose test/assertion extensions.
+description: "Use @playwright/test 1.x correctly: distinguish its runner-managed test API from standalone imports, configure projects, define fixtures, and compose test/assertion extensions."
 ---
 
 Verified against @playwright/test@1.63.0 on 2026-09-07. 5 of 5 examples executed.

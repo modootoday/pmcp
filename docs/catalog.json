@@ -1,6 +1,6 @@
 {
-  "revision": "r13-floor-20260908",
-  "publishedAt": "2026-09-08T03:20:05.618Z",
+  "revision": "library-format-20261010",
+  "publishedAt": "2026-10-10T01:48:30.513Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -179,11 +179,24 @@
       "summary": "Practical guidance for graphql ^17.0.0: parse, print, visit, build schemas, and execute operations from standalone scripts.",
       "delivery": {
         "packageName": "@modootoday/pmcp-graphql",
-        "version": "17.0.0",
-        "integrity": "sha512-un0iQaXJr+eqwpJeaVnyLc0ZKUkYlbNNkO9Kz8L1a/0D0xd7BRhMjQrj2xR+RYwJc4mL58Gds7YlhfzlnZLTRA=="
+        "version": "17.0.1",
+        "integrity": "sha512-Sa7NDThFEeJRnhGbS9mUsPirqKJN58vvPPsbYb79VWshcuAsqonDmzwedbebN3xN2n54xgWopDu3C+9DqSEjFQ=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:ab33a2cfcfaa67afca903ed6fc4025aacf804eb0ac6d703190fc00d6a0a90aad",
+      "skillRevision": 2,
+      "contentDigest": "sha256:7596240539a07beb5f779aaecfda8dc419ebc49338f3b07bf3766b4d706a626e",
+      "targets": [
+        {
+          "packageName": "graphql",
+          "range": "^17.0.0",
+          "verifiedVersions": [
+            "17.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 17,
+        "status": "active"
+      },
       "evidence": {
         "verifiedOn": "2026-09-07",
         "examplesExecuted": 6
@@ -200,19 +213,6 @@
           "Not covered"
         ],
         "example": "import assert from 'node:assert/strict';\nimport { parse, print } from 'graphql';\n\nconst ast = parse('{ hero { name } }');\nassert.equal(\n  print(ast),\n  '{\\n  hero {\\n    name\\n  }\\n}',\n);"
-      },
-      "targets": [
-        {
-          "packageName": "graphql",
-          "range": "^17.0.0",
-          "verifiedVersions": [
-            "17.0.2"
-          ]
-        }
-      ],
-      "line": {
-        "major": 17,
-        "status": "active"
       }
     },
     {
@@ -653,11 +653,24 @@
       "summary": "Use @playwright/test 1.x correctly: distinguish its runner-managed test API from standalone imports, configure projects, define fixtures, and compose test/assertion extensions.",
       "delivery": {
         "packageName": "@modootoday/pmcp-playwright-test",
-        "version": "1.0.0",
-        "integrity": "sha512-NW+OhSCdvqjkhDTZwwLde0rJr1CfHdfei2Tc/c6beRZnBBA97jYq/7hcE/Dq0+HGJCK0DtFORxGbTM6oKW2//A=="
+        "version": "1.0.1",
+        "integrity": "sha512-Y0NDwRnbmmbJJtNICTHRx/LicLp2OrIX58y/jY+Jb+kJV3irj3zFJ27+k7DHMnRvT4a+z+6MXYB0O7RDuo/uUQ=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:bb2b3f2bcc06932dbbecbc3de636609f355e83109175c73b898f824e531da68d",
+      "skillRevision": 2,
+      "contentDigest": "sha256:c433f23c7dbb934f24dc1a7436de9cab04f94843df8a1ee0b36ed1cd00a3f11b",
+      "targets": [
+        {
+          "packageName": "@playwright/test",
+          "range": "^1.0.0",
+          "verifiedVersions": [
+            "1.63.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 1,
+        "status": "active"
+      },
       "evidence": {
         "verifiedOn": "2026-09-07",
         "examplesExecuted": 5
@@ -676,19 +689,6 @@
           "What this skill does not cover"
         ],
         "example": "import { expect } from '@playwright/test';\n\nconst value = { status: 'ready', count: 2 };\nexpect(value.status).toBe('ready');\nexpect(value.count).toBeGreaterThan(1);\nexpect(value).toEqual({ status: 'ready', count: 2 });"
-      },
-      "targets": [
-        {
-          "packageName": "@playwright/test",
-          "range": "^1.0.0",
-          "verifiedVersions": [
-            "1.63.0"
-          ]
-        }
-      ],
-      "line": {
-        "major": 1,
-        "status": "active"
       }
     },
     {
@@ -1281,11 +1281,24 @@
       "summary": "Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner.",
       "delivery": {
         "packageName": "@modootoday/pmcp-jasmine-core",
-        "version": "7.0.0",
-        "integrity": "sha512-RJqRnou1rEwCTZe/O8AIuGO29Mz2meBNYAAMJrECbEHdux/E1KAVl3B3nHMZdNGd0/p8hUwJw/HE4GS6m16sYw=="
+        "version": "7.0.1",
+        "integrity": "sha512-k7QXujNqpBxSDgG2cJGdp5KI6SV8gtaVy84t8WLkMkLNnF460FovNc+8+MfOSeuaqLUxgzK+2SupSEjaWCDyjw=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:af1b53fd8f111cff1bc8653ee8d1ea421b77c25d8d8c3ca899cb906db8739d88",
+      "skillRevision": 2,
+      "contentDigest": "sha256:c4de67c56c9a6c211483908096c88ef260f3dbb8011e707ea92e14aa3b25647b",
+      "targets": [
+        {
+          "packageName": "jasmine-core",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.0.2"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      },
       "evidence": {
         "verifiedOn": "2026-09-08",
         "examplesExecuted": 5
@@ -1303,19 +1316,6 @@
           "Does not cover"
         ],
         "example": "import assert from \"node:assert/strict\";\nimport jasmineCore from \"jasmine-core\";\n\nconst target: Record<string, unknown> = {};\njasmineCore.installGlobals(target);\n\nfor (const name of [\"describe\", \"it\", \"expect\", \"spyOn\", \"notApplicable\"]) {\n  assert.equal(typeof target[name], \"function\", `${name} should be installed`);\n}\nassert.equal(typeof (globalThis as any).describe, \"undefined\");"
-      },
-      "targets": [
-        {
-          "packageName": "jasmine-core",
-          "range": "^7.0.0",
-          "verifiedVersions": [
-            "7.0.2"
-          ]
-        }
-      ],
-      "line": {
-        "major": 7,
-        "status": "active"
       }
     },
     {
@@ -1829,11 +1829,24 @@
       "summary": "Use @typescript-eslint/types ^8 as the lightweight TypeScript-ESTree AST type package: runtime AST enums plus exported parser, project-service, and AST declarations. It is an internal package, not a parser, runner, CLI, or standalone AST-producing tool.",
       "delivery": {
         "packageName": "@modootoday/pmcp-typescript-eslint-types",
-        "version": "8.0.0",
-        "integrity": "sha512-jwpfbwxG5/EP7WxEjwI3E3xYfE+WTW0t5//9VBb6fJhjJvdLDKJSkBLPqN9cINwT4tu/Py+j793PD++dfhlllw=="
+        "version": "8.0.1",
+        "integrity": "sha512-8WIvdLGqe0+8J/86wHBtrRfuWB0RSlopGFt/DDOWC5Lz1i8VxcE9WCb3XbBYXUsXeP5avRkKqF+VtRyRTLch8w=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:42e6960b8602aeb1104e9577998803c83c4f36695439e1c3f9b4443d6c8dc8c6",
+      "skillRevision": 2,
+      "contentDigest": "sha256:78985a3b6e309a1e4aba6dd2d18349ebe377a4bc66754d584ad306db1d52cb61",
+      "targets": [
+        {
+          "packageName": "@typescript-eslint/types",
+          "range": "^8.0.0",
+          "verifiedVersions": [
+            "8.70.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 8,
+        "status": "active"
+      },
       "evidence": {
         "verifiedOn": "2026-09-08",
         "examplesExecuted": 2
@@ -1850,19 +1863,6 @@
           "What this skill does not cover"
         ],
         "example": "import assert from 'node:assert/strict';\nimport { AST_NODE_TYPES, AST_TOKEN_TYPES } from '@typescript-eslint/types';\n\nassert.equal(AST_NODE_TYPES.Identifier, 'Identifier');\nassert.equal(AST_NODE_TYPES.TSInterfaceDeclaration, 'TSInterfaceDeclaration');\nassert.equal(AST_TOKEN_TYPES.Identifier, 'Identifier');\nassert.equal(AST_TOKEN_TYPES.Punctuator, 'Punctuator');"
-      },
-      "targets": [
-        {
-          "packageName": "@typescript-eslint/types",
-          "range": "^8.0.0",
-          "verifiedVersions": [
-            "8.70.0"
-          ]
-        }
-      ],
-      "line": {
-        "major": 8,
-        "status": "active"
       }
     },
     {
@@ -2362,11 +2362,24 @@
       "summary": "Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing.",
       "delivery": {
         "packageName": "@modootoday/pmcp-data-urls",
-        "version": "7.0.0",
-        "integrity": "sha512-9AsixcHpE0pgssQkMW9wzZ4EGeGa/PFzLFlwaYM6Z2GE+4VhCp5H3lx1cG08IydowodvATgMixIXnqe1V0k0Ww=="
+        "version": "7.0.1",
+        "integrity": "sha512-h1bCzWBclnnwtF4DFlnreKNzb+3g5AbFZwd9jK3pDpXpsa66O6CMFg3sKTIXsqx0KUHnImMMuWGdovqn8Nz3xg=="
       },
-      "skillRevision": 1,
-      "contentDigest": "sha256:ec9ea00550c143e521669ffa4ba6d89b242bb4b6ef7ad3b7c24897a5b227ffa7",
+      "skillRevision": 2,
+      "contentDigest": "sha256:3acb7a9c554dcc6acc4e5d9d10cdcf73f64617f5ec208179df9e858a198286a0",
+      "targets": [
+        {
+          "packageName": "data-urls",
+          "range": "^7.0.0",
+          "verifiedVersions": [
+            "7.0.0"
+          ]
+        }
+      ],
+      "line": {
+        "major": 7,
+        "status": "active"
+      },
       "evidence": {
         "verifiedOn": "2026-09-08",
         "examplesExecuted": 6
@@ -2383,19 +2396,6 @@
           "What this skill does not cover"
         ],
         "example": "import assert from \"node:assert/strict\";\nimport parseDataURL from \"data-urls\";\n\nconst result = parseDataURL(\"data:,Hello%2C%20World!\");\n\nassert.notEqual(result, null);\nassert.equal(result.mimeType.toString(), \"text/plain;charset=US-ASCII\");\nassert.deepEqual([...result.body], [...new TextEncoder().encode(\"Hello, World!\")]);"
-      },
-      "targets": [
-        {
-          "packageName": "data-urls",
-          "range": "^7.0.0",
-          "verifiedVersions": [
-            "7.0.0"
-          ]
-        }
-      ],
-      "line": {
-        "major": 7,
-        "status": "active"
       }
     },
     {

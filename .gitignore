@@ -6,6 +6,7 @@ coverage/
 .turbo/
 *.tgz
 !docs/skills/*/*/package.tgz
+!docs/skills/*/*/releases/*.tgz
 .release/
 
 # The vector index this server writes beside the tree it describes

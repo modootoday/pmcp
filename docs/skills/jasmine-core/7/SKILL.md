@@ -1,6 +1,6 @@
 ---
 name: jasmine-core
-description: Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner.
+description: "Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner."
 ---
 
 Verified against jasmine-core@7.0.2 on 2026-09-08. 5 of 5 examples executed.

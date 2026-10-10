@@ -1,6 +1,6 @@
 ---
 name: graphql
-description: Practical guidance for graphql ^17.0.0: parse, print, visit, build schemas, and execute operations from standalone scripts.
+description: "Practical guidance for graphql ^17.0.0: parse, print, visit, build schemas, and execute operations from standalone scripts."
 ---
 
 Verified against graphql@17.0.2 on 2026-09-07. 6 of 6 examples executed.

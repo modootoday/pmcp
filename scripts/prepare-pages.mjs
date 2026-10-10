@@ -22,6 +22,7 @@ import {
   projectStyles,
 } from "./site/pages/paths.mjs";
 import { notFound } from "./site/pages/not-found.mjs";
+import { skillResources } from "./site/skills/sources.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const args = process.argv.slice(2);
@@ -50,8 +51,9 @@ for (const route of routes) {
 }
 
 for (const entry of readSkillCatalog().entries) {
-  for (const name of ["SKILL.md", "package.tgz"]) {
-    const route = skillRoute(entry);
+  const route = skillRoute(entry);
+  for (const name of skillResources(join(root, "docs", route))) {
+    mkdirSync(join(output, route, name, ".."), { recursive: true });
     copyFileSync(join(root, "docs", route, name), join(output, route, name));
   }
 }

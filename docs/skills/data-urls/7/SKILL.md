@@ -1,6 +1,6 @@
 ---
 name: data-urls
-description: Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing.
+description: "Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing."
 ---
 
 Verified against data-urls@7.0.0 on 2026-09-08. 6 of 6 examples executed.
