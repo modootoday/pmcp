@@ -1,6 +1,6 @@
 import type { View, Snapshot } from "../contracts.js";
 import type { Row } from "../../mailbox/types.js";
-import { phaseLabel } from "../application/feedback.js";
+import { targetStatus } from "./target.js";
 
 export function safe(value: unknown): string {
   return String(value).replace(/[\x00-\x1f\x7f-\x9f]/g, "?");
@@ -36,6 +36,7 @@ export function dockLines(snapshot: Snapshot): string[] {
     ),
     "",
     "Ctrl-g w: observe worker",
+    "Ctrl-g n: add worker",
     "Ctrl-g m: return to main",
     "Ctrl-g c: acquire control",
     "Ctrl-g r: release control",
@@ -51,7 +52,7 @@ export function coordinationLines(
   snapshot: Snapshot | undefined,
   view: View,
 ): string[] {
-  const target = `TARGET ${view.target === view.mainId ? "main" : "worker"} ${safe(view.target.slice(0, 8))} / ${phaseLabel(view.phase)}`;
+  const target = `TARGET ${safe(targetStatus(view))}`;
   if (view.failure)
     return [
       target,

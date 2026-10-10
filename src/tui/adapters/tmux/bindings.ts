@@ -40,6 +40,7 @@ export function bindKeys(
     ["d", "detach"],
     ["!", "dismiss"],
     ["g", "management"],
+    ["n", "worker-menu"],
   ])
     connection.command([
       "bind-key",
@@ -60,7 +61,7 @@ export function bindKeys(
     "bind-key",
     "?",
     "display-message",
-    "m main; w/1-4 worker; c control; r release; h history; b mailbox; d detach; ! dismiss error; double Ctrl-g forwards native Ctrl-g",
+    "m main; n add worker; w/1-4 worker; c control; r release; h history; b mailbox; d detach; ! dismiss error; double Ctrl-g forwards native Ctrl-g",
   ]);
   connection.command([
     "set-hook",

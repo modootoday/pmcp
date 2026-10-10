@@ -16,13 +16,23 @@ export const tuiCommand: Command = {
     try {
       let receipt;
       if (invocation.action === "start-worker") {
-        const { startWorkspaceWorker } =
-          await import("../tui/startup/worker.js");
-        receipt = await startWorkspaceWorker(
-          { config: invocation.startup?.config, cwd: context.cwd },
-          invocation.startup!.runtime!,
-          invocation.startup?.memoryMb,
-        );
+        if (invocation.viewFile) {
+          const { startViewWorker } =
+            await import("../tui/application/worker-start.js");
+          receipt = await startViewWorker(
+            invocation.viewFile,
+            invocation.startup!.runtime!,
+            invocation.startup?.memoryMb,
+          );
+        } else {
+          const { startWorkspaceWorker } =
+            await import("../tui/startup/worker.js");
+          receipt = await startWorkspaceWorker(
+            { config: invocation.startup?.config, cwd: context.cwd },
+            invocation.startup!.runtime!,
+            invocation.startup?.memoryMb,
+          );
+        }
       } else if (invocation.action === "recovery") {
         const { inspectStartupRecovery } =
           await import("../tui/startup/recovery.js");

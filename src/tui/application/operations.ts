@@ -26,6 +26,11 @@ const handlers: Partial<
   close: closeView,
   check: checkControl,
   dismiss: ({ view, file }) => dismissFailure(file, view),
+  "worker-menu": async (context) => {
+    if (!context.renderer.clients()) throw new Error("view_client_unavailable");
+    await releaseControl(context);
+    context.renderer.workerMenu(context.view);
+  },
   management: async (context) => {
     await releaseControl(context);
     if (context.view.managementWindow) {

@@ -141,6 +141,10 @@ coordination panel in one terminal workspace. The optional harness and TUI need
 Linux, tmux, util-linux flock, Node.js 22 or later and a working user systemd
 manager. Provider login, folder trust and tool approvals remain native.
 
+npm 0.15.0 includes the original workspace launcher. The numbered runtime
+picker, worker menu, worker-start and recovery flows below are available in
+development source and await the next npm release.
+
 ```sh
 npx @modootoday/pmcp --version
 npx @modootoday/pmcp harness doctor inspect
@@ -153,8 +157,9 @@ On a supported interactive host, open the workspace with:
 pmcp
 ```
 
-The first launch shows the selected native main runtime and asks before starting
-it. No group or view JSON is required. Later launches reconnect to the workspace
+The first launch lists installed native runtimes. Choose a number or accept the
+default, then confirm the start; q cancels without creating a group. No group or
+view JSON is required. Later launches reconnect to the workspace
 created for this project. Native login and folder trust stay with the runtime.
 Use `pmcp tui --runtime codex-cli` to choose the main, or set an optional default:
 
@@ -163,7 +168,8 @@ Use `pmcp tui --runtime codex-cli` to choose the main, or set an optional defaul
 runtime = "codex-cli"
 ```
 
-Once the workspace is open, add a worker with
+Once the workspace is open, press Ctrl-g then n to choose and confirm a worker.
+The menu releases input control and preserves the current draft. You can also use
 `pmcp tui start-worker --runtime gemini-cli`. The existing group keeps its
 runtime grants and resource bounds. Use `pmcp tui recovery` to inspect a saved
 workspace and obtain explicit next commands after an interrupted start. Inspection

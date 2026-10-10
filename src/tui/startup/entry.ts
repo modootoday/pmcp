@@ -1,4 +1,3 @@
-import { createInterface } from "node:readline/promises";
 import { locateExecutable } from "../../harness/adapters/process/executable.js";
 import { runtimeExecutables } from "../../harness/runtimes/registry.js";
 import { invokeTui } from "../application/invoke.js";
@@ -7,6 +6,11 @@ import { readStartup, startupFile } from "./state.js";
 import { requireTerminal } from "./host.js";
 import { serializedStartup } from "./lock.js";
 import type { Receipt } from "../../harness/contracts.js";
+import {
+  chooseRuntime,
+  confirmRuntimeStart,
+  terminalPrompt,
+} from "../presentation/runtime-choice.js";
 
 export function planStartup(request: StartupRequest): Receipt {
   const settings = startupSettings(request);
@@ -33,25 +37,39 @@ export async function launchStartup(
   confirmed: boolean,
 ): Promise<Receipt> {
   requireTerminal();
-  const settings = startupSettings(request);
+  let settings = startupSettings(request);
   const state = readStartup(
     startupFile(settings.projectRoot),
     settings.projectRoot,
   );
   const starting = (!state || request.fresh) && !settings.groupFile;
   if (starting) {
+    if (!confirmed) {
+      const prompt = terminalPrompt();
+      try {
+        let runtime = settings.runtime;
+        process.stderr.write(`PMCP MAIN | ${settings.projectRoot}\n`);
+        if (!request.runtime) {
+          const installed = settings.allowedRuntimes.filter((id) =>
+            locateExecutable(runtimeExecutables[id]!, request.cwd),
+          );
+          const selected = await chooseRuntime(prompt, installed, runtime);
+          if (!selected) return cancelledStart();
+          runtime = selected;
+        }
+        if (!(await confirmRuntimeStart(prompt, runtime)))
+          return cancelledStart();
+        request = { ...request, runtime };
+        settings = startupSettings(request);
+      } finally {
+        prompt.close();
+      }
+    }
     if (!locateExecutable(runtimeExecutables[settings.runtime]!, request.cwd))
       throw new Error("runtime_executable_unavailable");
     process.stderr.write(
       `PMCP main: ${settings.runtime} | ${settings.projectRoot}\n`,
     );
-    if (!confirmed && !(await confirmStart(settings.runtime)))
-      return {
-        schemaVersion: 1,
-        ok: true,
-        cancelled: true,
-        providerInvoked: false,
-      };
   }
   const prepared = serializedStartup(request);
   if (prepared.ok !== true) return prepared;
@@ -62,17 +80,11 @@ export async function launchStartup(
   });
 }
 
-async function confirmStart(runtime: string): Promise<boolean> {
-  const prompt = createInterface({
-    input: process.stdin,
-    output: process.stderr,
-  });
-  try {
-    const answer = await prompt.question(
-      `Start ${runtime}? [Enter=start, q=cancel] `,
-    );
-    return answer.trim() === "";
-  } finally {
-    prompt.close();
-  }
+function cancelledStart(): Receipt {
+  return {
+    schemaVersion: 1,
+    ok: true,
+    cancelled: true,
+    providerInvoked: false,
+  };
 }

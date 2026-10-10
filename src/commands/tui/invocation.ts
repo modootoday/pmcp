@@ -61,7 +61,7 @@ const allowed: Readonly<Record<string, readonly string[]>> = {
   launch: ["config", "runtime", "yes", "new"],
   plan: ["config", "runtime"],
   recovery: ["config"],
-  "start-worker": ["config", "runtime", "memory-mb"],
+  "start-worker": ["config", "view", "runtime", "memory-mb"],
   doctor: [],
   create: ["group-file", "columns", "rows", "config", "actor-file"],
   inspect: ["view"],
@@ -79,6 +79,7 @@ const allowed: Readonly<Record<string, readonly string[]>> = {
   close: ["view"],
   dismiss: ["view"],
   management: ["view"],
+  "worker-menu": ["view"],
   check: ["view"],
 };
 
@@ -125,16 +126,22 @@ export function parseTui(args: ParsedArgs): TuiInvocation {
     return Number(value);
   };
   if (action === "doctor") return { action, input: {} };
-  if (action === "start-worker")
+  if (action === "start-worker") {
+    const config = one(args, "config");
+    const viewFile = one(args, "view");
+    if (config && viewFile)
+      throw new ArgumentError("Choose --config or --view for worker start");
     return {
       action,
+      viewFile,
       input: {},
       startup: {
-        config: one(args, "config"),
+        config,
         runtime: required("runtime"),
         memoryMb: number("memory-mb"),
       },
     };
+  }
   if (action === "launch" || action === "plan" || action === "recovery")
     return {
       action,

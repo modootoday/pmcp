@@ -30,6 +30,7 @@ export type Action =
   | "close"
   | "dismiss"
   | "management"
+  | "worker-menu"
   | "check";
 
 export interface ViewFailure {

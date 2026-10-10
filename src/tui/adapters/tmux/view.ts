@@ -1,7 +1,7 @@
 import { quote } from "../../../harness/adapters/process/command.js";
 import type { TerminalLayout } from "../../../harness/terminal/layout.js";
 import type { View, PanelRole } from "../../contracts.js";
-import { phaseLabel } from "../../application/feedback.js";
+import { targetStatus } from "../../presentation/target.js";
 import { ViewConnection } from "./connection.js";
 import { bindKeys } from "./bindings.js";
 
@@ -203,7 +203,7 @@ export class TmuxView {
       "set-option",
       "-g",
       "status-right",
-      `${view.target === view.mainId ? "main" : "worker"} | ${phaseLabel(view.phase)}${failure} | Ctrl-g ?`,
+      `${targetStatus(view)}${failure} | Ctrl-g ?`,
     ]);
   }
 
@@ -229,6 +229,33 @@ export class TmuxView {
 
   clients(): string {
     return this.connection.command(["list-clients", "-F", "#{client_pid}"]);
+  }
+
+  workerMenu(view: View): void {
+    const pane = view.workerPane ?? view.mainPane;
+    this.connection.assertOwned(pane);
+    const popup = [
+      "tmux",
+      "-S",
+      this.connection.socket,
+      "display-popup",
+      "-E",
+      "-t",
+      pane,
+      "-w",
+      "90%",
+      "-h",
+      "80%",
+      this.shell([
+        view.node,
+        view.worker,
+        "worker-menu",
+        "--view",
+        this.stateFile,
+        "--callback",
+      ]),
+    ];
+    this.connection.command(["run-shell", "-b", popup.map(quote).join(" ")]);
   }
 
   copy(pane: string): void {

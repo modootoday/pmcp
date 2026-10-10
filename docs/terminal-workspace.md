@@ -13,11 +13,16 @@ retain their existing group budgets and execution profile.
 
 ## Open a workspace
 
+The numbered runtime picker, worker menu and worker-start/recovery commands in
+this guide target development source. npm 0.15.0 includes the original launcher;
+these additions await the next release.
+
 From a supported interactive terminal, run `pmcp` or `pmcp tui`. The first
-launch chooses an installed main in this order: Codex, Gemini, agy, Grok,
-Claude. It displays the selection and asks before starting. Press Enter to
-start or enter q to cancel. No provider request or group creation occurs before
-this confirmation. Use `--runtime` to choose a supported runtime ID explicitly.
+launch lists installed runtimes, with a default in this order: Codex, Gemini,
+agy, Grok, Claude. Enter accepts that default; a number selects another runtime.
+Confirm with Enter at the start prompt, or enter q to cancel. No provider request
+or group creation occurs before this confirmation. Use `--runtime` to skip the
+picker and choose a supported runtime ID explicitly.
 Provider login and folder trust still use the native screen.
 
 ```sh
@@ -45,6 +50,23 @@ configured session memory by default; `--memory-mb` overrides that reservation.
 The existing group retains its allowed runtimes, execution profile and budgets.
 An unavailable main, paused group or stale generation blocks the start. Native
 login, folder trust and tool approvals remain in the worker's own screen.
+
+In the view, Ctrl-g then n opens a worker picker. It releases input control
+without submitting the main draft. Select a granted installed runtime and
+confirm its start; q cancels without creating a worker. The new worker reserves
+the same memory as the live main, within the existing group limits. Selection
+does not switch the input target or acquire control. To use a different
+reservation or an advanced view, run:
+
+```sh
+pmcp tui start-worker --view "$VIEW_FILE" --runtime gemini-cli --memory-mb 512
+```
+
+Use either --view or --config. A view start uses its owned group and generation;
+it does not discover another project workspace. Docker runtime availability
+follows that group's command policy rather than host native executables.
+This worker menu is qualified on native groups; Docker execution remains subject
+to its separately tested CLI and profile grants.
 
 The nearest `pmcp.toml` within the Git repository determines the project root,
 including from nested cwd. A submodule does not inherit its parent's config;
@@ -158,6 +180,7 @@ Press Ctrl-g, release it, then press a key:
 | -------- | -------------------------------------------- | ----------------------- |
 | m        | Return to main and release worker control    | main                    |
 | w or 1–4 | Observe a worker                             | observe --index 1       |
+| n        | Choose and confirm a new worker              | worker-menu             |
 | c        | Request control of the current native target | control                 |
 | r        | Release control                              | release                 |
 | h        | Read owned native history                    | history                 |
@@ -172,9 +195,11 @@ the dock; CLI observe supports all available indices. Press Ctrl-g twice to
 forward Ctrl-g to the native interface. Native Ctrl-b remains available when
 you hold control. A surrounding tmux may consume its own prefix first.
 
-The default is read only. Control progresses through REQUESTING CONTROL and
+The status line identifies MAIN or WORKER, its session and OBSERVE / INPUT OFF.
+Control progresses through REQUESTING CONTROL and
 CONNECTING WRITER to CONTROL READY. A lease alone does not enable typing: PMCP
 checks that the writable native client is attached to the selected pane's TTY.
+Only CONTROL READY shows INPUT ON.
 Input stays blocked during acquisition and release. A control lease identifies
 the writer, not which native prompt or approval menu is active.
 

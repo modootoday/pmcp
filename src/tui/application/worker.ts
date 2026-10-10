@@ -11,6 +11,7 @@ import { recordCallbackFailure } from "./feedback.js";
 import { TmuxView } from "../adapters/tmux/view.js";
 import { prepareWorkspace } from "../startup/workspace.js";
 import type { StartupRequest } from "../startup/config.js";
+import { runWorkerMenu } from "../presentation/worker-menu.js";
 
 const [role, ...argv] = process.argv.slice(2);
 const callback = argv.includes("--callback");
@@ -31,6 +32,14 @@ try {
       throw new Error("invalid_startup_arguments");
     const result = await prepareWorkspace(request);
     process.stdout.write(`${JSON.stringify(result)}\n`);
+  } else if (role === "worker-menu") {
+    const invocation = parseTui(
+      parseArgs(
+        ["worker-menu", ...argv.filter((arg) => arg !== "--callback")],
+        tuiOptions,
+      ),
+    );
+    await runWorkerMenu(invocation.viewFile!);
   } else if (role === "attach") {
     const [file, sessionId, leaseFile] = argv;
     if (!file || !sessionId) throw new Error("invalid_attachment_arguments");
@@ -97,7 +106,8 @@ try {
     const file = argv[index + 1];
     if (index >= 0 && file) {
       try {
-        recordCallbackFailure(file, argv[0] ?? "callback", error);
+        const action = role === "worker-menu" ? role : (argv[0] ?? "callback");
+        recordCallbackFailure(file, action, error);
         const { view } = readView(file);
         if (view.state === "open") new TmuxView(view, file).status(view);
       } catch {}

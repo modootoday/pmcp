@@ -17,6 +17,18 @@ const hints: Readonly<Record<string, string>> = {
     "Reopen the existing workspace, or stop its exact owned group before using --new.",
   runtime_executable_unavailable:
     "Install the selected native CLI on PATH, or choose an installed runtime with --runtime.",
+  view_client_unavailable:
+    "Open the view before using the worker menu, or run pmcp tui start-worker with --view and --runtime.",
+  runtime_not_granted:
+    "Choose a runtime granted by this owned group. Inspect the group before creating another workspace.",
+  runtime_capacity_exceeded:
+    "Stop an exact owned worker before adding another, or use the main session alone.",
+  aggregate_memory_budget_exceeded:
+    "Use fewer sessions or start a worker with an explicit smaller --memory-mb reservation.",
+  group_not_ready:
+    "Inspect the group and resume a paused group explicitly before adding a worker.",
+  startup_group_not_ready:
+    "Inspect the group and resume a paused group explicitly before adding a worker.",
   control_connection_lost:
     "The native writer or lease disappeared. Inspect and release control before reconnecting.",
   control_busy:
