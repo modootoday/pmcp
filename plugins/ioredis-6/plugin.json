@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ioredis-6",
+  "version": "6.0.0",
+  "description": "Use ioredis ^6.0.0 from Node.js 20+ for Redis commands, pipelines, Pub/Sub, Lua commands, streams, and RESP3-aware clients.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

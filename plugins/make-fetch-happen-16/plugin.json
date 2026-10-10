@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "make-fetch-happen-16",
+  "version": "16.0.0",
+  "description": "Use make-fetch-happen ^16.0.0 for fetch-compatible HTTP requests with caching, retries, proxy support, integrity verification, DNS caching, and Node.js transport options.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

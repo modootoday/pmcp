@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "typescript-eslint-parser-8",
+  "version": "8.0.0",
+  "description": "Use @typescript-eslint/parser ^8.0.0 directly or as the parser behind ESLint. Covers standalone parsing, complete parse results, isolated parser options, v8 Project Service naming, and boundaries around type-aware parsing.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

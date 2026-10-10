@@ -1,0 +1,9 @@
+{
+  "name": "chalk-6",
+  "version": "6.0.0",
+  "description": "Use chalk@^6.0.0 correctly from Node.js 22+ ESM, including deterministic color levels, v6 underline styles/colors, Chalk instances, and exported capability metadata.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

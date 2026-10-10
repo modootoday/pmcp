@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cloudflare-workers-types-4",
+  "version": "4.0.0",
+  "description": "Compile platform bindings and reject incompatible Worker contracts.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

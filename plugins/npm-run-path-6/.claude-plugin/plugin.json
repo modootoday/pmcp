@@ -1,0 +1,9 @@
+{
+  "name": "npm-run-path-6",
+  "version": "6.0.0",
+  "description": "Use npm-run-path ^6.0.0 to construct npm-style PATH values or environment objects for Node child processes.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

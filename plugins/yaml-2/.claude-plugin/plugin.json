@@ -1,0 +1,9 @@
+{
+  "name": "yaml-2",
+  "version": "2.0.0",
+  "description": "Parse and update YAML configuration with diagnostics and bounded aliases.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

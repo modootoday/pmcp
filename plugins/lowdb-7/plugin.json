@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "lowdb-7",
+  "version": "7.0.0",
+  "description": "Use lowdb v7's pure-ESM database API, distinguishing the v7 preset/update syntax from older v6 examples and choosing the correct Node or browser entry point.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "supports-color-11",
+  "version": "11.0.0",
+  "description": "Use supports-color 11.0.0 to detect terminal color capability in Node.js scripts, including stdout/stderr detection and custom stream detection.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

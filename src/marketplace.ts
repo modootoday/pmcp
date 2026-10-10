@@ -1,12 +1,6 @@
-/**
- * Assets laid out as an agent plugin marketplace: a directory holding
- * `.claude-plugin/marketplace.json`, whose plugins keep skills, commands,
- * agents, hooks and MCP servers in the plugin format's own places. No
- * package.json is involved, which is why the node_modules walk never saw them.
- */
-
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
+import { containedPath, readLocalMarketplace } from "./marketplace/local.js";
 
 import { readFrontmatter, type SkillEntry } from "./catalog.js";
 import {
@@ -22,15 +16,6 @@ export type { MetadataValue };
 export interface Rejection {
   readonly path: string;
   readonly reason: string;
-}
-
-interface MarketplaceManifest {
-  readonly name?: string;
-  readonly metadata?: { readonly tier?: string };
-  readonly plugins?: readonly {
-    readonly name?: string;
-    readonly source?: string;
-  }[];
 }
 
 interface PluginManifest {
@@ -57,9 +42,11 @@ const asList = (value: MetadataValue | undefined): readonly string[] => {
   return Array.isArray(value) ? value : [];
 };
 
-function readJson(path: string): Record<string, unknown> | null {
+function readJson(path: string, root: string): Record<string, unknown> | null {
   try {
-    const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+    const parsed: unknown = JSON.parse(
+      readFileSync(containedPath(root, path), "utf8"),
+    );
     return parsed !== null &&
       typeof parsed === "object" &&
       !Array.isArray(parsed)
@@ -90,7 +77,16 @@ function markdownEntry(
   fallbackSlug: string,
   shape: { kind?: "agent"; root?: string; namespace?: string },
 ): SkillEntry | null {
-  const source = readFileSync(path, "utf8");
+  let source: string;
+  try {
+    source = readFileSync(containedPath(context.pluginDir, path), "utf8");
+  } catch {
+    context.onReject?.({
+      path,
+      reason: "Asset is unreadable or outside the plugin root",
+    });
+    return null;
+  }
   const front = readFrontmatter(source);
   const description = front["description"] ?? "";
   if (description === "") {
@@ -200,7 +196,7 @@ function hookEntries(context: Context, manifest: PluginManifest): SkillEntry[] {
     typeof manifest.hooks === "string" ? manifest.hooks : undefined;
   const path = resolve(context.pluginDir, declared ?? "hooks/hooks.json");
   if (!existsSync(path)) return [];
-  const hooks = readJson(path);
+  const hooks = readJson(path, context.pluginDir);
   if (hooks === null) {
     context.onReject?.({ path, reason: "hooks.json is not a JSON object" });
     return [];
@@ -229,9 +225,12 @@ function hookEntries(context: Context, manifest: PluginManifest): SkillEntry[] {
 
 /** One entry per server in a plugin's `.mcp.json`; the file is its scope. */
 function mcpEntries(context: Context): SkillEntry[] {
-  const path = join(context.pluginDir, ".mcp.json");
-  if (!existsSync(path)) return [];
-  const config = readJson(path);
+  const filename = [".mcp.json", "mcp.json", "mcp_config.json"].find((name) =>
+    existsSync(join(context.pluginDir, name)),
+  );
+  if (!filename) return [];
+  const path = join(context.pluginDir, filename);
+  const config = readJson(path, context.pluginDir);
   const servers = config?.["mcpServers"];
   if (
     servers === null ||
@@ -261,47 +260,21 @@ export function readMarketplace(
   dir: string,
   onReject?: (rejection: Rejection) => void,
 ): SkillEntry[] {
-  const manifestPath = join(dir, ".claude-plugin", "marketplace.json");
-  // A host that moves its plugin cache would otherwise serve an empty catalog
-  // with no sign of why.
-  if (!existsSync(manifestPath)) {
-    onReject?.({
-      path: dir,
-      reason: "no .claude-plugin/marketplace.json here",
-    });
-    return [];
-  }
-  let manifest: MarketplaceManifest;
-  try {
-    manifest = JSON.parse(
-      readFileSync(manifestPath, "utf8"),
-    ) as MarketplaceManifest;
-  } catch {
-    onReject?.({
-      path: manifestPath,
-      reason: "marketplace.json is not valid JSON",
-    });
-    return [];
-  }
-  const marketplace = manifest.name ?? "marketplace";
+  const marketplace = readLocalMarketplace(dir, onReject);
+  if (!marketplace) return [];
   const found: SkillEntry[] = [];
 
-  for (const plugin of manifest.plugins ?? []) {
-    if (!plugin.name || !plugin.source) continue;
-    const pluginDir = resolve(dir, plugin.source);
-    if (!existsSync(pluginDir)) continue;
-    const pluginManifest = (readJson(
-      join(pluginDir, ".claude-plugin", "plugin.json"),
-    ) ?? {}) as PluginManifest;
+  for (const plugin of marketplace.plugins) {
+    const pluginManifest = plugin.manifest as PluginManifest;
     const context: Context = {
-      marketplace,
+      marketplace: marketplace.name,
       plugin: plugin.name,
-      pluginDir,
+      pluginDir: plugin.directory,
       pluginDescription:
         typeof pluginManifest.description === "string"
           ? pluginManifest.description
           : undefined,
-      tier: manifest.metadata?.tier,
+      tier: marketplace.tier,
       onReject,
     };
     found.push(

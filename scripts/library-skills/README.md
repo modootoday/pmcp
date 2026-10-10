@@ -55,11 +55,25 @@ not infer a topic or refresh it from a network service.
 ```
 
 The source must already exist at
-`docs/skills/<productId>/<major>/SKILL.md`. Optional direct Markdown references
+`plugins/<productId>-<major>/skills/<skill-name>/SKILL.md`. Optional direct Markdown references
 live in that directory's `references/`. Source and reference symlinks are
 rejected. Frontmatter uses strict YAML; name is lowercase kebab-case, no more
 than 64 characters, and matches the archive's install directory. Descriptions
 are required and limited to 1,024 characters. Bodies are limited to 500 lines.
+
+Run `bun run marketplace:build` after authoring or packaging to regenerate native
+manifests and the website's docs/skills source projections. `marketplace:check`
+rejects drift without writing. The packer accepts the earlier docs/skills layout
+only for legacy external fixtures without a canonical public marketplace.
+
+Before verifying intentionally revised instructions, format the selected source
+with `bunx prettier --write --ignore-path /dev/null <canonical-SKILL.md>`.
+Bulk formatting excludes published instruction assets because reflow changes their
+catalog digests and requires new delivery versions. Migration preserves those bytes.
+
+The native bridge pin in scripts/marketplace/manifests.mjs is independent from the
+candidate package version. Update it only after that runtime version is published;
+regenerate and validate manifests before delivering the pin change.
 
 `status` optionally selects `active`, `frozen`, or `recalled`; an existing line's
 status is retained when omitted. Optional `preview` follows the catalog schema.

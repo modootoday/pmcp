@@ -15,6 +15,7 @@ a local mailbox for exchanging messages.
 | What you want to do                                           | Use                            |
 | ------------------------------------------------------------- | ------------------------------ |
 | Find and read package skills from your AI tool                | The MCP skill catalog          |
+| Install selected free library instructions as native plugins  | The PMCP public marketplace    |
 | Keep several tools' MCP servers and project assets consistent | `pmcp.toml` and `pmcp project` |
 | Check what an installed tool loads                            | `pmcp doctor`                  |
 | Search across languages using local embeddings                | `pmcp models` and `pmcp index` |
@@ -55,6 +56,45 @@ Other MCP hosts can use a stdio entry:
 Restart or reconnect your tool's MCP connection after changing its configuration.
 Ask your tool to find a skill relevant to your task and open the result.
 Local skill discovery and reading require no pmcp login.
+
+## Native plugins and free library skills
+
+The public GitHub repository is also a marketplace. Choose individual library
+major lines; adding the marketplace does not activate its entire catalog.
+For example, install the TypeScript 5 instructions with your native manager:
+
+```sh
+claude plugin marketplace add modootoday/pmcp
+claude plugin install typescript-5@pmcp
+claude plugin install pmcp@pmcp
+```
+
+```sh
+codex plugin marketplace add modootoday/pmcp
+codex plugin add typescript-5@pmcp
+codex plugin add pmcp@pmcp
+```
+
+Grok supports the same marketplace with `grok plugin marketplace add modootoday/pmcp`
+and `grok plugin install typescript-5@pmcp`. The separate `pmcp` plugin adds the
+PMCP MCP bridge. Gemini can install that bridge with
+`gemini extensions install https://github.com/modootoday/pmcp`.
+Native confirmation and runtime provider login remain with each tool.
+
+On repository main, the CLI also bundles the free catalog and can export one
+plugin for Claude, Codex, Gemini, Grok or Antigravity:
+
+```sh
+pmcp marketplace list
+pmcp marketplace export typescript-5 --runtime agy --output ./typescript-plugin
+agy plugin install ./typescript-plugin
+```
+
+The marketplace export command, bundled catalog and anonymous `install` provider
+are awaiting the next npm release; npm 0.13.1 retains its existing CLI behavior.
+GitHub native marketplace installation and the website's free archives are
+available independently. See the [skills guide](docs/skills.md) for layouts,
+runtime-specific formats and version selection.
 
 To include your workspace's own skills, create `pmcp.toml` at the project root:
 
@@ -131,9 +171,15 @@ pmcp validate
 before changing your manifest and lockfile. `--dry-run` previews the work.
 Use `--catalog <file>` to read a saved catalog response.
 
-`pmcp login`, `whoami` and `logout` manage pmcp service login. Package registry
-access uses your package manager's credentials. Your runtime's provider login
-remains with that runtime.
+On repository main, these commands use the bundled public catalog by default.
+Public installation downloads verified content-only archives without PMCP login.
+Use `--provider hosted` or an explicit `--api` for a separately hosted service.
+CLI discovery includes the free marketplace unless `--no-builtin` is passed or
+`[catalog] builtin = false` is configured. Library APIs keep explicit catalog selection.
+
+`pmcp login`, `whoami` and `logout` manage optional hosted-service login.
+skills.modoo.today is a separate service built on PMCP. Your runtime's provider
+login remains with that runtime.
 
 Run `pmcp --help` or `pmcp <command> --help` for options.
 With no command, pmcp serves MCP on stdio.

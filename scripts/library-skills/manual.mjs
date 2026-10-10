@@ -1,6 +1,7 @@
 import { existsSync, lstatSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { readSkillFiles } from "./source.mjs";
+import { canonicalSkillDirectory, hasCanonicalSkills } from "./layout.mjs";
 
 export const manualLibraryDescriptors = [
   {
@@ -76,7 +77,10 @@ export function readManualLibrarySkills(root, catalog) {
   if (!isInstalled(root)) return [];
   return manualLibraryDescriptors.map((descriptor) => {
     validateDirectories(root, descriptor.path);
-    const directory = join(root, dirname(descriptor.path));
+    const [, , productId, major] = descriptor.path.split("/");
+    const directory = hasCanonicalSkills(root)
+      ? canonicalSkillDirectory(root, productId, Number(major))
+      : join(root, dirname(descriptor.path));
     const { source, skill, files } = readSkillFiles(directory);
     const identity = validateIdentity(descriptor, skill, catalog);
     return { ...descriptor, identity, name: skill.name, source, files };

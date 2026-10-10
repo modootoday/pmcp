@@ -83,6 +83,25 @@
         columns, or as JSON for a script. This is the command that answers
         "would the server see anything from here".
       </p>
+
+      <h2>marketplace</h2>
+      <pre><code>pmcp marketplace list --json
+pmcp marketplace export typescript-5 --runtime agy --output ./typescript-plugin
+agy plugin install ./typescript-plugin</code></pre>
+      <p>
+        On repository main, list the bundled free plugins or export one selected
+        native package. Choose <code>claude</code>, <code>codex</code>,
+        <code>gemini</code>, <code>grok</code> or <code>agy</code>. An export
+        preserves existing destinations and does not edit runtime configuration
+        or bypass native installation consent. CLI discovery includes the
+        built-in catalog unless <code>--no-builtin</code> or
+        <code>[catalog] builtin = false</code> is configured.
+      </p>
+      <p>
+        These additions and the anonymous install provider await the next npm
+        release; npm 0.13.1 retains its existing CLI behavior. GitHub native
+        marketplace installation and free website downloads are already available.
+      </p>
       <p>
         An empty catalog is a finding rather than a success. It exits
         <strong>1</strong> and names the roots it walked, because a project that
@@ -281,9 +300,11 @@ pmcp sync [--project &lt;dir&gt;] [--dry-run | --yes]</code></pre>
         catalogue published — not its name and version, which any registry can
         claim. <code>sync</code> updates the ones already declared and removes
         nothing else.
-        These hosted-distribution commands currently require service
-        credentials. To install a free website skill without login, use the
-        direct archive command on its skill page instead.
+        Repository main uses the free bundled public catalog by default and
+        verifies immutable archives and installed resources without login.
+        Explicit <code>--provider hosted</code> or <code>--api</code> selects a
+        separate service's credentialed distribution. npm 0.13.1 still uses
+        hosted distribution; its users can install free website archives directly.
       </p>
       <p>
         Both show the project and lockfile changes and stop:

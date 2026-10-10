@@ -262,7 +262,16 @@ it("dispatches available and dry-run install against an offline catalog", async 
   out = "";
   expect(
     await dispatch(
-      ["install", "--all", "--catalog", file, "--dry-run", "--json"],
+      [
+        "install",
+        "--all",
+        "--catalog",
+        file,
+        "--provider",
+        "hosted",
+        "--dry-run",
+        "--json",
+      ],
       { cwd: root, ui },
     ),
   ).toBe(0);

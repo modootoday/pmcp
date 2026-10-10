@@ -1,0 +1,9 @@
+{
+  "name": "figures-6",
+  "version": "6.0.0",
+  "description": "Use figures 6.x to render Unicode symbols with terminal-aware fallbacks, access explicit main/fallback symbol sets, and replace symbols in strings.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

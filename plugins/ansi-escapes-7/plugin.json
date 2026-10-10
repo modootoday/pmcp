@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ansi-escapes-7",
+  "version": "7.0.0",
+  "description": "Use ansi-escapes 7.x from ESM code to generate terminal escape-code strings for cursor movement, screen and line control, hyperlinks, images, and iTerm2 features.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

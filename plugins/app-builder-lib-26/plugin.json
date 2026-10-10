@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "app-builder-lib-26",
+  "version": "26.0.0",
+  "description": "Practical app-builder-lib ^26.0.0 API guidance for programmatic use, with runnable checks for architecture and platform helpers and cautions about packaging-only APIs.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

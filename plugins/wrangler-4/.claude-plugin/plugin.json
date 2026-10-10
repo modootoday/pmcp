@@ -1,0 +1,9 @@
+{
+  "name": "wrangler-4",
+  "version": "4.0.1",
+  "description": "Generate configuration-driven types and verify handlers using isolated local bindings.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

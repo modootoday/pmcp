@@ -1,0 +1,9 @@
+{
+  "name": "react-is-19",
+  "version": "19.0.0",
+  "description": "Use react-is 19 to identify React element brands and validate component types. Covers the React 19 export surface, the removal of React 18 async/concurrent aliases, and standalone checks that run without JSX, React, a DOM, or a test runner.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

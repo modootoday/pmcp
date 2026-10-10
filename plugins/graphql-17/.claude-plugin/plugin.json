@@ -1,0 +1,9 @@
+{
+  "name": "graphql-17",
+  "version": "17.0.1",
+  "description": "Practical guidance for graphql ^17.0.0: parse, print, visit, build schemas, and execute operations from standalone scripts.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

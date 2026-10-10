@@ -1,0 +1,9 @@
+{
+  "name": "zustand-5",
+  "version": "5.0.0",
+  "description": "Use Zustand ^5.0.0 for vanilla stores, React-bound stores, persistence, and Redux-style reducers. Covers documented v5 APIs, standalone examples, and migration traps such as stable selectors, replacement updates, and changed persistence behavior.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

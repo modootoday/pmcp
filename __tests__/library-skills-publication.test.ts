@@ -207,6 +207,43 @@ it("writes immutable delivery snapshots and validates the resulting catalog with
   expect(readFileSync(join(fixture.root, "docs/catalog.json"))).toEqual(before);
 });
 
+it("publishes canonical plugin instructions and regenerates download projections", () => {
+  const fixture = fixtureRoot();
+  mkdirSync(join(fixture.root, "plugins/pmcp/skills"), { recursive: true });
+  const canonical = join(
+    fixture.root,
+    "plugins/example-library-1/skills/example-library",
+  );
+  mkdirSync(join(canonical, "references"), { recursive: true });
+  const revised = `${source}\nUse the canonical plugin instructions.\n`;
+  writeFileSync(join(canonical, "SKILL.md"), revised);
+  writeFileSync(
+    join(canonical, "references/guide.md"),
+    "Canonical reference\n",
+  );
+  fixture.evidence.entries["example-library/1"].fixtures[0]!.skillSha256 =
+    sourceDigest(revised);
+  const prepared = preparePublication(
+    fixture.root,
+    fixture.metadata,
+    fixture.evidence,
+  );
+  expect(readFileSync(join(fixture.directory, "SKILL.md"), "utf8")).toBe(
+    source,
+  );
+  writePublication(prepared);
+  expect(readFileSync(join(fixture.directory, "SKILL.md"), "utf8")).toBe(
+    revised,
+  );
+  expect(
+    readFileSync(join(fixture.directory, "references/guide.md"), "utf8"),
+  ).toBe("Canonical reference\n");
+  expect(readFileSync(join(fixture.directory, "releases/1.0.0.tgz"))).toEqual(
+    fixture.archive,
+  );
+  expect(checkLibrarySkills(fixture.root).entries).toBe(1);
+});
+
 it("rejects changed content at an existing delivery version before any write", () => {
   const fixture = fixtureRoot();
   fixture.metadata.entries[0]!.delivery.version = "1.0.0";

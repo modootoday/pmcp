@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ansi-styles-7",
+  "version": "7.0.0",
+  "description": "Use ansi-styles v7.0.0 to generate ANSI escape sequences, inspect style groups, convert RGB/hex colors, and work with underline colors. Requires Node.js 22 or newer and ESM imports.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

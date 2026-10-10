@@ -1,0 +1,9 @@
+{
+  "name": "modelcontextprotocol-sdk-1",
+  "version": "1.0.0",
+  "description": "Register strict tool contracts and verify real client calls over a v1 memory transport.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

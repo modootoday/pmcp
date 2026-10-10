@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "vitest-5",
+  "version": "5.0.0",
+  "description": "Use Vitest ^5.0.0 standalone assertions and mock functions correctly, while avoiding APIs that require the Vitest runner and accounting for v5 migration changes.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

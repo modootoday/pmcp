@@ -74,12 +74,8 @@ it("shows real shipped instructions instead of unpublished demonstration skills"
     "utf8",
   );
   expect(examples).toContain("package-skill-catalog");
-  expect(examples).toContain(
-    "Do not reach for this to hold a project&#39;s own skills.",
-  );
-  expect(source).toContain(
-    "Do not reach for this to hold a project's own skills.",
-  );
+  expect(examples).toContain("Installing a skill does not");
+  expect(source).toContain("Installing a skill does not");
   expect(examples).not.toContain("demo/release-review");
   expect(examples).not.toContain("examples executed");
 });

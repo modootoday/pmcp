@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tedious-20",
+  "version": "20.0.0",
+  "description": "Use tedious ^20.0.0 from a plain Node.js script to connect to SQL Server, execute requests, manage transactions, and perform bulk loads. Covers the documented v20 API surface, its one-request-per-connection constraint, and the Node.js 22 requirement.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

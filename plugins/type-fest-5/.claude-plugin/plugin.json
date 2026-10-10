@@ -1,0 +1,9 @@
+{
+  "name": "type-fest-5",
+  "version": "5.0.0",
+  "description": "Use type-fest v5.0.0 as a strict, type-only utility package. Covers v5 module/configuration requirements, the documented Except and Tagged APIs, and migration traps from v4.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

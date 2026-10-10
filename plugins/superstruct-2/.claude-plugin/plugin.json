@@ -1,0 +1,9 @@
+{
+  "name": "superstruct-2",
+  "version": "2.0.0",
+  "description": "Use Superstruct ^2.0.0 for runtime validation, coercion, defaults, refinements, and object-shape utilities. Prefer the current named-export API; do not copy older struct.object/User.assert examples.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

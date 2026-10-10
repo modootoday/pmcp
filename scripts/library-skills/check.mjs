@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { integrity, readArchive } from "./archive.mjs";
-import { readCatalog, skillDirectory } from "./catalog.mjs";
+import { archiveDirectory, readCatalog, skillDirectory } from "./catalog.mjs";
 import { contentDigest, readSkillFiles } from "./source.mjs";
 import { validateTopics } from "./topics.mjs";
 import { readManualLibrarySkills } from "./manual.mjs";
@@ -70,7 +70,7 @@ export function checkLibrarySkills(root) {
     const { source, skill, files } = readSkillFiles(directory);
     const archive = verifyArchive(
       entry,
-      readFileSync(join(directory, "package.tgz")),
+      readFileSync(join(archiveDirectory(root, entry), "package.tgz")),
       source,
     );
     if (archive.name !== skill.name)

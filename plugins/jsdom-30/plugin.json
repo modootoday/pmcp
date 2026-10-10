@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "jsdom-30",
+  "version": "30.0.0",
+  "description": "Use jsdom ^30.0.0 from a plain Bun/Node script to construct and inspect DOMs and create document fragments. The documented v30 package requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "react-dom-19",
+  "version": "19.0.1",
+  "description": "Create and clean up roots, hydrate matching markup and verify form interaction.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

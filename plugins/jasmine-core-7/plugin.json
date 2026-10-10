@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "jasmine-core-7",
+  "version": "7.0.1",
+  "description": "Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

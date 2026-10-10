@@ -1,0 +1,9 @@
+{
+  "name": "whatwg-mimetype-5",
+  "version": "5.0.0",
+  "description": "Use whatwg-mimetype ^5.0.0 to parse, inspect, mutate, serialize, classify, and compute MIME types from resource bytes.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

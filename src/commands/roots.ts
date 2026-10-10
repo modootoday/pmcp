@@ -21,6 +21,7 @@ import {
   readConfig,
   type ProjectConfig,
 } from "../config.js";
+import { publicMarketplaceRoot } from "../marketplace/builtin.js";
 
 export const CATALOG_OPTIONS: readonly OptionSpec[] = [
   {
@@ -36,9 +37,14 @@ export const CATALOG_OPTIONS: readonly OptionSpec[] = [
     placeholder: "<prefix>",
   },
   {
+    name: "no-builtin",
+    describe: "Exclude the bundled free PMCP marketplace.",
+    boolean: true,
+  },
+  {
     name: "marketplace",
     describe:
-      "A plugin marketplace directory (holds .claude-plugin/marketplace.json). Repeatable.",
+      "An installed local Claude, Codex or Grok marketplace directory. Repeatable.",
     repeat: true,
     placeholder: "<dir>",
   },
@@ -64,7 +70,7 @@ export const CATALOG_OPTIONS: readonly OptionSpec[] = [
   },
   {
     name: "no-config",
-    describe: "Ignore pmcp.toml; only the flags given count.",
+    describe: "Ignore pmcp.toml; CLI defaults and the given flags apply.",
     boolean: true,
   },
 ];
@@ -107,12 +113,17 @@ export function catalogOptionsFrom(
   };
   const scopes = pick("scope", config.scopes);
   const marketplaces = pick("marketplace", config.marketplaces);
+  const selectedMarketplaces = [...marketplaces];
+  if (!context.args.flags.has("no-builtin") && config.builtin !== false)
+    selectedMarketplaces.push(publicMarketplaceRoot());
   const packages = pick("package", config.packages);
   const workspaces = pick("workspace", config.workspaces);
   return {
     roots: rootsFrom(context),
     ...(scopes.length > 0 ? { scopes } : {}),
-    ...(marketplaces.length > 0 ? { marketplaces } : {}),
+    ...(selectedMarketplaces.length > 0
+      ? { marketplaces: [...new Set(selectedMarketplaces)] }
+      : {}),
     ...(packages.length > 0 ? { packages } : {}),
     ...(workspaces.length > 0 ? { workspaces } : {}),
     ...(onReject ? { onReject } : {}),

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tsx-4",
+  "version": "4.0.0",
+  "description": "Use tsx v4 as a Node-compatible TypeScript loader, or use its documented ESM/CJS Developer APIs from a plain script. Covers v4 changes, dynamic loading, scoped registration, and the boundary between the API and the tsx CLI.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

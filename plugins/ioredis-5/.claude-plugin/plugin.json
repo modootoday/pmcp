@@ -1,0 +1,9 @@
+{
+  "name": "ioredis-5",
+  "version": "5.0.0",
+  "description": "Manage Redis commands, connection recovery and resource cleanup.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

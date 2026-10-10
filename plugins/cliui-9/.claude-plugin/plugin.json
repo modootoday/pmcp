@@ -1,0 +1,9 @@
+{
+  "name": "cliui-9",
+  "version": "9.0.0",
+  "description": "Use cliui ^9.0.0 to build terminal UI strings with rows, columns, wrapping, padding, alignment, borders, and the single-string layout DSL.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

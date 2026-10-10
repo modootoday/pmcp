@@ -1,0 +1,9 @@
+{
+  "name": "react-19",
+  "version": "19.0.0",
+  "description": "Manage state, effects and form actions while preserving component and rendering boundaries.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

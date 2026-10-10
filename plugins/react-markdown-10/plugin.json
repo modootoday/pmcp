@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "react-markdown-10",
+  "version": "10.0.0",
+  "description": "Use react-markdown ^10.0.0 correctly as an ESM-only React 18+ component, including synchronous, asynchronous, plugin, filtering, URL, and migration guidance.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -55,7 +55,7 @@ export interface CatalogOptions {
   readonly roots: readonly string[];
   /** Package name prefixes to consider. Empty means every package. */
   readonly scopes?: readonly string[];
-  /** Marketplace directories, each holding .claude-plugin/marketplace.json. */
+  /** Installed local marketplace roots, without remote source fetching. */
   readonly marketplaces?: readonly string[];
   /** Package directories read directly, for a package no node_modules links. */
   readonly packages?: readonly string[];

@@ -1,0 +1,9 @@
+{
+  "name": "tldts-7",
+  "version": "7.0.0",
+  "description": "Use tldts ^7.0.0 to parse hostnames, domains, public suffixes, and subdomains from URLs or host-like strings.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

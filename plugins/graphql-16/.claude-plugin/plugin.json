@@ -1,0 +1,9 @@
+{
+  "name": "graphql-16",
+  "version": "16.0.0",
+  "description": "Validate and execute typed schemas with variables and explicit error handling.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

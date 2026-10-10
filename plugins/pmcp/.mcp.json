@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "pmcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modootoday/pmcp@0.13.1", "serve"]
+    }
+  }
+}

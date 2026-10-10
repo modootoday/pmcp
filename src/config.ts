@@ -16,6 +16,7 @@ export const CONFIG_FILE = "pmcp.toml";
 
 /** What `[catalog]` may say. Each mirrors the repeatable CLI flag of the same meaning. */
 export interface CatalogSection {
+  readonly builtin?: boolean;
   readonly roots?: readonly string[];
   readonly scopes?: readonly string[];
   readonly workspaces?: readonly string[];
@@ -139,7 +140,11 @@ export class ConfigError extends Error {
 }
 
 const PATH_KEYS = ["roots", "workspaces", "packages", "marketplaces"] as const;
-const CATALOG_KEYS: ReadonlySet<string> = new Set([...PATH_KEYS, "scopes"]);
+const CATALOG_KEYS: ReadonlySet<string> = new Set([
+  ...PATH_KEYS,
+  "scopes",
+  "builtin",
+]);
 
 /** The nearest pmcp.toml at or above start, or null when there is none. */
 export function findConfig(start: string): string | null {
@@ -189,13 +194,25 @@ export function readConfig(path: string): ProjectConfig {
     throw new ConfigError(absolute, "[catalog] must be a table");
   }
 
-  const catalog: Record<string, string[]> = {};
+  const catalog: Record<string, string[] | boolean> = {};
   for (const [key, value] of Object.entries(section)) {
     if (!CATALOG_KEYS.has(key)) {
       throw new ConfigError(absolute, `unknown key [catalog] ${key}`);
     }
+    if (key === "builtin") {
+      if (typeof value !== "boolean")
+        throw new ConfigError(absolute, "[catalog] builtin must be a boolean");
+      catalog[key] = value;
+      continue;
+    }
     const list = stringList(absolute, key, value);
     catalog[key] = key === "scopes" ? list : list.map((p) => resolve(dir, p));
   }
-  return { path: absolute, dir, catalog, raw, ...configured };
+  return {
+    path: absolute,
+    dir,
+    catalog: catalog as CatalogSection,
+    raw,
+    ...configured,
+  };
 }

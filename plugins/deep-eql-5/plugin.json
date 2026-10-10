@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "deep-eql-5",
+  "version": "5.0.0",
+  "description": "Use deep-eql ^5.0.0 for boolean deep comparisons in an ESM package. Covers the v5 export shape, comparison rules, custom comparators, circular references, and MemoizeMap.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

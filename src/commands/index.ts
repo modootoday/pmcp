@@ -20,6 +20,7 @@ import { validateCommand } from "./validate.js";
 import { mailboxCommand } from "./mailbox.js";
 import { harnessCommand } from "./harness.js";
 import { tuiCommand } from "./tui.js";
+import { marketplaceCommand } from "./marketplace.js";
 
 export const COMMANDS: readonly Command[] = [
   serveCommand,
@@ -39,6 +40,7 @@ export const COMMANDS: readonly Command[] = [
   mailboxCommand,
   harnessCommand,
   tuiCommand,
+  marketplaceCommand,
 ];
 
 /**

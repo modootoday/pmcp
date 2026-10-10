@@ -1,0 +1,9 @@
+{
+  "name": "clickhouse-client-1",
+  "version": "1.0.0",
+  "description": "Insert and query typed values with parameters, streams and explicit client cleanup.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

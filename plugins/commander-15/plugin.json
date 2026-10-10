@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "commander-15",
+  "version": "15.0.0",
+  "description": "Use Commander 15.0.0 for ESM command-line parsing, options, arguments, subcommands, and custom option definitions.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

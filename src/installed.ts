@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 export interface InstalledDependency {
@@ -27,6 +27,22 @@ function absent(error: unknown): boolean {
 
 function packageName(name: string): boolean {
   return /^(?:@[a-z0-9._-]+\/)?[a-z0-9][a-z0-9._-]*$/u.test(name);
+}
+
+export function installedPackageDirectory(
+  project: string,
+  name: string,
+): string {
+  if (!packageName(name)) throw new Error("Invalid installed package name");
+  let directory = resolve(project);
+  for (;;) {
+    const candidate = join(directory, "node_modules", name);
+    if (existsSync(join(candidate, "package.json"))) return candidate;
+    const parent = dirname(directory);
+    if (parent === directory)
+      throw new Error("Installed package manifest was not found");
+    directory = parent;
+  }
 }
 
 function locate(

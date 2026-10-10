@@ -1,0 +1,9 @@
+{
+  "name": "sinon-22",
+  "version": "22.0.0",
+  "description": "Use Sinon ^22.0.0 for standalone spies, stubs, fake timers, sandboxes, and Sinon assertions.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

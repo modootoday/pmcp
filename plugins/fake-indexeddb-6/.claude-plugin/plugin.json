@@ -1,0 +1,9 @@
+{
+  "name": "fake-indexeddb-6",
+  "version": "6.0.0",
+  "description": "Use fake-indexeddb ^6.0.0 as a pure-JavaScript, in-memory IndexedDB implementation in Node.js scripts and test environments.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "data-urls-7",
+  "version": "7.0.1",
+  "description": "Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

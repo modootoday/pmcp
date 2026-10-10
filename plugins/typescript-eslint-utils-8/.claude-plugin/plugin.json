@@ -1,0 +1,9 @@
+{
+  "name": "typescript-eslint-utils-8",
+  "version": "8.0.0",
+  "description": "Use @typescript-eslint/utils ^8.0.0 to author typed custom ESLint rules, work with TypeScript-ESTree node types, and access parser services from rules running under ESLint.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

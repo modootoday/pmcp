@@ -1,0 +1,9 @@
+{
+  "name": "typescript-eslint-eslint-plugin-8",
+  "version": "8.0.0",
+  "description": "Use @typescript-eslint/eslint-plugin v8 exports, legacy preset names, rule definitions, typed-linting requirements, and v8 migration constraints.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

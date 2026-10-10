@@ -45,14 +45,14 @@
       <h2>One click</h2>
       <p class="actions">
         <a
-          href="cursor://anysphere.cursor-deeplink/mcp/install?name=pmcp&amp;config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsInBtY3AiXX0="
+          href="cursor://anysphere.cursor-deeplink/mcp/install?name=pmcp&amp;config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBtb2Rvb3RvZGF5L3BtY3AiXX0="
           ><img
             src="https://img.shields.io/badge/Add_to_Cursor-black?style=for-the-badge&amp;logo=cursor&amp;logoColor=white"
             alt="Add to Cursor"
             height="28"
         /></a>
         <a
-          href="vscode://mcp/install?name=pmcp&amp;config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22pmcp%22%5D%7D"
+          href="vscode://mcp/install?name=pmcp&amp;config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40modootoday%2Fpmcp%22%5D%7D"
           ><img
             src="https://img.shields.io/badge/Add_to_VS_Code-007ACC?style=for-the-badge&amp;logo=visualstudiocode&amp;logoColor=white"
             alt="Add to VS Code"
@@ -70,6 +70,34 @@
         Installing it is optional. Every configuration below runs it through
         <code>npx -y @modootoday/pmcp</code>, which works with nothing
         installed; adding it to the project pins the version your team gets.
+      </p>
+
+      <h2>Native marketplace</h2>
+      <p>
+        Install selected library instructions from the public repository without
+        a PMCP account. Each library major is a separate plugin; registering
+        the marketplace does not install every plugin.
+      </p>
+      <pre><code>claude plugin marketplace add modootoday/pmcp
+claude plugin install typescript-5@pmcp
+
+codex plugin marketplace add modootoday/pmcp
+codex plugin add typescript-5@pmcp
+
+grok plugin marketplace add modootoday/pmcp
+grok plugin install typescript-5@pmcp</code></pre>
+      <p>
+        Select the <code>pmcp</code> plugin to add the MCP bridge. Gemini can
+        install that bridge with
+        <code>gemini extensions install https://github.com/modootoday/pmcp</code>.
+        Provider authentication and installation confirmation stay native.
+      </p>
+      <p>
+        Repository main also supports exporting one plugin for Gemini or
+        Antigravity with <code>pmcp marketplace export</code>. That CLI command
+        and the bundled free catalog await the next npm release; npm 0.13.1
+        retains its existing CLI behavior.
+        <a href="/skills-reference/">Native formats and selected exports</a>.
       </p>
 
       <h2>A host that spawns servers over stdio</h2>
@@ -150,8 +178,9 @@
         <p>
           <strong>Check it before you trust it.</strong>
           <code>npx -y @modootoday/pmcp list</code> prints what the server would
-          see from this directory, and exits 1 rather than 0 when that is
-          nothing. <a href="/guide/">The five-minute version</a>.
+          see from this directory. Repository main includes its free catalog;
+          <code>--no-builtin</code> restricts discovery to your own roots.
+          <a href="/guide/">The five-minute version</a>.
         </p>
       </div>
 </article></div></main><footer class="site-footer">

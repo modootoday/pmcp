@@ -1,0 +1,9 @@
+{
+  "name": "playwright-test-1",
+  "version": "1.0.2",
+  "description": "Run isolated browser assertions with locator waits and guaranteed fixture teardown.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

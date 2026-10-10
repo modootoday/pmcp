@@ -1,6 +1,7 @@
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseCatalog } from "../../src/remote/catalog.ts";
+import { canonicalSkillDirectory, hasCanonicalSkills } from "./layout.mjs";
 
 export function validateCatalog(catalog) {
   const parsed = parseCatalog({
@@ -35,6 +36,12 @@ export function readCatalog(root) {
 }
 
 export function skillDirectory(root, entry) {
+  if (hasCanonicalSkills(root))
+    return canonicalSkillDirectory(root, entry.productId, entry.line.major);
+  return archiveDirectory(root, entry);
+}
+
+export function archiveDirectory(root, entry) {
   if (
     !/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(entry.productId) ||
     !Number.isSafeInteger(entry.line?.major) ||

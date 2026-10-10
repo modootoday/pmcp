@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "yeoman-environment-7",
+  "version": "7.0.0",
+  "description": "Use yeoman-environment's ESM environment API when working against the v7.0.0 source shape. Note that ^7.0.0 is not a published version according to the researched npm metadata; verify the installed version before relying on this skill.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

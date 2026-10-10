@@ -59,6 +59,44 @@ are left out of `skill_catalog` and `skill_find` unless `kind` asks for them
 (`agent`, `hook`, `mcp`, or `any`); `skill_describe`, `skill_read` and
 `skill_call` work on every kind.
 
+## Public native marketplace
+
+The public repository's canonical sources are standard Agent Skills folders:
+`plugins/<product-major>/skills/<skill-name>/SKILL.md`. Each supported library
+major is a separate selectable plugin. The PMCP bridge has its own `pmcp` plugin.
+The website's `docs/skills/` files are generated downloads from those sources;
+existing URLs and immutable archive bytes remain available.
+
+| Tool            | Native distribution                                                  |
+| --------------- | -------------------------------------------------------------------- |
+| Claude Code     | `.claude-plugin/marketplace.json` and plugin manifests               |
+| Codex           | `.agents/plugins/marketplace.json` and portable `plugin.json`        |
+| Grok Build      | Claude-compatible marketplace and plugin manifests                   |
+| Gemini CLI      | `gemini-extension.json`; selected CLI exports are extensions         |
+| Antigravity CLI | Selected CLI export with its own `plugin.json` and `mcp_config.json` |
+
+For native marketplace commands, follow the [README](../README.md).
+Gemini and Antigravity need their own package formats for selected library plugins;
+do not assume that identically named manifest files accept the same schema.
+After the next npm release, `pmcp marketplace export <plugin> --runtime <tool>
+--output <new-directory>` materializes a selected package without altering native
+settings or installing it. Use the native manager to review and install that folder.
+Existing export destinations are preserved.
+
+The built-in catalog on repository main is available without remote fetching.
+`--no-builtin` or `[catalog] builtin = false` opts out; library APIs continue to
+read explicitly supplied catalog roots. `--marketplace <directory>` reads installed
+Claude, Codex and Grok local descriptors, rejects path escapes and does not fetch
+remote plugin sources. Add a remote marketplace with its native manager first.
+
+Public npm skill installation uses the bundled catalog, a matching installed
+dependency version and immutable free archive URLs. It verifies archive integrity,
+content-only metadata, instruction digests and installed file bytes. npm or Bun
+changes the project and lockfile only after confirmation, with scripts disabled.
+`--provider hosted` remains a separate service path with its own access policy.
+Native plugin installation does not automatically version-match dependencies:
+select the appropriate major yourself. Non-npm library instructions remain manual.
+
 ## Manually selected Python, Rust and Go library skills
 
 Public Pydantic, serde_json and Google UUID instructions are free to read and

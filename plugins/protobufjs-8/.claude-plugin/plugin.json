@@ -1,0 +1,9 @@
+{
+  "name": "protobufjs-8",
+  "version": "8.0.0",
+  "description": "Use protobufjs ^8.0.0 for runtime protobuf reflection, schema loading, message conversion, and binary encoding/decoding. Prefer the ordinary reflection API unless generated code is supplied by protobufjs-cli.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

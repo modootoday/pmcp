@@ -1,0 +1,9 @@
+{
+  "name": "pgsql-ast-parser-12",
+  "version": "12.0.0",
+  "description": "Use pgsql-ast-parser 12.x to parse PostgreSQL SQL into a typed AST, inspect or transform it, and generate SQL. Covers the standalone JavaScript/TypeScript API in resolved version 12.0.2.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

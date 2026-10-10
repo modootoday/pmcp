@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bun-types-1",
+  "version": "1.1.0",
+  "description": "Use bun-types as TypeScript declarations for Bun runtime APIs, while avoiding the common mistake of treating it as a runtime package. Covers the current @types/bun wrapper shape, explicit configuration for direct bun-types usage, and the Bun APIs described by the declarations.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

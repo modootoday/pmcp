@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "nyc-18",
+  "version": "18.0.0",
+  "description": "Use nyc 18.x for its CommonJS API, coverage-file lifecycle, directory resolution, and CLI/runner boundaries. Covers the Node runtime change from nyc 17.x and avoids standalone examples that depend on runner or subprocess internals.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,4 +1,6 @@
 dist/
 coverage/
 docs/
+# Published instruction bytes are formatted only during an explicit content release.
+plugins/*/skills/
 *.tgz

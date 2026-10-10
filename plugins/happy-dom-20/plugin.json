@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "happy-dom-20",
+  "version": "20.0.0",
+  "description": "Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

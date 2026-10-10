@@ -1,0 +1,9 @@
+{
+  "name": "negotiator-1",
+  "version": "1.0.0",
+  "description": "Use negotiator 1.x to select preferred media types, languages, charsets, and encodings from request headers, including the 1.0.0 options-object form for preferred encoding order.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

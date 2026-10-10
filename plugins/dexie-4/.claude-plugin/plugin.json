@@ -1,0 +1,9 @@
+{
+  "name": "dexie-4",
+  "version": "4.0.0",
+  "description": "Use Dexie 4.x for typed IndexedDB databases, table access, and reactive queries. Covers the Dexie/EntityTable TypeScript shapes, schema setup, liveQuery, and the boundary between standalone Dexie and dexie-cloud.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

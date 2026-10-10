@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "croner-10",
+  "version": "10.0.0",
+  "description": "Use Croner 10.x (^10.0.0, documented at 10.0.1) to calculate, match, schedule, and control cron jobs in plain JavaScript/TypeScript scripts.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

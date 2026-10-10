@@ -1,0 +1,9 @@
+{
+  "name": "vitejs-plugin-react-5",
+  "version": "5.0.0",
+  "description": "Configure React transformation with the supported Vite major and verify production output.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

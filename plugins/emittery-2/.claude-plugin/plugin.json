@@ -1,0 +1,9 @@
+{
+  "name": "emittery-2",
+  "version": "2.0.0",
+  "description": "Use Emittery 2.x for asynchronous typed event emission, subscriptions, one-shot waits, async iterables, and listener lifecycle management.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "zod-schema-validation-4",
+  "version": "4.0.1",
+  "description": "Validate boundaries with explicit failure handling, transformed types and async parsing.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

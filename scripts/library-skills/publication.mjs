@@ -11,7 +11,12 @@ import { randomUUID } from "node:crypto";
 import semver from "semver";
 import { bodyOf, frontmatterObject } from "../../src/frontmatter.ts";
 import { createArchive, integrity } from "./archive.mjs";
-import { readCatalog, skillDirectory, validateCatalog } from "./catalog.mjs";
+import {
+  archiveDirectory,
+  readCatalog,
+  skillDirectory,
+  validateCatalog,
+} from "./catalog.mjs";
 import { verifyArchive } from "./check.mjs";
 import { verifyEvidence } from "./evidence.mjs";
 import { skillDisplayTitle } from "./display.mjs";
@@ -85,6 +90,7 @@ export function preparePublication(root, metadata, evidence) {
       line: { major: selection.major, status: selection.status ?? "active" },
     };
     const directory = skillDirectory(root, provisional);
+    const deliveryDirectory = archiveDirectory(root, provisional);
     const identity = `${selection.productId}/${selection.major}`;
     if (selections.has(identity))
       throw new Error("Duplicate selected skill line");
@@ -101,7 +107,7 @@ export function preparePublication(root, metadata, evidence) {
     let previousBytes;
     let previousArchive;
     if (previous) {
-      previousBytes = readFileSync(join(directory, "package.tgz"));
+      previousBytes = readFileSync(join(deliveryDirectory, "package.tgz"));
       previousArchive = verifyArchive(previous, previousBytes);
       if (!semver.gt(selection.delivery?.version, previous.delivery.version))
         throw new Error("Updated skill requires a newer delivery version");
@@ -166,7 +172,7 @@ export function preparePublication(root, metadata, evidence) {
     if (previous)
       writes.push({
         path: immutableRelease(
-          directory,
+          deliveryDirectory,
           previous.delivery.version,
           previousBytes,
         ),
@@ -174,11 +180,19 @@ export function preparePublication(root, metadata, evidence) {
         immutable: true,
       });
     writes.push({
-      path: immutableRelease(directory, entry.delivery.version, bytes),
+      path: immutableRelease(deliveryDirectory, entry.delivery.version, bytes),
       bytes,
       immutable: true,
     });
-    writes.push({ path: join(directory, "package.tgz"), bytes });
+    writes.push({ path: join(deliveryDirectory, "package.tgz"), bytes });
+    for (const [path, bytes] of files)
+      writes.push({
+        path: join(
+          deliveryDirectory,
+          path.slice(`skills/${skill.name}/`.length),
+        ),
+        bytes,
+      });
     if (previousIndex >= 0) entries[previousIndex] = entry;
     if (previousIndex < 0) entries.push(entry);
   }

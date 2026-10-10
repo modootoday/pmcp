@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cli-cursor-5",
+  "version": "5.0.0",
+  "description": "Use cli-cursor v5.0.0 to show, hide, or conditionally toggle a terminal cursor from ESM code.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

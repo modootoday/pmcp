@@ -1,0 +1,9 @@
+{
+  "name": "ajv-formats-3",
+  "version": "3.0.0",
+  "description": "Use ajv-formats 3.x with Ajv 8 to add standard and OpenAPI format validation, fast/selective modes, direct format access, and format comparison keywords.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

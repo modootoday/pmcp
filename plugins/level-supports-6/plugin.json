@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "level-supports-6",
+  "version": "6.0.0",
+  "description": "Use level-supports ^6.0.0 to construct abstract-level capability manifests, merge manifests, and test optional database features safely.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

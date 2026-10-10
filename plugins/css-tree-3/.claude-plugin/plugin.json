@@ -1,0 +1,9 @@
+{
+  "name": "css-tree-3",
+  "version": "3.0.0",
+  "description": "Use css-tree 3.x to parse, traverse, transform, generate, and lex CSS ASTs. Covers the v3 AST/API changes that commonly break v2-era code.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

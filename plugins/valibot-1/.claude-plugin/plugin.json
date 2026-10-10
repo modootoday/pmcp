@@ -1,0 +1,9 @@
+{
+  "name": "valibot-1",
+  "version": "1.0.0",
+  "description": "Use Valibot ^1.0.0 for dependency-free runtime validation and typed parsing in Node, Bun, or Deno.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

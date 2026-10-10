@@ -1,0 +1,9 @@
+{
+  "name": "react-icons-5",
+  "version": "5.0.0",
+  "description": "Use react-icons v5 icon-pack subpath imports, core component types, context, and documented packaging boundaries without relying on obsolete pre-v3 imports or unavailable manifest paths.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

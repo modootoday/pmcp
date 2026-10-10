@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "express-5",
+  "version": "5.0.0",
+  "description": "Use Express 5.x programmatically on Node.js 18+; covers the Express app, routers, body middleware, Express 5 routing, and migration differences.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

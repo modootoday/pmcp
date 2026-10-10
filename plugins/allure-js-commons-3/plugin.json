@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "allure-js-commons-3",
+  "version": "3.0.0",
+  "description": "Use allure-js-commons 3.x as the test-facing Allure facade or as the SDK foundation for a framework adapter. Prefer the v3 ReporterRuntime/TestRuntime architecture over the removed v2 AllureRuntime shape.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

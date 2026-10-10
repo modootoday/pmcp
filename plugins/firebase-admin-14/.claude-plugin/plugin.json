@@ -1,0 +1,9 @@
+{
+  "name": "firebase-admin-14",
+  "version": "14.0.0",
+  "description": "Practical firebase-admin ^14.0.0 guidance for Node.js 22+ server applications, using v14 modular imports and avoiding removed legacy APIs.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

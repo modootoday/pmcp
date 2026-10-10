@@ -1,0 +1,9 @@
+{
+  "name": "human-signals-8",
+  "version": "8.0.0",
+  "description": "Use human-signals ^8.0.0 as an ES-module lookup table for signal metadata by name or number.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "typescript-eslint-types-8",
+  "version": "8.0.1",
+  "description": "Use @typescript-eslint/types ^8 as the lightweight TypeScript-ESTree AST type package: runtime AST enums plus exported parser, project-service, and AST declarations. It is an internal package, not a parser, runner, CLI, or standalone AST-producing tool.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

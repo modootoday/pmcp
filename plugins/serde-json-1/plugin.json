@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "serde-json-1",
+  "version": "1.0.0",
+  "description": "Use Rust serde_json 1 with Serde derive to deserialize typed JSON, preserve numeric precision, serialize contracts and reject malformed or unknown input deliberately. Use for Rust JSON boundaries while preserving Cargo features and project error handling. Manual loading only; no npm target or automatic matching.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "release-it-21",
+  "version": "21.0.0",
+  "description": "Practical guidance for release-it ^21.0.0, including its ESM programmatic API, Config and Plugin classes, CLI-oriented workflow, v21 changes, and standalone examples.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

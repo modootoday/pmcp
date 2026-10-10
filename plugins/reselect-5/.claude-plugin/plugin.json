@@ -1,0 +1,9 @@
+{
+  "name": "reselect-5",
+  "version": "5.0.0",
+  "description": "Use Reselect ^5.0.0 to build memoized selectors, customize memoization, compose structured results, and account for v5 defaults and API changes.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

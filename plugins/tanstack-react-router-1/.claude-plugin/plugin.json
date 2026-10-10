@@ -1,0 +1,9 @@
+{
+  "name": "tanstack-react-router-1",
+  "version": "1.0.0",
+  "description": "Register typed routes, validate search input and manage loader dependencies and guards.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

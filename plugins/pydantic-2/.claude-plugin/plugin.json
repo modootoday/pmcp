@@ -1,0 +1,9 @@
+{
+  "name": "pydantic-2",
+  "version": "1.0.0",
+  "description": "Use Python Pydantic 2 to validate typed input, choose strictness deliberately, normalize fields and serialize validated models. Use when working with BaseModel or TypeAdapter, not Pydantic AI. This is a manually loaded public-library skill, without automatic dependency matching.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

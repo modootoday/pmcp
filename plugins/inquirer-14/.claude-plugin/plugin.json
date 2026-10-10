@@ -1,0 +1,9 @@
+{
+  "name": "inquirer-14",
+  "version": "14.0.0",
+  "description": "Use Inquirer.js 14's legacy prompt API correctly, including v14 prompt registration behavior, prompt-module creation, separators, and interactive-terminal limitations.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

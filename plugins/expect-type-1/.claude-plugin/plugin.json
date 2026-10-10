@@ -1,0 +1,9 @@
+{
+  "name": "expect-type-1",
+  "version": "1.0.0",
+  "description": "Use expect-type ^1.0.0 for compile-time TypeScript assertions about values, types, functions, properties, and type transformations. It has no meaningful runtime assertion behavior; run TypeScript checking separately from any direct script execution.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

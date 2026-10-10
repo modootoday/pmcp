@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "eslint-plugin-testing-library-7",
+  "version": "7.0.0",
+  "description": "Practical guidance for eslint-plugin-testing-library ^7.0.0, including v7 compatibility requirements, legacy and flat ESLint configuration, available rules, customization settings, and common migration mistakes.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

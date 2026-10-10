@@ -1,0 +1,9 @@
+{
+  "name": "jest-extended-7",
+  "version": "7.0.0",
+  "description": "Use jest-extended v7 matchers with a Jest/Vitest-compatible expect.extend host, and understand the small subset that can be exercised directly without a test runner.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

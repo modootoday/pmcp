@@ -1,0 +1,9 @@
+{
+  "name": "graphql-yoga-5",
+  "version": "5.0.1",
+  "description": "Serve request-scoped GraphQL execution and distinguish transport and resolver errors.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

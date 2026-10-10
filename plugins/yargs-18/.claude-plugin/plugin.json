@@ -1,0 +1,9 @@
+{
+  "name": "yargs-18",
+  "version": "18.0.0",
+  "description": "Use yargs ^18.0.0 as a factory-based argument parser in supported Node runtimes.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "fast-check-4",
+  "version": "4.0.0",
+  "description": "Use fast-check 4.x for property-based testing in standalone JavaScript/TypeScript scripts, with v3-to-v4 migration guidance and runnable Bun examples.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "proxy-agent-8",
+  "version": "8.0.0",
+  "description": "Use proxy-agent ^8.0.0 as an ESM proxy-aware Node.js HTTP(S) Agent on Node.js 20+. Covers environment-based and custom proxy selection, exported lazy proxy constructors, lifecycle, and v8 compatibility concerns.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

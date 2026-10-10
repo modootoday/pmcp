@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "responselike-4",
+  "version": "4.0.0",
+  "description": "Use responselike ^4.0.0 to construct a Node.js readable HTTP-like response with status, headers, body, and URL metadata.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

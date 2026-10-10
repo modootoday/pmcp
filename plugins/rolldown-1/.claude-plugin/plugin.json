@@ -1,0 +1,9 @@
+{
+  "name": "rolldown-1",
+  "version": "1.0.0",
+  "description": "Use Rolldown 1.x programmatically, with the current JavaScript API shape, standalone transform utilities, and correct bundle/plugin lifecycle handling.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

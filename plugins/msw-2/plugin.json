@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "msw-2",
+  "version": "2.0.0",
+  "description": "Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

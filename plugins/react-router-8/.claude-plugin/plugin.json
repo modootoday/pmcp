@@ -1,0 +1,9 @@
+{
+  "name": "react-router-8",
+  "version": "8.0.0",
+  "description": "Use react-router ^8.0.0 APIs correctly, including v8 import boundaries, pure path helpers, and the parts that require a React or framework runtime.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

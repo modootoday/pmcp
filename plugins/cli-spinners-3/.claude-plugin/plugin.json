@@ -1,0 +1,9 @@
+{
+  "name": "cli-spinners-3",
+  "version": "3.0.0",
+  "description": "Use cli-spinners ^3.0.0 as a pure ESM source of spinner definitions and random spinner selection.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -12,6 +12,11 @@ import {
 } from "../install/apply.js";
 import { installContext, planInstall } from "../install/plan.js";
 import { verifyInstalledContent } from "../install/verify-content.js";
+import {
+  preparePublicDelivery,
+  publicInstallPlan,
+  verifyPublicDelivery,
+} from "../install/public.js";
 import { readSession } from "../remote/session.js";
 import {
   issueDistributionCredential,
@@ -21,6 +26,7 @@ import {
 } from "../remote/distribution.js";
 import {
   apiOrigin,
+  catalogProvider,
   REMOTE_OPTIONS,
   projectFrom,
   remoteCatalog,
@@ -41,10 +47,11 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
     throw new ArgumentError("select a skill package or pass --all");
   }
   const project = projectFrom(context);
+  const provider = catalogProvider(context);
   const install = installContext(project);
   const inventory = readInstalledDependencies(project);
   const catalog = await remoteCatalog(context);
-  const plan = planInstall({
+  const selectedPlan = planInstall({
     context: install,
     inventory,
     catalog,
@@ -52,17 +59,16 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
     all: context.args.flags.has("all"),
     sync,
   });
+  const plan =
+    provider === "public"
+      ? publicInstallPlan(selectedPlan, catalog)
+      : selectedPlan;
   const digests = new Map(
     catalog.entries.map((entry) => [
       entry.delivery.packageName,
       entry.contentDigest,
     ]),
   );
-  /**
-   * Checks what is on disk against what the catalog described. A name and a
-   * version are claims a package makes about itself, and the archive the
-   * catalog's integrity covers is gone once npm extracts it.
-   */
   const mismatched = (packages: readonly string[]) =>
     packages
       .map((name) =>
@@ -93,9 +99,6 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
       context.ui.line(
         `  ${plan.command.executable} ${plan.command.args.join(" ")}`,
       );
-    // Said before the confirmation, because after it there is nothing to
-    // decide. A recall does not block the install: the skill is usually not
-    // what is unsafe, and refusing would leave the reader with neither.
     for (const entry of plan.recalled) {
       context.ui.warn(
         "recalled",
@@ -108,9 +111,6 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
     }
   }
   if (!dryRun && plan.changes.length === 0) {
-    // "Nothing to install" is not "nothing to check": after the first install
-    // this is the only pass that would notice content drifting from what was
-    // paid for.
     const drifted = mismatched(
       inventory.dependencies
         .filter((dependency) => digests.has(dependency.name))
@@ -158,6 +158,31 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
       prompt.close();
     }
   }
+  if (provider === "public") {
+    const delivery = await preparePublicDelivery(plan, catalog);
+    const code = applyInstallPlan(
+      plan,
+      createPackageManagerRunner(undefined, process.env, delivery.integrity),
+    );
+    if (code !== 0) {
+      context.ui.error(
+        "package manager failed",
+        `exit ${code}; inspect the project before retrying`,
+      );
+      return code;
+    }
+    verifyPublicDelivery(project, delivery);
+    if (context.args.flags.has("json")) {
+      context.ui.data(
+        `${JSON.stringify({ status: "applied", ...report }, null, 2)}\n`,
+      );
+      return 0;
+    }
+    context.ui.success(
+      `${plan.changes.length} public skill packages installed`,
+    );
+    return 0;
+  }
   const session = readSession();
   if (
     !session ||
@@ -193,9 +218,6 @@ async function manage(context: CommandContext, sync: boolean): Promise<number> {
       );
       return code;
     }
-    // The catalog's integrity covers the archive npm has now discarded, so the
-    // installed files are checked against the digest of what was described.
-    // A name and a version are claims a package makes about itself.
     const wrong = mismatched(plan.changes.map((change) => change.packageName));
     if (wrong.length > 0) {
       reportMismatch(wrong);

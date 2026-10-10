@@ -1,0 +1,9 @@
+{
+  "name": "vitejs-plugin-react-6",
+  "version": "6.0.1",
+  "description": "Configure the Vite 8 React pipeline and verify the supported plugin version.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

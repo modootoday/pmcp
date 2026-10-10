@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "babel-plugin-transform-typescript-8",
+  "version": "8.0.0",
+  "description": "Use @babel/plugin-transform-typescript 8.0.0 with Babel 8 to strip and transform TypeScript syntax.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

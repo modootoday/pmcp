@@ -1,0 +1,9 @@
+{
+  "name": "chai-6",
+  "version": "6.0.0",
+  "description": "Use Chai 6 as an ESM-only assertion library, including its expect, assert, should, plugin, configuration, and Assertion extension surfaces.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

@@ -148,7 +148,7 @@ describe("readMarketplace", () => {
     expect(
       readMarketplace(join(root, "nowhere"), (r) => rejected.push(r.reason)),
     ).toEqual([]);
-    expect(rejected).toEqual(["no .claude-plugin/marketplace.json here"]);
+    expect(rejected).toEqual(["No supported native marketplace.json found"]);
   });
 });
 

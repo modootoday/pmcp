@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "yargs-parser-22",
+  "version": "22.0.0",
+  "description": "Use yargs-parser v22 as a standalone ESM-first argument parser, including its callable parser, detailed results, helper methods, and documented parsing options.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

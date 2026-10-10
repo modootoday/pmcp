@@ -1,0 +1,9 @@
+{
+  "name": "typescript-eslint-estree-8",
+  "version": "8.0.0",
+  "description": "Use @typescript-eslint/typescript-estree ^8 to parse TypeScript into ESTree-compatible ASTs, distinguish plain parsing from type-aware services, and avoid v7 configuration shapes.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

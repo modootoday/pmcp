@@ -1,16 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
-
-/**
- * What landed is checked against what the catalog described.
- *
- * The integrity in the catalog covers the archive, and npm discards the archive
- * once it extracts it, so nothing downstream can answer whether the installed
- * files are the ones that were paid for. A name and a version cannot answer it
- * either: those are what a package claims about itself, and any registry the
- * resolver happened to reach can claim them.
- */
+import { installedPackageDirectory } from "../installed.js";
 
 const SKILL = "SKILL.md";
 const SKIP = new Set(["node_modules", ".git", ".cache"]);
@@ -68,7 +59,12 @@ export function verifyInstalledContent(
   packageName: string,
   expected: string,
 ): ContentCheck {
-  const root = resolve(project, "node_modules", ...packageName.split("/"));
+  let root = resolve(project, "node_modules", ...packageName.split("/"));
+  try {
+    root = installedPackageDirectory(project, packageName);
+  } catch {
+    root = resolve(project, "node_modules", ...packageName.split("/"));
+  }
   const files = skillFiles(root);
   const actual = contentDigest(files);
   return {

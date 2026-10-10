@@ -1,0 +1,9 @@
+{
+  "name": "string-width-8",
+  "version": "8.0.0",
+  "description": "Use string-width ^8.0.0 to calculate the terminal column width of strings, including Unicode, emoji, ANSI escape codes, ambiguous-width characters, tabs, and non-printing grapheme clusters.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

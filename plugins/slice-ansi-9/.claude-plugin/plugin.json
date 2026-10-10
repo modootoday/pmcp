@@ -1,0 +1,9 @@
+{
+  "name": "slice-ansi-9",
+  "version": "9.0.0",
+  "description": "Use slice-ansi@^9.0.0 to slice ANSI-styled strings by visible-column positions while preserving ANSI codes and grapheme clusters.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

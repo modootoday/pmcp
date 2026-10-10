@@ -1,0 +1,1157 @@
+{
+  "name": "pmcp",
+  "interface": { "displayName": "PMCP" },
+  "plugins": [
+    {
+      "name": "agent-base-9",
+      "version": "9.0.0",
+      "description": "Use agent-base 9 as an ESM adapter for Node's HTTP and HTTPS agent machinery.",
+      "source": { "source": "local", "path": "./plugins/agent-base-9" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "ajv-formats-3",
+      "version": "3.0.0",
+      "description": "Use ajv-formats 3.x with Ajv 8 to add standard and OpenAPI format validation, fast/selective modes, direct format access, and format comparison keywords.",
+      "source": { "source": "local", "path": "./plugins/ajv-formats-3" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "allure-js-commons-3",
+      "version": "3.0.0",
+      "description": "Use allure-js-commons 3.x as the test-facing Allure facade or as the SDK foundation for a framework adapter. Prefer the v3 ReporterRuntime/TestRuntime architecture over the removed v2 AllureRuntime shape.",
+      "source": { "source": "local", "path": "./plugins/allure-js-commons-3" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "ansi-escapes-7",
+      "version": "7.0.0",
+      "description": "Use ansi-escapes 7.x from ESM code to generate terminal escape-code strings for cursor movement, screen and line control, hyperlinks, images, and iTerm2 features.",
+      "source": { "source": "local", "path": "./plugins/ansi-escapes-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "ansi-styles-7",
+      "version": "7.0.0",
+      "description": "Use ansi-styles v7.0.0 to generate ANSI escape sequences, inspect style groups, convert RGB/hex colors, and work with underline colors. Requires Node.js 22 or newer and ESM imports.",
+      "source": { "source": "local", "path": "./plugins/ansi-styles-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "app-builder-lib-26",
+      "version": "26.0.0",
+      "description": "Practical app-builder-lib ^26.0.0 API guidance for programmatic use, with runnable checks for architecture and platform helpers and cautions about packaging-only APIs.",
+      "source": { "source": "local", "path": "./plugins/app-builder-lib-26" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "autoprefixer-10",
+      "version": "10.0.0",
+      "description": "Use Autoprefixer ^10.0.0 as a PostCSS 8 plugin from a plain Node/Bun script, including its callable API, plugin inspection, options, and the v10 peer-dependency shape.",
+      "source": { "source": "local", "path": "./plugins/autoprefixer-10" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "babel-plugin-transform-typescript-8",
+      "version": "8.0.0",
+      "description": "Use @babel/plugin-transform-typescript 8.0.0 with Babel 8 to strip and transform TypeScript syntax.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/babel-plugin-transform-typescript-8"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "bcryptjs-2",
+      "version": "2.0.0",
+      "description": "Hash and compare asynchronously with explicit UTF-8 byte limits and stored cost inspection.",
+      "source": { "source": "local", "path": "./plugins/bcryptjs-2" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "bullmq-5",
+      "version": "5.0.0",
+      "description": "Run bounded workers with retries, failure events and graceful shutdown.",
+      "source": { "source": "local", "path": "./plugins/bullmq-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "bun-types-1",
+      "version": "1.1.0",
+      "description": "Use bun-types as TypeScript declarations for Bun runtime APIs, while avoiding the common mistake of treating it as a runtime package. Covers the current @types/bun wrapper shape, explicit configuration for direct bun-types usage, and the Bun APIs described by the declarations.",
+      "source": { "source": "local", "path": "./plugins/bun-types-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "chai-6",
+      "version": "6.0.0",
+      "description": "Use Chai 6 as an ESM-only assertion library, including its expect, assert, should, plugin, configuration, and Assertion extension surfaces.",
+      "source": { "source": "local", "path": "./plugins/chai-6" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "chalk-6",
+      "version": "6.0.0",
+      "description": "Use chalk@^6.0.0 correctly from Node.js 22+ ESM, including deterministic color levels, v6 underline styles/colors, Chalk instances, and exported capability metadata.",
+      "source": { "source": "local", "path": "./plugins/chalk-6" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "cli-cursor-5",
+      "version": "5.0.0",
+      "description": "Use cli-cursor v5.0.0 to show, hide, or conditionally toggle a terminal cursor from ESM code.",
+      "source": { "source": "local", "path": "./plugins/cli-cursor-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "cli-spinners-3",
+      "version": "3.0.0",
+      "description": "Use cli-spinners ^3.0.0 as a pure ESM source of spinner definitions and random spinner selection.",
+      "source": { "source": "local", "path": "./plugins/cli-spinners-3" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "clickhouse-client-1",
+      "version": "1.0.0",
+      "description": "Insert and query typed values with parameters, streams and explicit client cleanup.",
+      "source": { "source": "local", "path": "./plugins/clickhouse-client-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "clickhouse-client-web-1",
+      "version": "1.0.0",
+      "description": "Consume Fetch streams and preserve numeric precision within the web client API.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/clickhouse-client-web-1"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "cliui-9",
+      "version": "9.0.0",
+      "description": "Use cliui ^9.0.0 to build terminal UI strings with rows, columns, wrapping, padding, alignment, borders, and the single-string layout DSL.",
+      "source": { "source": "local", "path": "./plugins/cliui-9" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "cloudflare-workers-types-4",
+      "version": "4.0.0",
+      "description": "Compile platform bindings and reject incompatible Worker contracts.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/cloudflare-workers-types-4"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "commander-15",
+      "version": "15.0.0",
+      "description": "Use Commander 15.0.0 for ESM command-line parsing, options, arguments, subcommands, and custom option definitions.",
+      "source": { "source": "local", "path": "./plugins/commander-15" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "content-type-3",
+      "version": "3.0.0",
+      "description": "Use content-type 3.x as an ESM-only parser and formatter for HTTP Content-Type header values. Covers parse options, formatting, validation boundaries, and migration away from older CommonJS/request-response examples.",
+      "source": { "source": "local", "path": "./plugins/content-type-3" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "croner-10",
+      "version": "10.0.0",
+      "description": "Use Croner 10.x (^10.0.0, documented at 10.0.1) to calculate, match, schedule, and control cron jobs in plain JavaScript/TypeScript scripts.",
+      "source": { "source": "local", "path": "./plugins/croner-10" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "css-tree-3",
+      "version": "3.0.0",
+      "description": "Use css-tree 3.x to parse, traverse, transform, generate, and lex CSS ASTs. Covers the v3 AST/API changes that commonly break v2-era code.",
+      "source": { "source": "local", "path": "./plugins/css-tree-3" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "data-urls-7",
+      "version": "7.0.1",
+      "description": "Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing.",
+      "source": { "source": "local", "path": "./plugins/data-urls-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "deep-eql-5",
+      "version": "5.0.0",
+      "description": "Use deep-eql ^5.0.0 for boolean deep comparisons in an ESM package. Covers the v5 export shape, comparison rules, custom comparators, circular references, and MemoizeMap.",
+      "source": { "source": "local", "path": "./plugins/deep-eql-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "dexie-4",
+      "version": "4.0.0",
+      "description": "Use Dexie 4.x for typed IndexedDB databases, table access, and reactive queries. Covers the Dexie/EntityTable TypeScript shapes, schema setup, liveQuery, and the boundary between standalone Dexie and dexie-cloud.",
+      "source": { "source": "local", "path": "./plugins/dexie-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "emittery-2",
+      "version": "2.0.0",
+      "description": "Use Emittery 2.x for asynchronous typed event emission, subscriptions, one-shot waits, async iterables, and listener lifecycle management.",
+      "source": { "source": "local", "path": "./plugins/emittery-2" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "eslint-10",
+      "version": "10.0.0",
+      "description": "Verify flat lint configuration against ESLint 10 and preserve upgrade boundaries.",
+      "source": { "source": "local", "path": "./plugins/eslint-10" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "eslint-9",
+      "version": "9.0.0",
+      "description": "Configure and verify flat lint rules using the installed ESLint 9 toolchain.",
+      "source": { "source": "local", "path": "./plugins/eslint-9" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "eslint-plugin-react-hooks-7",
+      "version": "7.0.0",
+      "description": "Use eslint-plugin-react-hooks ^7.0.0 correctly, including its flat and legacy presets, rule names, custom-hook dependency configuration, and the preset-shape changes from older releases.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/eslint-plugin-react-hooks-7"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "eslint-plugin-testing-library-7",
+      "version": "7.0.0",
+      "description": "Practical guidance for eslint-plugin-testing-library ^7.0.0, including v7 compatibility requirements, legacy and flat ESLint configuration, available rules, customization settings, and common migration mistakes.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/eslint-plugin-testing-library-7"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "expect-type-1",
+      "version": "1.0.0",
+      "description": "Use expect-type ^1.0.0 for compile-time TypeScript assertions about values, types, functions, properties, and type transformations. It has no meaningful runtime assertion behavior; run TypeScript checking separately from any direct script execution.",
+      "source": { "source": "local", "path": "./plugins/expect-type-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "express-5",
+      "version": "5.0.0",
+      "description": "Use Express 5.x programmatically on Node.js 18+; covers the Express app, routers, body middleware, Express 5 routing, and migration differences.",
+      "source": { "source": "local", "path": "./plugins/express-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "fake-indexeddb-6",
+      "version": "6.0.0",
+      "description": "Use fake-indexeddb ^6.0.0 as a pure-JavaScript, in-memory IndexedDB implementation in Node.js scripts and test environments.",
+      "source": { "source": "local", "path": "./plugins/fake-indexeddb-6" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "fast-check-4",
+      "version": "4.0.0",
+      "description": "Use fast-check 4.x for property-based testing in standalone JavaScript/TypeScript scripts, with v3-to-v4 migration guidance and runnable Bun examples.",
+      "source": { "source": "local", "path": "./plugins/fast-check-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "figures-6",
+      "version": "6.0.0",
+      "description": "Use figures 6.x to render Unicode symbols with terminal-aware fallbacks, access explicit main/fallback symbol sets, and replace symbols in strings.",
+      "source": { "source": "local", "path": "./plugins/figures-6" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "firebase-12",
+      "version": "12.0.0",
+      "description": "Use Firebase JS SDK ^12.0.0 with the modular API, correct v12 imports, and Node 20-compatible tooling. Covers app initialization, Auth and Firestore entry points, Firestore Lite query construction, compat migration traps, and v12 naming changes.",
+      "source": { "source": "local", "path": "./plugins/firebase-12" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "firebase-admin-14",
+      "version": "14.0.0",
+      "description": "Practical firebase-admin ^14.0.0 guidance for Node.js 22+ server applications, using v14 modular imports and avoiding removed legacy APIs.",
+      "source": { "source": "local", "path": "./plugins/firebase-admin-14" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "get-uri-8",
+      "version": "8.0.0",
+      "description": "Use get-uri 8.x to obtain readable streams from data, file, FTP, HTTP, and HTTPS URIs, or to validate supported protocols.",
+      "source": { "source": "local", "path": "./plugins/get-uri-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "google-uuid-1",
+      "version": "1.0.0",
+      "description": "Use the Go module github.com/google/uuid to parse UUID input, enforce canonical formatting when required, generate UUIDs with error handling and serialize identifiers. Use for application UUID boundaries; this manually loaded pilot has no npm target or automatic dependency detection.",
+      "source": { "source": "local", "path": "./plugins/google-uuid-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "graphql-16",
+      "version": "16.0.0",
+      "description": "Validate and execute typed schemas with variables and explicit error handling.",
+      "source": { "source": "local", "path": "./plugins/graphql-16" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "graphql-17",
+      "version": "17.0.1",
+      "description": "Practical guidance for graphql ^17.0.0: parse, print, visit, build schemas, and execute operations from standalone scripts.",
+      "source": { "source": "local", "path": "./plugins/graphql-17" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "graphql-yoga-5",
+      "version": "5.0.1",
+      "description": "Serve request-scoped GraphQL execution and distinguish transport and resolver errors.",
+      "source": { "source": "local", "path": "./plugins/graphql-yoga-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "happy-dom-20",
+      "version": "20.0.0",
+      "description": "Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind.",
+      "source": { "source": "local", "path": "./plugins/happy-dom-20" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "hono-4",
+      "version": "4.0.1",
+      "description": "Validate requests, compose middleware and consume status-aware RPC types across packages.",
+      "source": { "source": "local", "path": "./plugins/hono-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "http-proxy-agent-9",
+      "version": "9.0.0",
+      "description": "Use http-proxy-agent 9.x to route Node HTTP requests through an HTTP or HTTPS proxy.",
+      "source": { "source": "local", "path": "./plugins/http-proxy-agent-9" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "human-signals-8",
+      "version": "8.0.0",
+      "description": "Use human-signals ^8.0.0 as an ES-module lookup table for signal metadata by name or number.",
+      "source": { "source": "local", "path": "./plugins/human-signals-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "inquirer-14",
+      "version": "14.0.0",
+      "description": "Use Inquirer.js 14's legacy prompt API correctly, including v14 prompt registration behavior, prompt-module creation, separators, and interactive-terminal limitations.",
+      "source": { "source": "local", "path": "./plugins/inquirer-14" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "ioredis-5",
+      "version": "5.0.0",
+      "description": "Manage Redis commands, connection recovery and resource cleanup.",
+      "source": { "source": "local", "path": "./plugins/ioredis-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "ioredis-6",
+      "version": "6.0.0",
+      "description": "Use ioredis ^6.0.0 from Node.js 20+ for Redis commands, pipelines, Pub/Sub, Lua commands, streams, and RESP3-aware clients.",
+      "source": { "source": "local", "path": "./plugins/ioredis-6" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "ip-address-10",
+      "version": "10.0.0",
+      "description": "Use ip-address ^10.0.0 for standalone IPv4 and IPv6 parsing, validation, subnet checks, conversions, special-address inspection, and URL parsing. This skill emphasizes the v10 native-BigInt API and avoids older v9 method names.",
+      "source": { "source": "local", "path": "./plugins/ip-address-10" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "jackspeak-4",
+      "version": "4.0.0",
+      "description": "Use jackspeak v4 to declare command-line fields, parse an explicit argument array, validate parsed values, and render usage documentation.",
+      "source": { "source": "local", "path": "./plugins/jackspeak-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "jake-12",
+      "version": "12.0.0",
+      "description": "Use Jake 12.x task-definition APIs safely from JavaScript or TypeScript, while distinguishing import-time definitions from behavior supplied by Jake’s CLI runner.",
+      "source": { "source": "local", "path": "./plugins/jake-12" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "jasmine-core-7",
+      "version": "7.0.1",
+      "description": "Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner.",
+      "source": { "source": "local", "path": "./plugins/jasmine-core-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "jest-cli-30",
+      "version": "30.0.0",
+      "description": "Use jest-cli 30 programmatically and avoid Jest 29 CLI/API shapes.",
+      "source": { "source": "local", "path": "./plugins/jest-cli-30" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "jest-extended-7",
+      "version": "7.0.0",
+      "description": "Use jest-extended v7 matchers with a Jest/Vitest-compatible expect.extend host, and understand the small subset that can be exercised directly without a test runner.",
+      "source": { "source": "local", "path": "./plugins/jest-extended-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "jsdom-30",
+      "version": "30.0.0",
+      "description": "Use jsdom ^30.0.0 from a plain Bun/Node script to construct and inspect DOMs and create document fragments. The documented v30 package requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0.",
+      "source": { "source": "local", "path": "./plugins/jsdom-30" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "level-supports-6",
+      "version": "6.0.0",
+      "description": "Use level-supports ^6.0.0 to construct abstract-level capability manifests, merge manifests, and test optional database features safely.",
+      "source": { "source": "local", "path": "./plugins/level-supports-6" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "lowdb-7",
+      "version": "7.0.0",
+      "description": "Use lowdb v7's pure-ESM database API, distinguishing the v7 preset/update syntax from older v6 examples and choosing the correct Node or browser entry point.",
+      "source": { "source": "local", "path": "./plugins/lowdb-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "make-fetch-happen-16",
+      "version": "16.0.0",
+      "description": "Use make-fetch-happen ^16.0.0 for fetch-compatible HTTP requests with caching, retries, proxy support, integrity verification, DNS caching, and Node.js transport options.",
+      "source": { "source": "local", "path": "./plugins/make-fetch-happen-16" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "mdx-bundler-10",
+      "version": "10.0.0",
+      "description": "Use mdx-bundler 10.x to bundle MDX on Node, preserve frontmatter, and understand the separate React-dependent client consumption helpers.",
+      "source": { "source": "local", "path": "./plugins/mdx-bundler-10" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "mocha-12",
+      "version": "12.0.0",
+      "description": "Use Mocha ^12.0.0 programmatically, with the ESM package shape and runner-loading rules rather than v11-era assumptions.",
+      "source": { "source": "local", "path": "./plugins/mocha-12" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "modelcontextprotocol-client-2",
+      "version": "2.0.0",
+      "description": "Negotiate the modern protocol and handle structured output, failures and client teardown.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/modelcontextprotocol-client-2"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "modelcontextprotocol-sdk-1",
+      "version": "1.0.0",
+      "description": "Register strict tool contracts and verify real client calls over a v1 memory transport.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/modelcontextprotocol-sdk-1"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "modelcontextprotocol-server-2",
+      "version": "2.0.0",
+      "description": "Expose Standard Schema tools and verify modern protocol calls through an in-process handler.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/modelcontextprotocol-server-2"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "msw-2",
+      "version": "2.0.0",
+      "description": "Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point.",
+      "source": { "source": "local", "path": "./plugins/msw-2" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "negotiator-1",
+      "version": "1.0.0",
+      "description": "Use negotiator 1.x to select preferred media types, languages, charsets, and encodings from request headers, including the 1.0.0 options-object form for preferred encoding order.",
+      "source": { "source": "local", "path": "./plugins/negotiator-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "npm-run-path-6",
+      "version": "6.0.0",
+      "description": "Use npm-run-path ^6.0.0 to construct npm-style PATH values or environment objects for Node child processes.",
+      "source": { "source": "local", "path": "./plugins/npm-run-path-6" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "nyc-18",
+      "version": "18.0.0",
+      "description": "Use nyc 18.x for its CommonJS API, coverage-file lifecycle, directory resolution, and CLI/runner boundaries. Covers the Node runtime change from nyc 17.x and avoids standalone examples that depend on runner or subprocess internals.",
+      "source": { "source": "local", "path": "./plugins/nyc-18" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "ow-3",
+      "version": "3.0.0",
+      "description": "Use ow ^3.0.0 for runtime validation in Node.js 20+ ESM code. Covers the v3 API, validation results, predicates, modifiers, custom predicates, TypeScript inference, and v2-to-v3 migration traps.",
+      "source": { "source": "local", "path": "./plugins/ow-3" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "pac-proxy-agent-9",
+      "version": "9.0.0",
+      "description": "Use pac-proxy-agent@^9.0.0 as an ESM Node.js HTTP Agent backed by a PAC file or PAC URI.",
+      "source": { "source": "local", "path": "./plugins/pac-proxy-agent-9" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "pgsql-ast-parser-12",
+      "version": "12.0.0",
+      "description": "Use pgsql-ast-parser 12.x to parse PostgreSQL SQL into a typed AST, inspect or transform it, and generate SQL. Covers the standalone JavaScript/TypeScript API in resolved version 12.0.2.",
+      "source": { "source": "local", "path": "./plugins/pgsql-ast-parser-12" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "playwright-test-1",
+      "version": "1.0.2",
+      "description": "Run isolated browser assertions with locator waits and guaranteed fixture teardown.",
+      "source": { "source": "local", "path": "./plugins/playwright-test-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "pmcp",
+      "version": "0.13.1",
+      "description": "Find package skills and use native runtime project configuration.",
+      "source": { "source": "local", "path": "./plugins/pmcp" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "pothos-core-4",
+      "version": "4.0.1",
+      "description": "Build strongly typed GraphQL fields and verify resolver contracts.",
+      "source": { "source": "local", "path": "./plugins/pothos-core-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "prettier-3",
+      "version": "3.0.0",
+      "description": "Resolve project formatting rules and verify targeted CLI formatting.",
+      "source": { "source": "local", "path": "./plugins/prettier-3" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "protobufjs-8",
+      "version": "8.0.0",
+      "description": "Use protobufjs ^8.0.0 for runtime protobuf reflection, schema loading, message conversion, and binary encoding/decoding. Prefer the ordinary reflection API unless generated code is supplied by protobufjs-cli.",
+      "source": { "source": "local", "path": "./plugins/protobufjs-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "proxy-agent-8",
+      "version": "8.0.0",
+      "description": "Use proxy-agent ^8.0.0 as an ESM proxy-aware Node.js HTTP(S) Agent on Node.js 20+. Covers environment-based and custom proxy selection, exported lazy proxy constructors, lifecycle, and v8 compatibility concerns.",
+      "source": { "source": "local", "path": "./plugins/proxy-agent-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "pydantic-2",
+      "version": "1.0.0",
+      "description": "Use Python Pydantic 2 to validate typed input, choose strictness deliberately, normalize fields and serialize validated models. Use when working with BaseModel or TypeAdapter, not Pydantic AI. This is a manually loaded public-library skill, without automatic dependency matching.",
+      "source": { "source": "local", "path": "./plugins/pydantic-2" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "react-19",
+      "version": "19.0.0",
+      "description": "Manage state, effects and form actions while preserving component and rendering boundaries.",
+      "source": { "source": "local", "path": "./plugins/react-19" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "react-dom-19",
+      "version": "19.0.1",
+      "description": "Create and clean up roots, hydrate matching markup and verify form interaction.",
+      "source": { "source": "local", "path": "./plugins/react-dom-19" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "react-icons-5",
+      "version": "5.0.0",
+      "description": "Use react-icons v5 icon-pack subpath imports, core component types, context, and documented packaging boundaries without relying on obsolete pre-v3 imports or unavailable manifest paths.",
+      "source": { "source": "local", "path": "./plugins/react-icons-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "react-is-19",
+      "version": "19.0.0",
+      "description": "Use react-is 19 to identify React element brands and validate component types. Covers the React 19 export surface, the removal of React 18 async/concurrent aliases, and standalone checks that run without JSX, React, a DOM, or a test runner.",
+      "source": { "source": "local", "path": "./plugins/react-is-19" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "react-markdown-10",
+      "version": "10.0.0",
+      "description": "Use react-markdown ^10.0.0 correctly as an ESM-only React 18+ component, including synchronous, asynchronous, plugin, filtering, URL, and migration guidance.",
+      "source": { "source": "local", "path": "./plugins/react-markdown-10" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "react-router-8",
+      "version": "8.0.0",
+      "description": "Use react-router ^8.0.0 APIs correctly, including v8 import boundaries, pure path helpers, and the parts that require a React or framework runtime.",
+      "source": { "source": "local", "path": "./plugins/react-router-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "release-it-21",
+      "version": "21.0.0",
+      "description": "Practical guidance for release-it ^21.0.0, including its ESM programmatic API, Config and Plugin classes, CLI-oriented workflow, v21 changes, and standalone examples.",
+      "source": { "source": "local", "path": "./plugins/release-it-21" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "reselect-5",
+      "version": "5.0.0",
+      "description": "Use Reselect ^5.0.0 to build memoized selectors, customize memoization, compose structured results, and account for v5 defaults and API changes.",
+      "source": { "source": "local", "path": "./plugins/reselect-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "responselike-4",
+      "version": "4.0.0",
+      "description": "Use responselike ^4.0.0 to construct a Node.js readable HTTP-like response with status, headers, body, and URL metadata.",
+      "source": { "source": "local", "path": "./plugins/responselike-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "rolldown-1",
+      "version": "1.0.0",
+      "description": "Use Rolldown 1.x programmatically, with the current JavaScript API shape, standalone transform utilities, and correct bundle/plugin lifecycle handling.",
+      "source": { "source": "local", "path": "./plugins/rolldown-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "semver-7",
+      "version": "7.0.0",
+      "description": "Compare exact versions and ranges with explicit prerelease policy.",
+      "source": { "source": "local", "path": "./plugins/semver-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "serde-json-1",
+      "version": "1.0.0",
+      "description": "Use Rust serde_json 1 with Serde derive to deserialize typed JSON, preserve numeric precision, serialize contracts and reject malformed or unknown input deliberately. Use for Rust JSON boundaries while preserving Cargo features and project error handling. Manual loading only; no npm target or automatic matching.",
+      "source": { "source": "local", "path": "./plugins/serde-json-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "sinon-22",
+      "version": "22.0.0",
+      "description": "Use Sinon ^22.0.0 for standalone spies, stubs, fake timers, sandboxes, and Sinon assertions.",
+      "source": { "source": "local", "path": "./plugins/sinon-22" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "slice-ansi-9",
+      "version": "9.0.0",
+      "description": "Use slice-ansi@^9.0.0 to slice ANSI-styled strings by visible-column positions while preserving ANSI codes and grapheme clusters.",
+      "source": { "source": "local", "path": "./plugins/slice-ansi-9" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "smol-toml-1",
+      "version": "1.0.0",
+      "description": "Round-trip TOML configuration while preserving explicit integer policy.",
+      "source": { "source": "local", "path": "./plugins/smol-toml-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "socks-proxy-agent-10",
+      "version": "10.0.0",
+      "description": "Use socks-proxy-agent ^10.0.0 to create SOCKS agents for Node HTTP clients and compatible integrations.",
+      "source": { "source": "local", "path": "./plugins/socks-proxy-agent-10" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "string-width-8",
+      "version": "8.0.0",
+      "description": "Use string-width ^8.0.0 to calculate the terminal column width of strings, including Unicode, emoji, ANSI escape codes, ambiguous-width characters, tabs, and non-printing grapheme clusters.",
+      "source": { "source": "local", "path": "./plugins/string-width-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "superstruct-2",
+      "version": "2.0.0",
+      "description": "Use Superstruct ^2.0.0 for runtime validation, coercion, defaults, refinements, and object-shape utilities. Prefer the current named-export API; do not copy older struct.object/User.assert examples.",
+      "source": { "source": "local", "path": "./plugins/superstruct-2" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "supports-color-11",
+      "version": "11.0.0",
+      "description": "Use supports-color 11.0.0 to detect terminal color capability in Node.js scripts, including stdout/stderr detection and custom stream detection.",
+      "source": { "source": "local", "path": "./plugins/supports-color-11" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "tailwindcss-3",
+      "version": "3.0.0",
+      "description": "Compile configured content paths and verify utility output using the v3 PostCSS pipeline.",
+      "source": { "source": "local", "path": "./plugins/tailwindcss-3" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "tailwindcss-4",
+      "version": "4.0.0",
+      "description": "Integrate the CSS-first Vite pipeline and verify detected utility output.",
+      "source": { "source": "local", "path": "./plugins/tailwindcss-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "tanstack-react-router-1",
+      "version": "1.0.0",
+      "description": "Register typed routes, validate search input and manage loader dependencies and guards.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/tanstack-react-router-1"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "tedious-20",
+      "version": "20.0.0",
+      "description": "Use tedious ^20.0.0 from a plain Node.js script to connect to SQL Server, execute requests, manage transactions, and perform bulk loads. Covers the documented v20 API surface, its one-request-per-connection constraint, and the Node.js 22 requirement.",
+      "source": { "source": "local", "path": "./plugins/tedious-20" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "testing-library-react-16",
+      "version": "16.0.0",
+      "description": "Test accessible interactions and async state with user events and explicit cleanup.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/testing-library-react-16"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "tinyspy-4",
+      "version": "4.0.0",
+      "description": "Use tinyspy ^4.0.0 as an ESM-only spying library in standalone TypeScript or JavaScript scripts.",
+      "source": { "source": "local", "path": "./plugins/tinyspy-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "tldts-7",
+      "version": "7.0.0",
+      "description": "Use tldts ^7.0.0 to parse hostnames, domains, public suffixes, and subdomains from URLs or host-like strings.",
+      "source": { "source": "local", "path": "./plugins/tldts-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "ts-morph-28",
+      "version": "28.0.0",
+      "description": "Use ts-morph 28.x for in-memory TypeScript project analysis, AST navigation and manipulation, type checking, printing, diagnostics, and emission.",
+      "source": { "source": "local", "path": "./plugins/ts-morph-28" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "tsup-8",
+      "version": "8.0.0",
+      "description": "Build and pack typed ESM/CJS libraries, then verify imports from a consumer project.",
+      "source": { "source": "local", "path": "./plugins/tsup-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "tsx-4",
+      "version": "4.0.0",
+      "description": "Use tsx v4 as a Node-compatible TypeScript loader, or use its documented ESM/CJS Developer APIs from a plain script. Covers v4 changes, dynamic loading, scoped registration, and the boundary between the API and the tsx CLI.",
+      "source": { "source": "local", "path": "./plugins/tsx-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "type-fest-5",
+      "version": "5.0.0",
+      "description": "Use type-fest v5.0.0 as a strict, type-only utility package. Covers v5 module/configuration requirements, the documented Except and Tagged APIs, and migration traps from v4.",
+      "source": { "source": "local", "path": "./plugins/type-fest-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript-5",
+      "version": "5.0.0",
+      "description": "Choose module resolution for the runtime and verify declaration exports in consumer projects.",
+      "source": { "source": "local", "path": "./plugins/typescript-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript-eslint-8",
+      "version": "8.0.1",
+      "description": "Check typed lint rules and diagnostics with both supported ESLint fixture majors.",
+      "source": { "source": "local", "path": "./plugins/typescript-eslint-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript-eslint-eslint-plugin-8",
+      "version": "8.0.0",
+      "description": "Use @typescript-eslint/eslint-plugin v8 exports, legacy preset names, rule definitions, typed-linting requirements, and v8 migration constraints.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/typescript-eslint-eslint-plugin-8"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript-eslint-estree-8",
+      "version": "8.0.0",
+      "description": "Use @typescript-eslint/typescript-estree ^8 to parse TypeScript into ESTree-compatible ASTs, distinguish plain parsing from type-aware services, and avoid v7 configuration shapes.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/typescript-eslint-estree-8"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript-eslint-parser-8",
+      "version": "8.0.0",
+      "description": "Use @typescript-eslint/parser ^8.0.0 directly or as the parser behind ESLint. Covers standalone parsing, complete parse results, isolated parser options, v8 Project Service naming, and boundaries around type-aware parsing.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/typescript-eslint-parser-8"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript-eslint-types-8",
+      "version": "8.0.1",
+      "description": "Use @typescript-eslint/types ^8 as the lightweight TypeScript-ESTree AST type package: runtime AST enums plus exported parser, project-service, and AST declarations. It is an internal package, not a parser, runner, CLI, or standalone AST-producing tool.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/typescript-eslint-types-8"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript-eslint-utils-8",
+      "version": "8.0.0",
+      "description": "Use @typescript-eslint/utils ^8.0.0 to author typed custom ESLint rules, work with TypeScript-ESTree node types, and access parser services from rules running under ESLint.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/typescript-eslint-utils-8"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "typescript-eslint-visitor-keys-8",
+      "version": "8.0.0",
+      "description": "Use @typescript-eslint/visitor-keys ^8.0.0 to read TypeScript-ESTree visitor-key definitions and obtain keys for AST nodes.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/typescript-eslint-visitor-keys-8"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "valibot-1",
+      "version": "1.0.0",
+      "description": "Use Valibot ^1.0.0 for dependency-free runtime validation and typed parsing in Node, Bun, or Deno.",
+      "source": { "source": "local", "path": "./plugins/valibot-1" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "vite-7",
+      "version": "7.0.0",
+      "description": "Build React applications and keep browser environment values within the public boundary.",
+      "source": { "source": "local", "path": "./plugins/vite-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "vite-8",
+      "version": "8.0.1",
+      "description": "Build React applications with Vite 8 and verify public environment and preview behavior.",
+      "source": { "source": "local", "path": "./plugins/vite-8" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "vitejs-plugin-react-5",
+      "version": "5.0.0",
+      "description": "Configure React transformation with the supported Vite major and verify production output.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/vitejs-plugin-react-5"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "vitejs-plugin-react-6",
+      "version": "6.0.1",
+      "description": "Configure the Vite 8 React pipeline and verify the supported plugin version.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/vitejs-plugin-react-6"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "vitest-4",
+      "version": "4.0.0",
+      "description": "Run isolated tests with module mocks, timer lifecycle and explicit async assertions.",
+      "source": { "source": "local", "path": "./plugins/vitest-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "vitest-5",
+      "version": "5.0.0",
+      "description": "Use Vitest ^5.0.0 standalone assertions and mock functions correctly, while avoiding APIs that require the Vitest runner and accounting for v5 migration changes.",
+      "source": { "source": "local", "path": "./plugins/vitest-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "whatwg-mimetype-5",
+      "version": "5.0.0",
+      "description": "Use whatwg-mimetype ^5.0.0 to parse, inspect, mutate, serialize, classify, and compute MIME types from resource bytes.",
+      "source": { "source": "local", "path": "./plugins/whatwg-mimetype-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "wrangler-4",
+      "version": "4.0.1",
+      "description": "Generate configuration-driven types and verify handlers using isolated local bindings.",
+      "source": { "source": "local", "path": "./plugins/wrangler-4" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "wrap-ansi-10",
+      "version": "10.0.0",
+      "description": "Use wrap-ansi v10 to wrap plain or ANSI-styled strings by terminal column width.",
+      "source": { "source": "local", "path": "./plugins/wrap-ansi-10" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "yaml-2",
+      "version": "2.0.0",
+      "description": "Parse and update YAML configuration with diagnostics and bounded aliases.",
+      "source": { "source": "local", "path": "./plugins/yaml-2" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "yargs-18",
+      "version": "18.0.0",
+      "description": "Use yargs ^18.0.0 as a factory-based argument parser in supported Node runtimes.",
+      "source": { "source": "local", "path": "./plugins/yargs-18" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "yargs-parser-22",
+      "version": "22.0.0",
+      "description": "Use yargs-parser v22 as a standalone ESM-first argument parser, including its callable parser, detailed results, helper methods, and documented parsing options.",
+      "source": { "source": "local", "path": "./plugins/yargs-parser-22" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "yeoman-environment-7",
+      "version": "7.0.0",
+      "description": "Use yeoman-environment's ESM environment API when working against the v7.0.0 source shape. Note that ^7.0.0 is not a published version according to the researched npm metadata; verify the installed version before relying on this skill.",
+      "source": { "source": "local", "path": "./plugins/yeoman-environment-7" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "z-schema-12",
+      "version": "12.0.0",
+      "description": "Use z-schema ^12.0.0 for JSON Schema validation with synchronous and asynchronous APIs, safe results, draft-aware schemas, custom formats, and registered remote references.",
+      "source": { "source": "local", "path": "./plugins/z-schema-12" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "zod-schema-validation-3",
+      "version": "3.0.0",
+      "description": "Parse at the boundary, read the failure, and let the schema be the type.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/zod-schema-validation-3"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "zod-schema-validation-4",
+      "version": "4.0.1",
+      "description": "Validate boundaries with explicit failure handling, transformed types and async parsing.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/zod-schema-validation-4"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "zod-validation-error-5",
+      "version": "5.0.0",
+      "description": "Use zod-validation-error ^5.0.0 with Zod 4 by default, including direct ValidationError construction, Zod error conversion, type guards, message builders, and the separate Zod 3 entrypoint.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/zod-validation-error-5"
+      },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "zustand-5",
+      "version": "5.0.0",
+      "description": "Use Zustand ^5.0.0 for vanilla stores, React-bound stores, persistence, and Redux-style reducers. Covers documented v5 APIs, standalone examples, and migration traps such as stable selectors, replacement updates, and changed persistence behavior.",
+      "source": { "source": "local", "path": "./plugins/zustand-5" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Developer Tools"
+    }
+  ]
+}

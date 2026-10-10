@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "content-type-3",
+  "version": "3.0.0",
+  "description": "Use content-type 3.x as an ESM-only parser and formatter for HTTP Content-Type header values. Covers parse options, formatting, validation boundaries, and migration away from older CommonJS/request-response examples.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}

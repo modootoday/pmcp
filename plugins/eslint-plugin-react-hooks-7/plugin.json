@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "eslint-plugin-react-hooks-7",
+  "version": "7.0.0",
+  "description": "Use eslint-plugin-react-hooks ^7.0.0 correctly, including its flat and legacy presets, rule names, custom-hook dependency configuration, and the preset-shape changes from older releases.",
+  "author": { "name": "modootoday" },
+  "license": "Elastic-2.0",
+  "repository": "https://github.com/modootoday/pmcp",
+  "homepage": "https://pmcp.build/skills/"
+}
