@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TypeScript 5.x — PMCP</title>
+  <meta name="description" content="Choose module resolution for the runtime and verify declaration exports in consumer projects." />
+  <link rel="canonical" href="https://pmcp.build/skills/typescript/5/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="TypeScript 5.x — PMCP" />
+  <meta property="og:description" content="Choose module resolution for the runtime and verify declaration exports in consumer projects." />
+  <meta property="og:url" content="https://pmcp.build/skills/typescript/5/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/typescript/">Other majors</a></p>
+    <h1>TypeScript 5.x</h1><p>Choose module resolution for the runtime and verify declaration exports in consumer projects.</p>
+    <dl><dt>For</dt><dd><code>typescript@5.9.3</code></dd><dt>Verified</dt><dd>2026-10-10, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-typescript@5.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/typescript/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/typescript/5/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/typescript/5/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-/HCT6eNEw5Dd6T+t7OVandxC3Mnx1VqgLXW7/HKet7g+ZG3TlkM0gnJqx7V9AS+0SnPr9a2Cg2Ynokk98d3aGg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>TypeScript 5 development workflow</h2>
+<p>Use the project&#39;s installed compiler and scripts. This skill targets TypeScript
+5.9.3; it does not imply compatibility with every 5.x release or the separate
+native-preview compiler.</p>
+<h3>Choose options for the host</h3>
+<p>Read the nearest package.json, the complete tsconfig extends chain, and the
+existing emitter before changing configuration. Preserve the package manager,
+supported runtimes, module format, and strictness policy.</p>
+<table>
+<thead>
+<tr>
+<th>Execution host</th>
+<th>Configuration decision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JavaScript emitted for Node.js</td>
+<td>Use a matching Node module mode, such as NodeNext with NodeNext resolution. Package type and .mts/.cts extensions determine ESM/CJS interpretation.</td>
+</tr>
+<tr>
+<td>Application bundled by Vite or another bundler</td>
+<td>Bundler resolution with ESNext or Preserve module mode can match the bundler&#39;s import behavior. Keep the project&#39;s existing emitter.</td>
+</tr>
+<tr>
+<td>Published library</td>
+<td>Check the emitted JavaScript and declarations from consumer projects; a successful source check alone does not prove package compatibility.</td>
+</tr>
+</tbody></table>
+<p>NodeNext ESM source imports use the emitted extension, such as ./math.js, even
+when the source is math.ts. Bundler resolution permits extensionless relative
+imports; do not transfer that assumption into unbundled Node.js output.</p>
+<p>TypeScript paths describes resolution for the compiler. It does not rewrite
+emitted imports or create runtime aliases. Configure the actual runtime/bundler
+when the application needs aliases.</p>
+<p>These decisions follow the <a href="https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html">compiler-option guide</a>
+and <a href="https://www.typescriptlang.org/docs/handbook/modules/reference.html">module-resolution reference</a>.</p>
+<h3>Make a bounded change</h3>
+<p>Reproduce the diagnostic with the local compiler and the owning project&#39;s
+configuration. Use the existing typecheck script, or tsc -p &lt;config&gt; --noEmit when
+the project uses tsc directly. Passing source filenames directly to tsc bypasses
+normal tsconfig discovery.</p>
+<p>Keep runtime data validation separate from TypeScript&#39;s compile-time guarantees.
+Use narrowing, discriminated unions, or type-only imports to express an existing
+contract. Do not hide a resolution or declaration defect behind any, an assertion,
+skipLibCheck, or a dependency upgrade.</p>
+<p>When resolution is unclear, use tsc -p &lt;config&gt; --traceResolution for the failing
+import and inspect its selected package exports condition. Change the narrowest
+incorrect option or export, then repeat the owning check.</p>
+<h3>Check published declarations through exports</h3>
+<p>For a single ESM entrypoint, the package may expose:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;module&quot;,
+  &quot;exports&quot;: {
+    &quot;.&quot;: {
+      &quot;types&quot;: &quot;./dist/index.d.ts&quot;,
+      &quot;import&quot;: &quot;./dist/index.js&quot;
+    }
+  }
+}
+</code></pre>
+<p>Build first and ensure both files exist. A consumer must import the package by
+its public name, not by a source path that bypasses exports. Check the packaged
+files under the supported consumer resolution modes and execute the public
+JavaScript entrypoint in its advertised runtime.</p>
+<p>Ship declaration dependencies required by consumers, rather than leaving them
+available only through a developer&#39;s local installation. The
+<a href="https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html">declaration-publishing guide</a>
+describes how declarations and their dependencies travel with a package.</p>
+<p>Declaration files must describe the corresponding JavaScript module format.
+Use matching .d.mts/.d.cts when those formats require separate declaration
+entrypoints. Dual ESM/CJS output needs checks of both exposed formats; one
+NodeNext consumer does not establish CJS compatibility.</p>
+<p>For libraries bundled with external dependencies, check imports retained in
+declarations and JavaScript. Bundler-only source resolution can accept imports
+that break in Node.js consumers.</p>
+<h3>Referenced projects</h3>
+<p>Use the existing reference graph rather than replacing it with one broad source
+glob. Referenced projects normally use composite and emit declarations; a
+solution tsconfig can contain files: [] and references to the buildable projects.
+Run tsc -b &lt;solution&gt; for dependency-order builds. Use noEmit on a separate
+consumer check when appropriate, rather than removing outputs that downstream
+references require.</p>
+<p>Inspect include, rootDir, outDir, declaration outputs, and build-info paths when
+a reference is stale or incomplete. Keep generated outputs separate from source.
+The <a href="https://www.typescriptlang.org/docs/handbook/project-references.html">project-reference guide</a>
+explains the build contract.</p>
+<h3>Completion evidence</h3>
+<p>Report the compiler version, project configuration checked, and actual commands.
+For a library, include declaration consumption through exports and public runtime
+imports. Distinguish passing checks, expected negative diagnostics, and unchecked
+formats. Do not describe a successful build as proof of all supported platforms.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

@@ -789,6 +789,14 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/skills/typescript/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/typescript/5/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills/valibot/</loc>
     <priority>0.8</priority>
   </url>
@@ -814,6 +822,10 @@
   </url>
   <url>
     <loc>https://pmcp.build/skills/vitest/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/skills/vitest/4/</loc>
     <priority>0.8</priority>
   </url>
   <url>

@@ -1,6 +1,6 @@
 {
-  "revision": "library-format-20261010",
-  "publishedAt": "2026-10-10T01:48:30.513Z",
+  "revision": "library-development-1a-20261010",
+  "publishedAt": "2026-10-10T01:56:55.168Z",
   "entries": [
     {
       "productId": "zod-schema-validation",
@@ -4439,6 +4439,84 @@
       "line": {
         "major": 1,
         "status": "active"
+      }
+    },
+    {
+      "productId": "typescript",
+      "title": "TypeScript",
+      "summary": "Choose module resolution for the runtime and verify declaration exports in consumer projects.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-typescript",
+        "version": "5.0.0",
+        "integrity": "sha512-/HCT6eNEw5Dd6T+t7OVandxC3Mnx1VqgLXW7/HKet7g+ZG3TlkM0gnJqx7V9AS+0SnPr9a2Cg2Ynokk98d3aGg=="
+      },
+      "skillRevision": 1,
+      "contentDigest": "sha256:99959bd851a83b707f5482c33e0c7c6d2522ee3b74a1d0f257106915c806d603",
+      "targets": [
+        {
+          "packageName": "typescript",
+          "range": "^5.0.0",
+          "verifiedVersions": [
+            "5.9.3"
+          ]
+        }
+      ],
+      "line": {
+        "major": 5,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 6
+      },
+      "preview": {
+        "headings": [
+          "Choose options for the host",
+          "Make a bounded change",
+          "Check published declarations through exports",
+          "Referenced projects",
+          "Completion evidence"
+        ],
+        "example": "{\n  \"type\": \"module\",\n  \"exports\": {\n    \".\": {\n      \"types\": \"./dist/index.d.ts\",\n      \"import\": \"./dist/index.js\"\n    }\n  }\n}"
+      }
+    },
+    {
+      "productId": "vitest",
+      "title": "Vitest",
+      "summary": "Run isolated tests with module mocks, timer lifecycle and explicit async assertions.",
+      "delivery": {
+        "packageName": "@modootoday/pmcp-vitest",
+        "version": "4.0.0",
+        "integrity": "sha512-2g6c6oPfKMEPosKy08RrBO5Phsmrp/C21jspf0eNsKK28QGzDXGRNN2Qmos8vZmEsX0D2CchfqZEDqo55RSqXQ=="
+      },
+      "skillRevision": 2,
+      "contentDigest": "sha256:d7f0bdf2b45728bd294a526ba3e62b765ca36572da3f95eaf7cc26044dedc952",
+      "targets": [
+        {
+          "packageName": "vitest",
+          "range": "^4.0.0",
+          "verifiedVersions": [
+            "4.1.11"
+          ]
+        }
+      ],
+      "line": {
+        "major": 4,
+        "status": "active"
+      },
+      "evidence": {
+        "verifiedOn": "2026-10-10",
+        "examplesExecuted": 8
+      },
+      "preview": {
+        "headings": [
+          "Run real tests",
+          "Preserve the project's execution policy",
+          "Mock the dependency boundary",
+          "Keep cleanup intentional",
+          "Completion evidence"
+        ],
+        "example": "import { expect, test } from \"vitest\";\n\ntest(\"rejects an unavailable record\", async () => {\n  const readRecord = async () => {\n    throw new Error(\"unavailable\");\n  };\n\n  await expect(readRecord()).rejects.toThrow(\"unavailable\");\n});"
       }
     }
   ]

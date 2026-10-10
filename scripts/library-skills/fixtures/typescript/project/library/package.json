@@ -1,0 +1,12 @@
+{
+  "name": "@pmcp-fixture/typed-library",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  }
+}

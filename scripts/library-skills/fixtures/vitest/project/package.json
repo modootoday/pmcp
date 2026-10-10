@@ -1,0 +1,5 @@
+{
+  "name": "pmcp-vitest-fixture",
+  "private": true,
+  "type": "module"
+}

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vitest 4.x — PMCP</title>
+  <meta name="description" content="Run isolated tests with module mocks, timer lifecycle and explicit async assertions." />
+  <link rel="canonical" href="https://pmcp.build/skills/vitest/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Vitest 4.x — PMCP" />
+  <meta property="og:description" content="Run isolated tests with module mocks, timer lifecycle and explicit async assertions." />
+  <meta property="og:url" content="https://pmcp.build/skills/vitest/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/vitest/">Other majors</a></p>
+    <h1>Vitest 4.x</h1><p>Run isolated tests with module mocks, timer lifecycle and explicit async assertions.</p>
+    <dl><dt>For</dt><dd><code>vitest@4.1.11</code></dd><dt>Verified</dt><dd>2026-10-10, 8 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-vitest@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/vitest/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/vitest/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/vitest/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-2g6c6oPfKMEPosKy08RrBO5Phsmrp/C21jspf0eNsKK28QGzDXGRNN2Qmos8vZmEsX0D2CchfqZEDqo55RSqXQ==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><h2>Vitest 4 development workflow</h2>
+<p>This skill targets Vitest 4.1.11. Read the installed Vitest version, scripts,
+configuration, and environment before applying examples. Use the versioned
+<a href="https://v4.vitest.dev/guide/">Vitest 4 documentation</a> for this major line; do not
+copy Vitest 5-only APIs into a 4.x suite.</p>
+<h3>Run real tests</h3>
+<p>Place test/it callbacks in files discovered by Vitest and execute the project
+test script or its local vitest run command. Import expect, test, hooks, and vi
+from vitest unless the project intentionally enables globals.</p>
+<p>A direct node or bun execution is not a substitute for Vitest&#39;s runner and
+module transformation. Do not mark imported vi helpers or unexecuted test
+callbacks as a passing suite.</p>
+<pre><code class="language-ts">import { expect, test } from &quot;vitest&quot;;
+
+test(&quot;rejects an unavailable record&quot;, async () =&gt; {
+  const readRecord = async () =&gt; {
+    throw new Error(&quot;unavailable&quot;);
+  };
+
+  await expect(readRecord()).rejects.toThrow(&quot;unavailable&quot;);
+});
+</code></pre>
+<p>Await promise assertions and asynchronous work. A test that finishes before an
+assertion runs can report misleading success. Select node, jsdom, happy-dom, or
+Browser Mode to match the system under test; changing environments can change
+what a passing test proves.</p>
+<h3>Preserve the project&#39;s execution policy</h3>
+<p>Use a focused file or name filter while developing. On a constrained machine,
+an explicit one-worker, non-parallel-file run can bound resource use:</p>
+<pre><code class="language-sh">vitest run path/to/feature.test.ts --maxWorkers=1 --no-file-parallelism
+</code></pre>
+<p>This is an invocation choice, not a reason to overwrite a project&#39;s established
+pool, browser provider, isolation, coverage, or projects configuration. Vitest 4
+removed poolOptions and moved its supported settings to their new locations;
+check the <a href="https://v4.vitest.dev/guide/migration">migration guide</a> when upgrading.
+See <a href="https://v4.vitest.dev/config/fileparallelism">fileParallelism</a> and
+<a href="https://v4.vitest.dev/config/maxworkers">maxWorkers</a> for the CLI options.</p>
+<h3>Mock the dependency boundary</h3>
+<p>vi.mock is hoisted by the runner. Use vi.hoisted for state required by the mock
+factory, or keep the factory self-contained. Prefer the import-promise form for
+typed module paths. Call the system under test and assert its observable result
+as well as the relevant dependency interaction.</p>
+<pre><code class="language-ts">import { expect, test, vi } from &quot;vitest&quot;;
+import { readUser } from &quot;./service.js&quot;;
+import { findUser } from &quot;./repository.js&quot;;
+
+vi.mock(import(&quot;./repository.js&quot;), () =&gt; ({
+  findUser: vi.fn(async (id: string) =&gt; ({ id, name: &quot;Ada&quot; })),
+}));
+
+test(&quot;reads a user through its repository&quot;, async () =&gt; {
+  await expect(readUser(&quot;u1&quot;)).resolves.toBe(&quot;Ada&quot;);
+  expect(findUser).toHaveBeenCalledWith(&quot;u1&quot;);
+});
+</code></pre>
+<p>Mocking an exported function does not replace calls to that function from inside
+the same module. Choose a separable dependency boundary when that matters. ESM
+namespace spying also differs in Browser Mode; a Node suite does not establish
+that a browser mock works. See the <a href="https://v4.vitest.dev/guide/mocking">mocking guide</a>.</p>
+<h3>Keep cleanup intentional</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Intended effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mockClear / clearAllMocks</td>
+<td>Clear recorded calls while preserving the implementation.</td>
+</tr>
+<tr>
+<td>mockReset / resetAllMocks</td>
+<td>Clear mock state and reset implementations; vi.fn(initialImplementation) resets to its initial implementation.</td>
+</tr>
+<tr>
+<td>mockRestore / restoreAllMocks</td>
+<td>Restore spied-on original methods. In Vitest 4, restoreAllMocks does not clear each spy&#39;s recorded history or restore automocked exports.</td>
+</tr>
+</tbody></table>
+<p>Choose clearMocks, mockReset, and restoreMocks for the suite&#39;s intended state
+model rather than enabling all of them blindly. Restore fake timers and explicit
+global/environment stubs even when assertions fail:</p>
+<pre><code class="language-ts">import { afterEach, expect, test, vi } from &quot;vitest&quot;;
+
+afterEach(() =&gt; {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
+
+test(&quot;resolves after a delay&quot;, async () =&gt; {
+  vi.useFakeTimers();
+  const result = new Promise((resolve) =&gt; {
+    setTimeout(() =&gt; resolve(&quot;ready&quot;), 100);
+  });
+
+  await vi.advanceTimersByTimeAsync(100);
+  await expect(result).resolves.toBe(&quot;ready&quot;);
+});
+</code></pre>
+<p>Do not combine fake timers and concurrent tests sharing global state. The
+<a href="https://v4.vitest.dev/api/vi">vi API</a> documents reset and restoration behavior.</p>
+<h3>Completion evidence</h3>
+<p>Check the runner exit code and executed test count. Distinguish passing tests,
+expected failures, skipped tests, and failures; an empty run or generated report
+alone is not proof of success. Report the exact Vitest version, environment, and
+targeted command. Coverage and typechecking are separate checks: transformed
+TypeScript tests do not prove their types are valid.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>
