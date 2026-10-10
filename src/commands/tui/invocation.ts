@@ -21,6 +21,11 @@ export const tuiOptions: readonly OptionSpec[] = [
   { name: "rows", describe: "Terminal rows (12–1000)", placeholder: "<count>" },
   { name: "index", describe: "Worker dock index", placeholder: "<count>" },
   {
+    name: "memory-mb",
+    describe: "Worker memory reservation",
+    placeholder: "<count>",
+  },
+  {
     name: "confirm-session",
     describe: "Exact target ID for stop",
     placeholder: "<id>",
@@ -32,7 +37,7 @@ export const tuiOptions: readonly OptionSpec[] = [
   },
   {
     name: "runtime",
-    describe: "Main native runtime ID for launch",
+    describe: "Native runtime ID for main launch or worker start",
     placeholder: "<runtime>",
   },
   {
@@ -55,6 +60,8 @@ export const tuiOptions: readonly OptionSpec[] = [
 const allowed: Readonly<Record<string, readonly string[]>> = {
   launch: ["config", "runtime", "yes", "new"],
   plan: ["config", "runtime"],
+  recovery: ["config"],
+  "start-worker": ["config", "runtime", "memory-mb"],
   doctor: [],
   create: ["group-file", "columns", "rows", "config", "actor-file"],
   inspect: ["view"],
@@ -76,7 +83,14 @@ const allowed: Readonly<Record<string, readonly string[]>> = {
 };
 
 export interface TuiInvocation {
-  action: Action | "create" | "doctor" | "launch" | "plan";
+  action:
+    | Action
+    | "create"
+    | "doctor"
+    | "launch"
+    | "plan"
+    | "recovery"
+    | "start-worker";
   viewFile?: string;
   create?: CreateInput;
   input: ViewInput;
@@ -85,6 +99,7 @@ export interface TuiInvocation {
     runtime?: string;
     fresh?: boolean;
     confirmed?: boolean;
+    memoryMb?: number;
   };
 }
 
@@ -110,7 +125,17 @@ export function parseTui(args: ParsedArgs): TuiInvocation {
     return Number(value);
   };
   if (action === "doctor") return { action, input: {} };
-  if (action === "launch" || action === "plan")
+  if (action === "start-worker")
+    return {
+      action,
+      input: {},
+      startup: {
+        config: one(args, "config"),
+        runtime: required("runtime"),
+        memoryMb: number("memory-mb"),
+      },
+    };
+  if (action === "launch" || action === "plan" || action === "recovery")
     return {
       action,
       input: {},

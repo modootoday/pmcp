@@ -163,6 +163,12 @@ Use `pmcp tui --runtime codex-cli` to choose the main, or set an optional defaul
 runtime = "codex-cli"
 ```
 
+Once the workspace is open, add a worker with
+`pmcp tui start-worker --runtime gemini-cli`. The existing group keeps its
+runtime grants and resource bounds. Use `pmcp tui recovery` to inspect a saved
+workspace and obtain explicit next commands after an interrupted start. Inspection
+does not restart a runtime or replay input.
+
 `pmcp tui plan` previews the settings without starting anything. The
 [terminal workspace guide](docs/terminal-workspace.md) covers defaults, custom
 configuration and advanced controls. The [native terminal guide](docs/terminal-harness.md)
@@ -205,15 +211,15 @@ interactive hosts show help and prerequisite guidance.
 
 ## Compatibility
 
-| Surface                                | Current qualification                                                                                                                        |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| CLI and MCP on Linux amd64             | Published 0.14.1 passed offline installation and 22 contracts per image: Node 22.22.2 on Debian 12 and Alpine 3.23.4; Bun 1.3.0 on Debian 12 |
-| Optional terminal workspace            | Linux with tmux, flock, Node 22+ and a working user systemd manager; controlled native executable fixtures qualified the transport           |
-| Public skill installation              | npm, Bun and pnpm 10.17.1; confirmation required, scripts disabled                                                                           |
-| Native plugin export                   | Claude, Codex, Gemini, Grok and agy formats; export does not install or activate a vendor plugin                                             |
-| pnpm workspace installation            | Selects the member, preserves root dependencies and updates the shared lockfile                                                              |
-| Yarn skill installation                | Refused without changing project files; Yarn PnP is not supported                                                                            |
-| macOS, Windows and other architectures | Not qualified by the Linux Docker tests                                                                                                      |
+| Surface                                | Current qualification                                                                                                                     |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| CLI and MCP on Linux amd64             | Published 0.15.0 passed clean Docker installation with npm on Debian/Alpine and Bun/pnpm on Debian; 60 installation and failure contracts |
+| Optional terminal workspace            | Linux PTY/tmux checks and bounded native Codex, Gemini, Grok and agy main/worker acceptance; Claude remains deferred                      |
+| Public skill installation              | npm, Bun and pnpm 10.17.1; confirmation required, scripts disabled                                                                        |
+| Native plugin export                   | Claude, Codex, Gemini, Grok and agy formats; export does not install or activate a vendor plugin                                          |
+| pnpm workspace installation            | Selects the member, preserves root dependencies and updates the shared lockfile                                                           |
+| Yarn skill installation                | Refused without changing project files; Yarn PnP is not supported                                                                         |
+| macOS, Windows and other architectures | Not qualified by the Linux Docker tests                                                                                                   |
 
 Provider authentication, native children and vendor behavior have separate
 qualification scopes. An installed executable or exported manifest is not proof

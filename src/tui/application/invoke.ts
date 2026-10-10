@@ -1,6 +1,6 @@
 import type { Receipt } from "../../harness/contracts.js";
 import type { TuiInvocation } from "../../commands/tui/invocation.js";
-import { dependencies } from "../adapters/process/runtime.js";
+import { inspectTerminalHost } from "../startup/diagnostics.js";
 import { serializedView } from "../adapters/process/lock.js";
 import { createView } from "./create.js";
 import { operate } from "./operations.js";
@@ -8,10 +8,11 @@ import { openView } from "./context.js";
 import { describeFailure } from "./feedback.js";
 
 export async function invokeTui(invocation: TuiInvocation): Promise<Receipt> {
-  if (invocation.action === "launch" || invocation.action === "plan")
+  if (
+    ["launch", "plan", "recovery", "start-worker"].includes(invocation.action)
+  )
     throw new Error("startup_requires_cli_context");
-  if (invocation.action === "doctor")
-    return { schemaVersion: 1, ok: true, ...dependencies() };
+  if (invocation.action === "doctor") return inspectTerminalHost();
   if (invocation.action === "create") return createView(invocation.create!);
   if (invocation.action === "inspect")
     return operate("inspect", invocation.viewFile!);

@@ -67,7 +67,16 @@ try {
         tuiOptions,
       ),
     );
-    if (["create", "doctor", "launch", "plan"].includes(invocation.action))
+    if (
+      [
+        "create",
+        "doctor",
+        "launch",
+        "plan",
+        "recovery",
+        "start-worker",
+      ].includes(invocation.action)
+    )
       throw new Error("unsupported_worker_operation");
     const result =
       role === "locked"

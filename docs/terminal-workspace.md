@@ -34,6 +34,18 @@ This launches a native process; the defaults are cooperative host supervision,
 not a Docker isolation policy. Use an explicitly configured Docker group when
 you require that execution profile.
 
+After opening a workspace, start a worker without preparing a session JSON file:
+
+```sh
+pmcp tui start-worker --runtime gemini-cli
+```
+
+This explicitly starts a worker in the saved project workspace. It uses the
+configured session memory by default; `--memory-mb` overrides that reservation.
+The existing group retains its allowed runtimes, execution profile and budgets.
+An unavailable main, paused group or stale generation blocks the start. Native
+login, folder trust and tool approvals remain in the worker's own screen.
+
 The nearest `pmcp.toml` within the Git repository determines the project root,
 including from nested cwd. A submodule does not inherit its parent's config;
 use `--config` when you explicitly want a different configuration scope.
@@ -99,6 +111,45 @@ right, and coordination occupies four bottom rows. Smaller terminals keep a
 full-width main and a separate management window. The minimum is 40 by 12.
 Views refer to an existing owned group and do not start a provider.
 
+Doctor checks host prerequisites, including access to the systemd user manager,
+and lists native executables found on PATH. An installed executable is not proof
+of authentication or successful native behavior. The report leaves native
+acceptance unassessed and does not read authentication profiles.
+
+| Finding                   | Next step                                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Missing tmux or flock     | Install tmux or util-linux for your Linux distribution and check PATH in this terminal.                                         |
+| Unsupported Node          | Select Node.js 22 or later through your existing version manager, then check node --version.                                    |
+| Unreachable user manager  | Run systemctl --user status in the same login session; restore manager access before launching. Doctor does not start services. |
+| Missing native runtime    | Install the vendor's CLI and select its runtime ID explicitly. Installation alone does not establish login or folder trust.     |
+| Unsupported terminal host | Use a qualified Linux host for this workspace. Other PMCP features keep their own prerequisites.                                |
+
+Doctor does not invoke a native runtime, inspect private authentication files,
+test a model reply or prove cgroup delegation. Native acceptance and isolated
+execution require separate measurements against the exact installed version.
+
+### Measured terminal behavior
+
+Linux acceptance on 2026-10-10 covered the following native main/worker pairs.
+Each run checked read-only observation, explicit worker input with an actual
+reply, main draft preservation, resize and detach/reconnect. These bounded
+checks do not certify every vendor feature or another authentication profile.
+
+| Native runtime | Tested version            | Main and worker terminal checks |
+| -------------- | ------------------------- | ------------------------------- |
+| Codex          | 0.161.0                   | Passed                          |
+| Gemini CLI     | 0.63.0                    | Passed                          |
+| Grok CLI       | 1.0.50                    | Passed                          |
+| agy            | 1.3.3                     | Passed                          |
+| Claude Code    | Not measured in this wave | Deferred                        |
+
+Separate synthetic PTY checks cover multiline Korean paste, read-only mouse
+input, owned history and nested tmux. They do not establish each vendor's
+own editing or mouse behavior. Use Ctrl-g then h to read owned history without
+sending input. Claude acceptance, other operating systems and physical host
+loss remain outside these results. Docker installation and native credential
+isolation have separate qualification; this terminal run does not replace them.
+
 ## Observe and control
 
 Press Ctrl-g, release it, then press a key:
@@ -163,6 +214,28 @@ Inspect before retrying, without replaying input:
 pmcp harness recovery inspect --group-file "$GROUP_FILE"
 pmcp harness attach inspect --group-file "$GROUP_FILE" --session "$SESSION"
 ```
+
+For a workspace opened through bare pmcp, inspect the saved launcher without
+starting a runtime:
+
+```sh
+pmcp tui recovery
+```
+
+This reads the checkpoint and validates its saved group ownership and
+generation. It reports exact inspection commands and, where applicable,
+explicit resume, stop or fresh-launch commands. It does not execute them or
+certify that a process is still alive. An explicitly selected configuration
+is preserved in the proposed fresh-launch command:
+
+```sh
+pmcp tui recovery --config /path/to/pmcp.toml
+```
+
+If creation stopped before a group reference was saved, the result is
+manual-inspection. Preserve the reported checkpoint and examine owned launch
+evidence before changing it. Matching project paths alone cannot establish
+ownership. Paused work stays paused, and uncertain input is never replayed.
 
 Close ends the presentation and preserves all native runtimes:
 

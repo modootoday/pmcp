@@ -7,7 +7,7 @@ export const tuiCommand: Command = {
   name: "tui",
   describe: "Open a native terminal workspace with optional configuration",
   usage:
-    "pmcp tui [--config <file>] [--runtime <id>] | plan | doctor | operation --view <file>",
+    "pmcp tui [--config <file>] [--runtime <id>] | plan | recovery | doctor | start-worker --runtime <id> | operation --view <file>",
   options: tuiOptions,
   async run(context) {
     const invocation = parseTui(context.args);
@@ -15,7 +15,25 @@ export const tuiCommand: Command = {
       await import("../tui/application/invoke.js");
     try {
       let receipt;
-      if (invocation.action === "launch" || invocation.action === "plan") {
+      if (invocation.action === "start-worker") {
+        const { startWorkspaceWorker } =
+          await import("../tui/startup/worker.js");
+        receipt = await startWorkspaceWorker(
+          { config: invocation.startup?.config, cwd: context.cwd },
+          invocation.startup!.runtime!,
+          invocation.startup?.memoryMb,
+        );
+      } else if (invocation.action === "recovery") {
+        const { inspectStartupRecovery } =
+          await import("../tui/startup/recovery.js");
+        receipt = inspectStartupRecovery({
+          ...invocation.startup,
+          cwd: context.cwd,
+        });
+      } else if (
+        invocation.action === "launch" ||
+        invocation.action === "plan"
+      ) {
         const { launchStartup, planStartup } =
           await import("../tui/startup/entry.js");
         const request = { ...invocation.startup, cwd: context.cwd };

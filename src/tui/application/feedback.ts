@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 const hints: Readonly<Record<string, string>> = {
   startup_requires_recovery:
-    "Inspect the saved group with pmcp tui plan and pmcp harness recovery inspect. No runtime was restarted.",
+    "Run pmcp tui recovery for saved ownership and exact inspection commands. No runtime was restarted.",
   startup_group_paused:
     "The saved group is paused. Resume it explicitly through the harness CLI before reopening.",
   startup_main_unavailable:
