@@ -1,6 +1,6 @@
 {
   "name": "pmcp",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "Find package skills and use native runtime project configuration.",
   "author": { "name": "modootoday" },
   "license": "Elastic-2.0",
