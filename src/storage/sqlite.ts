@@ -16,18 +16,20 @@ export async function openSqlite(
   path: string,
   options: { readOnly?: boolean } = {},
 ): Promise<{ db: SqliteHandle; provider: SqliteProvider }> {
-  if (!process.versions.bun) {
-    const name = "node:sqlite";
-    const { DatabaseSync } = (await import(name)) as {
+  const provider: SqliteProvider = process.versions.bun
+    ? "bun:sqlite"
+    : "node:sqlite";
+  const sqlite = await import(provider);
+  if (provider === "node:sqlite") {
+    const { DatabaseSync } = sqlite as {
       DatabaseSync: new (
         path: string,
         options: { readOnly?: boolean },
       ) => SqliteHandle;
     };
-    return { db: new DatabaseSync(path, options), provider: name };
+    return { db: new DatabaseSync(path, options), provider };
   }
-  const name = "bun:sqlite";
-  const { Database } = (await import(name)) as {
+  const { Database } = sqlite as {
     Database: new (
       path: string,
       options: { create: boolean; readonly?: boolean },
@@ -42,7 +44,7 @@ export async function openSqlite(
     readonly: options.readOnly,
   });
   return {
-    provider: name,
+    provider,
     db: {
       exec: (sql) => native.run(sql),
       prepare: <Row>(sql: string) => native.query<Row>(sql),
