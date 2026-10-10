@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>reselect 5.x — PMCP</title>
+  <meta name="description" content="Use Reselect ^5.0.0 to build memoized selectors, customize memoization, compose structured results, and account for v5 defaults and API changes." />
+  <link rel="canonical" href="https://pmcp.build/skills/reselect/5/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="reselect 5.x — PMCP" />
+  <meta property="og:description" content="Use Reselect ^5.0.0 to build memoized selectors, customize memoization, compose structured results, and account for v5 defaults and API changes." />
+  <meta property="og:url" content="https://pmcp.build/skills/reselect/5/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/reselect/">Other majors</a></p>
+    <h1>reselect 5.x</h1><p>Use Reselect ^5.0.0 to build memoized selectors, customize memoization, compose structured results, and account for v5 defaults and API changes.</p>
+    <dl><dt>For</dt><dd><code>reselect@5.3.0</code></dd><dt>Verified</dt><dd>2026-09-08, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-reselect@5.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/reselect/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/reselect/5/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/reselect/5/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-30HihA5XtimZ1bXcYKkHrAjg3dVXumWdzw1ue7qB7SJ7cdI0A8Mszc8Xb7zEGx0ZkaeFgLFbe1y3hiSU4+xdPA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against reselect@5.3.0 on 2026-09-08. 6 of 6 examples executed.</p>
+<h2>reselect ^5.0.0</h2>
+<h3>What this package does</h3>
+<p><code>reselect</code> is a selector library. Import its functions directly from the package; ordinary use does not require a runner, CLI, build step, framework global, or test runner.</p>
+<p>The main exports documented for this version range are:</p>
+<ul>
+<li><code>createSelector</code></li>
+<li><code>createSelectorCreator</code></li>
+<li><code>createStructuredSelector</code></li>
+<li><code>lruMemoize</code></li>
+<li><code>weakMapMemoize</code></li>
+</ul>
+<h3><code>createSelector</code></h3>
+<p>Pass input selectors either as one array or as separate arguments, followed by a result function and, optionally, an options object. The returned selector is memoized.</p>
+<p>In v5, <code>weakMapMemoize</code> is the default for both memoization levels. This differs from v4, where <code>lruMemoize</code> (formerly <code>defaultMemoize</code>) was the default with a cache size of <code>1</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { createSelector } from &#39;reselect&#39;
+
+type State = {
+  todos: Array&lt;{ id: number; category: string }&gt;
+}
+
+const selectTodosByCategory = createSelector(
+  [
+    (state: State) =&gt; state.todos,
+    (_state: State, category: string) =&gt; category
+  ],
+  (todos, category) =&gt; todos.filter(todo =&gt; todo.category === category)
+)
+
+const todos = [
+  { id: 1, category: &#39;work&#39; },
+  { id: 2, category: &#39;home&#39; },
+  { id: 3, category: &#39;work&#39; }
+]
+const state = { todos }
+
+const first = selectTodosByCategory(state, &#39;work&#39;)
+const second = selectTodosByCategory(state, &#39;work&#39;)
+
+assert.deepEqual(first, [
+  { id: 1, category: &#39;work&#39; },
+  { id: 3, category: &#39;work&#39; }
+])
+assert.strictEqual(first, second)
+</code></pre>
+<p>Use an input selector for every value needed by the result function. Input selectors receive the same arguments as the resulting selector, so additional parameters can be selected without the removed v4-specific <code>ParametricSelector</code> types.</p>
+<p>The selector exposes memoization-related fields including <code>dependencyRecomputations</code>, <code>resetDependencyRecomputations</code>, <code>memoize</code>, and <code>argsMemoize</code>.</p>
+<h3>Per-selector memoization</h3>
+<p>Pass <code>memoize</code> and <code>memoizeOptions</code> in the third argument to configure one selector. <code>lruMemoize</code> supports configurable cache and equality behavior, including <code>resultEqualityCheck</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { createSelector, lruMemoize } from &#39;reselect&#39;
+
+type State = { todos: Array&lt;{ id: number; title: string }&gt; }
+
+const selectTodoIds = createSelector(
+  [(state: State) =&gt; state.todos],
+  todos =&gt; todos.map(todo =&gt; todo.id),
+  {
+    memoize: lruMemoize,
+    memoizeOptions: {
+      resultEqualityCheck: (a: number[], b: number[]) =&gt;
+        a.length === b.length &amp;&amp; a.every((id, index) =&gt; id === b[index])
+    }
+  }
+)
+
+const firstState = { todos: [{ id: 1, title: &#39;one&#39; }] }
+const secondState = { todos: [{ id: 1, title: &#39;changed elsewhere&#39; }] }
+
+const first = selectTodoIds(firstState)
+const second = selectTodoIds(secondState)
+
+assert.deepEqual(first, [1])
+assert.strictEqual(first, second)
+</code></pre>
+<h3><code>createSelectorCreator</code></h3>
+<p>Use <code>createSelectorCreator</code> to make a family of selectors with shared memoization configuration. The current configuration form takes an options object. The legacy form, <code>memoize, ...memoizeOptions</code>, is also accepted, but prefer the options object in new code.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { createSelectorCreator, lruMemoize } from &#39;reselect&#39;
+
+const createShallowEqualSelector = createSelectorCreator({
+  memoize: lruMemoize,
+  memoizeOptions: {
+    resultEqualityCheck: (a: number[], b: number[]) =&gt;
+      a.length === b.length &amp;&amp; a.every((value, index) =&gt; value === b[index])
+  }
+})
+
+const selectValues = createShallowEqualSelector(
+  [(state: { values: number[] }) =&gt; state.values],
+  values =&gt; values.map(value =&gt; value)
+)
+
+const first = selectValues({ values: [1, 2] })
+const second = selectValues({ values: [1, 2] })
+
+assert.deepEqual(first, [1, 2])
+assert.strictEqual(first, second)
+</code></pre>
+<h3><code>createStructuredSelector</code></h3>
+<p>Pass an object whose values are input selectors. The returned selector computes each value and returns an object with the same keys.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { createStructuredSelector } from &#39;reselect&#39;
+
+type State = {
+  todos: Record&lt;number, { id: number }&gt;
+  alerts: string[]
+}
+
+const structuredSelector = createStructuredSelector({
+  todos: (state: State) =&gt; state.todos,
+  alerts: (state: State) =&gt; state.alerts,
+  todoById: (state: State, id: number) =&gt; state.todos[id]
+})
+
+const todo = { id: 7 }
+const state = { todos: { 7: todo }, alerts: [&#39;late&#39;] }
+
+assert.deepEqual(structuredSelector(state, 7), {
+  todos: { 7: todo },
+  alerts: [&#39;late&#39;],
+  todoById: todo
+})
+</code></pre>
+<h3>Memoizer exports</h3>
+<p><code>lruMemoize</code> and <code>weakMapMemoize</code> are the memoizer exports used for custom configuration. <code>weakMapMemoize</code> uses argument identity and has an effectively unlimited cache. <code>lruMemoize</code> supports configurable cache and equality behavior.</p>
+<p>For a selector-wide choice, configure <code>memoize</code> directly:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { createSelector, weakMapMemoize } from &#39;reselect&#39;
+
+const selectLength = createSelector(
+  [(state: { items: unknown[] }) =&gt; state.items],
+  items =&gt; items.length,
+  { memoize: weakMapMemoize }
+)
+
+const state = { items: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;] }
+assert.equal(selectLength(state), 3)
+assert.equal(selectLength(state), 3)
+</code></pre>
+<h3>Development checks</h3>
+<p>Development-only checks include <code>inputStabilityCheck</code> and <code>identityFunctionCheck</code>; the current documentation also lists <code>cacheSizeCheck</code>. Checks are disabled in production environments and default to running <code>once</code>.</p>
+<p>Configure supported global checks with <code>setGlobalDevModeChecks</code>, or override checks per selector through <code>devModeChecks</code>:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { createSelector, setGlobalDevModeChecks } from &#39;reselect&#39;
+
+setGlobalDevModeChecks({ inputStabilityCheck: &#39;always&#39; })
+setGlobalDevModeChecks({ identityFunctionCheck: &#39;never&#39; })
+
+const selectTodoIds = createSelector(
+  [(state: { todos: Array&lt;{ id: number }&gt; }) =&gt; state.todos],
+  todos =&gt; todos.map(todo =&gt; todo.id),
+  {
+    devModeChecks: {
+      inputStabilityCheck: &#39;always&#39;,
+      identityFunctionCheck: &#39;never&#39;
+    }
+  }
+)
+
+assert.deepEqual(selectTodoIds({ todos: [{ id: 1 }] }), [1])
+</code></pre>
+<p><code>cacheSizeCheck</code> is configured only globally. A selector-level <code>devModeChecks.cacheSizeCheck</code> setting has no effect because that check runs inside <code>weakMapMemoize</code>.</p>
+<h3>v5 migration traps</h3>
+<ul>
+<li>Do not use the v4 names <code>defaultMemoize</code> or <code>defaultEqualityCheck</code>; they were renamed to <code>lruMemoize</code> and <code>referenceEqualityCheck</code>.</li>
+<li>Do not assume the v4 cache-size-one default. v5 uses <code>weakMapMemoize</code> for both <code>memoize</code> and <code>argsMemoize</code> by default.</li>
+<li>Use <code>Selector</code> and <code>OutputSelector</code> for selectors with additional parameters; <code>ParametricSelector</code> and <code>OutputParametricSelector</code> were removed.</li>
+<li>TypeScript versions below 4.7 are unsupported.</li>
+<li>The second <code>createStructuredSelector</code> overload was removed.</li>
+<li><code>createSelector.withTypes&lt;StateType&gt;()</code> is only available from 5.1.0 onward and is therefore not guaranteed across the entire <code>^5.0.0</code> range. Its documented inference limitation is that input selectors must be supplied as one array.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover undocumented internals, exact cache-size or equality defaults beyond the v5 behavior described above, framework integrations, production build configuration, or APIs not shown in the supplied research. It also does not prescribe how a runner or application invokes selectors; Reselect itself exposes no required CLI or runner workflow in the researched surface.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

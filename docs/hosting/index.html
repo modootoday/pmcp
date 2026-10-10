@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HTTP hosting — pmcp</title>
+  <meta name="description" content="Configure an authenticated PMCP endpoint and request controls." />
+  <link rel="canonical" href="https://pmcp.build/hosting/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="HTTP hosting — pmcp" />
+  <meta property="og:description" content="Configure an authenticated PMCP endpoint and request controls." />
+  <meta property="og:url" content="https://pmcp.build/hosting/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/" aria-current="page">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / HTTP hosting</p><h1>Hosting a skill catalog</h1>
+<p><a href="/">Back to the overview</a></p>
+<h2>Hosting over HTTP</h2>
+<p><code>@modootoday/pmcp/http</code> serves the same tools and resources over streamable HTTP for a hosted
+catalog. Tools, resources, the Skills extension and prompts all read the same per-caller,
+tier-filtered catalog, so a file of a skill a caller cannot list cannot be read either. The
+extension&#39;s <code>cacheScope</code> is <code>private</code> there by default (<code>cacheScope</code> overrides it), and
+<code>prompts: true</code> turns prompts on.
+The host owns identity: <code>authorize(request)</code> returns the caller or <code>undefined</code> (answered 401),
+and <code>tiersFor(caller)</code> decides which tiers that caller sees (default <code>open</code> and <code>free</code>; skills
+without a tier count as <code>open</code>). The catalog is read once; call <code>reload()</code> after deploying new
+skill releases.</p>
+<pre><code>import { createSkillHttpHandler } from &quot;@modootoday/pmcp/http&quot;;
+
+const skills = createSkillHttpHandler({
+  roots: [],
+  marketplaces: [&quot;/srv/marketplace&quot;, &quot;/srv/marketplace-free&quot;],
+  authorize: async (request) =&gt;
+    verifyBearer(request.headers.get(&quot;authorization&quot;)),
+});
+export default { fetch: (request: Request) =&gt; skills.fetch(request) };</code></pre>
+<p>The handler checks requests before they reach MCP:</p>
+<div class="scroll"><table><thead><tr><th>Option</th><th>Default</th><th>Effect</th></tr></thead><tbody><tr><td><code>allowedOrigins</code></td><td>none</td><td>A request with an <code>Origin</code> other than the server&#39;s own gets 403. Listed origins are served with CORS headers, and their preflight is answered. <code>&quot;*&quot;</code> admits any origin. Requests without <code>Origin</code> are not from a browser page and pass.</td></tr>
+<tr><td><code>publicOrigins</code></td><td>none</td><td>The server&#39;s own origins as browsers see them, when a proxy ends TLS and the request URL is <code>http://</code>. Without it, a same-site page behind such a proxy gets 403.</td></tr>
+<tr><td><code>allowedHosts</code></td><td>any</td><td>When set, a <code>Host</code> outside the list gets 403 (DNS rebinding).</td></tr>
+<tr><td><code>maxRequestBytes</code></td><td>1 MiB</td><td>A larger body gets 413; a declared length is refused before reading.</td></tr>
+<tr><td><code>rateLimit</code></td><td>off</td><td><code>{ perMinute }</code> per caller id; past it, 429 with <code>retry-after</code>.</td></tr></tbody></table></div>
+<p>An MCP config (<code>.mcp.json</code>) is never served as written: every <code>env</code> and <code>headers</code> value is
+replaced with <code>&lt;redacted&gt;</code>, whichever entry reaches the file, and listed digests describe
+the redacted bytes.</p>
+<p>Pass <code>semantic: { modelId: &quot;embeddinggemma-2&quot;, cacheDir, localOnly: true }</code> to rank by meaning: the handler encodes
+the catalog at start with <code>@huggingface/transformers</code> and the multilingual model, so an
+intent in one language finds a description in another. Requests rank lexically until
+<code>ready()</code> settles, and stay lexical when the encoder cannot load (<code>onError</code> says why).</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

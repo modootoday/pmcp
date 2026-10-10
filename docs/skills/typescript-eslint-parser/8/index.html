@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@typescript-eslint/parser 8.x — PMCP</title>
+  <meta name="description" content="Use @typescript-eslint/parser ^8.0.0 directly or as the parser behind ESLint. Covers standalone parsing, complete parse results, isolated parser options, v8 Project Service naming, and boundaries around type-aware parsing." />
+  <link rel="canonical" href="https://pmcp.build/skills/typescript-eslint-parser/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="@typescript-eslint/parser 8.x — PMCP" />
+  <meta property="og:description" content="Use @typescript-eslint/parser ^8.0.0 directly or as the parser behind ESLint. Covers standalone parsing, complete parse results, isolated parser options, v8 Project Service naming, and boundaries around type-aware parsing." />
+  <meta property="og:url" content="https://pmcp.build/skills/typescript-eslint-parser/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/typescript-eslint-parser/">Other majors</a></p>
+    <h1>@typescript-eslint/parser 8.x</h1><p>Use @typescript-eslint/parser ^8.0.0 directly or as the parser behind ESLint. Covers standalone parsing, complete parse results, isolated parser options, v8 Project Service naming, and boundaries around type-aware parsing.</p>
+    <dl><dt>For</dt><dd><code>@typescript-eslint/parser@8.70.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-typescript-eslint-parser@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/typescript-eslint-parser/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/typescript-eslint-parser/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/typescript-eslint-parser/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-xaO5/44NN9L3BODyPMxPncz2zFtN/Ichi4knLwbWn5QPD+POD/ZwKSPTZH4IE73/fCdUbsQH5Tq4bmc4/1W0mg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against @typescript-eslint/parser@8.70.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>@typescript-eslint/parser v8</h2>
+<p><code>@typescript-eslint/parser</code> parses TypeScript into ESLint-compatible nodes and can provide backing TypeScript programs. It is an ESLint parser, not a compiler or standalone lint runner. Its direct API is useful for parsing and inspecting ASTs; lint rules and ESLint configuration are exercised by ESLint itself.</p>
+<h3>Direct parsing</h3>
+<p>Import the package by name and call <code>parse</code> with TypeScript source. The result is an ESLint-compatible AST. <code>filePath</code> is a parser option and is useful when parser behavior depends on the apparent file name.</p>
+<pre><code class="language-ts">import * as assert from &#39;node:assert/strict&#39;;
+import * as parser from &#39;@typescript-eslint/parser&#39;;
+
+const ast = parser.parse(&#39;let x: number = 1;&#39;, {
+  filePath: &#39;example.ts&#39;,
+});
+
+assert.equal(ast.type, &#39;Program&#39;);
+assert.equal(ast.body.length, 1);
+assert.equal(ast.body[0].type, &#39;VariableDeclaration&#39;);
+assert.equal(ast.body[0].declarations[0].id.type, &#39;Identifier&#39;);
+assert.equal(ast.body[0].declarations[0].id.typeAnnotation.type, &#39;TSTypeAnnotation&#39;);
+</code></pre>
+<p><code>parse</code> accepts either source text or a TypeScript <code>SourceFile</code>. For ordinary standalone parsing, pass source text and parser options.</p>
+<h3><code>parseForESLint</code></h3>
+<p>Use <code>parseForESLint</code> when the consumer needs the complete parser result rather than only the AST. The result contains <code>ast</code>, <code>services</code>, <code>visitorKeys</code>, and <code>scopeManager</code>.</p>
+<pre><code class="language-ts">import * as assert from &#39;node:assert/strict&#39;;
+import * as parser from &#39;@typescript-eslint/parser&#39;;
+
+const result = parser.parseForESLint(&#39;const answer: number = 42;&#39;, {
+  filePath: &#39;example.ts&#39;,
+});
+
+assert.equal(result.ast.type, &#39;Program&#39;);
+assert.ok(result.services);
+assert.ok(result.visitorKeys);
+assert.ok(result.scopeManager);
+assert.equal(result.ast.body[0].type, &#39;VariableDeclaration&#39;);
+</code></pre>
+<p>The parser can expose TypeScript-backed services when configured for type-aware parsing. Type-aware parsing requires <code>projectService</code> or <code>project</code>; if <code>programs</code> is supplied, it must contain every file being linted. A direct script should not assume that type information exists merely because the input is TypeScript.</p>
+<h3>Isolated parsing with <code>withoutProjectParserOptions</code></h3>
+<p><code>withoutProjectParserOptions</code> removes project-based parser settings so parsing can be performed without a TypeScript project. Use it when a caller may provide type-aware options but this parse must remain isolated. Do not assume that unrelated options, such as <code>tsconfigRootDir</code>, are removed.</p>
+<pre><code class="language-ts">import * as assert from &#39;node:assert/strict&#39;;
+import * as parser from &#39;@typescript-eslint/parser&#39;;
+
+const isolated = parser.withoutProjectParserOptions({
+  filePath: &#39;example.ts&#39;,
+  project: &#39;./tsconfig.json&#39;,
+  projectService: true,
+  tsconfigRootDir: &#39;/tmp/project&#39;,
+});
+
+assert.equal(isolated.project, undefined);
+assert.equal(isolated.projectService, undefined);
+assert.equal(isolated.filePath, &#39;example.ts&#39;);
+assert.equal(isolated.tsconfigRootDir, &#39;/tmp/project&#39;);
+
+const result = parser.parseForESLint(&#39;const value: string = &quot;ok&quot;;&#39;, isolated);
+assert.equal(result.ast.type, &#39;Program&#39;);
+</code></pre>
+<p>This is particularly important for direct invocation: type-aware options are not self-contained, and project-backed parsing needs the relevant project configuration or supplied programs.</p>
+<h3>Project-backed parsing</h3>
+<p><code>createProgram(configFile, projectDirectory?)</code> creates a TypeScript <code>Program</code> from a configuration file. The resulting program can be supplied through parser options where appropriate. This operation requires a real <code>tsconfig.json</code> and project files, so it is normally used by an ESLint or tooling process rather than a self-contained script. A standalone example cannot create those files under the execution constraints for this skill.</p>
+<p>The parser also supports documented options including <code>project</code>, <code>programs</code>, <code>projectService</code>, <code>tsconfigRootDir</code>, <code>lib</code>, <code>ecmaVersion</code>, <code>ecmaFeatures</code>, <code>jsxPragma</code>, <code>jsxFragmentName</code>, <code>extraFileExtensions</code>, <code>jsDocParsingMode</code>, and controls for unsupported TypeScript versions.</p>
+<h3>v8 configuration mistake: Project Service spelling</h3>
+<p>In v8, use:</p>
+<pre><code class="language-js">parserOptions: { projectService: true }
+</code></pre>
+<p>The older experimental spelling is:</p>
+<pre><code class="language-js">parserOptions: { EXPERIMENTAL_useProjectService: true }
+</code></pre>
+<p>Do not copy the older experimental name into new v8 configuration. <code>project</code> remains supported, while <code>projectService</code> is the stable v8 Project Service option. Project Service automatically uses the nearest <code>tsconfig.json</code>, can type-check JavaScript without <code>allowJs</code>, and is an alternative to <code>project</code>.</p>
+<h3>ESLint integration</h3>
+<p>This package supplies the parser; it does not define <code>describe</code>, <code>it</code>, or <code>expect</code>, and it does not run lint rules. The rest of the workflow is run by ESLint.</p>
+<p>The older legacy ESLint shape still commonly appears as:</p>
+<pre><code class="language-js">module.exports = {
+  extends: [&#39;eslint:recommended&#39;, &#39;plugin:@typescript-eslint/recommended&#39;],
+  parser: &#39;@typescript-eslint/parser&#39;,
+  plugins: [&#39;@typescript-eslint&#39;],
+  root: true,
+};
+</code></pre>
+<p>The parser entry is required in that setup; otherwise ESLint parses TypeScript as JavaScript and errors. With flat config, the parser is configured under <code>languageOptions</code>; a typical v8-era shape is:</p>
+<pre><code class="language-js">export default [{
+  languageOptions: {
+    parserOptions: { projectService: true },
+  },
+}];
+</code></pre>
+<p>As of v7/v8, the recommended package is generally <code>typescript-eslint</code>; flat-config users usually do not need to install <code>@typescript-eslint/parser</code> explicitly when using that package.</p>
+<h3>Other exports</h3>
+<p>The v8 entry point also exports <code>clearCaches</code>, <code>version</code>, and <code>meta</code>, along with parser-related types. <code>clearCaches</code> is for clearing parser caches in a long-lived tooling process. <code>version</code> and <code>meta</code> provide package/parser metadata. TypeScript types such as <code>ParserOptions</code>, <code>ParserServices</code>, <code>ParserServicesWithTypeInformation</code>, and <code>ParserServicesWithoutTypeInformation</code> are useful to TypeScript consumers but do not produce runtime values.</p>
+<h3>Does not cover</h3>
+<ul>
+<li>ESLint rule execution, CLI invocation, or complete ESLint configuration.</li>
+<li>The contents or layout of a real <code>tsconfig.json</code> project.</li>
+<li>Which files a particular TypeScript program includes.</li>
+<li>Detailed AST node schemas beyond the directly demonstrated fields.</li>
+<li>TypeScript compiler behavior or type-checking semantics.</li>
+<li>Performance tuning, cache internals, or the full behavior of every parser option.</li>
+<li>A standalone <code>createProgram</code> example, because it requires project files that are unavailable to the self-contained example runner.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

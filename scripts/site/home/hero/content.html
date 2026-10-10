@@ -1,0 +1,48 @@
+<div class="hero-workspace" data-hero-workspace>
+  <div class="hero-workspace-heading">
+    <strong>A shared project, native sessions</strong>
+    <span>Interactive concept</span>
+  </div>
+  <div class="hero-workspace-stage">
+    <canvas aria-hidden="true"></canvas>
+    <svg
+      viewBox="0 0 640 420"
+      aria-hidden="true"
+      class="hero-workspace-fallback"
+    >
+      <g class="hero-workspace-base">
+        <path d="M45 283 L320 135 L595 283 L320 431 Z" />
+        <path d="M45 283 L45 300 L320 448 L595 300 L595 283" />
+      </g>
+      <g class="hero-workspace-lines">
+        <path d="M320 160 L175 245 L320 324 L467 245 L320 160" />
+        <path d="M175 245 L175 326 M467 245 L467 326 M320 160 L320 107" />
+      </g>
+    </svg>
+    <a class="hero-session hero-session-main" href="/terminal-harness/">
+      <span>MAIN / NATIVE SESSION</span>
+      <strong class="selected-runtime">Codex</strong>
+      <i aria-hidden="true"></i>
+    </a>
+    <a class="hero-session hero-session-left" href="/terminal-workspace/">
+      <span>WORKER</span><strong>Native runtime</strong>
+    </a>
+    <a class="hero-session hero-session-right" href="/terminal-workspace/">
+      <span>WORKER</span><strong>Native runtime</strong>
+    </a>
+    <a class="hero-session hero-session-shared" href="/project-configuration/">
+      <span>SHARED PROJECT</span><strong>Skills · Config · Mailbox*</strong>
+    </a>
+  </div>
+  <div class="runtime-picker" aria-label="Select example main runtime">
+    {{runtimePickers}}
+  </div>
+  <p class="caption">
+    * Mailbox is optional. Interactive Three.js scene; no runtime is connected.
+  </p>
+  <noscript
+    ><p class="caption">
+      JavaScript is disabled. Session and project guides remain available above.
+    </p></noscript
+  >
+</div>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>msw 2.x — PMCP</title>
+  <meta name="description" content="Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point." />
+  <link rel="canonical" href="https://pmcp.build/skills/msw/2/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="msw 2.x — PMCP" />
+  <meta property="og:description" content="Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point." />
+  <meta property="og:url" content="https://pmcp.build/skills/msw/2/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/msw/">Other majors</a></p>
+    <h1>msw 2.x</h1><p>Use MSW 2.x for HTTP and GraphQL request interception. Covers the v2 API, Node setup, response construction, resolver inputs, migration traps from MSW 1.x, and the browser entry point.</p>
+    <dl><dt>For</dt><dd><code>msw@2.15.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-msw@2.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/msw/2/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/msw/2/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/msw/2/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-OZtxXgODccphk4cjCFFL5QvaUbmMW2TecMMDGa5m7Spv3gyG7qvoyuMMYdFdnA52dlmKQwg22H8T5qoLrHcQbw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against msw@2.15.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>MSW 2.x</h2>
+<p>Use this skill for <code>msw</code> in the <code>^2.0.0</code> range. MSW 2 requires Node.js 18+ and TypeScript 4.7+. The primary v2 imports are <code>http</code>, <code>graphql</code>, and <code>HttpResponse</code> from <code>msw</code>; environment-specific setup is imported from <code>msw/node</code> or <code>msw/browser</code>.</p>
+<h3>The v2 shape</h3>
+<p>HTTP handlers use the <code>http</code> namespace and receive one resolver-information object:</p>
+<pre><code class="language-ts">import { http, HttpResponse } from &#39;msw&#39;
+
+const handlers = [
+  http.get(&#39;/user/:id&#39;, ({ params }) =&gt; {
+    return HttpResponse.json({ id: params.id })
+  }),
+  http.post(&#39;/user&#39;, async ({ request }) =&gt; {
+    const body = await request.json()
+    return HttpResponse.json(body, { status: 201 })
+  }),
+]
+</code></pre>
+<p>A handler by itself does not intercept anything. Pass handlers to <code>setupServer(...handlers)</code> in Node or <code>setupWorker(...handlers)</code> in a browser.</p>
+<p><code>HttpResponse.json(value, options?)</code> creates a response. The options can include <code>status</code> and <code>statusText</code>. <code>HttpResponse.error()</code> creates a network-error response.</p>
+<p>Resolver information can include <code>request</code>, <code>params</code>, and <code>cookies</code>:</p>
+<ul>
+<li><code>request.url</code> is a string. Parse it with <code>new URL(request.url)</code> when URL components are needed.</li>
+<li>Read a request body with Fetch request methods such as <code>await request.json()</code>.</li>
+<li>Path parameters are available through <code>params</code>.</li>
+<li>Cookies are available through <code>cookies</code>.</li>
+</ul>
+<h3>Node interception</h3>
+<p>Import <code>setupServer</code> from <code>msw/node</code>. Start interception with <code>server.listen()</code>, and finish with <code>server.close()</code>. <code>server.resetHandlers()</code> restores the initial handlers after runtime handler changes and is useful between tests.</p>
+<p>The Node integration intercepts native HTTP/HTTPS traffic without stubbing <code>fetch</code> or Axios. The following is a complete standalone Node example; it uses an absolute URL so it can run directly without a framework or test runner:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { http, HttpResponse } from &#39;msw&#39;
+import { setupServer } from &#39;msw/node&#39;
+
+const server = setupServer(
+  http.get(&#39;https://example.test/users/:id&#39;, ({ params, request }) =&gt; {
+    const url = new URL(request.url)
+    return HttpResponse.json(
+      { id: params.id, host: url.host },
+      { status: 202, statusText: &#39;Mocked&#39; },
+    )
+  }),
+)
+
+server.listen()
+try {
+  const response = await fetch(&#39;https://example.test/users/abc-123&#39;)
+  assert.equal(response.status, 202)
+  assert.equal(response.statusText, &#39;Mocked&#39;)
+  assert.deepEqual(await response.json(), {
+    id: &#39;abc-123&#39;,
+    host: &#39;example.test&#39;,
+  })
+} finally {
+  server.close()
+}
+</code></pre>
+<p>Request bodies are read from <code>request</code>, not from a v1 <code>req</code> argument:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { http, HttpResponse } from &#39;msw&#39;
+import { setupServer } from &#39;msw/node&#39;
+
+const server = setupServer(
+  http.post(&#39;https://example.test/user&#39;, async ({ request }) =&gt; {
+    const user = await request.json() as { firstName: string }
+    return HttpResponse.json({ ...user, accepted: true }, { status: 201 })
+  }),
+)
+
+server.listen()
+try {
+  const response = await fetch(&#39;https://example.test/user&#39;, {
+    method: &#39;POST&#39;,
+    headers: { &#39;content-type&#39;: &#39;application/json&#39; },
+    body: JSON.stringify({ firstName: &#39;John&#39; }),
+  })
+  assert.equal(response.status, 201)
+  assert.deepEqual(await response.json(), {
+    firstName: &#39;John&#39;,
+    accepted: true,
+  })
+} finally {
+  server.close()
+}
+</code></pre>
+<p>In a test runner, the documented lifecycle is <code>listen()</code> before tests, <code>resetHandlers()</code> after each test, and <code>close()</code> after all tests.</p>
+<h3>GraphQL handlers</h3>
+<p>Import <code>graphql</code> and <code>HttpResponse</code> from <code>msw</code>. The documented methods include <code>graphql.query()</code>, <code>graphql.mutation()</code>, <code>graphql.link(url)</code>, and <code>graphql.operation()</code>. A query or mutation resolver receives values including <code>query</code> and <code>variables</code>.</p>
+<p>GraphQL subscriptions are not supported. A standalone Node example can exercise a query handler through the normal Node setup:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { graphql, HttpResponse } from &#39;msw&#39;
+import { setupServer } from &#39;msw/node&#39;
+
+const server = setupServer(
+  graphql.query(&#39;GetUser&#39;, ({ variables }) =&gt; {
+    return HttpResponse.json({
+      data: { user: { name: variables.userId === &#39;1&#39; ? &#39;John&#39; : &#39;Unknown&#39; } },
+    })
+  }),
+)
+
+server.listen()
+try {
+  const response = await fetch(&#39;https://example.test/graphql&#39;, {
+    method: &#39;POST&#39;,
+    headers: { &#39;content-type&#39;: &#39;application/json&#39; },
+    body: JSON.stringify({
+      operationName: &#39;GetUser&#39;,
+      query: &#39;query GetUser($userId: ID!) { user { name } }&#39;,
+      variables: { userId: &#39;1&#39; },
+    }),
+  })
+  assert.equal(response.status, 200)
+  assert.deepEqual(await response.json(), {
+    data: { user: { name: &#39;John&#39; } },
+  })
+} finally {
+  server.close()
+}
+</code></pre>
+<p>A mutation follows the same pattern, using <code>graphql.mutation(&#39;CreateUser&#39;, resolver)</code> and reading its input from <code>variables</code>.</p>
+<h3>Browser setup</h3>
+<p>Browser interception uses the separate <code>msw/browser</code> entry point:</p>
+<pre><code class="language-ts">import { setupWorker } from &#39;msw/browser&#39;
+
+const worker = setupWorker(/* http/graphql handlers */)
+await worker.start()
+</code></pre>
+<p>This requires a Service Worker and is therefore not a standalone <code>bun example.ts</code> environment. Do not import <code>setupWorker</code> from <code>msw</code>; that is the MSW 1.x shape.</p>
+<h3>Migration traps from MSW 1.x</h3>
+<p>Do not carry these older forms into v2:</p>
+<ul>
+<li><code>rest.get(...)</code> becomes <code>http.get(...)</code>.</li>
+<li><code>import { setupWorker } from &#39;msw&#39;</code> becomes <code>import { setupWorker } from &#39;msw/browser&#39;</code>.</li>
+<li><code>(req, res, ctx) =&gt; ...</code> becomes a resolver such as <code>({ request, params, cookies }) =&gt; ...</code>.</li>
+<li><code>res(ctx.json(value))</code> becomes <code>HttpResponse.json(value)</code>.</li>
+<li><code>req.url</code> is now <code>request.url</code>, a string; use <code>new URL(request.url)</code> when necessary.</li>
+<li><code>req.params</code>, <code>req.cookies</code>, and <code>req.body</code> move to resolver properties and Fetch <code>Request</code> methods.</li>
+<li><code>req.passthrough()</code> becomes <code>passthrough()</code>.</li>
+<li><code>res.once()</code> becomes the response option <code>{ once: true }</code>.</li>
+<li><code>res.networkError()</code> becomes <code>HttpResponse.error()</code>.</li>
+<li><code>ctx.*</code> response utilities become <code>HttpResponse</code> APIs.</li>
+<li><code>ctx.fetch(req)</code> becomes <code>fetch(bypass(request))</code>.</li>
+<li><code>.printHandlers()</code> becomes <code>.listHandlers()</code>.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover Service Worker installation or browser build configuration, test-runner-specific setup, Jest environment configuration, Axios-specific examples, passthrough implementation details, handler inspection details, or GraphQL schema/client configuration. The research also does not document the exact signatures or behavior of every <code>HttpResponse</code> option, <code>graphql.link()</code>, <code>graphql.operation()</code>, or runtime handler mutation APIs.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

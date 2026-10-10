@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lowdb 7.x — PMCP</title>
+  <meta name="description" content="Use lowdb v7's pure-ESM database API, distinguishing the v7 preset/update syntax from older v6 examples and choosing the correct Node or browser entry point." />
+  <link rel="canonical" href="https://pmcp.build/skills/lowdb/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="lowdb 7.x — PMCP" />
+  <meta property="og:description" content="Use lowdb v7's pure-ESM database API, distinguishing the v7 preset/update syntax from older v6 examples and choosing the correct Node or browser entry point." />
+  <meta property="og:url" content="https://pmcp.build/skills/lowdb/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/lowdb/">Other majors</a></p>
+    <h1>lowdb 7.x</h1><p>Use lowdb v7's pure-ESM database API, distinguishing the v7 preset/update syntax from older v6 examples and choosing the correct Node or browser entry point.</p>
+    <dl><dt>For</dt><dd><code>lowdb@7.0.1</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-lowdb@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/lowdb/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/lowdb/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/lowdb/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-jND+0JRKLoCOLb+JUe4zt2KnAGh4hOapLpoxb5TpGGVsKq/3rxdn5nw9upioHOcOHyoFA4kq92dtQmlGz12fQg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against lowdb@7.0.1 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>lowdb v7</h2>
+<h3>Version and module shape</h3>
+<p><code>lowdb</code> 7 is pure ESM and requires Node 18 or newer. Import the core API from <code>lowdb</code>:</p>
+<pre><code class="language-ts">import { Low, LowSync, Memory, MemorySync } from &#39;lowdb&#39;
+</code></pre>
+<p>Import filesystem adapters and presets from <code>lowdb/node</code>:</p>
+<pre><code class="language-ts">import {
+  DataFile,
+  DataFileSync,
+  JSONFile,
+  JSONFileSync,
+  TextFile,
+  TextFileSync,
+  JSONFilePreset,
+  JSONFileSyncPreset,
+} from &#39;lowdb/node&#39;
+</code></pre>
+<p>Import browser storage adapters from <code>lowdb/browser</code>:</p>
+<pre><code class="language-ts">import {
+  LocalStorage,
+  SessionStorage,
+  LocalStoragePreset,
+  SessionStoragePreset,
+} from &#39;lowdb/browser&#39;
+</code></pre>
+<p>Do not use CommonJS imports or expect Node file adapters to be exported from the package root.</p>
+<h3>v7 lifecycle</h3>
+<p><code>Low</code> takes an adapter and default data. Its operations are asynchronous:</p>
+<ul>
+<li><code>await db.read()</code> reads the adapter data.</li>
+<li><code>await db.write()</code> writes the current data.</li>
+<li><code>await db.update(fn)</code> invokes <code>fn(data)</code> and then writes the result.</li>
+</ul>
+<p><code>LowSync</code> provides synchronous <code>read()</code>, <code>write()</code>, and <code>update(fn)</code> equivalents. An adapter and default data are required; constructing a core database does not replace the explicit lifecycle calls.</p>
+<p>For ordinary mutations, prefer <code>update</code>:</p>
+<pre><code class="language-ts">await db.update(({ posts }) =&gt; posts.push(&#39;hello&#39;))
+</code></pre>
+<p>The callback receives the database data directly. Do not use the older pattern of mutating <code>db.data</code> and then separately calling <code>write()</code> when porting v6 code unless that explicit lifecycle is intentional.</p>
+<h4>Async in-memory example</h4>
+<p><code>Memory</code> can be used with <code>Low</code> when a plain script needs a database without a filesystem.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { Low, Memory } from &#39;lowdb&#39;
+
+const db = new Low(new Memory(), { posts: [] as string[] })
+
+await db.read()
+await db.update(({ posts }) =&gt; posts.push(&#39;hello&#39;))
+
+assert.deepEqual(db.data, { posts: [&#39;hello&#39;] })
+</code></pre>
+<h4>Synchronous in-memory example</h4>
+<p>Use <code>MemorySync</code> with <code>LowSync</code> for synchronous code.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { LowSync, MemorySync } from &#39;lowdb&#39;
+
+const db = new LowSync(new MemorySync(), { count: 0 })
+
+db.read()
+db.update((data) =&gt; {
+  data.count += 1
+})
+
+assert.deepEqual(db.data, { count: 1 })
+</code></pre>
+<h3>Node JSON presets</h3>
+<p>The v7 preset names are <code>JSONFilePreset</code> and <code>JSONFileSyncPreset</code>:</p>
+<pre><code class="language-ts">import { JSONFilePreset } from &#39;lowdb/node&#39;
+
+const db = await JSONFilePreset(&#39;db.json&#39;, { posts: [] })
+await db.update(({ posts }) =&gt; posts.push(&#39;hello world&#39;))
+</code></pre>
+<p><code>JSONFilePreset(filename, defaultData)</code> returns a promise for <code>Low&lt;Data&gt;</code>. <code>JSONFileSyncPreset(filename, defaultData)</code> returns <code>LowSync&lt;Data&gt;</code>.</p>
+<p>The underlying adapters are available when explicit lifecycle control is needed:</p>
+<pre><code class="language-ts">import { Low } from &#39;lowdb&#39;
+import { JSONFile } from &#39;lowdb/node&#39;
+
+const db = new Low(new JSONFile(&#39;file.json&#39;), {})
+await db.read()
+await db.write()
+</code></pre>
+<p>These adapters use the filesystem, so they are not demonstrated in the standalone examples here: the required example environment has no filesystem access. A normal Node application can use them directly.</p>
+<h3>Custom serialization</h3>
+<p><code>DataFile</code> and <code>DataFileSync</code> accept a filename plus an object containing <code>parse</code> and <code>stringify</code> functions. Use them with <code>Low</code> or <code>LowSync</code> when the stored format is not JSON:</p>
+<pre><code class="language-ts">import { Low } from &#39;lowdb&#39;
+import { DataFile } from &#39;lowdb/node&#39;
+
+const adapter = new DataFile(&#39;db.yaml&#39;, {
+  parse: YAML.parse,
+  stringify: YAML.stringify,
+})
+const db = new Low(adapter, { posts: [] })
+</code></pre>
+<p>The serialization library supplying <code>YAML.parse</code> and <code>YAML.stringify</code> is not part of lowdb. The file adapter therefore requires an application environment with that serializer and filesystem access.</p>
+<h3>Browser adapters</h3>
+<p>Browser storage adapters are imported from <code>lowdb/browser</code>, not <code>lowdb/node</code>:</p>
+<pre><code class="language-ts">import { LocalStorage, SessionStorage } from &#39;lowdb/browser&#39;
+</code></pre>
+<p>The browser adapters require a browser <code>window</code> storage environment and are not runnable in the standalone Node example environment. The browser preset names are <code>LocalStoragePreset</code> and <code>SessionStoragePreset</code>.</p>
+<h3>v6-to-v7 mistakes</h3>
+<ul>
+<li>Replace <code>JSONPreset</code> with <code>JSONFilePreset</code>.</li>
+<li>Replace <code>JSONSyncPreset</code>-style assumptions with the v7 name <code>JSONFileSyncPreset</code>.</li>
+<li>Replace <code>db.data.posts.push(...)</code> followed by <code>await db.write()</code> with <code>await db.update(({ posts }) =&gt; posts.push(...))</code> when using the v7 update style.</li>
+<li>Do not copy v6&#39;s <code>NODE_ENV=test</code> behavior as a v7 contract. The v6 release notes describe automatic <code>Memory</code> adapter selection for that case; v7&#39;s documented API requires selecting an adapter explicitly.</li>
+<li>Do not import filesystem adapters from <code>lowdb</code>; use <code>lowdb/node</code>.</li>
+<li>Do not import browser storage adapters from <code>lowdb</code>; use <code>lowdb/browser</code>.</li>
+<li>Do not assume a CommonJS or Node 16 runtime. v7 is pure ESM and dropped Node 16 support.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover filesystem execution details, browser <code>window</code> storage setup, YAML or other external serializers, CLI usage, server/framework integration, or test-runner-specific setup. Those require an environment beyond a standalone <code>bun example.ts</code> script or are not specified by the supplied research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>pgsql-ast-parser 12.x — PMCP</title>
+  <meta name="description" content="Use pgsql-ast-parser 12.x to parse PostgreSQL SQL into a typed AST, inspect or transform it, and generate SQL. Covers the standalone JavaScript/TypeScript API in resolved version 12.0.2." />
+  <link rel="canonical" href="https://pmcp.build/skills/pgsql-ast-parser/12/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="pgsql-ast-parser 12.x — PMCP" />
+  <meta property="og:description" content="Use pgsql-ast-parser 12.x to parse PostgreSQL SQL into a typed AST, inspect or transform it, and generate SQL. Covers the standalone JavaScript/TypeScript API in resolved version 12.0.2." />
+  <meta property="og:url" content="https://pmcp.build/skills/pgsql-ast-parser/12/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/pgsql-ast-parser/">Other majors</a></p>
+    <h1>pgsql-ast-parser 12.x</h1><p>Use pgsql-ast-parser 12.x to parse PostgreSQL SQL into a typed AST, inspect or transform it, and generate SQL. Covers the standalone JavaScript/TypeScript API in resolved version 12.0.2.</p>
+    <dl><dt>For</dt><dd><code>pgsql-ast-parser@12.0.2</code></dd><dt>Verified</dt><dd>2026-09-08, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-pgsql-ast-parser@12.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/pgsql-ast-parser/12/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/pgsql-ast-parser/12/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/pgsql-ast-parser/12/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-lvby2fqADT3zFK+m6ZS3VoV+w9VtNoHvPvfvr+O1a/++oXQZefVJX15Ev4qU3KcHiXD+3A0HPhqzRjPE9QXJNg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against pgsql-ast-parser@12.0.2 on 2026-09-08. 5 of 5 examples executed.</p>
+<h2>pgsql-ast-parser</h2>
+<h3>Scope</h3>
+<p>This skill targets <code>pgsql-ast-parser</code> <code>^12.0.0</code> (resolved research version <code>12.0.2</code>). It is a PostgreSQL AST parser usable from Node or the browser. It does not support PL/pgSQL and may not cover unusual PostgreSQL syntax.</p>
+<p>The package is an ordinary library: examples run directly with Bun and do not need a test runner, framework globals, a database, a network, or a filesystem.</p>
+<h3>Parse statements</h3>
+<p>Import <code>parse</code> for potentially multiple statements and <code>parseFirst</code> when exactly one statement is expected. <code>parse</code> returns <code>Statement[]</code>; <code>parseFirst</code> returns a <code>Statement</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { parse, parseFirst } from &#39;pgsql-ast-parser&#39;;
+
+const statements = parse(`BEGIN TRANSACTION;
+  INSERT INTO my_table VALUES (1, &#39;two&#39;);`);
+assert.equal(statements.length, 2);
+
+const statement = parseFirst(&#39;SELECT * FROM &quot;my_table&quot;;&#39;);
+assert.ok(statement);
+assert.equal(statement.type, &#39;select&#39;);
+</code></pre>
+<p>Do not assume that examples from older major versions describe the current AST shape. In particular, historical release notes describe an old <code>ALTER TABLE</code> shape where <code>change</code> became <code>changes</code>, and an older <code>INSERT</code> shape with <code>values</code> or <code>select</code> that was later replaced by a single <code>insert</code> property. Those notes are not a v12 migration guide; the available v12 research exposes no v11-to-v12 breaking-change list. Inspect the parsed v12 AST or use the current types rather than copying an old shape.</p>
+<h3>Generate SQL</h3>
+<p>Use <code>toSql.statement(ast)</code> for a complete statement. <code>toSql</code> also exposes generators for AST subparts.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { parseFirst, toSql } from &#39;pgsql-ast-parser&#39;;
+
+const ast = parseFirst(&#39;SELECT * FROM users WHERE id = 1&#39;);
+const sql = toSql.statement(ast);
+
+assert.equal(typeof sql, &#39;string&#39;);
+assert.match(sql.toLowerCase(), /select/);
+assert.match(sql.toLowerCase(), /users/);
+</code></pre>
+<h3>Visit an AST</h3>
+<p>Create a visitor with <code>astVisitor</code>. Visitor callbacks can inspect nodes. If a callback wants traversal to continue through a node, call the corresponding method on <code>map.super()</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { astVisitor, parseFirst } from &#39;pgsql-ast-parser&#39;;
+
+const tables = new Set&lt;string&gt;();
+let joins = 0;
+
+const visitor = astVisitor(map =&gt; ({
+  tableRef: (table: { name: string }) =&gt; {
+    tables.add(table.name);
+  },
+  join: (join: unknown) =&gt; {
+    joins++;
+    map.super().join(join as never);
+  }
+}));
+
+visitor.statement(parseFirst(&#39;SELECT * FROM ta LEFT JOIN tb ON ta.id = tb.id&#39;));
+
+assert.deepEqual([...tables].sort(), [&#39;ta&#39;, &#39;tb&#39;]);
+assert.equal(joins, 1);
+</code></pre>
+<h3>Transform an AST</h3>
+<p>Create a mapper with <code>astMapper</code>. Return a replacement node from a callback. Delegate unchanged nodes to <code>map.super()</code>. A mapper callback may return <code>null</code> to remove a node; consequently, a mapped statement can be <code>null</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { astMapper, parseFirst, toSql } from &#39;pgsql-ast-parser&#39;;
+
+const mapper = astMapper(map =&gt; ({
+  tableRef: (table: { name: string }) =&gt; {
+    if (table.name === &#39;foo&#39;) return { ...table, name: &#39;bar&#39; };
+    return map.super().tableRef(table as never);
+  }
+}));
+
+const modified = mapper.statement(parseFirst(&#39;SELECT * FROM foo&#39;));
+assert.ok(modified);
+assert.match(toSql.statement(modified).toLowerCase(), /bar/);
+assert.doesNotMatch(toSql.statement(modified).toLowerCase(), /from foo/);
+</code></pre>
+<h3>Locations and comments</h3>
+<p>The documented API includes <code>parseWithComments()</code>, <code>locationOf(node)</code>, and location tracking through <code>parse(sql, { locationTracking: true })</code>. Use location tracking when source positions are needed; do not expect locations from an ordinary parse.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { locationOf, parse } from &#39;pgsql-ast-parser&#39;;
+
+const statements = parse(&#39;SELECT 1&#39;, { locationTracking: true });
+assert.equal(statements.length, 1);
+const location = locationOf(statements[0]);
+assert.ok(location);
+</code></pre>
+<p><code>parseWithComments()</code> is the separate documented entry point when comments must be retained or associated with parsing. The available research does not specify its exact return shape, so inspect the package’s exported types before depending on comment-node fields.</p>
+<h3>Literal and utility helpers</h3>
+<p>The package also documents <code>parseArrayLiteral()</code>, <code>parseGeometricLiteral()</code>, <code>parseIntervalLiteral()</code>, <code>assignChanged()</code>, and <code>arrayNilMap()</code>. They are library helpers and can be imported directly; their detailed signatures and return shapes are not covered by the available research, so consult the installed v12 TypeScript declarations before using them.</p>
+<h3>Deno</h3>
+<p>The research documents a generated Deno module import:</p>
+<pre><code class="language-ts">import { /* imports */ } from &#39;https://deno.land/x/pgsql_ast_parser/mod.ts&#39;;
+</code></pre>
+<p>For Node, browser, and Bun usage, import from the npm package name as shown above. Repository build scripts, webpack configuration, test commands, and Deno-generation scripts are development machinery, not consumer requirements.</p>
+<h3>Does not cover</h3>
+<ul>
+<li>PL/pgSQL parsing.</li>
+<li>A complete PostgreSQL-syntax compatibility matrix or unusual/funky syntax.</li>
+<li>A v11-to-v12 migration guide; none was documented in the researched release material.</li>
+<li>Exact AST schemas for every statement and expression.</li>
+<li>Exact signatures or return shapes for <code>parseWithComments()</code>, <code>parseArrayLiteral()</code>, <code>parseGeometricLiteral()</code>, <code>parseIntervalLiteral()</code>, <code>assignChanged()</code>, and <code>arrayNilMap()</code>.</li>
+<li>Database execution, SQL validation, formatting guarantees, or a package-owned CLI/runner.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

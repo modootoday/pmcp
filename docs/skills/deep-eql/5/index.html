@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>deep-eql 5.x — PMCP</title>
+  <meta name="description" content="Use deep-eql ^5.0.0 for boolean deep comparisons in an ESM package. Covers the v5 export shape, comparison rules, custom comparators, circular references, and MemoizeMap." />
+  <link rel="canonical" href="https://pmcp.build/skills/deep-eql/5/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="deep-eql 5.x — PMCP" />
+  <meta property="og:description" content="Use deep-eql ^5.0.0 for boolean deep comparisons in an ESM package. Covers the v5 export shape, comparison rules, custom comparators, circular references, and MemoizeMap." />
+  <meta property="og:url" content="https://pmcp.build/skills/deep-eql/5/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/deep-eql/">Other majors</a></p>
+    <h1>deep-eql 5.x</h1><p>Use deep-eql ^5.0.0 for boolean deep comparisons in an ESM package. Covers the v5 export shape, comparison rules, custom comparators, circular references, and MemoizeMap.</p>
+    <dl><dt>For</dt><dd><code>deep-eql@5.0.2</code></dd><dt>Verified</dt><dd>2026-09-08, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-deep-eql@5.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/deep-eql/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/deep-eql/5/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/deep-eql/5/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-WxuVFe/Rt8mBkeEbxM4HfNgKEjQxKfoPrFPCjMZ3ZM7JC3mQwX7s+2DsDmsyoxCgkWfV12zjbXPvMt0QIkt2DA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against deep-eql@5.0.2 on 2026-09-08. 7 of 7 examples executed.</p>
+<h2>deep-eql ^5.0.0</h2>
+<h3>Import shape</h3>
+<p>Version 5 is an ES module (<code>&quot;type&quot;: &quot;module&quot;</code>). Its default export is the comparison function, and <code>MemoizeMap</code> is a named export:</p>
+<pre><code class="language-ts">import deepEqual, { MemoizeMap } from &#39;deep-eql&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+assert.equal(typeof deepEqual, &#39;function&#39;);
+assert.equal(typeof MemoizeMap, &#39;function&#39;);
+assert.equal(deepEqual({ a: 1 }, { a: 1 }), true);
+</code></pre>
+<p>Do not apply the v4 CommonJS shape (<code>require(&#39;deep-eql&#39;)</code>, <code>module.exports</code>, or a direct CommonJS default assumption) to v5 code. The inspected v5 package uses <code>export default deepEqual</code> and <code>export var MemoizeMap</code>.</p>
+<h3>Default deep equality</h3>
+<p>Call the default export with two operands and optionally an options object. The result is a boolean. Primitive comparison follows <code>Object.is</code>-style behavior: <code>NaN</code> equals <code>NaN</code>, while <code>-0</code> and <code>+0</code> do not.</p>
+<pre><code class="language-ts">import deepEqual from &#39;deep-eql&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+assert.equal(deepEqual({ a: 1, nested: { b: 2 } }, { a: 1, nested: { b: 2 } }), true);
+assert.equal(deepEqual(NaN, NaN), true);
+assert.equal(deepEqual(-0, +0), false);
+</code></pre>
+<p>The comparison includes inherited enumerable properties. <code>Error</code> values are compared using their <code>name</code>, <code>message</code>, and <code>code</code>; different error types are not equal. Typed arrays, sets, and maps are supported by the built-in algorithm.</p>
+<pre><code class="language-ts">import deepEqual from &#39;deep-eql&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+assert.equal(deepEqual(Error(&#39;foo&#39;), Error(&#39;foo&#39;)), true);
+assert.equal(deepEqual(Error(&#39;foo&#39;), TypeError(&#39;foo&#39;)), false);
+assert.equal(deepEqual(new Uint8Array([1]), new Uint8Array([1])), true);
+assert.equal(deepEqual(new Set([1]), new Set([1])), true);
+assert.equal(deepEqual(new Map([[&#39;a&#39;, 1]]), new Map([[&#39;a&#39;, 1]])), true);
+
+const prototype = { inherited: { value: 1 } };
+const left = Object.create(prototype);
+const right = Object.create({ inherited: { value: 1 } });
+assert.equal(deepEqual(left, right), true);
+</code></pre>
+<p><code>Arguments</code> is not treated as an Array. To compare an <code>Arguments</code> value as an Array, convert it to an Array first; the converted value must contain the same elements as the Array being compared.</p>
+<pre><code class="language-ts">import deepEqual from &#39;deep-eql&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+function makeArguments() {
+  return arguments;
+}
+
+const args = makeArguments();
+assert.equal(deepEqual([], args), false);
+assert.equal(deepEqual([], Array.prototype.slice.call(args)), true);
+</code></pre>
+<h3>Custom comparator</h3>
+<p>Pass <code>options.comparator</code> to override the default algorithm. It receives both operands and may return <code>true</code>, <code>false</code>, or <code>null</code>. Returning <code>null</code> delegates that comparison back to the default algorithm.</p>
+<pre><code class="language-ts">import deepEqual from &#39;deep-eql&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const result = deepEqual(1, &#39;1&#39;, {
+  comparator: (leftHandOperand, rightHandOperand) =&gt; {
+    if (leftHandOperand == rightHandOperand) return true;
+    return null;
+  }
+});
+
+assert.equal(result, true);
+</code></pre>
+<p>Use a definite <code>false</code> when the comparator should reject a pair; use <code>null</code>, not <code>undefined</code>, when the built-in comparison should continue.</p>
+<h3>Circular references and memoization</h3>
+<p>The <code>memoize</code> option accepts a custom memoization object. Supplying one allows circular structures to be compared without infinite recursion:</p>
+<pre><code class="language-ts">import deepEqual from &#39;deep-eql&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const left = {};
+left.self = left;
+
+const right = {};
+right.self = right;
+
+assert.equal(deepEqual(left, right, { memoize: new WeakMap() }), true);
+</code></pre>
+<p>Passing <code>memoize: false</code> disables memoization. Do not do that for circular references: the inspected implementation documents that circular structures then blow the stack.</p>
+<h3><code>MemoizeMap</code></h3>
+<p><code>MemoizeMap</code> is the package&#39;s memoization implementation: it is <code>WeakMap</code> when available and otherwise the package fallback <code>FakeMap</code>. Instantiate it when you need the package-selected memoization object.</p>
+<pre><code class="language-ts">import deepEqual, { MemoizeMap } from &#39;deep-eql&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const left = {};
+left.self = left;
+
+const right = {};
+right.self = right;
+
+const memoize = new MemoizeMap();
+assert.equal(deepEqual(left, right, { memoize }), true);
+</code></pre>
+<h3>What this skill does not cover</h3>
+<p>The research does not cover the full comparison algorithm for every built-in type, detailed comparator invocation order, the fallback <code>FakeMap</code> API beyond its use as <code>MemoizeMap</code>, browser-specific behavior, or changes in later 5.x releases. It also does not cover package development scripts or test-runner integration; the package API is directly callable from a script.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

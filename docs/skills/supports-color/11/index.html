@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>supports-color 11.x — PMCP</title>
+  <meta name="description" content="Use supports-color 11.0.0 to detect terminal color capability in Node.js scripts, including stdout/stderr detection and custom stream detection." />
+  <link rel="canonical" href="https://pmcp.build/skills/supports-color/11/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="supports-color 11.x — PMCP" />
+  <meta property="og:description" content="Use supports-color 11.0.0 to detect terminal color capability in Node.js scripts, including stdout/stderr detection and custom stream detection." />
+  <meta property="og:url" content="https://pmcp.build/skills/supports-color/11/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/supports-color/">Other majors</a></p>
+    <h1>supports-color 11.x</h1><p>Use supports-color 11.0.0 to detect terminal color capability in Node.js scripts, including stdout/stderr detection and custom stream detection.</p>
+    <dl><dt>For</dt><dd><code>supports-color@11.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-supports-color@11.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/supports-color/11/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/supports-color/11/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/supports-color/11/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-WKyZMMQbDunwrjQYazR4z+EV3y1vpTS8MbWo9d2zTZ+EUfOGVQM8tDk7nZilS1v/cCWXpxv74000u5cjR/6ZQA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against supports-color@11.0.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>supports-color 11.0.0</h2>
+<h3>Runtime and module shape</h3>
+<ul>
+<li>Version 11 requires Node.js <code>&gt;=22</code>.</li>
+<li>The package is ESM. Import it with <code>import</code>, not CommonJS <code>require</code>.</li>
+<li>The default export is an object with <code>stdout</code> and <code>stderr</code> properties. Each property is either a <code>ColorSupport</code> object or <code>false</code>.</li>
+<li>Do not use the older assumption that the default export itself is a color-support object. Check <code>supportsColor.stdout</code> or <code>supportsColor.stderr</code> first.</li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import supportsColor from &#39;supports-color&#39;;
+
+assert.equal(typeof supportsColor, &#39;object&#39;);
+assert.ok(&#39;stdout&#39; in supportsColor);
+assert.ok(&#39;stderr&#39; in supportsColor);
+
+for (const streamSupport of [supportsColor.stdout, supportsColor.stderr]) {
+	if (streamSupport !== false) {
+		assert.ok([1, 2, 3].includes(streamSupport.level));
+		assert.equal(streamSupport.hasBasic, streamSupport.level &gt;= 1);
+		assert.equal(streamSupport.has256, streamSupport.level &gt;= 2);
+		assert.equal(streamSupport.has16m, streamSupport.level &gt;= 3);
+	}
+}
+</code></pre>
+<h3>Reading capability levels</h3>
+<p>A truthy color-support object has these properties:</p>
+<ul>
+<li><code>level: 1</code> means basic ANSI color support, including 16 colors.</li>
+<li><code>level: 2</code> means 256-color support.</li>
+<li><code>level: 3</code> means 16-million-color Truecolor support.</li>
+<li><code>hasBasic</code>, <code>has256</code>, and <code>has16m</code> are boolean convenience properties corresponding to those levels.</li>
+</ul>
+<p>Always guard a stream result before reading its properties, because it can be <code>false</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import supportsColor from &#39;supports-color&#39;;
+
+const stdout = supportsColor.stdout;
+
+if (stdout) {
+	assert.equal(typeof stdout.level, &#39;number&#39;);
+	assert.equal(typeof stdout.hasBasic, &#39;boolean&#39;);
+	assert.equal(typeof stdout.has256, &#39;boolean&#39;);
+	assert.equal(typeof stdout.has16m, &#39;boolean&#39;);
+
+	if (stdout.level &gt;= 3) {
+		assert.equal(stdout.has16m, true);
+	}
+}
+</code></pre>
+<h3>Custom stream detection</h3>
+<p>The named programmatic API is <code>createSupportsColor</code> (plural):</p>
+<pre><code class="language-ts">import {createSupportsColor} from &#39;supports-color&#39;;
+</code></pre>
+<p>The README prose for this release incorrectly calls it <code>createSupportColor</code> (singular). The singular spelling is not the declaration or implementation export.</p>
+<p>Its signature is:</p>
+<pre><code class="language-ts">createSupportsColor(stream?: WriteStream, options?: {readonly sniffFlags?: boolean}): ColorSupport | false
+</code></pre>
+<p>Pass a Node <code>WriteStream</code>, such as <code>process.stdout</code>, when detecting a specific stream. <code>sniffFlags</code> defaults to <code>true</code>; set it to <code>false</code> when <code>process.argv</code> color flags must not affect the result.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {createSupportsColor} from &#39;supports-color&#39;;
+
+const detected = createSupportsColor(process.stdout, {sniffFlags: false});
+
+if (detected !== false) {
+	assert.ok([1, 2, 3].includes(detected.level));
+	assert.equal(typeof detected.hasBasic, &#39;boolean&#39;);
+	assert.equal(typeof detected.has256, &#39;boolean&#39;);
+	assert.equal(typeof detected.has16m, &#39;boolean&#39;);
+}
+</code></pre>
+<h3>Environment and command-line controls</h3>
+<p>Detection considers runtime inputs:</p>
+<ul>
+<li><code>--color</code> enables color.</li>
+<li><code>--no-color</code> disables color.</li>
+<li><code>--color=256</code> requests level 2.</li>
+<li><code>--color=16m</code> requests level 3.</li>
+<li><code>FORCE_COLOR=0</code>, <code>1</code>, <code>2</code>, <code>3</code>, or <code>true</code> affects detection.</li>
+<li>In v11, a numeric <code>FORCE_COLOR</code> is treated as an exact color-support level.</li>
+</ul>
+<p>These values are process context, not a separate runner API. If using <code>createSupportsColor</code>, set <code>sniffFlags: false</code> to prevent <code>process.argv</code> color flags from being considered.</p>
+<h3>Browser condition</h3>
+<p>The package exports Node or browser code conditionally. In Node, use the Node entry for stream detection. The browser entry exposes <code>stdout</code> and <code>stderr</code> based on <code>navigator</code>/Chromium user-agent data and does not expose <code>createSupportsColor</code>; it cannot replace Node stream detection.</p>
+<h3>Does not cover</h3>
+<p>This skill does not cover the internal terminal/platform heuristics, the exact precedence among every environment and command-line input, browser user-agent detection details, or integrating the result with a particular color-output library.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

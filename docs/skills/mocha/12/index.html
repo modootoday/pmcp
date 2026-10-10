@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>mocha 12.x — PMCP</title>
+  <meta name="description" content="Use Mocha ^12.0.0 programmatically, with the ESM package shape and runner-loading rules rather than v11-era assumptions." />
+  <link rel="canonical" href="https://pmcp.build/skills/mocha/12/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="mocha 12.x — PMCP" />
+  <meta property="og:description" content="Use Mocha ^12.0.0 programmatically, with the ESM package shape and runner-loading rules rather than v11-era assumptions." />
+  <meta property="og:url" content="https://pmcp.build/skills/mocha/12/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/mocha/">Other majors</a></p>
+    <h1>mocha 12.x</h1><p>Use Mocha ^12.0.0 programmatically, with the ESM package shape and runner-loading rules rather than v11-era assumptions.</p>
+    <dl><dt>For</dt><dd><code>mocha@12.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-mocha@12.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/mocha/12/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/mocha/12/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/mocha/12/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-YjtX2R4ivbjQXas0dnWtQn2EK9AsVDNwyEGLZcj+tThZs8QH9D3jPDSPa0UPlK4wgdPLVdWz+lzY8yq/emNnjA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against mocha@12.0.0 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>Mocha 12</h2>
+<h3>Version and module shape</h3>
+<p>Mocha 12 requires Node <code>^20.19.0 || &gt;=22.12.0</code>. The package is ESM and its entry points are ESM. In CommonJS, use the <code>Mocha</code> property:</p>
+<pre><code class="language-js">const { Mocha } = require(&#39;mocha&#39;);
+</code></pre>
+<p>Do not assume that <code>require(&#39;mocha&#39;)</code> itself is the constructor. In an ESM script, the documented programmatic form is:</p>
+<pre><code class="language-js">import Mocha from &#39;mocha&#39;;
+</code></pre>
+<p>The documented class has static members including <code>Mocha.reporters</code> and <code>Mocha.Runner</code>. The documented <code>Mocha.version</code> member is readonly, but do not use its presence as a standalone capability check: it is not available on the imported value in every supported import shape.</p>
+<h3>Construct and configure a runner</h3>
+<p>Create a runner with options, or configure it through chainable methods. The documented surface includes:</p>
+<ul>
+<li><code>new Mocha(options)</code></li>
+<li><code>ui(uiName)</code></li>
+<li><code>timeout(milliseconds)</code></li>
+<li><code>retries(count)</code></li>
+<li><code>grep(regexp)</code></li>
+<li><code>invert()</code></li>
+<li><code>reporter(name, options)</code></li>
+</ul>
+<p>Timeouts can be supplied as milliseconds or duration strings such as <code>1s</code>. Reporter options are passed as the second argument to <code>reporter()</code>.</p>
+<pre><code class="language-ts">import Mocha from &quot;mocha&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const mocha = new Mocha({ timeout: 1000, reporter: &quot;spec&quot; });
+
+assert.equal(mocha.ui(&quot;bdd&quot;), mocha);
+assert.equal(mocha.timeout(&quot;1s&quot;), mocha);
+assert.equal(mocha.retries(1), mocha);
+assert.equal(mocha.grep(/match/i), mocha);
+assert.equal(mocha.invert(), mocha);
+assert.equal(mocha.reporter(&quot;spec&quot;), mocha);
+assert.equal(typeof Mocha.Runner, &quot;function&quot;);
+assert.equal(typeof Mocha.reporters, &quot;object&quot;);
+</code></pre>
+<h3>Loading test files and running</h3>
+<p>Use <code>addFile(file)</code> to add test files, then call <code>loadFilesAsync()</code>. This API supports both CommonJS and ESM test files. Its optional <code>esmDecorator</code> function runs before an ESM module is imported.</p>
+<p>After loading, call <code>mocha.run(callback)</code>. A command-line-style program should set its exit code from the failure count and handle loading failures:</p>
+<pre><code class="language-js">mocha.loadFilesAsync()
+  .then(() =&gt; mocha.run(failures =&gt; {
+    process.exitCode = failures ? 1 : 0;
+  }))
+  .catch(() =&gt; {
+    process.exitCode = 1;
+  });
+</code></pre>
+<p><code>mocha.run()</code> loads files through Node <code>require</code>. Loaded files remain in <code>require.cache</code>; reruns may therefore require clearing the relevant cache entries or creating a new <code>Mocha</code> instance.</p>
+<p>A standalone script can exercise the runner without a test file, but runner state is only meaningful once tests have been loaded:</p>
+<pre><code class="language-ts">import Mocha from &quot;mocha&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const mocha = new Mocha({ reporter: &quot;dot&quot; });
+
+await new Promise((resolve, reject) =&gt; {
+  try {
+    mocha.run(failures =&gt; {
+      try {
+        assert.equal(failures, 0);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  } catch (error) {
+    reject(error);
+  }
+});
+</code></pre>
+<p>For actual tests, call <code>addFile()</code> with test-file paths and call <code>loadFilesAsync()</code> before <code>run()</code>. Test execution, test-file discovery, and runner state are not demonstrated by the standalone example because they require test files and the runner itself.</p>
+<h3>CLI and configuration</h3>
+<p>Normal execution is through the Mocha CLI:</p>
+<pre><code class="language-sh">npx mocha --help
+mocha [spec...]
+</code></pre>
+<p>The defaults include:</p>
+<ul>
+<li>spec: <code>test</code></li>
+<li>extensions: <code>js,cjs,mjs</code></li>
+<li>reporter: <code>spec</code></li>
+<li>timeout: <code>2000</code></li>
+</ul>
+<p>Configuration discovery, merging, <code>MOCHA_OPTIONS</code>, <code>--config</code>, <code>--package</code>, watch mode, reporters, interfaces, and test-file globbing are CLI/runner behavior rather than behavior of an arbitrary standalone JavaScript file.</p>
+<p>Mocha 12 uses this ESM configuration shape in <code>.mocharc.mjs</code>:</p>
+<pre><code class="language-js">export default {
+  timeout: 1000
+};
+</code></pre>
+<p>A <code>.mocharc.js</code> file can use the same shape when the package is configured as ESM with <code>&quot;type&quot;: &quot;module&quot;</code>.</p>
+<p>In Mocha 12, <code>--forbid-only</code> defaults to <code>true</code> when <code>CI</code> is set and otherwise defaults to <code>false</code>. Mocha 12 also adds <code>--fail-hook-affected-tests</code>; tests affected by a failing hook are reported as failures.</p>
+<h3>ESM and runner limitations</h3>
+<p>Native ESM support does not make every runner feature ESM-compatible:</p>
+<ul>
+<li>Watch mode does not support ESM test files.</li>
+<li>Custom reporters and interfaces are loaded with <code>require</code> and cannot use top-level <code>await</code>.</li>
+</ul>
+<p>The browser ESM entry is separate from the Node package API:</p>
+<pre><code class="language-html">&lt;script type=&quot;module&quot;&gt;
+  import * as mocha from &quot;./node_modules/mocha/mocha.js&quot;;
+
+  mocha.setup(&quot;bdd&quot;);
+  await import(&quot;./unit-test.js&quot;);
+  mocha.run();
+&lt;/script&gt;
+</code></pre>
+<h3>Mocha 12 CLI changes</h3>
+<p>Mocha 12 moved CLI parsing from <code>yargs</code>, <code>yargs-parser</code>, and <code>yargs-unparser</code> to Node&#39;s <code>util.parseArgs</code>. Check automation that depends on older parsing edge cases, particularly negative numbers or quoted strings.</p>
+<p>The <code>bin/_mocha</code> entry was removed. Use the supported <code>mocha</code> command or the documented programmatic API.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover the complete CLI option list, reporter output formats, interface-specific test syntax, configuration merge precedence in individual cases, watch-mode operation, browser bundling details, custom reporter or interface implementation, or filesystem-backed test fixtures. Those areas require the Mocha CLI, a project configuration, or test files and are not demonstrated by the standalone examples here.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

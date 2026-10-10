@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>agent-base 9.x — PMCP</title>
+  <meta name="description" content="Use agent-base 9 as an ESM adapter for Node's HTTP and HTTPS agent machinery." />
+  <link rel="canonical" href="https://pmcp.build/skills/agent-base/9/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="agent-base 9.x — PMCP" />
+  <meta property="og:description" content="Use agent-base 9 as an ESM adapter for Node's HTTP and HTTPS agent machinery." />
+  <meta property="og:url" content="https://pmcp.build/skills/agent-base/9/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/agent-base/">Other majors</a></p>
+    <h1>agent-base 9.x</h1><p>Use agent-base 9 as an ESM adapter for Node's HTTP and HTTPS agent machinery.</p>
+    <dl><dt>For</dt><dd><code>agent-base@9.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-agent-base@9.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/agent-base/9/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/agent-base/9/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/agent-base/9/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-O354EwwyWRb/TXM8kE0Vc84yyhjSH8Ge7mpDMU4hpIizpQPAjefsIvgKh9m18WHp65dy7q2Wc/TY0k3mBjFcJg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against agent-base@9.0.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>agent-base</h2>
+<h3>Version and module shape</h3>
+<p>This skill targets <code>agent-base</code> 9.x. It is ESM-only and requires Node.js 20 or newer. Import the named <code>Agent</code> class and helpers:</p>
+<pre><code class="language-ts">import { Agent, json, req, toBuffer } from &#39;agent-base&#39;;
+</code></pre>
+<p>Do not use the old CommonJS/default-export form:</p>
+<pre><code class="language-js">const agent = require(&#39;agent-base&#39;);
+</code></pre>
+<p>That was the v6 shape. The v7 API removed the default export and introduced the named abstract <code>Agent</code> class.</p>
+<h3><code>Agent</code> subclass contract</h3>
+<p><code>Agent</code> extends Node&#39;s <code>http.Agent</code>. A subclass must implement:</p>
+<pre><code class="language-ts">connect(
+  req: http.ClientRequest,
+  options: AgentConnectOpts
+): Promise&lt;Duplex | http.Agent&gt; | Duplex | http.Agent;
+</code></pre>
+<p><code>connect()</code> may return:</p>
+<ul>
+<li>a <code>Duplex</code> socket;</li>
+<li>another <code>http.Agent</code>, delegating connection handling; or</li>
+<li>a promise resolving to either of those.</li>
+</ul>
+<p>The options include <code>secureEndpoint: boolean</code>, which distinguishes HTTPS from HTTP connection requests. The resulting agent is passed to Node&#39;s <code>http</code> or <code>https</code> APIs through their <code>{ agent }</code> option.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { PassThrough } from &#39;node:stream&#39;;
+import { Agent } from &#39;agent-base&#39;;
+
+class LocalAgent extends Agent {
+  connect(_request: never, options: { secureEndpoint: boolean }) {
+    assert.equal(options.secureEndpoint, false);
+    return new PassThrough();
+  }
+}
+
+const agent = new LocalAgent({ keepAlive: true });
+assert.ok(agent instanceof Agent);
+assert.equal(agent.options.keepAlive, true);
+
+const socket = agent.connect({} as never, { secureEndpoint: false });
+assert.ok(socket instanceof PassThrough);
+</code></pre>
+<p>The package is an adapter, not a request runner. In a real request, pass the subclass instance to Node&#39;s <code>http.get()</code> or <code>https.get()</code> as <code>{ agent }</code>. The connection implementation normally returns a socket created by the appropriate networking API, or returns another agent when delegation is needed.</p>
+<p>Version 9&#39;s <code>createSocket</code> agent detection uses duck typing. This matters when delegating to agent implementations that are not instances of Node&#39;s <code>http.Agent</code>, such as <code>tunnel-agent</code>&#39;s <code>TunnelingAgent</code>; do not rely on the older strict-instance behavior.</p>
+<h3><code>toBuffer()</code></h3>
+<p><code>toBuffer(readable)</code> consumes a readable stream and resolves to a <code>Buffer</code> containing its bytes. Provide Buffer or other byte chunks to the readable stream.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { Readable } from &#39;node:stream&#39;;
+import { toBuffer } from &#39;agent-base&#39;;
+
+const result = await toBuffer(
+  Readable.from([Buffer.from(&#39;hello &#39;), Buffer.from(&#39;world&#39;)]),
+);
+assert.ok(Buffer.isBuffer(result));
+assert.equal(result.toString(&#39;utf8&#39;), &#39;hello world&#39;);
+</code></pre>
+<h3><code>json()</code></h3>
+<p><code>json(readable)</code> consumes a readable stream, decodes it as UTF-8, and parses it with <code>JSON.parse</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { Readable } from &#39;node:stream&#39;;
+import { json } from &#39;agent-base&#39;;
+
+const value = await json(Readable.from([Buffer.from(&#39;{&quot;ok&quot;:true,&quot;count&quot;:2}&#39;) ]));
+assert.deepEqual(value, { ok: true, count: 2 });
+</code></pre>
+<p>The input must contain valid JSON. Parsing failures reject with the error from <code>JSON.parse</code>.</p>
+<h3><code>req()</code></h3>
+<p><code>req(url, opts)</code> creates and ends an HTTP or HTTPS request based on the URL and returns the <code>http.ClientRequest</code> with a promise-like <code>.then</code> method. It is intended as a small request helper; the returned thenable resolves to the response.</p>
+<p>This helper necessarily starts a real HTTP(S) request, so it is not demonstrated with a runnable example here: examples in this skill must run without network access. Use it only in an environment where the target URL is available, and provide request options as the second argument when needed.</p>
+<h3>Common mistakes</h3>
+<ul>
+<li>Importing a default export or using <code>require(&#39;agent-base&#39;)</code>; v9 uses the named ESM export <code>Agent</code>.</li>
+<li>Trying to instantiate <code>Agent</code> directly; it is abstract and requires a <code>connect()</code> implementation.</li>
+<li>Treating <code>connect()</code> as returning only a socket. It can return a socket, another agent, or a promise of either.</li>
+<li>Ignoring <code>options.secureEndpoint</code> when choosing HTTP versus HTTPS/TLS connection behavior.</li>
+<li>Passing string chunks to <code>toBuffer()</code> through a Node readable; use byte chunks such as <code>Buffer</code> or <code>Uint8Array</code>.</li>
+<li>Treating agent-base as a standalone request runner. It integrates with Node&#39;s <code>http</code> and <code>https</code> request machinery.</li>
+<li>Running package examples that use <code>describe</code>, <code>it</code>, or <code>expect</code> directly. Those are runner globals, not part of agent-base or a plain Node/Bun script.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover the internal details of Node&#39;s <code>http.Agent</code> pooling, custom proxy protocols, TLS option construction, <code>tunnel-agent</code> integration beyond the v9 duck-typing change, or network-backed usage of <code>req()</code>. It also does not cover package development commands or the package&#39;s test suite.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

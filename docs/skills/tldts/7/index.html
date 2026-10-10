@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tldts 7.x — PMCP</title>
+  <meta name="description" content="Use tldts ^7.0.0 to parse hostnames, domains, public suffixes, and subdomains from URLs or host-like strings." />
+  <link rel="canonical" href="https://pmcp.build/skills/tldts/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="tldts 7.x — PMCP" />
+  <meta property="og:description" content="Use tldts ^7.0.0 to parse hostnames, domains, public suffixes, and subdomains from URLs or host-like strings." />
+  <meta property="og:url" content="https://pmcp.build/skills/tldts/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/tldts/">Other majors</a></p>
+    <h1>tldts 7.x</h1><p>Use tldts ^7.0.0 to parse hostnames, domains, public suffixes, and subdomains from URLs or host-like strings.</p>
+    <dl><dt>For</dt><dd><code>tldts@7.4.12</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-tldts@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/tldts/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/tldts/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/tldts/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-Lbgn3AEQ+p74OlEdfxXR4tCM0IGBiHHFyWAnPfEQyIbLz7CubiTSQCv8nxVSuOSEGCkNhyQ4ESoPzNbqGOe8iA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against tldts@7.4.12 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>tldts</h2>
+<p>Use the v7 function-oriented API. Import named functions from <code>tldts</code>:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {
+  parse,
+  getHostname,
+  getDomain,
+  getFullDomain,
+  getPublicSuffix,
+  getSubdomain,
+  getDomainWithoutSuffix,
+} from &#39;tldts&#39;;
+
+const parsed = parse(&#39;http://www.writethedocs.org/conf/eu/2017/&#39;);
+assert.equal(parsed.domain, &#39;writethedocs.org&#39;);
+assert.equal(parsed.domainWithoutSuffix, &#39;writethedocs&#39;);
+assert.equal(parsed.hostname, &#39;www.writethedocs.org&#39;);
+assert.equal(parsed.isIcann, true);
+assert.equal(parsed.isIp, false);
+assert.equal(parsed.isPrivate, false);
+assert.equal(parsed.publicSuffix, &#39;org&#39;);
+assert.equal(parsed.subdomain, &#39;www&#39;);
+
+assert.equal(
+  getHostname(&#39;https://user:password@example.co.uk:8080/some/path?and&amp;query#hash&#39;),
+  &#39;example.co.uk&#39;,
+);
+assert.equal(getDomain(&#39;foo.google.co.uk&#39;), &#39;google.co.uk&#39;);
+assert.equal(getFullDomain(&#39;foo.google.co.uk&#39;), &#39;foo.google.co.uk&#39;);
+assert.equal(getPublicSuffix(&#39;google.co.uk&#39;), &#39;co.uk&#39;);
+assert.equal(getSubdomain(&#39;moar.foo.google.co.uk&#39;), &#39;moar.foo&#39;);
+assert.equal(getDomainWithoutSuffix(&#39;foo.google.co.uk&#39;), &#39;google&#39;);
+assert.equal(getFullDomain(&#39;1.2.3.4&#39;), null);
+</code></pre>
+<p><code>parse(url, options?)</code> returns parsed hostname information including <code>hostname</code>, <code>domain</code>, <code>domainWithoutSuffix</code>, <code>publicSuffix</code>, <code>subdomain</code>, <code>isIcann</code>, <code>isPrivate</code>, and <code>isIp</code>. The helper functions accept the same URL-or-host-like string and optional options. String-returning helpers return <code>string | null</code>.</p>
+<p>Use <code>getFullDomain</code> when you want the complete non-IP domain. It returns <code>null</code> for an IP address. The older/common API shape remains function-based: code using <code>parse</code>, <code>getHostname</code>, <code>getDomain</code>, <code>getPublicSuffix</code>, <code>getSubdomain</code>, and <code>getDomainWithoutSuffix</code> is still the right general shape. v7 also documents <code>getFullDomain</code>.</p>
+<h3>Private suffixes</h3>
+<p>ICANN domains are enabled by default, while private suffixes are not. Pass <code>allowPrivateDomains: true</code> when private suffixes should participate:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { parse, getPublicSuffix, getDomain } from &#39;tldts&#39;;
+
+const defaultResult = parse(&#39;spark-public.s3.amazonaws.com&#39;);
+assert.equal(defaultResult.domain, &#39;amazonaws.com&#39;);
+assert.equal(defaultResult.isPrivate, false);
+
+const privateResult = parse(&#39;spark-public.s3.amazonaws.com&#39;, {
+  allowPrivateDomains: true,
+});
+assert.equal(privateResult.domain, &#39;spark-public.s3.amazonaws.com&#39;);
+assert.equal(privateResult.domainWithoutSuffix, &#39;spark-public&#39;);
+assert.equal(privateResult.hostname, &#39;spark-public.s3.amazonaws.com&#39;);
+assert.equal(privateResult.isIcann, false);
+assert.equal(privateResult.isIp, false);
+assert.equal(privateResult.isPrivate, true);
+assert.equal(privateResult.publicSuffix, &#39;s3.amazonaws.com&#39;);
+assert.equal(privateResult.subdomain, &#39;&#39;);
+
+assert.equal(
+  getPublicSuffix(&#39;s3.amazonaws.com&#39;, { allowPrivateDomains: true }),
+  &#39;s3.amazonaws.com&#39;,
+);
+assert.equal(
+  getDomain(&#39;spark-public.s3.amazonaws.com&#39;, { allowPrivateDomains: true }),
+  &#39;spark-public.s3.amazonaws.com&#39;,
+);
+</code></pre>
+<p>Do not assume PSL-style private-suffix results are implicit. Without <code>allowPrivateDomains: true</code>, the private suffix is ignored; with it, <code>s3.amazonaws.com</code> is treated as the public suffix in the example above.</p>
+<h3>Options and the v7 validation change</h3>
+<p>The documented options are:</p>
+<ul>
+<li><code>allowIcannDomains</code> — defaults to <code>true</code>.</li>
+<li><code>allowPrivateDomains</code> — defaults to <code>false</code>.</li>
+<li><code>extractHostname</code> — defaults to <code>true</code>.</li>
+<li><code>validateHostname</code> — defaults to <code>true</code>.</li>
+<li><code>detectIp</code></li>
+<li><code>mixedInputs</code></li>
+<li><code>validHosts</code></li>
+<li><code>detectSpecialUse</code></li>
+</ul>
+<p>In v7, hostname validation is consistent between <code>getHostname</code> and <code>parse(url).hostname</code>. With validation enabled, an invalid hostname stops processing and produces <code>null</code> as described by the v7 change. Set <code>validateHostname: false</code> to restore permissive parsing and allow processing to continue for inputs the validator would reject:</p>
+<pre><code class="language-ts">const result = parse(input, { validateHostname: false });
+</code></pre>
+<p>Do not carry forward pre-v7 assumptions that <code>getHostname</code> and <code>parse(...).hostname</code> can differ for invalid hostnames.</p>
+<h3>CLI boundary</h3>
+<p>The package also has a CLI, but it is not a plain function call. Invoke it through the package runner or an installed executable, for example:</p>
+<pre><code class="language-sh">npx tldts &#39;http://www.writethedocs.org/conf/eu/2017/&#39;
+echo &#39;https://example.com&#39; | npx tldts
+</code></pre>
+<p>Programmatic parsing does not require the CLI, a build step, or a package-owned runner.</p>
+<h3>Does not cover</h3>
+<p>This skill does not cover the detailed semantics of every documented option (<code>allowIcannDomains</code>, <code>extractHostname</code>, <code>detectIp</code>, <code>mixedInputs</code>, <code>validHosts</code>, or <code>detectSpecialUse</code>), the complete hostname-validation rule set, the full CLI option set, or the package&#39;s suffix database beyond the examples shown. The research does not establish additional return-shape edge cases for malformed inputs, localhost, or other special-use names.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

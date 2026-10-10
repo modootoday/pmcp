@@ -1,0 +1,165 @@
+<h1>Getting started</h1>
+      <p class="lede">
+        Reading installed skills needs no login or model. The local MCP server
+        reads files already on your disk; CLI commands manage additional skill
+        packages.
+      </p>
+
+      <h2>1. Register the server</h2>
+      <pre><code>{
+  "mcpServers": {
+    "pmcp": { "command": "npx", "args": ["-y", "@modootoday/pmcp"] }
+  }
+}</code></pre>
+      <p>
+        Hosts differ about which file that goes in, and two of them will write
+        it for you from <a href="/install/">the install page</a>. Nothing has to
+        be installed first: <code>npx -y</code> fetches the package when needed.
+      </p>
+
+      <h2>2. See what it can see</h2>
+      <pre><code>npx -y @modootoday/pmcp list</code></pre>
+      <p>
+        One row per skill: the name, as
+        <code>&lt;package&gt;/&lt;slug&gt;</code>, and the one-line description
+        that <code>skill_find</code> ranks. Do this before you ask an agent
+        anything, because it answers the question the server cannot ask you
+        back.
+      </p>
+      <p>
+        An empty catalog exits <strong>1</strong> rather than 0, and prints the
+        roots it walked. That is usually one of two things: the working
+        directory is not the project, or none of the installed packages ships a
+        <code>SKILL.md</code> at all.
+      </p>
+
+      <h2>3. Ask in a sentence</h2>
+      <p>
+        <code>skill_find</code> takes an <code>intent</code>: what you are
+        trying to do, written as a sentence. Lexical search works best when its
+        vocabulary matches the descriptions. It returns names only, ranked, and
+        never a body.
+      </p>
+      <div class="term">
+        <span class="mark">&gt;</span> skill_find
+        <span class="dim"
+          >"a job ran twice because two workers took the same lock"</span
+        ><br />
+        <span class="mark">+</span> redis-toolkit/locks<br />
+        <span class="dim">&nbsp;&nbsp;ranking lexical</span
+        ><span class="gap"></span> <span class="mark">&gt;</span> skill_call
+        <span class="dim">redis-toolkit/locks</span><br />
+        <span class="dim">&nbsp;&nbsp;the body, once</span>
+      </div>
+      <p>
+        A bare keyword ranks badly on purpose. Descriptions are written as
+        symptoms, so a sentence shares vocabulary with one of them and a single
+        noun matches many of them weakly and none of them strongly. When you
+        want to browse rather than search, <code>skill_catalog</code> is the
+        tool that filters.
+      </p>
+
+      <h2>4. Read exactly one</h2>
+      <p>
+        <code>skill_call</code> takes the name <code>skill_find</code> returned
+        and gives back that skill's body. It is the only call that costs a
+        document, which is the whole point of the split: looking is cheap, and
+        reading is deliberate.
+      </p>
+      <p>
+        An unknown name comes back as an error naming the tool to call instead,
+        rather than as an empty result that reads like an empty catalog.
+      </p>
+
+      <h2>Where it looks</h2>
+      <p>
+        By default, the <code>node_modules</code> directories above the working
+        directory. Two options change that, and both belong in the
+        <code>args</code> array beside <code>pmcp</code>:
+      </p>
+      <pre><code>npx -y @modootoday/pmcp list --root ./node_modules
+npx -y @modootoday/pmcp list --scope @acme/</code></pre>
+      <p>
+        <code>--scope</code> matches the start of the package name, so
+        <code>@acme</code> also matches <code>@acmetools/thing</code>. Include
+        the trailing slash when you mean the scope. Both options are repeatable.
+      </p>
+      <p>
+        When two roots hold the same package, the first one wins: a nested
+        <code>node_modules</code> holds an older copy of something the outer
+        root already resolved.
+      </p>
+
+      <h2>If you want semantic ranking</h2>
+      <pre><code>npm install --save-dev @modootoday/pmcp @huggingface/transformers
+npx --no-install @modootoday/pmcp models</code></pre>
+      <p>
+        Install both packages locally so the server can resolve the optional
+        encoder. Configure the model in a project <code>pmcp.toml</code>:
+      </p>
+      <pre><code>[embedding]
+enabled = true
+model = "embeddinggemma-2"
+dtype = "q4"
+dimensions = 256</code></pre>
+      <pre><code>npx --no-install @modootoday/pmcp index --config ./pmcp.toml
+npx --no-install @modootoday/pmcp serve --config ./pmcp.toml</code></pre>
+      <p>
+        The default encoder remains <code>e5-small</code>. Gemma presets also
+        support <code>128</code>, <code>512</code>, and
+        <code>768</code> dimensions. <code>pmcp models --json</code> lists
+        encoder presets without loading model assets. Custom compatible ONNX
+        encoders can use a model ID and an
+        <code>[embedding.encoder]</code> configuration.
+      </p>
+      <p>
+        Indexing may download weights when explicitly requested. Serving uses
+        the matching complete local index offline; missing assets or a stale
+        index keep ranking lexical. A model change requires reindexing and a
+        server restart. Use <code>--local-only</code> to forbid downloads and
+        <code>--dry-run</code> to preview indexing without loading a model.
+      </p>
+      <p>
+        In the host's MCP configuration, run the locally installed
+        <code>node_modules/@modootoday/pmcp/dist/cli.js</code> with Node and an
+        absolute <code>--config</code> path. This avoids resolving the server
+        from a separate npx cache without its optional peer. With semantic
+        search enabled, intents can be written in Korean or another language the
+        selected encoder supports.
+      </p>
+      <p>
+        The model runtime and weights add installation and loading costs. Skip
+        this optional step when local lexical search meets your needs.
+      </p>
+
+      <h2>Keep your native tools together</h2>
+      <p>
+        Use <a href="/project-configuration/">one project configuration</a> for
+        Claude Code, Codex, Gemini CLI, Grok Build and Antigravity. Import
+        existing MCP entries before projecting settings; use
+        <code>pmcp project --check</code> and <code>pmcp doctor</code> to
+        inspect the result.
+      </p>
+      <p>
+        On a supported Linux host,
+        <a href="/terminal-harness/">create an owned harness group</a> and
+        <a href="/terminal-workspace/">open a terminal workspace</a> around its
+        native main and workers. TUI requires PMCP 0.13.0 or later. Login,
+        folder trust and permission decisions stay in each runtime. An
+        <a href="/mailbox/">optional local mailbox</a> exchanges peer messages
+        without granting execution authority.
+      </p>
+
+      <h2>What to do next</h2>
+      <ul>
+        <li>
+          <a href="/authoring/">Ship a skill of your own</a> — the paths, the
+          frontmatter, and how to write a description that gets found
+        </li>
+        <li>
+          <a href="/commands/">The command reference</a> — flags and exit codes
+        </li>
+        <li>
+          <a href="/licence/">The licence</a> — what Elastic License 2.0 permits
+        </li>
+      </ul>

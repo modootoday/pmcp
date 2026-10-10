@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>commander 15.x — PMCP</title>
+  <meta name="description" content="Use Commander 15.0.0 for ESM command-line parsing, options, arguments, subcommands, and custom option definitions." />
+  <link rel="canonical" href="https://pmcp.build/skills/commander/15/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="commander 15.x — PMCP" />
+  <meta property="og:description" content="Use Commander 15.0.0 for ESM command-line parsing, options, arguments, subcommands, and custom option definitions." />
+  <meta property="og:url" content="https://pmcp.build/skills/commander/15/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/commander/">Other majors</a></p>
+    <h1>commander 15.x</h1><p>Use Commander 15.0.0 for ESM command-line parsing, options, arguments, subcommands, and custom option definitions.</p>
+    <dl><dt>For</dt><dd><code>commander@15.0.0</code></dd><dt>Verified</dt><dd>2026-09-07, 8 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-commander@15.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/commander/15/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/commander/15/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/commander/15/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-Tk0JYdsVanB/mImboJOAEW+WuuLtd0IGgNqlQSm8QnzsQXcQHZpoAbLIfpNbcPeVbBk0VY3C3yqXS7xFDDQ3iA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against commander@15.0.0 on 2026-09-07. 8 of 8 examples executed.</p>
+<h2>Commander 15</h2>
+<h3>Runtime and module shape</h3>
+<p>Commander <code>^15.0.0</code> is ESM-only and requires Node.js <code>&gt;=22.12.0</code>. Import from the package with ESM syntax:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Command } from &#39;commander&#39;;
+
+const command = new Command();
+assert.ok(command instanceof Command);
+</code></pre>
+<p>Do not copy the older CommonJS shape:</p>
+<pre><code class="language-js">const { Command } = require(&#39;commander&#39;);
+</code></pre>
+<p>Commander 15 removed the deprecated <code>commander/esm.mjs</code> entry point. CommonJS consumers can therefore encounter module or tooling configuration problems.</p>
+<h3>Parse a command</h3>
+<p><code>program.parse(arguments)</code> parses the supplied argument array; when no argument is supplied, it defaults to <code>process.argv</code>. Parsed options are read with <code>.opts()</code>, and unconsumed arguments are in <code>.args</code>.</p>
+<p>Use the documented post-v7 option-access shape by default:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { program } from &#39;commander&#39;;
+
+program
+  .option(&#39;--first&#39;)
+  .option(&#39;-s, --separator &lt;char&gt;&#39;)
+  .argument(&#39;&lt;string&gt;&#39;);
+
+program.parse([&#39;node&#39;, &#39;string-util&#39;, &#39;--first&#39;, &#39;-s&#39;, &#39;:&#39;, &#39;a:b:c&#39;]);
+
+const options = program.opts();
+assert.equal(options.first, true);
+assert.equal(options.separator, &#39;:&#39;);
+assert.deepEqual(program.args, [&#39;a:b:c&#39;]);
+
+const limit = options.first ? 1 : undefined;
+assert.deepEqual(program.args[0].split(options.separator, limit), [&#39;a&#39;]);
+</code></pre>
+<p>The split limit is a JavaScript <code>String.prototype.split</code> limit: with <code>--first</code>, a limit of <code>1</code> produces only the first substring.</p>
+<p>The older property-access style is not the default. It is available only when explicitly enabled for unmodified legacy code:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Command } from &#39;commander&#39;;
+
+const command = new Command();
+command.storeOptionsAsProperties().option(&#39;-d, --debug&#39;);
+command.parse([&#39;node&#39;, &#39;tool&#39;, &#39;--debug&#39;]);
+
+assert.equal(command.debug, true);
+assert.equal(command.opts().debug, true);
+</code></pre>
+<h3>Define options and arguments</h3>
+<p>Use <code>Command</code> methods for straightforward definitions. A required option value uses <code>&lt;value&gt;</code>; an optional value uses <code>[value]</code>.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Command } from &#39;commander&#39;;
+
+const command = new Command();
+command
+  .name(&#39;string-util&#39;)
+  .description(&#39;String utilities&#39;)
+  .version(&#39;0.8.0&#39;)
+  .argument(&#39;&lt;string&gt;&#39;)
+  .option(&#39;--first&#39;)
+  .option(&#39;-s, --separator &lt;char&gt;&#39;, &#39;separator character&#39;, &#39;,&#39;);
+
+command.parse([&#39;node&#39;, &#39;string-util&#39;, &#39;-s&#39;, &#39;:&#39;, &#39;a:b:c&#39;]);
+const options = command.opts();
+assert.equal(command.name(), &#39;string-util&#39;);
+assert.equal(options.separator, &#39;:&#39;);
+assert.equal(options.first, undefined);
+assert.deepEqual(command.args, [&#39;a:b:c&#39;]);
+</code></pre>
+<p>Actions receive parsed command arguments followed by the command options. A command with an action runs in the same process and can be exercised from a plain script:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Command } from &#39;commander&#39;;
+
+const command = new Command();
+let received: unknown;
+command
+  .command(&#39;split&#39;)
+  .argument(&#39;&lt;string&gt;&#39;)
+  .option(&#39;--first&#39;)
+  .action((value, options) =&gt; {
+    received = [value, options];
+  });
+
+command.parse([&#39;node&#39;, &#39;tool&#39;, &#39;split&#39;, &#39;--first&#39;, &#39;a,b&#39;]);
+assert.deepEqual(received, [&#39;a,b&#39;, { first: true }]);
+</code></pre>
+<h3>Custom <code>Option</code> definitions</h3>
+<p>Use <code>Option</code> when you need defaults, allowed choices, environment variables, optional-value presets, or argument parsing. Options can also be hidden, made mutually exclusive with <code>.conflicts()</code>, or made dependent with <code>.implies()</code>.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Command, Option } from &#39;commander&#39;;
+
+const command = new Command();
+command
+  .addOption(new Option(&#39;-s, --secret&#39;).hideHelp())
+  .addOption(new Option(&#39;-t, --timeout &lt;delay&gt;&#39;).default(60, &#39;one minute&#39;))
+  .addOption(new Option(&#39;-d, --drink &lt;size&gt;&#39;).choices([&#39;small&#39;, &#39;medium&#39;, &#39;large&#39;]))
+  .addOption(new Option(&#39;--donate [amount]&#39;).preset(&#39;20&#39;).argParser(parseFloat))
+  .addOption(new Option(&#39;--disable-server&#39;).conflicts(&#39;timeout&#39;))
+  .addOption(new Option(&#39;--free-drink&#39;).implies({ drink: &#39;small&#39; }));
+
+command.parse([&#39;node&#39;, &#39;tool&#39;, &#39;--drink&#39;, &#39;large&#39;, &#39;--donate&#39;, &#39;3.5&#39;]);
+const options = command.opts();
+assert.equal(options.drink, &#39;large&#39;);
+assert.equal(options.donate, 3.5);
+assert.equal(options.timeout, 60);
+</code></pre>
+<p>An option can read its value from an environment variable with <code>.env(&#39;NAME&#39;)</code>:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Command, Option } from &#39;commander&#39;;
+
+const command = new Command();
+command.addOption(new Option(&#39;-p, --port &lt;number&gt;&#39;).env(&#39;PORT&#39;));
+command.parse([&#39;node&#39;, &#39;tool&#39;], { from: &#39;node&#39; });
+
+assert.equal(command.opts().port, undefined);
+</code></pre>
+<h3>Constructors and factory functions</h3>
+<p>The documented root exports include <code>Command</code>, <code>Option</code>, <code>Argument</code>, <code>Help</code>, <code>CommanderError</code>, <code>InvalidArgumentError</code>, the deprecated alias <code>InvalidOptionArgumentError</code>, <code>program</code>, <code>createCommand</code>, <code>createOption</code>, and <code>createArgument</code>. The factories create the corresponding objects without requiring direct construction.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import {
+  Argument,
+  Command,
+  Option,
+  createArgument,
+  createCommand,
+  createOption,
+  program,
+} from &#39;commander&#39;;
+
+assert.ok(program instanceof Command);
+assert.ok(new Command() instanceof Command);
+assert.ok(new Option(&#39;--verbose&#39;) instanceof Option);
+assert.ok(new Argument(&#39;&lt;file&gt;&#39;) instanceof Argument);
+assert.ok(createCommand(&#39;tool&#39;) instanceof Command);
+assert.ok(createOption(&#39;--verbose&#39;) instanceof Option);
+assert.ok(createArgument(&#39;&lt;file&gt;&#39;) instanceof Argument);
+</code></pre>
+<h3>Subcommands</h3>
+<p>There are two different <code>.command()</code> forms:</p>
+<ul>
+<li>A command with a callback/action can be defined in the same process.</li>
+<li>A command with a description and no action is a stand-alone executable subcommand. Commander searches beside the entry script for names such as <code>command-subcommand</code>, tries common extensions, and launches the executable as a child process.</li>
+</ul>
+<p>For stand-alone executables, declare their options in the executable itself. Top-level options are not declared for them, and the <code>.command()</code> argument syntax is the argument-declaration method available for stand-alone executables.</p>
+<p>A stand-alone definition has this shape:</p>
+<pre><code class="language-js">program
+  .command(&#39;install [package-names...]&#39;, &#39;install one or more packages&#39;)
+  .command(&#39;update&#39;, &#39;update installed packages&#39;, {
+    executableFile: &#39;myUpdateSubCommand&#39;
+  });
+</code></pre>
+<p>A <code>.ts</code> stand-alone executable requires invocation through Node with <code>ts-node</code>, for example <code>node -r ts-node/register pm.ts</code>.</p>
+<p>When passing arguments through <code>npm run-script</code>, use <code>--</code>, for example <code>npm run-script &lt;command&gt; [-- &lt;args&gt;]</code>.</p>
+<h3>Does not cover</h3>
+<p>This skill does not cover Commander APIs or behaviors not established by the supplied research, including detailed help customization, error-handling flows, asynchronous parsing, the full <code>Help</code>/error-class API, or the exact executable-discovery rules beyond the documented summary above. Stand-alone executable subcommands are not exercised by the self-contained examples because they require separate files and process invocation.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

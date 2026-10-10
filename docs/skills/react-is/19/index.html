@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>react-is 19.x — PMCP</title>
+  <meta name="description" content="Use react-is 19 to identify React element brands and validate component types. Covers the React 19 export surface, the removal of React 18 async/concurrent aliases, and standalone checks that run without JSX, React, a DOM, or a test runner." />
+  <link rel="canonical" href="https://pmcp.build/skills/react-is/19/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="react-is 19.x — PMCP" />
+  <meta property="og:description" content="Use react-is 19 to identify React element brands and validate component types. Covers the React 19 export surface, the removal of React 18 async/concurrent aliases, and standalone checks that run without JSX, React, a DOM, or a test runner." />
+  <meta property="og:url" content="https://pmcp.build/skills/react-is/19/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/react-is/">Other majors</a></p>
+    <h1>react-is 19.x</h1><p>Use react-is 19 to identify React element brands and validate component types. Covers the React 19 export surface, the removal of React 18 async/concurrent aliases, and standalone checks that run without JSX, React, a DOM, or a test runner.</p>
+    <dl><dt>For</dt><dd><code>react-is@19.2.8</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-react-is@19.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/react-is/19/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/react-is/19/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/react-is/19/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-O8GxwNTOb2OLXZitQsR07WVbcDg6KbyNdqePTf0m0Z6Bshy77VB5F8D6/Oa6bZkXhcWiHhcIre95gKBSIP93yg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against react-is@19.2.8 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>react-is 19</h2>
+<p><code>react-is</code> provides brand checks for arbitrary values and React element types. Import the package namespace:</p>
+<pre><code class="language-ts">import * as ReactIs from &quot;react-is&quot;;
+</code></pre>
+<h3>React 19 exports</h3>
+<p>React 19 exposes these validation functions:</p>
+<ul>
+<li><code>isValidElementType</code></li>
+<li><code>isElement</code></li>
+<li><code>isFragment</code></li>
+<li><code>isPortal</code></li>
+<li><code>isStrictMode</code></li>
+<li><code>isContextConsumer</code></li>
+<li><code>isContextProvider</code></li>
+<li><code>isForwardRef</code></li>
+<li><code>isLazy</code></li>
+<li><code>isMemo</code></li>
+<li><code>isProfiler</code></li>
+<li><code>isSuspense</code></li>
+<li><code>isSuspenseList</code></li>
+</ul>
+<p>It also exposes <code>typeOf</code>, which returns the React type brand for a React-created value, and these type-brand constants:</p>
+<ul>
+<li><code>Element</code></li>
+<li><code>Fragment</code></li>
+<li><code>Portal</code></li>
+<li><code>StrictMode</code></li>
+<li><code>ContextConsumer</code></li>
+<li><code>ContextProvider</code></li>
+<li><code>ForwardRef</code></li>
+<li><code>Lazy</code></li>
+<li><code>Memo</code></li>
+<li><code>Profiler</code></li>
+<li><code>Suspense</code></li>
+<li><code>SuspenseList</code></li>
+</ul>
+<h3>Validate component types</h3>
+<p><code>isValidElementType</code> accepts a host element name such as <code>&quot;div&quot;</code> and component functions. It is a check for a value that React can use as an element type, not a check that a value is already an element.</p>
+<pre><code class="language-ts">import * as assert from &quot;node:assert/strict&quot;;
+import * as ReactIs from &quot;react-is&quot;;
+
+function Component() {
+  return null;
+}
+
+assert.equal(ReactIs.isValidElementType(&quot;div&quot;), true);
+assert.equal(ReactIs.isValidElementType(Component), true);
+assert.equal(ReactIs.isValidElementType(null), false);
+assert.equal(ReactIs.isValidElementType({}), false);
+</code></pre>
+<h3>Check arbitrary values without React or JSX</h3>
+<p>All element predicates safely reject unrelated values. This makes them usable in a plain script, although a positive result generally requires a value created by React or ReactDOM.</p>
+<pre><code class="language-ts">import * as assert from &quot;node:assert/strict&quot;;
+import * as ReactIs from &quot;react-is&quot;;
+
+const value = {};
+
+assert.equal(ReactIs.isElement(value), false);
+assert.equal(ReactIs.isFragment(value), false);
+assert.equal(ReactIs.isPortal(value), false);
+assert.equal(ReactIs.isStrictMode(value), false);
+assert.equal(ReactIs.isContextConsumer(value), false);
+assert.equal(ReactIs.isContextProvider(value), false);
+assert.equal(ReactIs.isForwardRef(value), false);
+assert.equal(ReactIs.isLazy(value), false);
+assert.equal(ReactIs.isMemo(value), false);
+assert.equal(ReactIs.isProfiler(value), false);
+assert.equal(ReactIs.isSuspense(value), false);
+assert.equal(ReactIs.isSuspenseList(value), false);
+</code></pre>
+<h3>React-created values</h3>
+<p>With React available, use <code>typeOf</code> and the predicates against values created by React:</p>
+<ul>
+<li><code>typeOf(&lt;div /&gt;) === Element</code> and <code>isElement(&lt;div /&gt;)</code> identify an element.</li>
+<li><code>typeOf(&lt;&gt;&lt;/&gt;) === Fragment</code> and <code>isFragment(&lt;&gt;&lt;/&gt;)</code> identify a fragment.</li>
+<li><code>isStrictMode(&lt;React.StrictMode /&gt;)</code> and <code>typeOf(...) === StrictMode</code> identify strict mode.</li>
+<li><code>isContextConsumer(&lt;ThemeContext.Consumer /&gt;)</code> and <code>isContextProvider(&lt;ThemeContext.Provider /&gt;)</code> identify context values. Their brands are <code>ContextConsumer</code> and <code>ContextProvider</code>.</li>
+</ul>
+<p>These forms require React and JSX (or equivalent calls to React APIs), so they are not standalone <code>bun example.ts</code> examples under this skill&#39;s execution constraints.</p>
+<h3>Portals</h3>
+<p>Portal checks require both ReactDOM and a DOM container:</p>
+<pre><code class="language-js">const div = document.createElement(&quot;div&quot;);
+const portal = ReactDOM.createPortal(&lt;div /&gt;, div);
+ReactIs.isPortal(portal); // true
+ReactIs.typeOf(portal) === ReactIs.Portal; // true
+</code></pre>
+<p>This requires a browser-like <code>document</code>, ReactDOM, and a React-created element; it cannot run in the standalone no-DOM example environment.</p>
+<h3>React 18 compatibility trap</h3>
+<p>Do not copy the older React 18 API shape into React 19 code:</p>
+<ul>
+<li>React 19 does not export <code>isAsyncMode</code> or <code>isConcurrentMode</code>.</li>
+<li>The corresponding <code>AsyncMode</code> and <code>ConcurrentMode</code> aliases from the older implementation are not part of the React 19 stable export list.</li>
+<li>React 18 documentation showed <code>isValidElementType(React.createFactory(&quot;div&quot;))</code>; that example is not included in the React 19 documentation.</li>
+</ul>
+<p>React 19 also has feature-aware handling for context consumer and provider brands. Use the exported <code>ContextConsumer</code> and <code>ContextProvider</code> constants and the matching predicates rather than assuming the older internal context symbols.</p>
+<h3>TypeScript</h3>
+<p>The researched package metadata identifies <code>@types/react-is</code> as the separately published TypeScript declaration package. The package itself is not documented in the researched sources as shipping TypeScript declarations.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover React rendering, JSX compilation, ReactDOM setup, browser DOM setup, creation of portals, creation of contexts, or construction of forward-ref, lazy, memo, profiler, suspense, or suspense-list values. It also does not cover undocumented internal symbol shapes, bundler configuration, or the separately published declaration package beyond noting its existence.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

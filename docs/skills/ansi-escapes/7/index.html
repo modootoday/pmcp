@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ansi-escapes 7.x — PMCP</title>
+  <meta name="description" content="Use ansi-escapes 7.x from ESM code to generate terminal escape-code strings for cursor movement, screen and line control, hyperlinks, images, and iTerm2 features." />
+  <link rel="canonical" href="https://pmcp.build/skills/ansi-escapes/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="ansi-escapes 7.x — PMCP" />
+  <meta property="og:description" content="Use ansi-escapes 7.x from ESM code to generate terminal escape-code strings for cursor movement, screen and line control, hyperlinks, images, and iTerm2 features." />
+  <meta property="og:url" content="https://pmcp.build/skills/ansi-escapes/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/ansi-escapes/">Other majors</a></p>
+    <h1>ansi-escapes 7.x</h1><p>Use ansi-escapes 7.x from ESM code to generate terminal escape-code strings for cursor movement, screen and line control, hyperlinks, images, and iTerm2 features.</p>
+    <dl><dt>For</dt><dd><code>ansi-escapes@7.3.0</code></dd><dt>Verified</dt><dd>2026-09-08, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-ansi-escapes@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/ansi-escapes/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/ansi-escapes/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/ansi-escapes/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-LCTkfkpqG9LVWlofE4dY03WwrviJVDO+0eS8WGssIuYkdZdlWTLuih6nC6qEFhpC9FFDiFTR5hw2TkbSrtEMEg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against ansi-escapes@7.3.0 on 2026-09-08. 5 of 5 examples executed.</p>
+<h2>ansi-escapes 7.x</h2>
+<h3>Runtime and module shape</h3>
+<p><code>ansi-escapes@^7.0.0</code> is ESM-only in practice. Use Node.js 18 or newer and import it with <code>import</code>, not <code>require()</code>. The package has no CLI or runtime runner: its APIs return strings, which the caller writes to a terminal or terminal emulator.</p>
+<p>Both import styles are supported:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ansiEscapes, {cursorUp, cursorLeft} from &#39;ansi-escapes&#39;;
+
+assert.equal(ansiEscapes.cursorUp(2), &#39;\u001B[2A&#39;);
+assert.equal(cursorUp(2) + cursorLeft, &#39;\u001B[2A\u001B[G&#39;);
+assert.equal(ansiEscapes.cursorLeft, cursorLeft);
+</code></pre>
+<p>The older major&#39;s default-object usage remains valid, but version 7 also exports the declarations as named exports. Do not assume the 6.x package metadata: version 7 requires Node <code>&gt;=18</code>, is ESM-only, and exposes <code>./index.js</code> together with its declarations.</p>
+<h3>Cursor movement and position</h3>
+<p>Available cursor APIs are:</p>
+<ul>
+<li><code>cursorTo(x, y?)</code></li>
+<li><code>cursorMove(x, y?)</code></li>
+<li><code>cursorUp(count)</code></li>
+<li><code>cursorDown(count)</code></li>
+<li><code>cursorForward(count)</code></li>
+<li><code>cursorBackward(count)</code></li>
+</ul>
+<p>Cursor constants are <code>cursorLeft</code>, <code>cursorSavePosition</code>, <code>cursorRestorePosition</code>, <code>cursorGetPosition</code>, <code>cursorNextLine</code>, <code>cursorPrevLine</code>, <code>cursorHide</code>, and <code>cursorShow</code>.</p>
+<p>All of these produce strings. Combine them and write the result yourself; the package does not move the cursor directly. <code>cursorMove(x, y?)</code> emits the horizontal movement before the vertical movement when both components are present.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {
+  cursorTo,
+  cursorMove,
+  cursorUp,
+  cursorDown,
+  cursorForward,
+  cursorBackward,
+  cursorLeft,
+  cursorSavePosition,
+  cursorRestorePosition,
+  cursorGetPosition,
+  cursorNextLine,
+  cursorPrevLine,
+  cursorHide,
+  cursorShow,
+} from &#39;ansi-escapes&#39;;
+
+assert.equal(cursorTo(4), &#39;\u001B[5G&#39;);
+assert.equal(cursorTo(4, 2), &#39;\u001B[3;5H&#39;);
+assert.equal(cursorMove(2, -3), &#39;\u001B[2C\u001B[3A&#39;);
+assert.equal(cursorUp(2), &#39;\u001B[2A&#39;);
+assert.equal(cursorDown(2), &#39;\u001B[2B&#39;);
+assert.equal(cursorForward(2), &#39;\u001B[2C&#39;);
+assert.equal(cursorBackward(2), &#39;\u001B[2D&#39;);
+
+for (const value of [
+  cursorLeft,
+  cursorSavePosition,
+  cursorRestorePosition,
+  cursorGetPosition,
+  cursorNextLine,
+  cursorPrevLine,
+  cursorHide,
+  cursorShow,
+]) {
+  assert.equal(typeof value, &#39;string&#39;);
+}
+</code></pre>
+<p>Do not copy the older example that expects <code>cursorLeft</code> to be <code>\u001B[1000D</code>; version 7 produces a cursor-left escape represented as <code>\u001B[G</code>.</p>
+<h3>Erasing, scrolling, and screen control</h3>
+<p>The line and screen exports are:</p>
+<ul>
+<li><code>eraseLines(count)</code></li>
+<li><code>eraseEndLine</code>, <code>eraseStartLine</code>, <code>eraseLine</code></li>
+<li><code>eraseDown</code>, <code>eraseUp</code>, <code>eraseScreen</code></li>
+<li><code>scrollUp</code>, <code>scrollDown</code></li>
+<li><code>clearScreen</code>, <code>clearTerminal</code></li>
+<li><code>enterAlternativeScreen</code>, <code>exitAlternativeScreen</code></li>
+<li><code>beep</code></li>
+</ul>
+<p>Use <code>eraseLines(count)</code> when the number of lines is dynamic. The other names are string constants.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ansiEscapes, {
+  eraseLines,
+  eraseEndLine,
+  eraseStartLine,
+  eraseLine,
+  eraseDown,
+  eraseUp,
+  eraseScreen,
+  scrollUp,
+  scrollDown,
+  clearScreen,
+  clearTerminal,
+  enterAlternativeScreen,
+  exitAlternativeScreen,
+  beep,
+} from &#39;ansi-escapes&#39;;
+
+assert.equal(typeof eraseLines(3), &#39;string&#39;);
+for (const value of [
+  eraseEndLine,
+  eraseStartLine,
+  eraseLine,
+  eraseDown,
+  eraseUp,
+  eraseScreen,
+  scrollUp,
+  scrollDown,
+  clearScreen,
+  clearTerminal,
+  enterAlternativeScreen,
+  exitAlternativeScreen,
+  beep,
+]) {
+  assert.equal(typeof value, &#39;string&#39;);
+}
+
+assert.equal(typeof ansiEscapes.clearTerminal, &#39;string&#39;);
+</code></pre>
+<h3>Hyperlinks, images, and iTerm2 features</h3>
+<p><code>link(text, url)</code> returns a terminal hyperlink escape sequence. Terminal support is provided by the terminal emulator, not by this package.</p>
+<p><code>image(data, options?)</code> returns an image escape sequence. The input is a <code>Uint8Array</code>; in Node, a <code>Buffer</code> is also a <code>Uint8Array</code>. Image options are optional, and <code>preserveAspectRatio</code> defaults to <code>true</code>.</p>
+<p>The <code>iTerm</code> namespace provides <code>iTerm.setCwd(path?)</code> and <code>iTerm.annotation(message, options?)</code>. These sequences are intended for iTerm2; generating them does not make another terminal support them.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ansiEscapes, {link, image, iTerm} from &#39;ansi-escapes&#39;;
+
+const hyperlink = link(&#39;Click here&#39;, &#39;https://example.com&#39;);
+assert.equal(typeof hyperlink, &#39;string&#39;);
+assert.ok(hyperlink.includes(&#39;Click here&#39;));
+assert.ok(hyperlink.includes(&#39;https://example.com&#39;));
+
+const imageSequence = image(new Uint8Array([0, 1, 2, 3]));
+assert.equal(typeof imageSequence, &#39;string&#39;);
+assert.ok(imageSequence.length &gt; 0);
+
+const cwdSequence = iTerm.setCwd(&#39;/tmp&#39;);
+assert.equal(typeof cwdSequence, &#39;string&#39;);
+assert.ok(cwdSequence.length &gt; 0);
+
+const annotationSequence = iTerm.annotation(&#39;build complete&#39;);
+assert.equal(typeof annotationSequence, &#39;string&#39;);
+assert.ok(annotationSequence.length &gt; 0);
+
+assert.equal(typeof ansiEscapes.link, &#39;function&#39;);
+</code></pre>
+<h3>Writing the result</h3>
+<p>The package only creates escape-code strings. Write them to an output stream or pass them to a terminal implementation:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ansiEscapes from &#39;ansi-escapes&#39;;
+
+let output = &#39;&#39;;
+output += ansiEscapes.cursorUp(2) + ansiEscapes.cursorLeft;
+assert.equal(output, &#39;\u001B[2A\u001B[G&#39;);
+</code></pre>
+<p>Do not expect importing the package to alter the terminal, and do not wrap examples in <code>describe</code>, <code>it</code>, or <code>expect</code>; those are runner globals and are not available in a directly executed script.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover terminal-by-terminal compatibility, the complete option shapes for image or iTerm annotations, the exact escape encoding of every export, browser integration, or how to read image data from a filesystem. It also does not cover a CLI or runner because ansi-escapes exposes no documented CLI or runtime runner.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

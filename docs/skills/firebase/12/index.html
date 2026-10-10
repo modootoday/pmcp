@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>firebase 12.x — PMCP</title>
+  <meta name="description" content="Use Firebase JS SDK ^12.0.0 with the modular API, correct v12 imports, and Node 20-compatible tooling. Covers app initialization, Auth and Firestore entry points, Firestore Lite query construction, compat migration traps, and v12 naming changes." />
+  <link rel="canonical" href="https://pmcp.build/skills/firebase/12/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="firebase 12.x — PMCP" />
+  <meta property="og:description" content="Use Firebase JS SDK ^12.0.0 with the modular API, correct v12 imports, and Node 20-compatible tooling. Covers app initialization, Auth and Firestore entry points, Firestore Lite query construction, compat migration traps, and v12 naming changes." />
+  <meta property="og:url" content="https://pmcp.build/skills/firebase/12/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/firebase/">Other majors</a></p>
+    <h1>firebase 12.x</h1><p>Use Firebase JS SDK ^12.0.0 with the modular API, correct v12 imports, and Node 20-compatible tooling. Covers app initialization, Auth and Firestore entry points, Firestore Lite query construction, compat migration traps, and v12 naming changes.</p>
+    <dl><dt>For</dt><dd><code>firebase@12.18.0</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-firebase@12.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/firebase/12/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/firebase/12/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/firebase/12/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-BfZ0gezQ1dHV8n7dLqryAEeofopibZqG4pFmr0++NdQuMiW3CP6wPdpGehZKhGmlTv2zmOyDbXnANIxd2SGWvw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against firebase@12.18.0 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>Firebase JS SDK ^12.0.0</h2>
+<p>Firebase v12 uses the modular, function-based API. Install it with <code>npm install firebase</code>. Firebase v12 requires Node.js 20+ and targets ES2020; older build tooling may need updates.</p>
+<h3>Prefer modular imports</h3>
+<p>Import functions from product subpaths rather than using a namespace:</p>
+<pre><code class="language-ts">import { initializeApp } from &#39;firebase/app&#39;;
+import { getAuth, onAuthStateChanged } from &#39;firebase/auth&#39;;
+import { getFirestore, collection, query, where, getDocs } from &#39;firebase/firestore&#39;;
+</code></pre>
+<p>Modular imports are tree-shakeable. The modular API generally requires a module bundler such as webpack or Rollup in application builds.</p>
+<h3>App lifecycle</h3>
+<p>Use <code>initializeApp</code> to create an app, <code>getApp</code> to retrieve a named or default app, <code>getApps</code> to inspect initialized apps, and <code>deleteApp</code> to clean one up.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { initializeApp, getApp, getApps, deleteApp } from &#39;firebase/app&#39;;
+
+const app = initializeApp({
+  apiKey: &#39;test-api-key&#39;,
+  authDomain: &#39;example.firebaseapp.com&#39;,
+  projectId: &#39;example-project&#39;
+}, &#39;skill-example&#39;);
+
+assert.equal(getApp(&#39;skill-example&#39;), app);
+assert.equal(getApps().includes(app), true);
+
+await deleteApp(app);
+assert.equal(getApps().some(candidate =&gt; candidate === app), false);
+</code></pre>
+<p><code>initializeApp(options, name?)</code> accepts an optional name. Avoid initializing the same named app repeatedly; use <code>getApp(name)</code> or inspect <code>getApps()</code> when code may run more than once.</p>
+<h3>Authentication</h3>
+<p>Get an Auth instance with <code>getAuth(app?)</code>, or use <code>initializeAuth(app, deps?)</code> when explicit initialization dependencies are needed:</p>
+<pre><code class="language-ts">import { getAuth, initializeAuth } from &#39;firebase/auth&#39;;
+</code></pre>
+<p>The Auth instance is associated with the Firebase app. Modular authentication functions receive that instance as an argument, for example <code>getRedirectResult(auth)</code> and <code>onAuthStateChanged(auth, callback)</code>.</p>
+<p>A migration trap is the redirect-result shape: the old namespaced API returned a <code>UserCredential</code> whose <code>user</code> could be <code>null</code> when there was no redirect; modular <code>getRedirectResult(auth)</code> returns <code>null</code> when there was no redirect.</p>
+<h3>Cloud Firestore</h3>
+<p>Use <code>getFirestore(app)</code> for the default database or <code>getFirestore(app, databaseId)</code> for a named database. Use <code>initializeFirestore(app, settings, databaseId?)</code> when Firestore settings must be supplied before obtaining the instance.</p>
+<pre><code class="language-ts">import { getFirestore, initializeFirestore } from &#39;firebase/firestore&#39;;
+</code></pre>
+<p>The Firestore API is usable for constructing references and queries without performing I/O:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { initializeApp, deleteApp } from &#39;firebase/app&#39;;
+import { getFirestore, collection, query, where } from &#39;firebase/firestore&#39;;
+
+const app = initializeApp({
+  apiKey: &#39;test-api-key&#39;,
+  authDomain: &#39;example.firebaseapp.com&#39;,
+  projectId: &#39;example-project&#39;
+}, &#39;firestore-skill-example&#39;);
+
+const db = getFirestore(app);
+const cities = collection(db, &#39;cities&#39;);
+const capitalCities = query(cities, where(&#39;capital&#39;, &#39;==&#39;, true));
+
+assert.equal(capitalCities.type, &#39;query&#39;);
+await deleteApp(app);
+</code></pre>
+<p>For reads, pass the query or collection to <code>getDocs</code>:</p>
+<pre><code class="language-ts">const snapshot = await getDocs(capitalCities);
+const cities = snapshot.docs.map(doc =&gt; doc.data());
+</code></pre>
+<p>That read performs a backend operation and therefore is not suitable for an offline, standalone example. Firestore persistence and other environment support are product- and environment-specific.</p>
+<h3>Firestore Lite</h3>
+<p>The Lite entry point is <code>firebase/firestore/lite</code>:</p>
+<pre><code class="language-ts">import { getFirestore, collection, getDocs } from &#39;firebase/firestore/lite&#39;;
+
+const db = getFirestore(app);
+const citiesCol = collection(db, &#39;cities&#39;);
+const citySnapshot = await getDocs(citiesCol);
+const cityList = citySnapshot.docs.map(doc =&gt; doc.data());
+</code></pre>
+<p><code>getDocs</code> requires access to the configured Firebase backend when executed; do not assume it can run in an offline script.</p>
+<h3>v12 naming changes</h3>
+<p>Firebase v12 removed <code>firebase/vertexai</code> and VertexAI-named symbols. Use the AI names instead:</p>
+<pre><code class="language-ts">import { getAI } from &#39;firebase/ai&#39;;
+</code></pre>
+<p><code>getVertexAI</code>, <code>VertexAIError</code>, and the old <code>firebase/vertexai</code> import are not the v12 API. v12 also adds AI Logic grounding with Google Search, thinking budget, and <code>anyOf</code> schemas.</p>
+<h3>Compat and migration pitfalls</h3>
+<p>Existing namespaced code can use the compatibility bridge, but compat is a migration path rather than the preferred long-term API and provides little or no modular size/performance advantage:</p>
+<pre><code class="language-ts">import firebase from &#39;firebase/compat/app&#39;;
+import &#39;firebase/compat/auth&#39;;
+import &#39;firebase/compat/firestore&#39;;
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+</code></pre>
+<p>Do not mix old instance methods with modular functions mechanically. Typical translations include:</p>
+<pre><code class="language-ts">// Compat
+const result = await auth.getRedirectResult();
+
+// Modular
+const result = await getRedirectResult(auth);
+</code></pre>
+<pre><code class="language-ts">// Compat snapshot
+if (snapshot.exists) {}
+
+// Modular snapshot
+if (snapshot.exists()) {}
+</code></pre>
+<p>In browser script-tag integrations, <code>window.firebase</code> is the compat path; the modular npm API is not exposed that way.</p>
+<h3>Environment notes</h3>
+<p>Firebase v12 itself requires Node 20+, although product-specific support documentation also describes browser, Node, extension, React Native, and Cordova environments. Polyfills may still be needed. Analytics, Installations, Messaging, Performance Monitoring, and Remote Config do not work in Node.js. Firestore edge/Node support excludes persistence, and Storage edge support excludes uploads.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover product-specific configuration values, authentication providers or sign-in flows, Firestore writes and security rules, persistence setup, Storage, Analytics, Messaging, Remote Config, Performance Monitoring, or the detailed AI API. It also does not cover Firebase CLI commands, framework integration, bundler configuration, or network-backed tests.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

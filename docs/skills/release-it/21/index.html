@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>release-it 21.x — PMCP</title>
+  <meta name="description" content="Practical guidance for release-it ^21.0.0, including its ESM programmatic API, Config and Plugin classes, CLI-oriented workflow, v21 changes, and standalone examples." />
+  <link rel="canonical" href="https://pmcp.build/skills/release-it/21/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="release-it 21.x — PMCP" />
+  <meta property="og:description" content="Practical guidance for release-it ^21.0.0, including its ESM programmatic API, Config and Plugin classes, CLI-oriented workflow, v21 changes, and standalone examples." />
+  <meta property="og:url" content="https://pmcp.build/skills/release-it/21/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/release-it/">Other majors</a></p>
+    <h1>release-it 21.x</h1><p>Practical guidance for release-it ^21.0.0, including its ESM programmatic API, Config and Plugin classes, CLI-oriented workflow, v21 changes, and standalone examples.</p>
+    <dl><dt>For</dt><dd><code>release-it@21.0.2</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-release-it@21.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/release-it/21/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/release-it/21/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/release-it/21/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-ByQao5NFeaHYN3eQANUQgfnHoemdPuul0rFOg9Pxux2X4b8YnvK1KCWYOQ3qm/rjGP0fo+W+Upr7CWcfa0rPAQ==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against release-it@21.0.2 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>release-it ^21</h2>
+<h3>Runtime and module format</h3>
+<ul>
+<li>The observed package version is <code>21.0.1</code>.</li>
+<li>It is an ES module package. Use <code>import</code>, not CommonJS <code>require()</code>.</li>
+<li>The supported Node engine is <code>^22.21.0 || &gt;=24.0.0</code>; Node 20 is no longer supported.</li>
+<li>The public package exports are the default runner, <code>Config</code>, and <code>Plugin</code>:</li>
+</ul>
+<pre><code class="language-js">import releaseIt, { Config, Plugin } from &#39;release-it&#39;;
+</code></pre>
+<p>Older examples using CommonJS or older programmatic/plugin shapes are not appropriate for v21. Programmatic usage and plugins use ES module syntax.</p>
+<h3>Normal usage is CLI-first</h3>
+<p>release-it is mostly used as a CLI tool. The usual setup is a package script:</p>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;release&quot;: &quot;release-it&quot;
+  },
+  &quot;devDependencies&quot;: {
+    &quot;release-it&quot;: &quot;^21.0.0&quot;
+  }
+}
+</code></pre>
+<p>Configuration is normally read from <code>.release-it.json</code> or the <code>release-it</code> property in <code>package.json</code>.</p>
+<p>Interactive prompts are the default. Use <code>--ci</code> for non-interactive execution; CI environments automatically enable non-interactive mode. Release operations involving GitHub or GitLab need the relevant environment tokens, and pushing Git tags requires authenticated Git access.</p>
+<h3>Programmatic runner</h3>
+<p>The default export is an async function:</p>
+<pre><code class="language-js">const result = await releaseIt(opts, di);
+</code></pre>
+<p>The documented result has this shape:</p>
+<pre><code class="language-js">{
+  name,
+  changelog,
+  latestVersion,
+  version
+}
+</code></pre>
+<p>It accepts CLI-equivalent options including <code>ci</code>, <code>only-version</code>, <code>release-version</code>, <code>changelog</code>, <code>dry-run</code>, and <code>verbose</code>. A direct call still represents a release flow: it is not merely a version-formatting helper. Keep it isolated from publishing, tag pushing, and other side effects with <code>dry-run</code> while developing integrations.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import releaseIt from &#39;release-it&#39;;
+
+const result = await releaseIt({
+  config: false,
+  ci: true,
+  &#39;dry-run&#39;: true,
+  increment: &#39;patch&#39;
+});
+
+for (const key of [&#39;name&#39;, &#39;changelog&#39;, &#39;latestVersion&#39;, &#39;version&#39;]) {
+  assert.ok(Object.hasOwn(result, key), `missing result key: ${key}`);
+}
+</code></pre>
+<p>The runner and its release plugins are designed around a project/repository and the tool&#39;s own execution flow. Do not assume that <code>dry-run</code> turns the package into a pure function or makes network credentials unnecessary for every enabled plugin.</p>
+<h3><code>Config</code></h3>
+<p><code>Config</code> is the programmatic configuration/context object. Construct it with an options object, call <code>init()</code> before relying on initialized configuration, and use <code>setContext()</code>/<code>getContext()</code> for release context.</p>
+<p>Useful members include:</p>
+<ul>
+<li><code>init()</code></li>
+<li><code>getContext(path)</code> and <code>setContext(options)</code></li>
+<li><code>setCI(value = true)</code></li>
+<li><code>options</code> and <code>localConfig</code></li>
+<li><code>defaultConfig</code></li>
+<li><code>isDryRun</code>, <code>isIncrement</code>, <code>isVerbose</code>, <code>verbosityLevel</code>, <code>isDebug</code>, <code>isQuiet</code>, <code>isCI</code></li>
+<li><code>isPromptOnlyVersion</code>, <code>isReleaseVersion</code>, and <code>isChangelog</code></li>
+</ul>
+<p>Set <code>config: false</code> when constructing an isolated configuration object and do not want local configuration files involved.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { Config } from &#39;release-it&#39;;
+
+const config = new Config({
+  config: false,
+  increment: &#39;patch&#39;,
+  ci: true
+});
+
+await config.init();
+config.setContext({ version: &#39;1.2.3&#39; });
+
+assert.equal(config.getContext(&#39;version&#39;), &#39;1.2.3&#39;);
+assert.equal(config.isCI, true);
+assert.equal(config.options.increment, &#39;patch&#39;);
+</code></pre>
+<h3><code>Plugin</code></h3>
+<p><code>Plugin</code> is the base class for release-it&#39;s plugin architecture. A plugin can provide a static <code>isEnabled(options)</code> method and asynchronous lifecycle methods such as <code>getName()</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { Plugin } from &#39;release-it&#39;;
+
+class ExamplePlugin extends Plugin {
+  static isEnabled() {
+    return true;
+  }
+
+  async getName() {
+    return &#39;example&#39;;
+  }
+}
+
+assert.equal(ExamplePlugin.isEnabled({}), true);
+const plugin = new ExamplePlugin({}, {});
+assert.equal(await plugin.getName(), &#39;example&#39;);
+</code></pre>
+<p>The built-in plugin areas include Git, GitHub, GitLab, and npm. A custom plugin participates in release-it&#39;s lifecycle; defining <code>getName()</code> alone does not perform a release.</p>
+<h3>Configuration shape</h3>
+<p>The declarations expose these configuration areas:</p>
+<pre><code class="language-ts">interface Config {
+  hooks?: Hooks;
+  plugins?: Record&lt;string, Record&lt;string, any&gt;&gt;;
+  git?: {
+    commit?: boolean;
+    tag?: boolean;
+    push?: boolean;
+    commitMessage?: string;
+  };
+  npm?: {
+    publish?: boolean;
+    publishPath?: string;
+    publishPackageManager?: &#39;npm&#39; | &#39;pnpm&#39; | &#39;bun&#39;;
+  } | false;
+  github?: {
+    release?: boolean;
+    releaseName?: string;
+    releaseNotes?: string | null;
+  };
+}
+</code></pre>
+<h3>Hooks are shell commands</h3>
+<p>Hooks are command strings or arrays of command strings, not JavaScript callback functions:</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;before:init&quot;: [&quot;npm run lint&quot;, &quot;npm test&quot;],
+    &quot;after:bump&quot;: &quot;npm run build&quot;,
+    &quot;after:release&quot;: &quot;echo Successfully released ${name} v${version}&quot;
+  }
+}
+</code></pre>
+<p>Hook commands can use release-it template variables. The <code>init</code> hook does not yet have the additional variables listed in the documentation.</p>
+<h3>v21 CLI changes</h3>
+<p>CLI parsing is strict in v21:</p>
+<ul>
+<li>Unknown options are rejected.</li>
+<li>Invalid boolean values are rejected.</li>
+<li>Extra positional arguments are rejected.</li>
+</ul>
+<p>Do not pass arbitrary flags or rely on permissive parsing from an older major version.</p>
+<p>GitLab server certificates are verified by default. For a private certificate authority, configure the private CA; alternatively, <code>gitlab.secure</code> can be set to <code>false</code> when that is intentionally required.</p>
+<h3>What this skill does not cover</h3>
+<ul>
+<li>The complete release-it CLI option reference.</li>
+<li>The complete plugin lifecycle or every plugin hook.</li>
+<li>GitHub/GitLab token setup, private CA configuration, or authenticated Git setup.</li>
+<li>The exact generated changelog, version-selection rules, or repository state transitions.</li>
+<li>A full <code>.release-it.json</code> or <code>package.json</code> project configuration.</li>
+<li>Network-backed publishing, Git operations, or CI-provider-specific setup.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

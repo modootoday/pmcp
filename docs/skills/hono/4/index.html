@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>hono 4.x — PMCP</title>
+  <meta name="description" content="Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x." />
+  <link rel="canonical" href="https://pmcp.build/skills/hono/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="hono 4.x — PMCP" />
+  <meta property="og:description" content="Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x." />
+  <meta property="og:url" content="https://pmcp.build/skills/hono/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/hono/">Other majors</a></p>
+    <h1>hono 4.x</h1><p>Use Hono 4.x as a Fetch-compatible web application router. Covers the current Hono API, standalone request testing, middleware, context responses, validation, and migration traps from Hono 3.x.</p>
+    <dl><dt>For</dt><dd><code>hono@4.13.7</code></dd><dt>Verified</dt><dd>2026-09-07, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-hono@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/hono/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/hono/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/hono/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-+j5zOhdK6ZvWJGJJepf1sWFXxAidqqFTWv6p4mNb552x0SrDU15Ci3gByWtb/18nwyOlp52cJFxflfygqXLTrA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against hono@4.13.7 on 2026-09-07. 4 of 4 examples executed.</p>
+<h2>Hono 4.x</h2>
+<h3>Use the current app API</h3>
+<p>Import the recommended preset from <code>hono</code>, construct an app, register routes, and export or pass the app to a runtime server:</p>
+<pre><code class="language-ts">import { Hono } from &#39;hono&#39;
+
+const app = new Hono()
+app.get(&#39;/&#39;, (c) =&gt; c.text(&#39;Hello Hono!&#39;))
+
+export default app
+</code></pre>
+<p>Hono creates a Fetch-compatible app. Its runtime/server integration is separate. For Node.js, the documented integration uses <code>@hono/node-server</code> and <code>serve(app)</code>; Bun and Deno can serve Fetch handlers natively. Do not assume that importing <code>hono</code> starts an HTTP server.</p>
+<p>For a standalone script, use <code>app.request()</code> to exercise routes without a server:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { Hono } from &#39;hono&#39;
+
+const app = new Hono()
+app.get(&#39;/hello&#39;, (c) =&gt; c.text(&#39;Hello Hono!&#39;))
+
+const response = await app.request(&#39;/hello&#39;)
+assert.equal(response.status, 200)
+assert.equal(await response.text(), &#39;Hello Hono!&#39;)
+</code></pre>
+<p><code>app.fetch(request, env, event)</code> is the Fetch-compatible handler API. <code>app.request(path, options)</code> is the convenient request helper for programmatic calls. Other documented app methods include HTTP method helpers, <code>all</code>, <code>on</code>, <code>use</code>, <code>route</code>, <code>basePath</code>, <code>notFound</code>, <code>onError</code>, <code>mount</code>, and <code>fire</code>.</p>
+<h3>Context and responses</h3>
+<p>Route and middleware callbacks receive a context object. The documented context surface includes <code>c.req</code>, <code>c.status()</code>, <code>c.text()</code>, <code>c.json()</code>, <code>c.html()</code>, <code>c.set()</code>, <code>c.get()</code>, <code>c.var</code>, <code>c.header()</code>, <code>c.cookie()</code>, <code>c.redirect()</code>, <code>c.notFound()</code>, and <code>c.body()</code>.</p>
+<p>Read request headers through <code>c.req.header()</code>, and set the response status with <code>c.status()</code> before returning a response:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { Hono } from &#39;hono&#39;
+
+const app = new Hono()
+app.get(&#39;/created&#39;, (c) =&gt; {
+  const userAgent = c.req.header(&#39;User-Agent&#39;)
+  c.status(201)
+  return c.json({ userAgent })
+})
+
+const response = await app.request(&#39;/created&#39;, {
+  headers: { &#39;User-Agent&#39;: &#39;pmcp-example&#39; },
+})
+
+assert.equal(response.status, 201)
+assert.deepEqual(await response.json(), { userAgent: &#39;pmcp-example&#39; })
+</code></pre>
+<p>Use <code>c.json()</code> rather than the removed <code>c.jsonT()</code> API.</p>
+<h3>Middleware</h3>
+<p>Create custom middleware with <code>createMiddleware</code> from <code>hono/factory</code>. Middleware receives <code>(c, next)</code> and must await <code>next()</code> when it wants downstream handlers to run:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { Hono } from &#39;hono&#39;
+import { createMiddleware } from &#39;hono/factory&#39;
+
+const app = new Hono()
+
+const addMarker = createMiddleware(async (c, next) =&gt; {
+  c.set(&#39;marker&#39;, &#39;middleware&#39;)
+  await next()
+})
+
+app.use(addMarker)
+app.get(&#39;/&#39;, (c) =&gt; c.text(c.get(&#39;marker&#39;)))
+
+const response = await app.request(&#39;/&#39;)
+assert.equal(await response.text(), &#39;middleware&#39;)
+</code></pre>
+<p>The documented built-in middleware entry points include <code>logger</code> from <code>hono/logger</code> and <code>cors</code> from <code>hono/cors</code>, used as <code>app.use(logger())</code> and <code>app.use(&#39;/api/*&#39;, cors())</code>.</p>
+<h3>Validation</h3>
+<p>Use <code>validator</code> from <code>hono/validator</code>. Documented validation targets are <code>form</code>, <code>json</code>, <code>query</code>, <code>header</code>, <code>cookie</code>, and <code>param</code>. A validator callback may return a response for invalid input or return validated data; later handlers retrieve it with <code>c.req.valid(target)</code>.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { Hono } from &#39;hono&#39;
+import { validator } from &#39;hono/validator&#39;
+
+const app = new Hono()
+
+app.get(
+  &#39;/search&#39;,
+  validator(&#39;query&#39;, (value, c) =&gt; {
+    const term = value[&#39;term&#39;]
+    if (!term || typeof term !== &#39;string&#39;) return c.text(&#39;Invalid!&#39;, 400)
+    return { term }
+  }),
+  (c) =&gt; c.json(c.req.valid(&#39;query&#39;))
+)
+
+const valid = await app.request(&#39;/search?term=hono&#39;)
+assert.equal(valid.status, 200)
+assert.deepEqual(await valid.json(), { term: &#39;hono&#39; })
+
+const invalid = await app.request(&#39;/search&#39;)
+assert.equal(invalid.status, 400)
+assert.equal(await invalid.text(), &#39;Invalid!&#39;)
+</code></pre>
+<h3>Hono 4 migration traps</h3>
+<p>When updating older examples, apply these changes:</p>
+<ul>
+<li><code>c.jsonT()</code> was removed; use <code>c.json()</code>.</li>
+<li><code>c.stream()</code> and <code>c.streamText()</code> moved to <code>hono/streaming</code>.</li>
+<li><code>c.env()</code> was removed; use <code>getRuntimeKey()</code>.</li>
+<li><code>app.handleEvent()</code> was removed; use <code>app.fetch()</code>.</li>
+<li><code>app.showRoutes()</code> and <code>app.routerName</code> moved to <code>showRoutes()</code> and <code>getRouterName()</code> from <code>hono/dev</code>.</li>
+<li><code>c.req.cookie()</code> was removed; use <code>getCookie()</code> from <code>hono/cookie</code>.</li>
+<li><code>app.head()</code> is no longer needed because <code>app.get()</code> implicitly handles <code>HEAD</code>.</li>
+<li>Hono request members including <code>headers()</code>, <code>body()</code>, <code>bodyUsed()</code>, <code>integrity()</code>, <code>keepalive()</code>, <code>referrer()</code>, and <code>signal()</code> are now accessed on <code>req.raw</code>; for example, <code>req.raw.headers</code>.</li>
+<li>Cloudflare Workers <code>serveStatic</code> requires a manifest, passed as <code>{ root: &#39;./assets&#39;, manifest }</code>.</li>
+<li>JSX renderer <code>docType</code> now defaults to <code>true</code>.</li>
+<li><code>FC</code> in <code>hono/jsx</code> no longer passes <code>children</code>; use <code>PropsWithChildren</code> when children are needed.</li>
+</ul>
+<h3>Other entry points</h3>
+<p>The research documents these entry points:</p>
+<ul>
+<li><code>hono/quick</code>: <code>Hono</code> for applications initialized per request.</li>
+<li><code>hono/tiny</code>: the smallest router package.</li>
+<li><code>hono/html</code>: <code>html</code> and <code>raw</code>.</li>
+<li><code>hono/cookie</code>: <code>getCookie</code> and <code>setCookie</code>.</li>
+<li><code>hono/testing</code>: <code>testClient</code>.</li>
+<li><code>hono/adapter</code>: <code>env</code> and <code>getRuntimeKey</code>.</li>
+</ul>
+<p>Use the documented exports from those subpaths rather than assuming they are methods on the app or context. In particular, cookie access moved out of <code>c.req</code>, and runtime-key access replaced <code>c.env()</code>.</p>
+<h3>JSX and RPC boundaries</h3>
+<p>JSX requires a <code>.tsx</code> file and compiler configuration with <code>jsx: &quot;react-jsx&quot;</code> and <code>jsxImportSource: &quot;hono/jsx&quot;</code>; JSX is not a plain <code>.ts</code> feature.</p>
+<p>RPC is type-level and build-tool dependent. The server exports <code>typeof route</code> as <code>AppType</code>; separate projects require matching Hono versions, strict TypeScript, project references, and compiled code before consumption. It is not something to validate with a bare <code>bun example.ts</code> script.</p>
+<h3>Not covered</h3>
+<p>This skill does not specify the detailed signatures or standalone examples for every listed app method, the <code>quick</code> and <code>tiny</code> presets, HTML helpers, cookie helpers, <code>testClient</code>, adapter helpers, streaming, <code>hono/dev</code>, static serving, JSX components, RPC client construction, or runtime-specific server setup beyond the documented Node entry point. Consult the package documentation for those details; do not infer older-major APIs.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

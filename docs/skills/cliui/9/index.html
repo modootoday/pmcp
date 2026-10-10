@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cliui 9.x — PMCP</title>
+  <meta name="description" content="Use cliui ^9.0.0 to build terminal UI strings with rows, columns, wrapping, padding, alignment, borders, and the single-string layout DSL." />
+  <link rel="canonical" href="https://pmcp.build/skills/cliui/9/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="cliui 9.x — PMCP" />
+  <meta property="og:description" content="Use cliui ^9.0.0 to build terminal UI strings with rows, columns, wrapping, padding, alignment, borders, and the single-string layout DSL." />
+  <meta property="og:url" content="https://pmcp.build/skills/cliui/9/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/cliui/">Other majors</a></p>
+    <h1>cliui 9.x</h1><p>Use cliui ^9.0.0 to build terminal UI strings with rows, columns, wrapping, padding, alignment, borders, and the single-string layout DSL.</p>
+    <dl><dt>For</dt><dd><code>cliui@9.0.1</code></dd><dt>Verified</dt><dd>2026-09-08, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-cliui@9.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/cliui/9/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/cliui/9/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/cliui/9/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-2XTefoCMMr2YxlsyKisQjUg2MkfhhB+EqDff6Xx60exzvg4xerFUCdIhVBUh0sVSKuW/kfvddw8cyRv6LqWi1w==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against cliui@9.0.1 on 2026-09-08. 7 of 7 examples executed.</p>
+<h2>cliui</h2>
+<h3>Version and module format</h3>
+<p><code>^9.0.0</code> resolves to <code>9.0.1</code>. The package is published as ESM and its package metadata requires Node <code>&gt;=20</code>. Use the documented default import:</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import cliui from &quot;cliui&quot;;
+
+const ui = cliui({});
+ui.div(&quot;Usage: $0 [command] [options]&quot;);
+
+assert.equal(typeof ui.toString(), &quot;string&quot;);
+assert.match(ui.toString(), /Usage: \$0/);
+</code></pre>
+<p>Do not copy the commonly seen v8 shape:</p>
+<pre><code class="language-js">const ui = require(&#39;cliui&#39;)()
+</code></pre>
+<p>Version 9 moved to ESM. Version <code>9.0.1</code> fixed <code>require(&quot;cliui&quot;)</code> for CommonJS, but the package remains published with ESM metadata and the documented v9 usage is <code>import cliui from &quot;cliui&quot;</code>.</p>
+<h3>Create and configure a UI</h3>
+<p>Pass an options object to the factory. The documented options include <code>width</code> and <code>wrap</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import cliui from &quot;cliui&quot;;
+
+const ui = cliui({ width: 30, wrap: true });
+ui.div(&quot;A line in a configured UI&quot;);
+
+assert.equal(typeof ui.toString(), &quot;string&quot;);
+assert.match(ui.toString(), /A line in a configured UI/);
+</code></pre>
+<h3>Rows and columns with <code>div</code></h3>
+<p><code>ui.div(...)</code> creates a row. Arguments can be strings or column objects. Column objects support <code>text</code>, <code>width</code>, <code>align</code>, <code>padding</code>, and <code>border</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import cliui from &quot;cliui&quot;;
+
+const ui = cliui({});
+ui.div(
+  {
+    text: &quot;-f, --file&quot;,
+    width: 20,
+    padding: [0, 4, 0, 4]
+  },
+  {
+    text: &quot;the file to load.&quot;,
+    width: 20
+  },
+  {
+    text: &quot;[required]&quot;,
+    align: &quot;right&quot;
+  }
+);
+
+const output = ui.toString();
+assert.match(output, /-f, --file/);
+assert.match(output, /the file to load\./);
+assert.match(output, /\[required\]/);
+</code></pre>
+<p>A string argument is also valid as a column or complete row:</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import cliui from &quot;cliui&quot;;
+
+const ui = cliui({});
+ui.div(&quot;first column&quot;, &quot;second column&quot;);
+
+const output = ui.toString();
+assert.match(output, /first column/);
+assert.match(output, /second column/);
+</code></pre>
+<h3>Single-string layout DSL</h3>
+<p>When a single string is passed to <code>ui.div</code>, the string has layout markers:</p>
+<ul>
+<li><code>\n</code> creates a new row.</li>
+<li><code>\t</code> creates a new column.</li>
+<li><code>\s</code> creates padding.</li>
+</ul>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import cliui from &quot;cliui&quot;;
+
+const ui = cliui({ width: 60 });
+ui.div(
+  &quot;Usage: node ./bin/foo.js\n&quot; +
+  &quot;  &lt;regex&gt;\t  provide a regex\n&quot; +
+  &quot;  &lt;glob&gt;\t  provide a glob\t [required]&quot;
+);
+
+const output = ui.toString();
+assert.match(output, /Usage: node \.\/bin\/foo\.js/);
+assert.match(output, /&lt;regex&gt;/);
+assert.match(output, /provide a regex/);
+assert.match(output, /&lt;glob&gt;/);
+assert.match(output, /\[required\]/);
+</code></pre>
+<h3>Append with <code>span</code></h3>
+<p><code>ui.span(...)</code> appends the next row without creating a new line. It accepts the same string and column forms documented for layout rows.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import cliui from &quot;cliui&quot;;
+
+const ui = cliui({});
+ui.div(&quot;left&quot;);
+ui.span(&quot;right&quot;);
+
+const output = ui.toString();
+assert.match(output, /left/);
+assert.match(output, /right/);
+assert.ok(output.indexOf(&quot;left&quot;) &lt; output.indexOf(&quot;right&quot;));
+</code></pre>
+<h3>Reset accumulated output</h3>
+<p><code>ui.resetOutput()</code> resets the UI elements while maintaining the configured <code>width</code> and <code>wrap</code> settings.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import cliui from &quot;cliui&quot;;
+
+const ui = cliui({ width: 40, wrap: true });
+ui.div(&quot;content before reset&quot;);
+assert.match(ui.toString(), /content before reset/);
+
+ui.resetOutput();
+assert.equal(ui.toString(), &quot;&quot;);
+
+ui.div(&quot;content after reset&quot;);
+assert.match(ui.toString(), /content after reset/);
+</code></pre>
+<h3>What this skill does not cover</h3>
+<ul>
+<li>Exact rendering rules for every combination of width, wrapping, alignment, padding, and borders.</li>
+<li>The complete set of accepted values or semantics for each column option.</li>
+<li>Package internals, TypeScript compilation, or repository development scripts.</li>
+<li>CLI invocation: the research documents cliui as a programmatic UI-string builder, not as a package-owned command-line runner.</li>
+<li>Runtime behavior outside the documented Node <code>&gt;=20</code> environment.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

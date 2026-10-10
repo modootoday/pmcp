@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>http-proxy-agent 9.x — PMCP</title>
+  <meta name="description" content="Use http-proxy-agent 9.x to route Node HTTP requests through an HTTP or HTTPS proxy." />
+  <link rel="canonical" href="https://pmcp.build/skills/http-proxy-agent/9/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="http-proxy-agent 9.x — PMCP" />
+  <meta property="og:description" content="Use http-proxy-agent 9.x to route Node HTTP requests through an HTTP or HTTPS proxy." />
+  <meta property="og:url" content="https://pmcp.build/skills/http-proxy-agent/9/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/http-proxy-agent/">Other majors</a></p>
+    <h1>http-proxy-agent 9.x</h1><p>Use http-proxy-agent 9.x to route Node HTTP requests through an HTTP or HTTPS proxy.</p>
+    <dl><dt>For</dt><dd><code>http-proxy-agent@9.1.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-http-proxy-agent@9.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/http-proxy-agent/9/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/http-proxy-agent/9/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/http-proxy-agent/9/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-wEYPkHHqhscgQ4wIGisqa3MEfW4tSOfcVJ5BGSrsEtq0PO2rxGsKS9Gy31S4VkWrUbvMPrnuV1sTELHM9dFgUw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against http-proxy-agent@9.1.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>http-proxy-agent 9.x</h2>
+<h3>Runtime and module shape</h3>
+<ul>
+<li>Version 9 is an ESM package and requires Node.js 20 or newer.</li>
+<li>Import the named <code>HttpProxyAgent</code> export:</li>
+</ul>
+<pre><code class="language-ts">import { HttpProxyAgent } from &#39;http-proxy-agent&#39;;
+</code></pre>
+<ul>
+<li>Do not use CommonJS <code>require()</code> or assume a default export.</li>
+<li>The package implements an <code>http.Agent</code> for requests made through an HTTP or HTTPS proxy. For proxying via Node&#39;s <code>https</code> module, use <code>https-proxy-agent</code> instead.</li>
+</ul>
+<h3>Constructing an agent</h3>
+<p>The constructor is:</p>
+<pre><code class="language-ts">new HttpProxyAgent(proxy, options?)
+</code></pre>
+<p><code>proxy</code> must be a proxy URL string or a <code>URL</code> instance. In v6 and later, pass it as the first argument and pass agent options separately as the second argument.</p>
+<pre><code class="language-ts">import { HttpProxyAgent } from &#39;http-proxy-agent&#39;;
+
+const agent = new HttpProxyAgent(
+  &#39;https://proxy.example.test:8443&#39;,
+  { keepAlive: true }
+);
+</code></pre>
+<p>The proxy URL controls the proxy connection. An HTTPS proxy uses a TLS socket; an HTTP proxy uses a regular TCP socket.</p>
+<p>The options accept normal Node <code>http.Agent</code> options and an additional <code>headers</code> option. <code>headers</code> can be either an object or a function returning an object:</p>
+<pre><code class="language-ts">import { HttpProxyAgent } from &#39;http-proxy-agent&#39;;
+
+const agent = new HttpProxyAgent(&#39;http://proxy.example.test:3128&#39;, {
+  keepAlive: true,
+  headers: () =&gt; ({
+    &#39;X-Proxy-Request&#39;: &#39;example&#39;
+  })
+});
+</code></pre>
+<p>Proxy headers can also reach the destination if the proxy does not strip them.</p>
+<h3>Inspecting the configured agent</h3>
+<p>The proxy URL is available as <code>agent.proxy</code>. Use its <code>protocol</code> to distinguish HTTP and HTTPS proxies; the old public <code>secureProxy</code> getter was removed in v7.</p>
+<p><code>agent.proxyHeaders</code> contains the configured header object or header-producing function. <code>agent.connectOpts</code> contains the connection options used for the proxy connection.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { HttpProxyAgent } from &#39;http-proxy-agent&#39;;
+
+const headers = { &#39;X-Proxy-Request&#39;: &#39;example&#39; };
+const agent = new HttpProxyAgent(&#39;https://proxy.example.test:8443&#39;, {
+  keepAlive: true,
+  headers
+});
+
+assert.equal(agent.proxy.protocol, &#39;https:&#39;);
+assert.equal(agent.proxy.hostname, &#39;proxy.example.test&#39;);
+assert.equal(agent.proxy.port, &#39;8443&#39;);
+assert.deepEqual(agent.proxyHeaders, headers);
+assert.equal(agent.connectOpts.host, &#39;proxy.example.test&#39;);
+assert.equal(agent.connectOpts.port, 8443);
+</code></pre>
+<h3>Supported protocols</h3>
+<p>The class advertises both HTTP and HTTPS request protocols through its static <code>protocols</code> property:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { HttpProxyAgent } from &#39;http-proxy-agent&#39;;
+
+assert.deepEqual(HttpProxyAgent.protocols, [&#39;http&#39;, &#39;https&#39;]);
+
+const agent = new HttpProxyAgent(new URL(&#39;http://proxy.example.test:3128&#39;));
+assert.equal(agent.proxy.href, &#39;http://proxy.example.test:3128/&#39;);
+assert.equal(agent.proxy.protocol, &#39;http:&#39;);
+</code></pre>
+<p><code>URL.href</code> includes a trailing slash when the URL has no path, so compare against the normalized value with <code>/</code>.</p>
+<h3>Using the agent with Node HTTP</h3>
+<p>Pass the agent in the request options. The agent rewrites the request path to an absolute URL for the proxy, adds <code>Proxy-Authorization: Basic ...</code> when the proxy URL contains credentials, and uses <code>Proxy-Connection: Keep-Alive</code> when <code>keepAlive</code> is enabled; otherwise it defaults that header to <code>close</code>.</p>
+<pre><code class="language-ts">import * as http from &#39;http&#39;;
+import { HttpProxyAgent } from &#39;http-proxy-agent&#39;;
+
+const agent = new HttpProxyAgent(&#39;http://proxy.example.test:3128&#39;);
+
+http.get(&#39;http://nodejs.org/api/&#39;, { agent }, (res) =&gt; {
+  res.pipe(process.stdout);
+});
+</code></pre>
+<p>This request requires a reachable proxy and destination. It is not suitable for an offline standalone example; exercise it in the application or integration environment that provides the proxy.</p>
+<h3>Public agent methods</h3>
+<p>The class exposes <code>addRequest</code>, <code>setRequestProps</code>, and <code>connect</code>, in addition to inherited <code>http.Agent</code> behavior. <code>connect</code> opens the proxy socket and therefore requires a real request context and reachable proxy; <code>addRequest</code> and <code>setRequestProps</code> operate on Node client-request objects. Do not call these methods with arbitrary plain objects merely to test them.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { HttpProxyAgent } from &#39;http-proxy-agent&#39;;
+
+const agent = new HttpProxyAgent(&#39;http://proxy.example.test:3128&#39;);
+
+assert.equal(typeof agent.addRequest, &#39;function&#39;);
+assert.equal(typeof agent.setRequestProps, &#39;function&#39;);
+assert.equal(typeof agent.connect, &#39;function&#39;);
+assert.equal(typeof agent.createConnection, &#39;function&#39;);
+</code></pre>
+<h3>Common version-migration mistakes</h3>
+<ul>
+<li><strong>Using the v5 constructor shape:</strong> v5 examples commonly pass one object shaped like deprecated <code>url.parse()</code> output, including <code>protocol</code>, <code>host</code>, <code>port</code>, <code>auth</code>, and <code>timeout</code>. Version 9 requires the proxy URL/string as argument one and options as argument two.</li>
+<li><strong>Passing old parsed-URL fields:</strong> current examples use a URL string or <code>URL</code> instance. When representing proxy credentials in a <code>URL</code>-style object, current documented fields are <code>hostname</code>, <code>port</code>, <code>username</code>, and <code>password</code>, not the old <code>host</code> and <code>auth</code> combination.</li>
+<li><strong>Reading <code>secureProxy</code>:</strong> that public getter was removed in v7. Check <code>agent.proxy.protocol === &#39;https:&#39;</code> instead.</li>
+<li><strong>Running on an older Node version:</strong> v9 requires Node.js 20 or newer.</li>
+<li><strong>Expecting an HTTPS-module agent:</strong> this package is for HTTP requests through an HTTP/HTTPS proxy. Use <code>https-proxy-agent</code> when the request is made through Node&#39;s <code>https</code> module.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover proxy-server setup, authentication-server behavior, network troubleshooting, TLS certificate configuration, the full Node <code>http.Agent</code> API, or integration-test setup. The request flow and the <code>connect</code>/request methods require a real reachable proxy and are only described here, not exercised by the offline examples.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

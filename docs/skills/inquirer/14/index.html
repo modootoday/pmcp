@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>inquirer 14.x — PMCP</title>
+  <meta name="description" content="Use Inquirer.js 14's legacy prompt API correctly, including v14 prompt registration behavior, prompt-module creation, separators, and interactive-terminal limitations." />
+  <link rel="canonical" href="https://pmcp.build/skills/inquirer/14/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="inquirer 14.x — PMCP" />
+  <meta property="og:description" content="Use Inquirer.js 14's legacy prompt API correctly, including v14 prompt registration behavior, prompt-module creation, separators, and interactive-terminal limitations." />
+  <meta property="og:url" content="https://pmcp.build/skills/inquirer/14/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/inquirer/">Other majors</a></p>
+    <h1>inquirer 14.x</h1><p>Use Inquirer.js 14's legacy prompt API correctly, including v14 prompt registration behavior, prompt-module creation, separators, and interactive-terminal limitations.</p>
+    <dl><dt>For</dt><dd><code>inquirer@14.2.2</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-inquirer@14.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/inquirer/14/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/inquirer/14/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/inquirer/14/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-YajZecy0lnQyLa/JWY+WJR8j3CMt7VJOxPo18cd70v9cW2XcWSnSUBMj+q8+s3BLReMw6CpMeJ6dv5g+79upbw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against inquirer@14.2.2 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>inquirer (<code>^14.0.0</code>)</h2>
+<h3>Scope and package shape</h3>
+<p>This package is the legacy/maintenance Inquirer.js API. The newer prompt API is provided by <code>@inquirer/prompts</code>; both packages may be used together during migration.</p>
+<p>The version range resolves within major 14. The versioned documentation and source checked here are for <code>inquirer@14.0.2</code>.</p>
+<p>The default export is the <code>inquirer</code> object. Its documented surface includes:</p>
+<ul>
+<li><code>prompt(questions, answers)</code></li>
+<li><code>createPromptModule()</code></li>
+<li><code>registerPrompt(name, prompt)</code></li>
+<li><code>restoreDefaultPrompts()</code></li>
+<li><code>ui.Prompt</code></li>
+<li><code>Separator</code></li>
+</ul>
+<p>The built-in prompt types documented for the legacy API are <code>input</code>, <code>number</code>, <code>confirm</code>, <code>list</code>, <code>rawlist</code>, <code>expand</code>, <code>checkbox</code>, <code>password</code>, and <code>editor</code>. The v14 source also registers <code>search</code> and <code>select</code>.</p>
+<h3>The important v14 behavior change</h3>
+<p>In v14, an unregistered prompt <code>type</code> throws. Older examples commonly rely on unknown types falling back to <code>input</code>; do not rely on that behavior. Register a custom prompt before asking a question that uses it:</p>
+<pre><code class="language-ts">import inquirer from &#39;inquirer&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+assert.equal(typeof inquirer.prompt, &#39;function&#39;);
+assert.equal(typeof inquirer.registerPrompt, &#39;function&#39;);
+assert.equal(typeof inquirer.createPromptModule, &#39;function&#39;);
+assert.equal(typeof inquirer.restoreDefaultPrompts, &#39;function&#39;);
+assert.equal(typeof inquirer.Separator, &#39;function&#39;);
+</code></pre>
+<p>The registration API is:</p>
+<pre><code class="language-ts">inquirer.registerPrompt(&#39;custom&#39;, customPrompt);
+const answers = await inquirer.prompt([
+  { type: &#39;custom&#39;, ...config },
+]);
+</code></pre>
+<p>The supplied research does not specify the custom prompt implementation contract. Use the contract required by the custom prompt package or source being integrated rather than assuming the old fallback behavior.</p>
+<h3>Asking questions</h3>
+<p>The usual API is:</p>
+<pre><code class="language-ts">inquirer.prompt(questions, answers)
+</code></pre>
+<p>It returns a Promise. <code>questions</code> can be a question object, an array or map of questions, or an RxJS-compatible Observable. <code>answers</code> defaults to <code>{}</code>.</p>
+<p>Question objects commonly use these fields:</p>
+<ul>
+<li><code>type</code>, <code>name</code>, <code>message</code>, <code>default</code>, <code>choices</code></li>
+<li><code>validate</code>, <code>filter</code>, <code>transformer</code>, <code>when</code></li>
+<li><code>pageSize</code>, <code>prefix</code>, <code>suffix</code></li>
+<li><code>askAnswered</code>, <code>loop</code>, <code>waitUserInput</code></li>
+</ul>
+<p>Do not copy a test-runner example into a plain script. <code>describe</code>, <code>it</code>, and <code>expect</code> are not supplied by this package. A direct script must call <code>inquirer.prompt(...)</code> itself.</p>
+<h3>Non-interactive environments</h3>
+<p><code>prompt()</code> requires an interactive environment where <code>process.stdin.isTTY === true</code>. In a plain non-interactive process or CI process, it rejects with an error whose <code>isTtyError</code> property is true. However, invoking it in an environment that unexpectedly exposes a TTY can block waiting for input, so do not use a standalone non-interactive example to simulate a prompt.</p>
+<p>Handle the two error categories in application code like this:</p>
+<pre><code class="language-ts">inquirer.prompt(questions)
+  .then((answers) =&gt; {
+    // consume answers
+  })
+  .catch((error) =&gt; {
+    if (error.isTtyError) {
+      // The prompt could not be rendered in the current environment.
+    } else {
+      // Another error occurred.
+    }
+  });
+</code></pre>
+<p>The actual prompt interaction must be exercised by Inquirer&#39;s tool in an interactive environment. A plain script run as <code>bun example.ts</code> cannot safely provide a fake interactive transcript.</p>
+<h3>Prompt modules</h3>
+<p>Use <code>createPromptModule()</code> when code needs a reusable prompt function:</p>
+<pre><code class="language-ts">import inquirer from &#39;inquirer&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const prompt = inquirer.createPromptModule();
+assert.equal(typeof prompt, &#39;function&#39;);
+assert.notEqual(prompt, inquirer.prompt);
+</code></pre>
+<p>The returned function accepts the same question input described for <code>inquirer.prompt</code>; it still requires a TTY when it is actually called.</p>
+<h3>Separators in choices</h3>
+<p>Use <code>new inquirer.Separator()</code> in a choice list to insert a visual separator:</p>
+<pre><code class="language-ts">import inquirer from &#39;inquirer&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const separator = new inquirer.Separator();
+assert.ok(separator instanceof inquirer.Separator);
+assert.deepEqual([&#39;Choice A&#39;, separator, &#39;Choice B&#39;].length, 3);
+</code></pre>
+<h3>Reactive questions</h3>
+<p><code>prompt()</code> accepts an RxJS-compatible Observable of questions. The documented pattern is to send questions through the Observable and then complete it:</p>
+<pre><code class="language-ts">const prompts = new Rx.Subject();
+inquirer.prompt(prompts);
+prompts.next({ /* question */ });
+prompts.complete();
+</code></pre>
+<p>The returned prompt exposes <code>ui.process.subscribe(...)</code>. The required RxJS-compatible Observable implementation is not part of the package surface covered by the supplied research, so no standalone executable example is provided for this form.</p>
+<h3>Built-in prompt details and environment caveats</h3>
+<p>The built-in types include the legacy types listed above; v14 source also registers <code>search</code> and <code>select</code>.</p>
+<p>Setting <code>INQUIRER_KEYBINDINGS=vim,emacs</code> enables user-selected keybindings. This disables <code>select</code> search.</p>
+<p>The <code>editor</code> prompt uses the user&#39;s <code>$VISUAL</code> or <code>$EDITOR</code>, with an OS fallback: <code>notepad</code> on Windows and <code>vim</code> on Linux/macOS.</p>
+<h3>Migration and v14 notes</h3>
+<ul>
+<li>Treat <code>inquirer</code> as the legacy API; prefer <code>@inquirer/prompts</code> for the newer API when the surrounding project permits it.</li>
+<li>Keep the older question-object shape when maintaining existing <code>inquirer</code> code.</li>
+<li>Do not expect an unknown prompt type to become an <code>input</code> prompt in v14.</li>
+<li>v14 also fixed cursor positioning around line wraps.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover the implementation contract for custom prompt packages, the complete behavior or option set of each individual interactive prompt, an RxJS installation or Observable implementation, terminal key handling beyond the documented environment variable, or how to automate an interactive TTY. The <code>prompt()</code> and prompt-module execution paths are only safely exercised by the tool in an interactive environment; the standalone examples here cover the package surface that can be reached without interactive input.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

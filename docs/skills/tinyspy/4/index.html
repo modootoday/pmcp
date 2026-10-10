@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tinyspy 4.x — PMCP</title>
+  <meta name="description" content="Use tinyspy ^4.0.0 as an ESM-only spying library in standalone TypeScript or JavaScript scripts." />
+  <link rel="canonical" href="https://pmcp.build/skills/tinyspy/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="tinyspy 4.x — PMCP" />
+  <meta property="og:description" content="Use tinyspy ^4.0.0 as an ESM-only spying library in standalone TypeScript or JavaScript scripts." />
+  <meta property="og:url" content="https://pmcp.build/skills/tinyspy/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/tinyspy/">Other majors</a></p>
+    <h1>tinyspy 4.x</h1><p>Use tinyspy ^4.0.0 as an ESM-only spying library in standalone TypeScript or JavaScript scripts.</p>
+    <dl><dt>For</dt><dd><code>tinyspy@4.0.6</code></dd><dt>Verified</dt><dd>2026-09-08, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-tinyspy@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/tinyspy/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/tinyspy/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/tinyspy/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-VR6WJTsTSTVUp02QOJL6V6KWYPQxIaxY0wVVo8Jjyrxd9phd6rYM5Z5jIXWGD/1luzLG0OX/fpfyUsvlX5Rcnw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against tinyspy@4.0.6 on 2026-09-08. 5 of 5 examples executed.</p>
+<h2>tinyspy</h2>
+<p>Use this skill for <code>tinyspy</code> <code>^4.0.0</code>.</p>
+<h3>Package shape and import rule</h3>
+<p>tinyspy v4 is ESM-only and declares Node <code>&gt;=14.0.0</code>. Import named exports from the package:</p>
+<pre><code class="language-ts">import { spy, spyOn } from &#39;tinyspy&#39;
+</code></pre>
+<p>Do not copy the v3 CommonJS shape from older examples. In v4, do not use <code>require(&#39;tinyspy&#39;)</code> or reference <code>dist/index.cjs</code>; use the package&#39;s ESM entrypoint.</p>
+<h3>Standalone function spies</h3>
+<p><code>spy</code> accepts a callback, or a constructor, and returns a callable spy. Calling it forwards to the original callback and records the invocation.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { spy } from &#39;tinyspy&#39;
+
+const spied = spy((n: string) =&gt; n + &#39;!&#39;)
+
+assert.equal(spied(&#39;a&#39;), &#39;a!&#39;)
+assert.equal(spied.called, true)
+assert.equal(spied.callCount, 1)
+assert.deepEqual(spied.calls, [[&#39;a&#39;]])
+assert.deepEqual(spied.results, [[&#39;ok&#39;, &#39;a!&#39;]])
+assert.deepEqual(spied.returns, [&#39;a!&#39;])
+
+spied.reset()
+assert.equal(spied.called, false)
+assert.equal(spied.callCount, 0)
+assert.deepEqual(spied.calls, [])
+</code></pre>
+<p>A spy can also be created without a callback when a callable spy is needed; the available research does not specify its return behavior, so do not assume one.</p>
+<h3>Spying on object methods</h3>
+<p><code>spyOn(object, key)</code> replaces the object method with a spy. You can provide a replacement implementation as the third argument, or configure one with <code>willCall</code>. Restore an individual method with <code>restore()</code>.</p>
+<p><code>getOriginal()</code> returns the original method, not the replacement spy currently installed on the object. Capture the original before asserting its identity:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { spyOn } from &#39;tinyspy&#39;
+
+const original = () =&gt; 13
+const obj = {
+  getApples: original,
+}
+
+const spied = spyOn(obj, &#39;getApples&#39;, () =&gt; 1)
+assert.equal(obj.getApples(), 1)
+assert.equal(spied.called, true)
+assert.deepEqual(spied.returns, [1])
+assert.equal(spied.getOriginal(), original)
+
+spied.restore()
+assert.equal(obj.getApples(), 13)
+
+const configured = spyOn(obj, &#39;getApples&#39;).willCall(() =&gt; 2)
+assert.equal(obj.getApples(), 2)
+configured.restore()
+assert.equal(obj.getApples(), 13)
+</code></pre>
+<p><code>spyOn</code> also supports accessor descriptors using <code>{ getter: &#39;name&#39; }</code> and <code>{ setter: &#39;name&#39; }</code>. The available research confirms those forms but does not provide enough behavior detail for a reliable standalone example.</p>
+<h3>Recorded outcomes and controls</h3>
+<p>The documented spy controls are <code>called</code>, <code>callCount</code>, <code>calls</code>, <code>results</code>, <code>returns</code>, <code>resolves</code>, <code>reset()</code>, <code>nextError(error)</code>, and <code>nextResult(result)</code>.</p>
+<p><code>nextResult</code> and <code>nextError</code> affect the next call. A result entry records the outcome as an <code>[&#39;ok&#39;, value]</code> or error outcome. Use the spy&#39;s normal return value and recorded state to inspect the call.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { spy } from &#39;tinyspy&#39;
+
+const spied = spy((value: number) =&gt; value * 2)
+
+spied.nextResult(99)
+assert.equal(spied(3), 99)
+
+spied.nextError(new Error(&#39;planned&#39;))
+assert.throws(() =&gt; spied(4), /planned/)
+
+assert.equal(spied.callCount, 2)
+assert.deepEqual(spied.calls, [[3], [4]])
+assert.equal(spied.results[0]?.[0], &#39;ok&#39;)
+assert.equal(spied.results[0]?.[1], 99)
+assert.equal(spied.results[1]?.[0], &#39;error&#39;)
+</code></pre>
+<h3>Async spies</h3>
+<p>Async spies retain Promise values in <code>returns</code> and <code>results</code>; await the returned promise manually. <code>resolves</code> records resolved outcomes as result entries, including the <code>&#39;ok&#39;</code> tag and resolved value.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { spy } from &#39;tinyspy&#39;
+
+const spied = spy(async (value: number) =&gt; value + 1)
+const returned = spied(4)
+
+assert.equal(spied.callCount, 1)
+assert.equal(spied.returns.length, 1)
+assert.equal(spied.results.length, 1)
+assert.equal(spied.resolves.length, 0)
+assert.equal(await returned, 5)
+assert.deepEqual(spied.resolves, [[&#39;ok&#39;, 5]])
+</code></pre>
+<h3>Restoring all spies</h3>
+<p><code>restoreAll()</code> restores every registered spy and then clears the registry. Use it when several object methods have been replaced and they should all return to their originals.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { restoreAll, spyOn } from &#39;tinyspy&#39;
+
+const first = {
+  value: () =&gt; &#39;first original&#39;,
+}
+const second = {
+  value: () =&gt; &#39;second original&#39;,
+}
+
+spyOn(first, &#39;value&#39;, () =&gt; &#39;first replacement&#39;)
+spyOn(second, &#39;value&#39;, () =&gt; &#39;second replacement&#39;)
+assert.equal(first.value(), &#39;first replacement&#39;)
+assert.equal(second.value(), &#39;second replacement&#39;)
+
+restoreAll()
+assert.equal(first.value(), &#39;first original&#39;)
+assert.equal(second.value(), &#39;second original&#39;)
+</code></pre>
+<h3>Constructors and internal exports</h3>
+<p>The v4 public entrypoint exports <code>spy</code>, <code>spyOn</code>, <code>restoreAll</code>, <code>createInternalSpy</code>, <code>spies</code>, and <code>getInternalState</code>, plus the types <code>Spy</code>, <code>SpyImpl</code>, <code>SpyInternal</code>, and <code>SpyInternalImpl</code>. The research confirms that <code>spy</code> and <code>spyOn</code> support constructors, but does not specify constructor-call behavior or the contracts of the internal-state and registry exports. Do not infer those contracts from older versions.</p>
+<h3>What this skill does not cover</h3>
+<ul>
+<li>Detailed constructor-spy usage.</li>
+<li>Getter and setter examples beyond the supported <code>spyOn</code> option forms.</li>
+<li>Contracts or usage patterns for <code>createInternalSpy</code>, <code>spies</code>, or <code>getInternalState</code>; these internal surfaces may only be reachable in the context of the tool or runner that uses them.</li>
+<li>Exact error-entry structure beyond the documented outcome controls.</li>
+<li>Any CommonJS usage; v4 is ESM-only.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

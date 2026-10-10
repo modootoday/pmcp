@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>proxy-agent 8.x — PMCP</title>
+  <meta name="description" content="Use proxy-agent ^8.0.0 as an ESM proxy-aware Node.js HTTP(S) Agent on Node.js 20+. Covers environment-based and custom proxy selection, exported lazy proxy constructors, lifecycle, and v8 compatibility concerns." />
+  <link rel="canonical" href="https://pmcp.build/skills/proxy-agent/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="proxy-agent 8.x — PMCP" />
+  <meta property="og:description" content="Use proxy-agent ^8.0.0 as an ESM proxy-aware Node.js HTTP(S) Agent on Node.js 20+. Covers environment-based and custom proxy selection, exported lazy proxy constructors, lifecycle, and v8 compatibility concerns." />
+  <meta property="og:url" content="https://pmcp.build/skills/proxy-agent/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/proxy-agent/">Other majors</a></p>
+    <h1>proxy-agent 8.x</h1><p>Use proxy-agent ^8.0.0 as an ESM proxy-aware Node.js HTTP(S) Agent on Node.js 20+. Covers environment-based and custom proxy selection, exported lazy proxy constructors, lifecycle, and v8 compatibility concerns.</p>
+    <dl><dt>For</dt><dd><code>proxy-agent@8.0.2</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-proxy-agent@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/proxy-agent/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/proxy-agent/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/proxy-agent/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-+4253MOYnlOP4S09lnoX5F+DAbs6YsVr/U0W8BTNM1I7QEfdrR0pgkPprOuJuJBOStcfRTnxXikokBc+rHewjA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against proxy-agent@8.0.2 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>proxy-agent 8.x</h2>
+<h3>Runtime and module requirements</h3>
+<ul>
+<li><code>^8.0.0</code> currently resolves to the 8.x line; the latest listed release is <code>8.0.2</code>.</li>
+<li>Node.js 20 or newer is required. Version 8 raised the minimum Node.js version to 20.</li>
+<li>The package is ESM. Import its runtime exports with <code>import</code>; do not use the older CommonJS shape.</li>
+<li>The documented runtime exports are <code>ProxyAgent</code> and <code>proxies</code>. <code>ProxyAgentOptions</code> is a TypeScript type export.</li>
+<li>There is no documented CLI. Use the programmatic API or pass the resulting agent to Node&#39;s HTTP client.</li>
+</ul>
+<h3>Default environment-based proxying</h3>
+<p>Construct <code>ProxyAgent</code> with no options to select an underlying agent from the request URL and the usual <code>http_proxy</code>, <code>https_proxy</code>, <code>no_proxy</code>, and related environment variables. If no proxy is configured for a request, it creates or uses default <code>http.Agent</code>/<code>https.Agent</code> instances.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { ProxyAgent } from &#39;proxy-agent&#39;;
+
+const agent = new ProxyAgent();
+assert.equal(typeof agent.connect, &#39;function&#39;);
+assert.equal(typeof agent.destroy, &#39;function&#39;);
+agent.destroy();
+</code></pre>
+<p>Use it as the <code>agent</code> option in Node&#39;s normal HTTP or HTTPS APIs. For example, pass it as <code>{ agent }</code> to <code>https.get(...)</code>; the request otherwise works like a normal Node HTTPS request. A real request requires a reachable destination and is therefore not used as a standalone example here.</p>
+<h3>Selecting a proxy programmatically</h3>
+<p>Pass <code>getProxyForUrl</code> when proxy selection must be controlled by application code. Its callback receives <code>(url, req)</code> and may return a string synchronously or asynchronously. Return an empty string when the request should bypass a proxy.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { ProxyAgent } from &#39;proxy-agent&#39;;
+
+let calls = 0;
+const agent = new ProxyAgent({
+  getProxyForUrl: async (url, req) =&gt; {
+    calls++;
+    assert.equal(typeof url, &#39;string&#39;);
+    assert.ok(req);
+    return url.startsWith(&#39;https:&#39;)
+      ? &#39;http://proxy-server-over-tcp.com:3128&#39;
+      : &#39;&#39;;
+  },
+});
+
+assert.equal(typeof agent.connect, &#39;function&#39;);
+assert.equal(calls, 0); // selection is made when a request is connected
+agent.destroy();
+</code></pre>
+<p>The callback is evaluated during request handling, not when the <code>ProxyAgent</code> is constructed. A proxy URL must identify a supported proxy protocol such as HTTP(S), SOCKS, or PAC; low-level behavior is delegated to the corresponding proxy-agent dependencies.</p>
+<h3>Exported lazy agent constructors</h3>
+<p><code>proxies</code> maps proxy protocols to lazy constructors. Each supported protocol entry is a two-element array: <code>[forHttpRequests, forHttpsRequests]</code>. Documented keys include:</p>
+<ul>
+<li><code>http</code></li>
+<li><code>https</code></li>
+<li><code>socks</code></li>
+<li><code>socks4</code></li>
+<li><code>socks4a</code></li>
+<li><code>socks5</code></li>
+<li><code>socks5h</code></li>
+<li><code>pac+data</code></li>
+<li><code>pac+file</code></li>
+<li><code>pac+ftp</code></li>
+<li><code>pac+http</code></li>
+<li><code>pac+https</code></li>
+</ul>
+<p>These constructors can be used when integrating lower-level agents directly. The returned values are lazy-constructor results; do not assume they are Node agents with an instance <code>.destroy()</code> method.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { proxies } from &#39;proxy-agent&#39;;
+
+assert.ok(proxies.http);
+assert.equal(proxies.http.length, 2);
+assert.equal(typeof proxies.http[0], &#39;function&#39;);
+assert.equal(typeof proxies.http[1], &#39;function&#39;);
+
+const httpAgent = await proxies.http[0]();
+const httpsAgent = await proxies.http[1]();
+assert.ok(httpAgent);
+assert.ok(httpsAgent);
+</code></pre>
+<p>PAC support is delegated to <code>pac-proxy-agent</code>; SOCKS support is delegated to the corresponding SOCKS proxy-agent implementation. Do not assume all protocol-specific behavior is implemented in this package itself.</p>
+<h3>Lifecycle and custom agents</h3>
+<p><code>ProxyAgent</code> exposes:</p>
+<ul>
+<li><code>connect(req, opts): Promise&lt;http.Agent&gt;</code> for selecting or resolving the underlying agent during a request.</li>
+<li><code>destroy(): void</code> for releasing the proxy agent and its cached underlying agents.</li>
+</ul>
+<p>The proxy agent uses an LRU cache for proxy agents. Call <code>destroy()</code> when the owning client is finished, especially for long-lived applications or when replacing an agent.</p>
+<p><code>ProxyAgentOptions</code> also supports custom <code>httpAgent</code> and <code>httpsAgent</code> values, allowing callers to provide fallback agents for the corresponding request types. The documented construction shape is <code>new ProxyAgent({ httpAgent, httpsAgent })</code>; destroy the resulting <code>ProxyAgent</code> when it is no longer needed.</p>
+<h3>Common version and shape mistakes</h3>
+<ul>
+<li>Do not target Node versions below 20: v8 explicitly raised the minimum.</li>
+<li>Do not copy a CommonJS import shape from older examples. v7 had already moved the packages to ESM; v8&#39;s major compatibility change is primarily the Node floor, but the published package is still consumed through its ESM export.</li>
+<li>Do not expect a CLI, <code>describe</code>, <code>it</code>, or runner-provided globals. This package exposes agents and helpers, not a test or command runner.</li>
+<li>Do not treat <code>ProxyAgent</code> as a fixed HTTP proxy agent. It chooses an underlying agent per request based on the URL, callback, and proxy environment.</li>
+<li>Do not omit <code>agent.destroy()</code> when the <code>ProxyAgent</code> is no longer needed.</li>
+<li>Do not call <code>.destroy()</code> on values returned by <code>proxies</code> lazy constructors unless their actual returned shape provides that method; the documented surface only establishes that they are lazy constructors.</li>
+<li>Do not assume undocumented deep imports are available. The published export surface is the package entry point, with runtime exports <code>ProxyAgent</code> and <code>proxies</code>.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover detailed proxy URL authentication, exact <code>no_proxy</code> matching rules, PAC file contents or evaluation semantics, SOCKS protocol options, the complete <code>http.Agent</code>/<code>https.Agent</code> option set, or behavior of the delegated low-level agent packages. It also does not cover network-dependent request results or package-maintainer build, test, lint, and packaging commands.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

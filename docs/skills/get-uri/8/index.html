@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>get-uri 8.x — PMCP</title>
+  <meta name="description" content="Use get-uri 8.x to obtain readable streams from data, file, FTP, HTTP, and HTTPS URIs, or to validate supported protocols." />
+  <link rel="canonical" href="https://pmcp.build/skills/get-uri/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="get-uri 8.x — PMCP" />
+  <meta property="og:description" content="Use get-uri 8.x to obtain readable streams from data, file, FTP, HTTP, and HTTPS URIs, or to validate supported protocols." />
+  <meta property="og:url" content="https://pmcp.build/skills/get-uri/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/get-uri/">Other majors</a></p>
+    <h1>get-uri 8.x</h1><p>Use get-uri 8.x to obtain readable streams from data, file, FTP, HTTP, and HTTPS URIs, or to validate supported protocols.</p>
+    <dl><dt>For</dt><dd><code>get-uri@8.0.1</code></dd><dt>Verified</dt><dd>2026-09-08, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-get-uri@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/get-uri/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/get-uri/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/get-uri/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-3aTj1ofOnkZFQgHt4nuHaiYTvT60th4qhvdHMCpCUQvy0ikA3DD8EMX8UaTpPOUVjta+dhoC2/dDyXEY9Wr14Q==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against get-uri@8.0.1 on 2026-09-08. 4 of 4 examples executed.</p>
+<h2>get-uri 8.x</h2>
+<h3>Runtime and module shape</h3>
+<ul>
+<li>Requires Node.js 20 or newer.</li>
+<li>The package is ESM. Import named exports from <code>get-uri</code>:</li>
+</ul>
+<pre><code class="language-ts">import { getUri, isValidProtocol, protocols } from &#39;get-uri&#39;;
+</code></pre>
+<ul>
+<li>The main API is <code>getUri(uri, options?)</code>, returning a <code>Promise&lt;Readable&gt;</code>.</li>
+<li>Accepted URI inputs are strings and <code>URL</code> objects.</li>
+<li>Supported protocols are <code>data</code>, <code>file</code>, <code>ftp</code>, <code>http</code>, and <code>https</code>.</li>
+</ul>
+<h3>Get a readable stream</h3>
+<p>Use <code>getUri</code> when the caller needs a stream rather than a buffered value. The following uses a <code>data:</code> URI, so it requires no network or filesystem access:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { getUri } from &#39;get-uri&#39;;
+
+const stream = await getUri(&#39;data:text/plain,hello&#39;);
+let result = &#39;&#39;;
+
+for await (const chunk of stream) {
+  result += chunk.toString();
+}
+
+assert.equal(result, &#39;hello&#39;);
+</code></pre>
+<p>A <code>URL</code> object is also accepted:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { getUri } from &#39;get-uri&#39;;
+
+const stream = await getUri(new URL(&#39;data:text/plain,from-url&#39;));
+let result = &#39;&#39;;
+
+for await (const chunk of stream) {
+  result += chunk.toString();
+}
+
+assert.equal(result, &#39;from-url&#39;);
+</code></pre>
+<p>For <code>file:</code> URIs, the resolved stream is an <code>fs.ReadStream</code>. HTTP and HTTPS produce streams from those protocols; FTP is also supported. Those protocols require resources outside a standalone, offline example.</p>
+<h3>Protocol helpers</h3>
+<p><code>isValidProtocol</code> is a type guard for the supported protocol names:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { isValidProtocol } from &#39;get-uri&#39;;
+
+assert.equal(isValidProtocol(&#39;data&#39;), true);
+assert.equal(isValidProtocol(&#39;file&#39;), true);
+assert.equal(isValidProtocol(&#39;ftp&#39;), true);
+assert.equal(isValidProtocol(&#39;http&#39;), true);
+assert.equal(isValidProtocol(&#39;https&#39;), true);
+assert.equal(isValidProtocol(&#39;gopher&#39;), false);
+</code></pre>
+<p>The <code>protocols</code> export exposes the individual protocol handlers. A handler receives a parsed <code>URL</code> and optional protocol-specific options:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { protocols } from &#39;get-uri&#39;;
+
+const stream = await protocols.data(new URL(&#39;data:text/plain,direct&#39;));
+let result = &#39;&#39;;
+
+for await (const chunk of stream) {
+  result += chunk.toString();
+}
+
+assert.equal(result, &#39;direct&#39;);
+</code></pre>
+<p>The available handlers are <code>protocols.data</code>, <code>protocols.file</code>, <code>protocols.ftp</code>, <code>protocols.http</code>, and <code>protocols.https</code>.</p>
+<h3>Caching and errors</h3>
+<p>Pass a previous readable stream as <code>cache</code> in the options when using a protocol that supports caching. If the destination has not changed, the operation rejects with an error whose <code>code</code> is <code>&quot;ENOTMODIFIED&quot;</code>.</p>
+<p>A missing resource rejects with an error whose <code>code</code> is <code>&quot;ENOTFOUND&quot;</code>.</p>
+<p>Other options are passed through to the underlying protocol implementation, such as <code>http.get()</code> or <code>ftp.connect()</code>.</p>
+<h3>Common version mistakes</h3>
+<ul>
+<li>Do not use the older CommonJS shape or assume <code>require()</code> is the documented usage. get-uri 8.x is an ESM package.</li>
+<li>Do not target Node 14 or another pre-20 runtime. Version 8 raised the minimum Node.js version to 20.</li>
+<li>Do not expect only HTTP and HTTPS: <code>data</code>, <code>file</code>, and <code>ftp</code> are built in as well.</li>
+<li>Do not expect <code>getUri</code> to return the contents directly. Await it to obtain a <code>Readable</code> stream.</li>
+<li>Do not pass an ordinary protocol string to a protocol handler: the <code>protocols.*</code> functions take a parsed <code>URL</code>; use <code>getUri</code> when starting with a URI string.</li>
+<li>Do not assume an unchanged cached resource resolves normally; it rejects with <code>code === &quot;ENOTMODIFIED&quot;</code>.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover the protocol-specific option fields, HTTP authentication or headers, FTP connection configuration, filesystem behavior, stream error handling, or running the package through a CLI or test runner. The available research also does not specify the exact data-URI encoding forms beyond the standalone examples shown here.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

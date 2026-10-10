@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>bun-types 1.x — PMCP</title>
+  <meta name="description" content="Use bun-types as TypeScript declarations for Bun runtime APIs, while avoiding the common mistake of treating it as a runtime package. Covers the current @types/bun wrapper shape, explicit configuration for direct bun-types usage, and the Bun APIs described by the declarations." />
+  <link rel="canonical" href="https://pmcp.build/skills/bun-types/1/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="bun-types 1.x — PMCP" />
+  <meta property="og:description" content="Use bun-types as TypeScript declarations for Bun runtime APIs, while avoiding the common mistake of treating it as a runtime package. Covers the current @types/bun wrapper shape, explicit configuration for direct bun-types usage, and the Bun APIs described by the declarations." />
+  <meta property="og:url" content="https://pmcp.build/skills/bun-types/1/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/bun-types/">Other majors</a></p>
+    <h1>bun-types 1.x</h1><p>Use bun-types as TypeScript declarations for Bun runtime APIs, while avoiding the common mistake of treating it as a runtime package. Covers the current @types/bun wrapper shape, explicit configuration for direct bun-types usage, and the Bun APIs described by the declarations.</p>
+    <dl><dt>For</dt><dd><code>bun-types@1.4.2</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-bun-types@1.1.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/bun-types/1/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/bun-types/1/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/bun-types/1/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-ZGWxE3vUEvT7Lzt0D7Nt3RWlaqfHsH6x3CZ9PRrZpDRIIxSwJqYOcvPbepw1vCMvxywwreK8y/IE2YNAz1m6Aw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against bun-types@1.4.2 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>bun-types</h2>
+<p><code>bun-types</code> is a declaration-only package for Bun&#39;s JavaScript runtime APIs. Installing it does not provide a runtime implementation; the program must be run by Bun.</p>
+<h3>v1.0.0 installation and TypeScript configuration</h3>
+<p>For the v1.0.0 package, install the package directly:</p>
+<pre><code class="language-sh">bun add bun-types
+</code></pre>
+<p>Opt into its declarations in <code>tsconfig.json</code> or <code>jsconfig.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;types&quot;: [&quot;bun-types&quot;]
+}
+</code></pre>
+<p>The declarations aggregate Bun globals, <code>bun</code> APIs, Node-compatible declarations, <code>bun:sqlite</code>, <code>bun:test</code>, and <code>bun:ffi</code> declarations. The <code>bun</code> module is documented as an alias of <code>globalThis.Bun</code>.</p>
+<p>Do not confuse this v1.0.0 setup with the newer documented installation surface. The current README recommends <code>@types/bun</code> instead:</p>
+<pre><code class="language-sh">bun add -D @types/bun
+</code></pre>
+<p>Current <code>@types/bun</code> is a shim that loads <code>bun-types</code>, and ordinary <code>@types/*</code> discovery can make the declarations available without the old explicit <code>types</code> entry. That is a later package/documentation shape; when targeting <code>bun-types</code> v1.0.0, use the direct package and explicit configuration shown above.</p>
+<h3>Runtime boundary</h3>
+<p><code>bun-types</code> only affects type checking. It does not make Bun APIs available in Node or another JavaScript runtime. Run code using these declarations with Bun.</p>
+<p>The examples below are standalone Bun scripts. They import the declaration package by name and use only APIs that can run without a network or filesystem dependency.</p>
+<h3>The <code>bun</code> module</h3>
+<p>Import runtime APIs from <code>bun</code>, not from <code>bun-types</code>:</p>
+<pre><code class="language-ts">import type {} from &quot;bun-types&quot;;
+import { file, serve, write, which, dns } from &quot;bun&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+assert.equal(typeof file, &quot;function&quot;);
+assert.equal(typeof serve, &quot;function&quot;);
+assert.equal(typeof write, &quot;function&quot;);
+assert.equal(typeof which, &quot;function&quot;);
+assert.equal(typeof dns, &quot;object&quot;);
+</code></pre>
+<p>The declared surfaces include:</p>
+<ul>
+<li><code>file(path)</code>, which creates a Bun file object.</li>
+<li><code>serve({ fetch, port })</code>, which starts a server and therefore belongs in a Bun program with an appropriate lifecycle.</li>
+<li><code>write(destination, input)</code>, which asynchronously writes a supported string, blob, typed array, array buffer, or blob-part array.</li>
+<li><code>which(command, options?)</code>, which returns a path or <code>null</code>; its options can provide <code>PATH</code> and <code>cwd</code>.</li>
+<li><code>dns.lookup(hostname, options?)</code>, whose options include address family, socket type, flags, port, and backend.</li>
+</ul>
+<p>For example, the declaration for <code>which</code> is shaped like this:</p>
+<pre><code class="language-ts">const executable: string | null = which(&quot;some-command&quot;, {
+  PATH: &quot;/some/path&quot;,
+  cwd: &quot;/some/working/directory&quot;,
+});
+</code></pre>
+<p>Do not assume that installing <code>bun-types</code> makes <code>file</code>, <code>serve</code>, <code>write</code>, <code>which</code>, or <code>dns</code> callable in a plain Node process.</p>
+<h3>SQLite</h3>
+<p>SQLite is a separate Bun built-in module, imported as <code>bun:sqlite</code>:</p>
+<pre><code class="language-ts">import type {} from &quot;bun-types&quot;;
+import { Database } from &quot;bun:sqlite&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const db = new Database(&quot;:memory:&quot;);
+db.run(&quot;CREATE TABLE foo (bar TEXT)&quot;);
+db.run(&quot;INSERT INTO foo VALUES (?)&quot;, &quot;baz&quot;);
+
+assert.deepEqual(db.query(&quot;SELECT * FROM foo&quot;).all(), [{ bar: &quot;baz&quot; }]);
+</code></pre>
+<p><code>Database</code> accepts an optional filename and options. The options form includes <code>readonly</code>, <code>create</code>, and <code>readwrite</code>. An in-memory database can be selected with <code>&quot;:memory:&quot;</code>.</p>
+<p>The declaration exposes these important operations:</p>
+<ul>
+<li><code>run(sqlQuery, ...bindings)</code>, returning <code>void</code>.</li>
+<li><code>query(sqlQuery)</code>, returning a statement.</li>
+<li><code>prepare(sqlQuery, params?)</code>, returning a statement.</li>
+</ul>
+<p>Bindings are passed to <code>run</code> as SQL query bindings, as in the example. Do not import SQLite from the ordinary <code>sqlite</code> package; the declared entry point is <code>bun:sqlite</code>.</p>
+<h3>Other declared entry points</h3>
+<p>The package also declares <code>bun:test</code> and <code>bun:ffi</code>. Their declarations are available through this package, but they are intended for Bun&#39;s own test and FFI usage rather than for the standalone examples in this skill. Do not expect <code>bun-types</code> itself to execute either feature.</p>
+<h3>Common mistakes</h3>
+<ul>
+<li><strong>Using the old setup with a current installation guide:</strong> <code>bun-types</code> v1.0.0 uses a direct dependency and explicit <code>&quot;types&quot;: [&quot;bun-types&quot;]</code>; current documentation instead presents <code>@types/bun</code>.</li>
+<li><strong>Importing declarations as runtime APIs:</strong> import runtime functions from <code>bun</code> and SQLite from <code>bun:sqlite</code>. <code>bun-types</code> supplies declarations only.</li>
+<li><strong>Running the code under Node:</strong> the declarations do not polyfill <code>globalThis.Bun</code>, <code>bun</code>, or <code>bun:*</code> modules.</li>
+<li><strong>Using <code>describe</code>, <code>it</code>, or <code>expect</code> in a direct script:</strong> those are not supplied by a standalone script. The examples here use <code>node:assert/strict</code> and can be run directly with Bun.</li>
+<li><strong>Treating <code>bun:sqlite</code> as a normal npm module:</strong> use the built-in module specifier exactly as declared.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not specify the detailed APIs or usage patterns inside <code>bun:test</code> or <code>bun:ffi</code>, because the supplied research only identifies those entry points and does not include their declarations. It also does not cover server lifecycle management, filesystem effects from <code>file</code> or <code>write</code>, DNS results, or the complete <code>Bun</code> global API. Those require the Bun runtime and details outside the provided research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

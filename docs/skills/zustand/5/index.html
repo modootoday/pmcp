@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>zustand 5.x — PMCP</title>
+  <meta name="description" content="Use Zustand ^5.0.0 for vanilla stores, React-bound stores, persistence, and Redux-style reducers. Covers documented v5 APIs, standalone examples, and migration traps such as stable selectors, replacement updates, and changed persistence behavior." />
+  <link rel="canonical" href="https://pmcp.build/skills/zustand/5/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="zustand 5.x — PMCP" />
+  <meta property="og:description" content="Use Zustand ^5.0.0 for vanilla stores, React-bound stores, persistence, and Redux-style reducers. Covers documented v5 APIs, standalone examples, and migration traps such as stable selectors, replacement updates, and changed persistence behavior." />
+  <meta property="og:url" content="https://pmcp.build/skills/zustand/5/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/zustand/">Other majors</a></p>
+    <h1>zustand 5.x</h1><p>Use Zustand ^5.0.0 for vanilla stores, React-bound stores, persistence, and Redux-style reducers. Covers documented v5 APIs, standalone examples, and migration traps such as stable selectors, replacement updates, and changed persistence behavior.</p>
+    <dl><dt>For</dt><dd><code>zustand@5.0.15</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-zustand@5.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/zustand/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/zustand/5/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/zustand/5/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-MQuKUJ1Jq8yep+Wn24z3FUXKzGTx6TNf79cqdgOt9t44jFRa2xyzySdkrGbpVOVj2QdE6blkigx7rS3h49gqhA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against zustand@5.0.15 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>zustand ^5.0.0</h2>
+<h3>Core API</h3>
+<p>Use named exports. Zustand v5 drops default exports.</p>
+<ul>
+<li><code>zustand</code>: <code>create</code>, <code>useStore</code></li>
+<li><code>zustand/vanilla</code>: <code>createStore</code></li>
+<li><code>zustand/middleware</code>: <code>persist</code>, <code>createJSONStorage</code>, <code>redux</code>, and other documented middleware such as <code>devtools</code>, <code>immer</code>, <code>combine</code>, and <code>subscribeWithSelector</code></li>
+</ul>
+<p><code>create&lt;T&gt;()(stateCreator)</code> returns a React-bound store hook. The hook has attached <code>setState</code>, <code>getState</code>, <code>getInitialState</code>, and <code>subscribe</code> APIs. The state creator receives <code>set</code> and <code>get</code>; ordinary <code>set</code> calls merge partial updates.</p>
+<p>A React runtime is required to import and use the <code>zustand</code> entry point. A plain standalone script without React cannot execute a <code>create</code> example. Use <code>createStore</code> from <code>zustand/vanilla</code> for code that does not run inside React.</p>
+<p><code>createStore&lt;T&gt;()(stateCreator)</code> returns a vanilla <code>StoreApi&lt;T&gt;</code> with <code>getState</code>, <code>setState</code>, <code>getInitialState</code>, and <code>subscribe</code>.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { createStore } from &#39;zustand/vanilla&#39;
+
+const store = createStore&lt;{ bears: number; add: () =&gt; void }&gt;()((set) =&gt; ({
+  bears: 0,
+  add: () =&gt; set((state) =&gt; ({ bears: state.bears + 1 })),
+}))
+
+store.getState().add()
+assert.equal(store.getState().bears, 1)
+assert.equal(store.getInitialState().bears, 0)
+
+let observed = -1
+const unsubscribe = store.subscribe((state) =&gt; {
+  observed = state.bears
+})
+store.setState({ bears: 3 })
+assert.equal(observed, 3)
+unsubscribe()
+</code></pre>
+<p>A vanilla store can be bound to React with <code>useStore</code>, but that binding requires a React application/runtime and is not demonstrated in a plain script.</p>
+<h3>Persistence</h3>
+<p>Wrap a state creator with <code>persist</code>. The <code>name</code> option is required. The default storage is JSON-wrapped <code>localStorage</code>; in non-browser or standalone code, provide a storage explicitly with <code>createJSONStorage</code>.</p>
+<p>In v5, persist does not store the initial state during store creation. If the initial state must be persisted immediately, explicitly call <code>setState</code> after creating the store.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { createStore } from &#39;zustand/vanilla&#39;
+import { createJSONStorage, persist } from &#39;zustand/middleware&#39;
+
+const values = new Map&lt;string, string&gt;()
+const storage = createJSONStorage(() =&gt; ({
+  getItem: (key) =&gt; values.get(key) ?? null,
+  setItem: (key, value) =&gt; { values.set(key, value) },
+  removeItem: (key) =&gt; { values.delete(key) },
+}))
+
+const store = createStore(
+  persist(
+    (set) =&gt; ({ count: 0, increment: () =&gt; set((state) =&gt; ({ count: state.count + 1 })) }),
+    { name: &#39;counter&#39;, storage },
+  ),
+)
+
+assert.equal(values.has(&#39;counter&#39;), false)
+store.getState().increment()
+assert.equal(store.getState().count, 1)
+assert.equal(values.has(&#39;counter&#39;), true)
+</code></pre>
+<p><code>persist</code> modifies the state creator&#39;s wrapped <code>set</code> and <code>get</code>. Do not assume that middleware changes every separately exposed vanilla <code>getState</code> or <code>setState</code> behavior in the same way.</p>
+<h3>Redux middleware</h3>
+<p><code>redux(reducer, initialState)</code> adds <code>dispatch</code> to the state. Actions must have a string <code>type</code>. The reducer returns the next state value.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { createStore } from &#39;zustand/vanilla&#39;
+import { redux } from &#39;zustand/middleware&#39;
+
+const store = createStore(
+  redux(
+    (state: { count: number }, action: { type: string }) =&gt;
+      action.type === &#39;inc&#39; ? { count: state.count + 1 } : state,
+    { count: 0 },
+  ),
+)
+
+store.getState().dispatch({ type: &#39;inc&#39; })
+assert.equal(store.getState().count, 1)
+</code></pre>
+<h3>v5 migration traps</h3>
+<h4>Do not use the v4 equality-function shape with <code>create</code></h4>
+<p>In v5, <code>create</code> does not accept a custom equality function as a second hook argument. For equality-function usage, use <code>createWithEqualityFn</code> from <code>zustand/traditional</code> and install the <code>use-sync-external-store</code> peer dependency. Alternatively use <code>useShallow</code> from <code>zustand/shallow</code>.</p>
+<h4>Keep selector results stable</h4>
+<p>Selectors that create a new array or object on every call can cause infinite loops in v5. Use <code>useShallow</code> for shallowly compared compound selections, or return stable values. Avoid a fresh fallback such as <code>state.action ?? (() =&gt; {})</code>; define a stable fallback instead.</p>
+<h4>Replacement updates require complete state</h4>
+<p><code>setState(value, true)</code> replaces the entire state rather than merging it. The replacement must contain every required state field. For partial updates, omit the second argument or use the default merge behavior.</p>
+<h4>Other v5 compatibility changes</h4>
+<ul>
+<li>React 18 is the minimum React version documented for v5.</li>
+<li>TypeScript 4.5 is the minimum documented version.</li>
+<li><code>use-sync-external-store</code> is a peer dependency for <code>zustand/traditional</code>.</li>
+<li>UMD/SystemJS and ES5 support were dropped.</li>
+<li><code>createContext</code> was removed from <code>zustand/context</code>.</li>
+<li>Persist behavior changed: initial state is not automatically stored during store creation.</li>
+<li>Default exports and deprecated features were dropped.</li>
+</ul>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover React component rendering, because the React-bound <code>zustand</code> entry point cannot run in the standalone example environment without React. It also does not cover framework integration, hydration, a runnable <code>traditional</code> example, detailed options for every middleware, Redux DevTools setup, or browser-specific storage behavior. <code>devtools</code> additionally requires the Redux DevTools Chrome extension. Those areas require runtime or configuration context not covered by the supplied research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

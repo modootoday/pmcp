@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>chalk 6.x — PMCP</title>
+  <meta name="description" content="Use chalk@^6.0.0 correctly from Node.js 22+ ESM, including deterministic color levels, v6 underline styles/colors, Chalk instances, and exported capability metadata." />
+  <link rel="canonical" href="https://pmcp.build/skills/chalk/6/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="chalk 6.x — PMCP" />
+  <meta property="og:description" content="Use chalk@^6.0.0 correctly from Node.js 22+ ESM, including deterministic color levels, v6 underline styles/colors, Chalk instances, and exported capability metadata." />
+  <meta property="og:url" content="https://pmcp.build/skills/chalk/6/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/chalk/">Other majors</a></p>
+    <h1>chalk 6.x</h1><p>Use chalk@^6.0.0 correctly from Node.js 22+ ESM, including deterministic color levels, v6 underline styles/colors, Chalk instances, and exported capability metadata.</p>
+    <dl><dt>For</dt><dd><code>chalk@6.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-chalk@6.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/chalk/6/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/chalk/6/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/chalk/6/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-dtVraZqdzYMDL9gc397itEwJsQyRFq/mlXBMEoyjzJs8Ws8sS2MHCpjKpV7ZOboEb+u3XzWBlm1n8hB2lqoh9Q==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against chalk@6.0.0 on 2026-09-08. 6 of 6 examples executed.</p>
+<h2>chalk@^6.0.0</h2>
+<h3>Runtime and package shape</h3>
+<ul>
+<li>Chalk 6 is ESM-only and requires Node.js 22 or newer.</li>
+<li>Import the default export or named exports from <code>chalk</code>. Do not use <code>require()</code> or assume a CommonJS entry point.</li>
+<li>Chalk formats strings; it is not a command-line runner. Direct scripts can use its formatting API, while command-line usage belongs to the separate <code>chalk-cli</code> package.</li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import chalk, {Chalk} from &#39;chalk&#39;;
+
+assert.equal(typeof chalk, &#39;function&#39;);
+assert.equal(typeof Chalk, &#39;function&#39;);
+
+const plain = new Chalk({level: 0});
+assert.equal(plain.blue(&#39;hello&#39;), &#39;hello&#39;);
+assert.equal(plain.bold.red(&#39;error&#39;), &#39;error&#39;);
+</code></pre>
+<h3>Chaining styles and arguments</h3>
+<p>A style chain is callable: <code>chalk.&lt;style&gt;[.&lt;style&gt;...](text, ...moreText)</code>. Multiple arguments are separated by spaces. A chain can be saved and reused because the chain itself is callable.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {Chalk} from &#39;chalk&#39;;
+
+const color = new Chalk({level: 3});
+
+const error = color.bold.red;
+const warning = color.hex(&#39;#FFA500&#39;);
+
+assert.equal(error(&#39;Error!&#39;), &#39;\u001b[1m\u001b[31mError!\u001b[39m\u001b[22m&#39;);
+assert.equal(warning(&#39;Warning!&#39;), &#39;\u001b[38;2;255;165;0mWarning!\u001b[39m&#39;);
+assert.equal(color.red(&#39;Hello&#39;, color.underline.bgBlue(&#39;world&#39;) + &#39;!&#39;), &#39;\u001b[31mHello \u001b[4m\u001b[44mworld\u001b[49m\u001b[24m!\u001b[39m&#39;);
+assert.equal(color.rgb(123, 45, 67).underline(&#39;Underlined reddish color&#39;), &#39;\u001b[38;2;123;45;67m\u001b[4mUnderlined reddish color\u001b[24m\u001b[39m&#39;);
+</code></pre>
+<h3>Color levels and <code>Chalk</code></h3>
+<p>Use <code>new Chalk({level})</code> when output must be deterministic. Levels are <code>0</code> through <code>3</code>; level <code>0</code> disables styling and level <code>3</code> enables truecolor. A <code>Chalk</code> instance is callable and its <code>.level</code> can be changed later.</p>
+<p>Do not rely on the default instance&#39;s detected level in tests or examples: it depends on the environment. Numeric <code>FORCE_COLOR</code> selects that exact level; <code>FORCE_COLOR=true</code> enables color while retaining detection.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {Chalk} from &#39;chalk&#39;;
+
+const customChalk = new Chalk({level: 0});
+assert.equal(customChalk.red(&#39;not red&#39;), &#39;not red&#39;);
+
+customChalk.level = 3;
+const truecolor = customChalk.rgb(15, 100, 204)(&#39;Truecolor&#39;);
+assert.notEqual(truecolor, &#39;Truecolor&#39;);
+assert.ok(truecolor.includes(&#39;15;100;204&#39;));
+</code></pre>
+<h3>v6 underline styles and underline colors</h3>
+<p>Version 6 adds <code>underlineDouble</code>, <code>underlineCurly</code>, <code>underlineDotted</code>, and <code>underlineDashed</code>. Underline colors use methods such as <code>underlineHex</code>, <code>underlineRgb</code>, and <code>underlineAnsi256</code>; an underline style must also be applied. There is no basic 16-color underline form.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {Chalk} from &#39;chalk&#39;;
+
+const color = new Chalk({level: 3});
+
+const typo = color.underlineHex(&#39;#DEADED&#39;).underlineCurly(&#39;typo&#39;);
+const notice = color.underlineRgb(15, 100, 204).underlineDouble(&#39;Hello!&#39;);
+const dotted = color.underlineDotted(&#39;dotted&#39;);
+const dashed = color.underlineDashed(&#39;dashed&#39;);
+
+for (const value of [typo, notice, dotted, dashed]) {
+  assert.notEqual(value, value.replace(/\u001b\[[0-9;]*m/g, &#39;&#39;));
+}
+assert.ok(typo.includes(&#39;222;173;237&#39;));
+assert.ok(notice.includes(&#39;15;100;204&#39;));
+</code></pre>
+<h3>Color models</h3>
+<p>The documented color-model methods include <code>rgb</code>, <code>hex</code>, and <code>ansi256</code>, with background equivalents <code>bgRgb</code>, <code>bgHex</code>, and <code>bgAnsi256</code>, and underline equivalents <code>underlineRgb</code>, <code>underlineHex</code>, and <code>underlineAnsi256</code>. At level 1, <code>ansi256()</code> and <code>bgAnsi256()</code> are downsampled to the 16-color range.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {Chalk} from &#39;chalk&#39;;
+
+const color = new Chalk({level: 3});
+
+assert.ok(color.rgb(1, 2, 3)(&#39;x&#39;).includes(&#39;1;2;3&#39;));
+assert.ok(color.hex(&#39;#010203&#39;)(&#39;x&#39;).includes(&#39;1;2;3&#39;));
+assert.ok(color.ansi256(100)(&#39;x&#39;).includes(&#39;38;5;100&#39;));
+assert.ok(color.bgRgb(1, 2, 3)(&#39;x&#39;).includes(&#39;48;2;1;2;3&#39;));
+assert.ok(color.bgHex(&#39;#010203&#39;)(&#39;x&#39;).includes(&#39;48;2;1;2;3&#39;));
+assert.ok(color.bgAnsi256(100)(&#39;x&#39;).includes(&#39;48;5;100&#39;));
+assert.ok(color.underlineRgb(1, 2, 3).underline(&#39;x&#39;).includes(&#39;58;2;1;2;3&#39;));
+assert.ok(color.underlineHex(&#39;#010203&#39;).underline(&#39;x&#39;).includes(&#39;58;2;1;2;3&#39;));
+assert.ok(color.underlineAnsi256(100).underline(&#39;x&#39;).includes(&#39;58;5;100&#39;));
+</code></pre>
+<h3>Named exports and stderr instance</h3>
+<p>The package exports <code>chalkStderr</code>, a separate instance configured using stderr color support, plus <code>supportsColor</code> and <code>supportsColorStderr</code>. It also exports style-name arrays:</p>
+<ul>
+<li><code>modifierNames</code></li>
+<li><code>foregroundColorNames</code></li>
+<li><code>backgroundColorNames</code></li>
+<li><code>underlineColorNames</code></li>
+<li><code>colorNames</code></li>
+</ul>
+<p>Aliases include <code>modifiers</code>, <code>foregroundColors</code>, <code>backgroundColors</code>, and <code>colors</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {
+  chalkStderr,
+  modifierNames,
+  foregroundColorNames,
+  backgroundColorNames,
+  underlineColorNames,
+  colorNames,
+  modifiers,
+  foregroundColors,
+  backgroundColors,
+  colors,
+  supportsColor,
+  supportsColorStderr,
+} from &#39;chalk&#39;;
+
+assert.equal(typeof chalkStderr, &#39;function&#39;);
+assert.ok(modifierNames.includes(&#39;bold&#39;));
+assert.ok(foregroundColorNames.includes(&#39;red&#39;));
+assert.ok(Array.isArray(backgroundColorNames));
+assert.ok(Array.isArray(underlineColorNames));
+assert.ok(Array.isArray(colorNames));
+assert.equal(modifiers, modifierNames);
+assert.equal(foregroundColors, foregroundColorNames);
+assert.equal(backgroundColors, backgroundColorNames);
+assert.equal(colors, colorNames);
+assert.ok(typeof supportsColor === &#39;boolean&#39; || typeof supportsColor === &#39;object&#39;);
+assert.ok(typeof supportsColorStderr === &#39;boolean&#39; || typeof supportsColorStderr === &#39;object&#39;);
+assert.notEqual(chalkStderr, undefined);
+</code></pre>
+<h3>Common mistakes</h3>
+<ul>
+<li>Do not copy a CommonJS <code>require(&#39;chalk&#39;)</code> shape from older examples; Chalk 6 is ESM-only.</li>
+<li>Do not assume the older package metadata or older Node.js support applies. Chalk 6 requires Node.js 22+.</li>
+<li>Do not test the default <code>chalk</code> output as colored without controlling the color level; terminal/environment detection may disable color.</li>
+<li>Do not treat <code>underlineHex</code>, <code>underlineRgb</code>, or <code>underlineAnsi256</code> as complete underline styles by themselves. Combine them with an underline style such as <code>underline</code>, <code>underlineCurly</code>, or <code>underlineDouble</code>.</li>
+<li>Do not expect a basic 16-color underline API; underline colors are exposed through the color-model methods.</li>
+<li>Do not assume that every intuitive color name is present in <code>foregroundColorNames</code>; use the exported arrays to discover supported names rather than asserting an unsupported name such as <code>pink</code>.</li>
+<li>Do not assume <code>ansi256()</code> always emits a 256-color sequence: at level 1 it is downsampled to 16 colors.</li>
+<li>Do not use <code>describe</code>, <code>it</code>, or <code>expect</code> in a directly executed script. Chalk does not provide test-runner globals.</li>
+<li>Do not use Chalk as the CLI executable. The separately documented <code>chalk-cli</code> package provides command-line behavior.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover Chalk&#39;s complete style-name list or every escape-sequence detail, terminal-specific color detection behavior, invalid color argument handling, TypeScript compiler configuration, or <code>chalk-cli</code> command syntax. It also does not cover framework or test-runner integration.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

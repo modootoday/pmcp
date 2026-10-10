@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ansi-styles 7.x — PMCP</title>
+  <meta name="description" content="Use ansi-styles v7.0.0 to generate ANSI escape sequences, inspect style groups, convert RGB/hex colors, and work with underline colors. Requires Node.js 22 or newer and ESM imports." />
+  <link rel="canonical" href="https://pmcp.build/skills/ansi-styles/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="ansi-styles 7.x — PMCP" />
+  <meta property="og:description" content="Use ansi-styles v7.0.0 to generate ANSI escape sequences, inspect style groups, convert RGB/hex colors, and work with underline colors. Requires Node.js 22 or newer and ESM imports." />
+  <meta property="og:url" content="https://pmcp.build/skills/ansi-styles/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/ansi-styles/">Other majors</a></p>
+    <h1>ansi-styles 7.x</h1><p>Use ansi-styles v7.0.0 to generate ANSI escape sequences, inspect style groups, convert RGB/hex colors, and work with underline colors. Requires Node.js 22 or newer and ESM imports.</p>
+    <dl><dt>For</dt><dd><code>ansi-styles@7.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-ansi-styles@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/ansi-styles/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/ansi-styles/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/ansi-styles/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-tCZhIUPXyECp2NeD6Gamlt7tbFohkPca0KSNFTe6xQJxIxnvBJcvEHwOvHdkxz13GCAnyQ/D/LdfkAplzAXgRA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against ansi-styles@7.0.0 on 2026-09-08. 5 of 5 examples executed.</p>
+<h2>ansi-styles</h2>
+<p><code>ansi-styles</code> v7.0.0 is an ESM package for generating ANSI escape codes. It requires Node.js 22 or newer. The package has no runtime dependencies and is directly importable from a plain script.</p>
+<h3>Import shape</h3>
+<p>Use the default export for styles and conversion helpers, or named exports for the style-name arrays:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import styles, {
+  modifierNames,
+  foregroundColorNames,
+  backgroundColorNames,
+  underlineColorNames,
+  colorNames,
+} from &#39;ansi-styles&#39;;
+
+assert.ok(modifierNames.includes(&#39;bold&#39;));
+assert.ok(foregroundColorNames.includes(&#39;green&#39;));
+assert.ok(backgroundColorNames.includes(&#39;bgGreen&#39;));
+assert.ok(underlineColorNames.includes(&#39;underlineRed&#39;));
+assert.ok(colorNames.includes(&#39;green&#39;));
+assert.ok(colorNames.includes(&#39;bgGreen&#39;));
+assert.ok(!colorNames.includes(&#39;underlineRed&#39;));
+</code></pre>
+<p>The package is ESM (<code>type: module</code>), so use <code>import</code>, not CommonJS <code>require</code>. <code>colorNames</code> combines foreground and background names; underline color names are kept in the separate <code>underlineColorNames</code> array.</p>
+<h3>Styles and groups</h3>
+<p>The default export exposes styles directly and through these groups:</p>
+<ul>
+<li><code>modifier</code></li>
+<li><code>color</code></li>
+<li><code>bgColor</code></li>
+<li><code>underlineColor</code></li>
+</ul>
+<p>A style has <code>open</code> and <code>close</code> strings. Wrap text with the matching pair:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import styles from &#39;ansi-styles&#39;;
+
+const text = `${styles.green.open}Hello world!${styles.green.close}`;
+assert.equal(text, &#39;\u001B[32mHello world!\u001B[39m&#39;);
+assert.equal(styles.color.green.open, styles.green.open);
+assert.equal(styles.color.green.close, styles.green.close);
+assert.ok(styles.bgColor.bgGreen.open.length &gt; 0);
+assert.ok(styles.modifier.bold.open.length &gt; 0);
+assert.ok(styles.modifier.bold.close.length &gt; 0);
+</code></pre>
+<p>Use the group form when the category matters, or the direct form for common foreground styles. Always close a style after the text it affects.</p>
+<h3>ANSI color conversions</h3>
+<p>The default export provides these conversion helpers:</p>
+<ul>
+<li><code>rgbToAnsi256(red, green, blue): number</code></li>
+<li><code>rgbToAnsi(red, green, blue): number</code></li>
+<li><code>hexToRgb(hex): [red, green, blue]</code></li>
+<li><code>hexToAnsi256(hex): number</code></li>
+<li><code>hexToAnsi(hex): number</code></li>
+<li><code>ansi256ToAnsi(code): number</code></li>
+</ul>
+<p>The corresponding <code>ansi</code>, <code>ansi256</code>, and <code>ansi16m</code> style-group methods turn converted values into escape sequences:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import styles from &#39;ansi-styles&#39;;
+
+const rgb = styles.hexToRgb(&#39;#abcdef&#39;);
+assert.deepEqual(rgb, [171, 205, 239]);
+
+const ansi256 = styles.rgbToAnsi256(199, 20, 250);
+const ansi = styles.rgbToAnsi(199, 20, 250);
+const fromHex256 = styles.hexToAnsi256(&#39;#abcdef&#39;);
+const fromHex = styles.hexToAnsi(&#39;#abcdef&#39;);
+
+for (const value of [ansi256, ansi, fromHex256, fromHex]) {
+  assert.equal(typeof value, &#39;number&#39;);
+}
+assert.equal(typeof styles.ansi256ToAnsi(ansi256), &#39;number&#39;);
+
+assert.ok(styles.color.ansi(ansi).length &gt; 0);
+assert.ok(styles.color.ansi256(ansi256).length &gt; 0);
+assert.ok(styles.color.ansi16m(...rgb).length &gt; 0);
+
+const output = `${styles.color.ansi(styles.rgbToAnsi(199, 20, 250))}Hello World${styles.color.close}`;
+assert.ok(output.includes(&#39;Hello World&#39;));
+</code></pre>
+<p>For truecolor output, pass the three RGB components to <code>ansi16m</code>. For 256-color output, pass the numeric result of <code>rgbToAnsi256</code> or <code>hexToAnsi256</code> to <code>ansi256</code>.</p>
+<h3>Underline styles and underline colors</h3>
+<p>v7 adds extended underline modifiers and underline colors:</p>
+<ul>
+<li><code>modifier.underlineDouble</code></li>
+<li><code>modifier.underlineCurly</code></li>
+<li><code>modifier.underlineDotted</code></li>
+<li><code>modifier.underlineDashed</code></li>
+<li><code>underlineColor.underlineRed</code></li>
+</ul>
+<p>Underline colors are independent from the text color. They are visible only when an underline style is also active. <code>underlineColor.ansi()</code> uses the first 16 entries of the 256-color palette.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import styles from &#39;ansi-styles&#39;;
+
+assert.ok(styles.modifier.underlineDouble.open.length &gt; 0);
+assert.ok(styles.modifier.underlineCurly.open.length &gt; 0);
+assert.ok(styles.modifier.underlineDotted.open.length &gt; 0);
+assert.ok(styles.modifier.underlineDashed.open.length &gt; 0);
+assert.ok(styles.underlineColor.underlineRed.open.length &gt; 0);
+
+const underlineRgb = styles.hexToRgb(&#39;#C0FFEE&#39;);
+const underlined = [
+  styles.modifier.underlineCurly.open,
+  styles.underlineColor.ansi(styles.rgbToAnsi(100, 200, 15)),
+  &#39;Hello World&#39;,
+  styles.underlineColor.close,
+  styles.modifier.underlineCurly.close,
+].join(&#39;&#39;);
+
+assert.ok(underlined.includes(&#39;Hello World&#39;));
+assert.ok(styles.underlineColor.ansi256(styles.hexToAnsi256(&#39;#C0FFEE&#39;)).length &gt; 0);
+assert.ok(styles.underlineColor.ansi16m(...underlineRgb).length &gt; 0);
+</code></pre>
+<h3>The <code>codes</code> map</h3>
+<p><code>styles.codes</code> is a <code>ReadonlyMap&lt;number, number&gt;</code> mapping opening color codes to their closing codes:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import styles from &#39;ansi-styles&#39;;
+
+assert.equal(styles.codes instanceof Map, true);
+assert.equal(styles.codes.get(36), 39);
+</code></pre>
+<h3>Common v6-to-v7 mistakes</h3>
+<ul>
+<li><strong>Using an old Node version:</strong> v7 requires Node.js 22 or newer. The v6 requirement was Node.js 12 or newer, so code that worked on an older runtime may fail before import.</li>
+<li><strong>Missing the new underline-color group:</strong> v6 examples commonly show only <code>modifier</code>, <code>color</code>, and <code>bgColor</code>. In v7, use <code>underlineColor</code> and <code>underlineColorNames</code> for underline colors.</li>
+<li><strong>Expecting underline colors in <code>colorNames</code>:</strong> <code>colorNames</code> combines foreground and background names; underline names remain in <code>underlineColorNames</code>.</li>
+<li><strong>Applying an underline color without an underline modifier:</strong> an underline color alone is not visible. Combine it with an underline style such as <code>underlineCurly</code> or <code>underlineDouble</code>.</li>
+<li><strong>Treating the package as a string-styling framework:</strong> <code>ansi-styles</code> emits escape-code strings. It does not provide <code>describe</code>, <code>it</code>, or <code>expect</code>, and examples must use its programmatic API directly. The higher-level package recommended by the README is Chalk.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover Chalk usage, terminal capability detection, rendering differences between terminals, the repository&#39;s screenshot development script, or its repository test tooling. It also does not cover APIs or behavior not shown by the supplied research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

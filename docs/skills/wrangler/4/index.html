@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>wrangler 4.x — PMCP</title>
+  <meta name="description" content="Use Wrangler ^4.0.0 programmatically from Node.js, while avoiding deprecated v3 APIs, accidental remote data access, and assumptions that the CLI or Worker runtime is available in a plain script." />
+  <link rel="canonical" href="https://pmcp.build/skills/wrangler/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="wrangler 4.x — PMCP" />
+  <meta property="og:description" content="Use Wrangler ^4.0.0 programmatically from Node.js, while avoiding deprecated v3 APIs, accidental remote data access, and assumptions that the CLI or Worker runtime is available in a plain script." />
+  <meta property="og:url" content="https://pmcp.build/skills/wrangler/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/wrangler/">Other majors</a></p>
+    <h1>wrangler 4.x</h1><p>Use Wrangler ^4.0.0 programmatically from Node.js, while avoiding deprecated v3 APIs, accidental remote data access, and assumptions that the CLI or Worker runtime is available in a plain script.</p>
+    <dl><dt>For</dt><dd><code>wrangler@4.129.1</code></dd><dt>Verified</dt><dd>2026-09-07, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-wrangler@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/wrangler/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/wrangler/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/wrangler/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-FOqS2F1VxfMrJvGZrtyJtWCvlNpBh+A0uFMwkwfP3oZnnBD9dF9m+1BL8AwMgLTVRkqwdFHJ5KbPTKkiHfr88g==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against wrangler@4.129.1 on 2026-09-07. 4 of 4 examples executed.</p>
+<h2>wrangler ^4.0.0</h2>
+<h3>Scope</h3>
+<p>Wrangler is primarily a CLI and build runner. The v4 programmatic API exposes helpers for Node.js applications and integration testing, but a plain Node.js script does not execute a Worker with production semantics by itself.</p>
+<p>Install or update with:</p>
+<pre><code class="language-sh">npm i -D wrangler@4
+npx wrangler --version
+</code></pre>
+<p>Wrangler v4 no longer supports Node.js 16. Use a Node.js release in Node.js&#39;s Current, Active LTS, or Maintenance LTS lines.</p>
+<h3>Programmatic exports</h3>
+<p>The documented v4 exports are:</p>
+<ul>
+<li><code>createTestHarness</code></li>
+<li><code>experimental_generateTypes</code></li>
+<li><code>unstable_startWorker</code></li>
+<li><code>unstable_dev</code></li>
+<li><code>getPlatformProxy</code></li>
+</ul>
+<p>Check the installed package&#39;s exports before relying on an API:</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert/strict&quot;;
+import {
+  createTestHarness,
+  experimental_generateTypes,
+  getPlatformProxy,
+  unstable_dev,
+  unstable_startWorker,
+} from &quot;wrangler&quot;;
+
+assert.equal(typeof createTestHarness, &quot;function&quot;);
+assert.equal(typeof experimental_generateTypes, &quot;function&quot;);
+assert.equal(typeof getPlatformProxy, &quot;function&quot;);
+assert.equal(typeof unstable_dev, &quot;function&quot;);
+assert.equal(typeof unstable_startWorker, &quot;function&quot;);
+</code></pre>
+<h4><code>createTestHarness</code></h4>
+<p>Use this for integration testing. It accepts optional configuration and returns a harness with:</p>
+<ul>
+<li><code>listen(): Promise&lt;{ url: URL }&gt;</code></li>
+<li><code>fetch(input, init): Promise&lt;Response&gt;</code></li>
+<li><code>getWorker(name?): WorkerHandle</code></li>
+<li><code>getLogs(): WorkerdStructuredLog[]</code></li>
+<li><code>clearLogs(): void</code></li>
+<li><code>debug(): void</code></li>
+<li><code>update(optionsOrUpdater): Promise&lt;void&gt;</code></li>
+</ul>
+<p>A multi-Worker configuration can reference Wrangler config files:</p>
+<pre><code class="language-ts">const server = createTestHarness({
+  workers: [
+    { configPath: &quot;./wrangler.web.jsonc&quot; },
+    { configPath: &quot;./wrangler.api.jsonc&quot; },
+  ],
+});
+</code></pre>
+<p>Do not copy this configuration into a standalone example unless those config files exist. A direct script has no test runner, fixture setup, or generated configuration. The harness itself is the programmatic API intended for integration tests.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert/strict&quot;;
+import { createTestHarness } from &quot;wrangler&quot;;
+
+const server = createTestHarness();
+
+assert.equal(typeof server.listen, &quot;function&quot;);
+assert.equal(typeof server.fetch, &quot;function&quot;);
+assert.equal(typeof server.getWorker, &quot;function&quot;);
+assert.equal(typeof server.getLogs, &quot;function&quot;);
+assert.equal(typeof server.clearLogs, &quot;function&quot;);
+assert.equal(typeof server.debug, &quot;function&quot;);
+assert.equal(typeof server.update, &quot;function&quot;);
+</code></pre>
+<h4><code>unstable_dev</code></h4>
+<p><code>unstable_dev(script, options?)</code> starts a development Worker and returns an object with:</p>
+<ul>
+<li><code>fetch(): Promise&lt;Response&gt;</code></li>
+<li><code>stop(): Promise&lt;void&gt;</code></li>
+</ul>
+<p>The API starts Wrangler&#39;s local development machinery, so a real use needs a Worker script and suitable options. Always stop the returned worker when finished:</p>
+<pre><code class="language-ts">const worker = await unstable_dev(script, options);
+try {
+  const response = await worker.fetch();
+  // inspect response
+} finally {
+  await worker.stop();
+}
+</code></pre>
+<p>This API is distinct from running <code>npx wrangler dev</code>; it is still Wrangler-owned development execution, not ordinary Node.js Worker execution.</p>
+<h4><code>getPlatformProxy</code></h4>
+<p>Use <code>getPlatformProxy(options?)</code> only from a Node.js application. It resolves to:</p>
+<pre><code class="language-ts">{
+  env,
+  cf,
+  ctx,
+  caches,
+  dispose(): Promise&lt;void&gt;
+}
+</code></pre>
+<p>Supported options include <code>environment</code>, <code>configPath</code>, <code>persist</code>, and <code>remoteBindings</code>.</p>
+<p>The proxy provides best-effort local <code>workerd</code> binding emulation. It cannot run inside a Worker. Dispose it when finished:</p>
+<pre><code class="language-ts">const platform = await getPlatformProxy(options);
+try {
+  const { env } = platform;
+  console.log(`MY_VARIABLE = ${env.MY_VARIABLE}`);
+} finally {
+  await platform.dispose();
+}
+</code></pre>
+<p>A standalone invocation generally needs a Wrangler configuration and any bindings referenced by that configuration, so do not assume <code>getPlatformProxy()</code> can demonstrate useful bindings with no project setup.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert/strict&quot;;
+import { getPlatformProxy } from &quot;wrangler&quot;;
+
+assert.equal(typeof getPlatformProxy, &quot;function&quot;);
+</code></pre>
+<h4><code>experimental_generateTypes</code></h4>
+<p><code>experimental_generateTypes(options)</code> generates TypeScript definitions from Wrangler configuration. It returns generated type content as structured strings; it does not automatically write the definitions to disk.</p>
+<p>This operation is configuration-dependent. Supply the relevant Wrangler options from the project rather than assuming a default configuration exists.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert/strict&quot;;
+import { experimental_generateTypes } from &quot;wrangler&quot;;
+
+assert.equal(typeof experimental_generateTypes, &quot;function&quot;);
+</code></pre>
+<h4><code>unstable_startWorker</code></h4>
+<p><code>unstable_startWorker</code> exists, but it is deprecated. Prefer <code>createTestHarness()</code> for integration testing.</p>
+<h3>CLI and build behavior</h3>
+<p>The CLI owns local runtime execution, bundling, deployment, and custom build commands. Typical commands are:</p>
+<pre><code class="language-sh">npx wrangler dev
+npx wrangler deploy
+npx wrangler deploy --dry-run --outdir dist
+</code></pre>
+<p>Built-in bundling runs during <code>wrangler dev</code> and <code>wrangler deploy</code>. A custom build is also runner-owned and can be configured with:</p>
+<pre><code class="language-json">{
+  &quot;build&quot;: {
+    &quot;command&quot;: &quot;npm run build&quot;,
+    &quot;cwd&quot;: &quot;build_cwd&quot;,
+    &quot;watch_dir&quot;: &quot;build_watch_dir&quot;
+  }
+}
+</code></pre>
+<p>Do not put CLI-injected globals such as <code>describe</code>, <code>it</code>, or <code>expect</code> in a direct Node.js example. They are not available when an example is run as <code>bun example.ts</code>.</p>
+<h3>v4 migration traps</h3>
+<ul>
+<li><code>wrangler publish</code> is replaced by <code>wrangler deploy</code>.</li>
+<li><code>wrangler generate</code> is replaced by <code>npm create cloudflare@latest</code>.</li>
+<li><code>wrangler pages publish</code> is replaced by <code>wrangler pages deploy</code>.</li>
+<li><code>wrangler version</code> is replaced by <code>wrangler --version</code>.</li>
+<li><code>getBindingsProxy()</code> is replaced by <code>getPlatformProxy()</code>.</li>
+<li><code>--legacy-assets</code> and <code>legacy_assets</code> are replaced by Workers Static Assets.</li>
+<li><code>--node-compat</code> and <code>node_compat</code> are replaced by the <code>nodejs_compat</code> compatibility flag.</li>
+<li><code>usage_model</code> should be removed; it has no effect.</li>
+<li>Workers Sites and Service Environments (<code>legacy_env</code>) remain deprecated.</li>
+</ul>
+<h4>Local versus remote data</h4>
+<p>In v4, commands supporting both local and remote operation default to local. Add <code>--remote</code> when you intentionally need API or production data.</p>
+<p>This especially affects:</p>
+<ul>
+<li><code>wrangler kv key ...</code></li>
+<li><code>wrangler kv bulk ...</code></li>
+<li><code>wrangler r2 object ...</code></li>
+</ul>
+<p>For example, the old remote-default KV behavior now requires:</p>
+<pre><code class="language-sh">wrangler kv key get --binding MY_KV &quot;my-key&quot; --remote
+</code></pre>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover Wrangler configuration schemas, binding-specific options, the detailed <code>WorkerHandle</code> shape, response or log schemas, deployment authentication, production data workflows, or the exact options required by a particular project. It also does not provide a standalone <code>unstable_dev</code>, harness, or type-generation execution fixture because those operations depend on Worker scripts or Wrangler configuration not supplied by the research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

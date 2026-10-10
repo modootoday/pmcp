@@ -1,0 +1,86 @@
+{
+  "note": "How the skills index is grouped. A label is matched against the target package's own npm keywords, so a new package assigns itself and nobody has to remember to place it. Curated as label-to-keywords rather than label-to-packages for that reason: the judgement here is small and stable, and it does not fall behind the catalog. Order matters — the first label whose keywords match wins, so the specific ones come before the general. A package whose keywords match nothing, or which publishes none at all, is listed under everything else rather than hidden.",
+  "groups": [
+    {
+      "label": "Testing",
+      "keywords": [
+        "testing",
+        "test",
+        "mock",
+        "mocking",
+        "assert",
+        "tdd",
+        "bdd",
+        "spy",
+        "stub",
+        "e2e"
+      ]
+    },
+    {
+      "label": "Browser and DOM",
+      "keywords": ["dom", "jsdom", "browser", "html", "happy-dom"]
+    },
+    { "label": "React", "keywords": ["react", "jsx", "hooks", "icons"] },
+    {
+      "label": "Command line",
+      "keywords": [
+        "cli",
+        "command-line",
+        "terminal",
+        "ansi",
+        "console",
+        "tty",
+        "prompt",
+        "color",
+        "colors"
+      ]
+    },
+    {
+      "label": "HTTP and servers",
+      "keywords": [
+        "http",
+        "https",
+        "fetch",
+        "server",
+        "router",
+        "graphql",
+        "rest",
+        "proxy",
+        "agent"
+      ]
+    },
+    {
+      "label": "Build and bundling",
+      "keywords": [
+        "build",
+        "bundler",
+        "bundle",
+        "compiler",
+        "transpiler",
+        "vite",
+        "rollup",
+        "css",
+        "postcss",
+        "tailwind",
+        "minify"
+      ]
+    },
+    {
+      "label": "TypeScript and code",
+      "keywords": ["typescript", "types", "ast", "codemod", "babel"]
+    },
+    {
+      "label": "Data stores",
+      "keywords": [
+        "database",
+        "redis",
+        "sql",
+        "orm",
+        "mssql",
+        "firebase",
+        "sqlite",
+        "queue"
+      ]
+    }
+  ]
+}

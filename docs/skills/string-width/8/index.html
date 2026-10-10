@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>string-width 8.x — PMCP</title>
+  <meta name="description" content="Use string-width ^8.0.0 to calculate the terminal column width of strings, including Unicode, emoji, ANSI escape codes, ambiguous-width characters, tabs, and non-printing grapheme clusters." />
+  <link rel="canonical" href="https://pmcp.build/skills/string-width/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="string-width 8.x — PMCP" />
+  <meta property="og:description" content="Use string-width ^8.0.0 to calculate the terminal column width of strings, including Unicode, emoji, ANSI escape codes, ambiguous-width characters, tabs, and non-printing grapheme clusters." />
+  <meta property="og:url" content="https://pmcp.build/skills/string-width/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/string-width/">Other majors</a></p>
+    <h1>string-width 8.x</h1><p>Use string-width ^8.0.0 to calculate the terminal column width of strings, including Unicode, emoji, ANSI escape codes, ambiguous-width characters, tabs, and non-printing grapheme clusters.</p>
+    <dl><dt>For</dt><dd><code>string-width@8.2.2</code></dd><dt>Verified</dt><dd>2026-09-08, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-string-width@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/string-width/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/string-width/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/string-width/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-gQEzUcshCZP6PpyDdlXyGS3M8qxQwesMTQxVY45iefKD8YDKHN//okJnuO9Hs3VbCWlbY3H6y3CPjJaPDkgF4w==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against string-width@8.2.2 on 2026-09-08. 4 of 4 examples executed.</p>
+<h2>string-width</h2>
+<h3>Runtime and module shape</h3>
+<ul>
+<li>This is an ESM package and requires Node.js <code>&gt;=20</code>.</li>
+<li>Import the default export:</li>
+</ul>
+<pre><code class="language-ts">import stringWidth from &#39;string-width&#39;;
+</code></pre>
+<ul>
+<li>The v8 API is <code>stringWidth(string, options?)</code> and returns a number.</li>
+<li>Do not use the older/common <code>require(&#39;string-width&#39;)</code> shape. v8 exposes a default ESM export.</li>
+<li>This package is a standalone function: it does not require a test runner, CLI, framework globals, or a build step.</li>
+</ul>
+<h3>Basic width calculation</h3>
+<p>The result is the number of terminal columns needed to display the string.</p>
+<ul>
+<li>Ordinary characters generally count as one column.</li>
+<li>Fullwidth characters such as <code>古</code> count as two columns.</li>
+<li>ANSI escape codes do not affect the result by default.</li>
+<li>Tabs are ignored by design rather than expanded to a tab-stop width.</li>
+<li>Non-printing grapheme clusters do not contribute to the width.</li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import stringWidth from &#39;string-width&#39;;
+
+assert.equal(stringWidth(&#39;a&#39;), 1);
+assert.equal(stringWidth(&#39;hello&#39;), 5);
+assert.equal(stringWidth(&#39;古&#39;), 2);
+assert.equal(stringWidth(&#39;古a&#39;), 3);
+assert.equal(stringWidth(&#39;\t&#39;), 0);
+assert.equal(stringWidth(&#39;\n&#39;), 0);
+</code></pre>
+<h3>Options</h3>
+<h4><code>ambiguousIsNarrow</code></h4>
+<p><code>ambiguousIsNarrow</code> defaults to <code>true</code>. With the default, East Asian Ambiguous characters count as one column. Set it to <code>false</code> to count them as wide.</p>
+<p>The middle dot <code>·</code> is an example of an ambiguous-width character:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import stringWidth from &#39;string-width&#39;;
+
+assert.equal(stringWidth(&#39;·&#39;), 1);
+assert.equal(stringWidth(&#39;·&#39;, {ambiguousIsNarrow: true}), 1);
+assert.equal(stringWidth(&#39;·&#39;, {ambiguousIsNarrow: false}), 2);
+</code></pre>
+<h4><code>countAnsiEscapeCodes</code></h4>
+<p>ANSI escape codes are excluded by default. Set <code>countAnsiEscapeCodes: true</code> when those codes should contribute to the returned width.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import stringWidth from &#39;string-width&#39;;
+
+const styled = &#39;\u001B[1m古\u001B[22m&#39;;
+
+assert.equal(stringWidth(styled), 2);
+assert.ok(stringWidth(styled, {countAnsiEscapeCodes: true}) &gt; stringWidth(styled));
+</code></pre>
+<h3>Unicode and grapheme behavior</h3>
+<p>The v8 implementation segments grapheme clusters and applies emoji-specific width rules before East Asian Width handling. A displayed emoji such as <code>😀</code> occupies two columns:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import stringWidth from &#39;string-width&#39;;
+
+assert.equal(stringWidth(&#39;😀&#39;), 2);
+assert.equal(stringWidth(&#39;a😀古&#39;), 5);
+</code></pre>
+<p>This means do not calculate width by simply using JavaScript <code>string.length</code>: surrogate pairs, combined graphemes, emoji, fullwidth characters, and control sequences do not map directly to terminal columns.</p>
+<h3>Common mistakes</h3>
+<ul>
+<li><strong>Using <code>require</code>:</strong> v8 is ESM-only in its documented package shape. Use a default <code>import</code> and run under a Node version satisfying <code>&gt;=20</code>.</li>
+<li><strong>Treating <code>string.length</code> as display width:</strong> use <code>stringWidth</code> because fullwidth Unicode characters and emoji can occupy two columns, while controls and ANSI sequences may occupy none.</li>
+<li><strong>Assuming ANSI styling changes visual width:</strong> ANSI escape codes are ignored by default. Pass <code>countAnsiEscapeCodes: true</code> only when the escape-code characters themselves should be included.</li>
+<li><strong>Assuming ambiguous characters are always wide:</strong> the default is narrow (<code>ambiguousIsNarrow: true</code>). Set it to <code>false</code> for wide treatment.</li>
+<li><strong>Expecting tabs to expand to tab stops:</strong> tabs are ignored by this implementation.</li>
+<li><strong>Copying the v6 dependency/runtime assumptions:</strong> v8 requires Node <code>&gt;=20</code> and uses the v8 ESM export shape. The older v6 package supported Node <code>&gt;=16</code>, which is not the v8 requirement.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover terminal-specific rendering differences, custom tab-stop calculations, layout or padding APIs, ANSI code generation, or behavior outside the documented v8 options and string-width calculation.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

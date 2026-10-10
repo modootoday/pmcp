@@ -1,0 +1,389 @@
+<h1>Commands</h1>
+      <p class="lede">
+        Inspect installed skills, configure local embeddings, and serve the
+        catalog to an MCP host.
+      </p>
+
+      <h2>The invocation a host uses</h2>
+      <div class="scroll">
+        <table>
+          <tbody>
+            <tr>
+              <td><code>pmcp</code></td>
+              <td>
+                run the MCP server on stdio; the same as <code>serve</code>
+              </td>
+            </tr>
+            <tr>
+              <td><code>pmcp --root ./node_modules</code></td>
+              <td>
+                a leading option with no command is still a server, because
+                hosts pass options without one
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        An unrecognised command does not fall through to a server the caller did
+        not ask for. Only an empty argument list, or one that begins with an
+        option, takes that path.
+      </p>
+
+      <h2>serve</h2>
+      <pre><code>pmcp serve [--config &lt;file&gt;] [--root &lt;dir&gt;] [--scope &lt;prefix&gt;] [embedding options]</code></pre>
+      <p>
+        Reachable by name so it appears in help. It writes nothing to standard
+        output: from the moment it starts, standard output is the protocol, and
+        a diagnostic printed there corrupts the stream.
+      </p>
+
+      <h2>list</h2>
+      <pre><code>pmcp list [--root &lt;dir&gt;] [--scope &lt;prefix&gt;] [--json]</code></pre>
+      <p>
+        The skills discovered in <code>node_modules</code>, as two aligned
+        columns, or as JSON for a script. This is the command that answers
+        "would the server see anything from here".
+      </p>
+      <p>
+        An empty catalog is a finding rather than a success. It exits
+        <strong>1</strong> and names the roots it walked, because a project that
+        installed this and sees nothing has a misconfiguration worth an exit
+        code.
+      </p>
+
+      <h2>index</h2>
+      <pre><code>pmcp index [--config &lt;file&gt;] [embedding options] [--local-only] [--dry-run] [--force] [--json]</code></pre>
+      <p>
+        Encodes each description once so ranking can be semantic, and stores the
+        vectors beside the tree they describe, so two projects never share one
+        index. Only what changed is re-encoded; an unchanged description
+        produces the same vector at the same cost as the first time.
+      </p>
+      <p>
+        Vectors written by one model are never scored against another, so
+        <code>--model</code> is part of the key rather than a preference.
+        Without the optional peer installed it exits <strong>3</strong> and
+        tells you ranking stays lexical, which is the default and not a failure.
+      </p>
+      <p>
+        A partial index is reported rather than called success: it exits
+        <strong>1</strong> and says how many of the catalog it covered, because
+        ranking needs a vector for every entry and falls back to lexical without
+        one.
+      </p>
+
+      <h2>models</h2>
+      <pre><code>pmcp models [--json]</code></pre>
+      <p>
+        Lists the default E5 encoder and optional EmbeddingGemma presets with
+        their dimensions and asset revisions. It does not load an encoder or
+        download weights. Configure <code>[embedding]</code> in
+        <code>pmcp.toml</code> or override individual settings on the CLI.
+      </p>
+      <pre><code>pmcp index --model embeddinggemma-2 --dtype q4 --dimensions 256
+pmcp serve --model embeddinggemma-2 --dtype q4 --dimensions 256</code></pre>
+      <p>
+        Shared embedding options are <code>--model</code>, <code>--dtype</code>,
+        <code>--dimensions</code>, <code>--model-revision</code>,
+        <code>--model-path</code>, <code>--model-cache</code>,
+        <code>--query-prefix</code>, <code>--passage-prefix</code>, and
+        <code>--pooling</code>. They override the corresponding configuration
+        fields. Use <code>--no-config</code> for an independent CLI selection.
+        Model identity includes revision, dtype, dimensions, prefixes, pooling,
+        and projection, so incompatible vectors and query caches stay separate.
+      </p>
+      <p>
+        <code>index --local-only</code> refuses downloads,
+        <code>--dry-run</code> previews work without loading a model or writing
+        vectors, and <code>--force</code> rebuilds only the selected encoder's
+        index. <code>serve</code> never downloads weights: it uses a complete
+        matching local index or reports a lexical fallback. Restart after
+        switching encoder settings.
+      </p>
+
+      <h2 id="mailbox">mailbox</h2>
+      <pre><code>pmcp mailbox init --config ./pmcp.toml
+pmcp mailbox actor --config ./pmcp.toml --actor reviewer --actor-file /private/reviewer.actor.json
+pmcp serve --config ./pmcp.toml --mailbox-actor-file /private/reviewer.actor.json --mailbox-runtime codex-cli</code></pre>
+      <p>
+        Mailbox is disabled by default. Initialization creates a project UUID
+        and preserves existing configuration. A launcher-bound actor enables
+        <code>mailbox_send</code>, <code>mailbox_inbox</code>,
+        <code>mailbox_read</code>, <code>mailbox_ack</code>, and
+        <code>mailbox_sessions</code>. Reading records a receipt;
+        acknowledgement requires reading first. Acknowledgement does not assert
+        task completion.
+      </p>
+      <p>
+        Credentials and attachment files contain secrets and must stay outside
+        source control. State defaults to the user's XDG state directory.
+        Administrative <code>rotate</code>, <code>export</code>,
+        <code>backup</code>, and <code>restore</code> operations require
+        <code>--operator</code>. Use <code>pmcp mailbox --help</code> for
+        inputs. The mailbox exchanges peer data; the host owns authentication,
+        automatic runtime delivery, and enterprise policy.
+      </p>
+
+      <h2 id="project">project</h2>
+      <pre><code>pmcp project
+pmcp project --check
+pmcp project import-mcp --source codex:/path/to/config.toml</code></pre>
+      <p>
+        Generate selected runtimes' native files from <code>pmcp.toml</code>.
+        Unmanaged entries and credential references are preserved; conflicts
+        stop the write. <code>--check</code> reports drift without writes, and
+        MCP import previews changes by default; <code>--write</code> applies
+        them.
+        <a href="/project-configuration/">Configuration and guard examples</a>.
+      </p>
+
+      <h2 id="doctor">doctor</h2>
+      <pre><code>pmcp doctor
+pmcp doctor --memory</code></pre>
+      <p>
+        Inspect native configuration and prerequisites. The optional memory
+        report shows enabled state and paths; it does not read memory contents
+        or synchronize personal memory.
+        <a href="/project-configuration/"
+          >Doctor scope and runtime compatibility</a
+        >.
+      </p>
+
+      <h2 id="validate">validate</h2>
+      <pre><code>pmcp validate</code></pre>
+      <p>
+        Validate discovered skill documents and their contracts without starting
+        a native runtime. <a href="/skills-reference/">Skills reference</a>.
+      </p>
+
+      <h2 id="harness">harness</h2>
+      <pre><code>pmcp harness doctor
+pmcp harness group inspect --group-file "$GROUP_FILE"
+pmcp harness recovery inspect --group-file "$GROUP_FILE"</code></pre>
+      <p>
+        Optional local supervision of owned native main and worker sessions.
+        Linux, tmux, util-linux flock, Node.js 22 and a working user systemd
+        manager are required. Start, input, stop and recovery actions are
+        explicit CLI operations. Provider OAuth, trust and approvals remain
+        native; MCP tools cannot invoke this execution path.
+        <a href="/terminal-harness/">Group creation, control and recovery</a>.
+      </p>
+
+      <h2 id="tui">tui</h2>
+      <pre><code>pmcp --version
+pmcp tui doctor
+pmcp tui create --group-file "$GROUP_FILE" --columns 160 --rows 48
+pmcp tui open --view "$VIEW_FILE"</code></pre>
+      <p>
+        PMCP 0.13.0 or later presents an existing harness group as a native main
+        terminal, worker dock and coordination panel. Set
+        <code>VIEW_FILE</code> to the creation receipt's <code>viewFile</code>.
+        Views begin read only; control acquisition and stopping a runtime
+        require explicit actions. Opening requires an interactive terminal and
+        the same Linux host prerequisites as the harness.
+        <a href="/terminal-workspace/">Keys, mailbox observation and cleanup</a
+        >.
+      </p>
+
+      <h2>The written skills</h2>
+      <p>
+        Local discovery, configuration and terminal supervision need no PMCP
+        account. Configuration and supervision can change local state; native
+        runtimes retain their own provider login requirements.
+        <a href="/skills/">Package-specific skills</a> are free to read,
+        download and install without PMCP login. Each skill page links the
+        original SKILL.md and a content-only archive that your package manager
+        can install directly. The service commands below also support hosted
+        catalogs with their own access policies.
+      </p>
+      <p>
+        All four take <code>--project &lt;dir&gt;</code>,
+        <code>--api &lt;origin&gt;</code>, <code>--json</code>, and
+        <code>--catalog &lt;file&gt;</code>, which reads a saved response so the
+        command runs with no network at all.
+      </p>
+
+      <h2>available</h2>
+      <pre><code>pmcp available [--project &lt;dir&gt;] [--catalog &lt;file&gt;] [--json]</code></pre>
+      <p>
+        Which written skills match the dependencies this project already has. It
+        reads your <code>package.json</code> to decide what matches and does not
+        upload it. No account needed.
+      </p>
+
+      <h2>preview</h2>
+      <pre><code>pmcp preview &lt;skill-package&gt; [--json]</code></pre>
+      <p>
+        A skill's contents and one complete example. The
+        sample is taken from the skill's own bytes rather than described, so it
+        cannot drift from what you would receive. No account needed.
+      </p>
+
+      <h2>login · logout · whoami</h2>
+      <pre><code>pmcp login [--issuer &lt;url&gt;]
+pmcp logout
+pmcp whoami [--json]</code></pre>
+      <p>
+        <code>login</code> signs this machine in without a browser: it prints a
+        code and a URL to open anywhere. The credential is kept outside the
+        project, so it cannot be committed or copied into an image.
+        <code>whoami</code> answers on stdout, so a script can read it.
+        This optional service login is not needed to use the free package
+        skills on this website. skills.modoo.today is a separate service built
+        on PMCP and manages its own access policies.
+      </p>
+
+      <h2>install · sync</h2>
+      <pre><code>pmcp install &lt;skill-package&gt;... | --all [--dry-run | --yes]
+pmcp sync [--project &lt;dir&gt;] [--dry-run | --yes]</code></pre>
+      <p>
+        <code>install</code> adds skill packages as dev dependencies with your
+        own package manager, and what lands is checked against the digest the
+        catalogue published — not its name and version, which any registry can
+        claim. <code>sync</code> updates the ones already declared and removes
+        nothing else.
+        These hosted-distribution commands currently require service
+        credentials. To install a free website skill without login, use the
+        direct archive command on its skill page instead.
+      </p>
+      <p>
+        Both show the project and lockfile changes and stop:
+        <code>--yes</code> approves them, <code>--dry-run</code> prints the plan
+        and changes nothing.
+      </p>
+
+      <h2>Options</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Where</th>
+              <th>Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--root &lt;dir&gt;</code></td>
+              <td><code>serve</code>, <code>list</code>, <code>index</code></td>
+              <td>
+                a <code>node_modules</code> directory to walk; repeatable, and
+                the first one wins on a duplicate package
+              </td>
+            </tr>
+            <tr>
+              <td><code>--scope &lt;prefix&gt;</code></td>
+              <td><code>serve</code>, <code>list</code>, <code>index</code></td>
+              <td>
+                only packages whose names start with this; repeatable, matched
+                with a plain prefix test
+              </td>
+            </tr>
+            <tr>
+              <td><code>--model &lt;id&gt;</code></td>
+              <td><code>index</code>, <code>serve</code></td>
+              <td>
+                the encoder to use; rows from another model are never scored
+              </td>
+            </tr>
+            <tr>
+              <td><code>--json</code></td>
+              <td>
+                <code>list</code>, <code>index</code>, <code>models</code>
+              </td>
+              <td>
+                emit JSON on standard output rather than a table or a summary
+              </td>
+            </tr>
+            <tr>
+              <td><code>--help</code>, <code>-h</code></td>
+              <td>anywhere</td>
+              <td>
+                the help for that command, generated from the command itself
+              </td>
+            </tr>
+            <tr>
+              <td><code>--version</code></td>
+              <td>on its own</td>
+              <td>the version, on standard output</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Options are parsed against the command's own list, so an unknown flag is
+        an error rather than a silently ignored typo. Giving a non-repeatable
+        option twice, or leaving off a value it needs, is the same error.
+      </p>
+
+      <h2>Exit codes</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Means</th>
+              <th>For example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>0</code></td>
+              <td>it did what you asked</td>
+              <td>skills listed, or the whole catalog indexed</td>
+            </tr>
+            <tr>
+              <td><code>1</code></td>
+              <td>it ran and found a problem</td>
+              <td>
+                no skills under those roots, a partial index, or no SQLite in
+                this runtime to store vectors in
+              </td>
+            </tr>
+            <tr>
+              <td><code>2</code></td>
+              <td>the arguments were unusable</td>
+              <td>an unknown command, an unknown option, a missing value</td>
+            </tr>
+            <tr>
+              <td><code>3</code></td>
+              <td>an optional dependency is missing</td>
+              <td>
+                <code>index</code> without
+                <code>@huggingface/transformers</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The distinction between 1 and 3 is worth wiring into a script: 1 says
+        the project is not what you expected, and 3 says the machine is missing
+        something optional and the server still works without it.
+      </p>
+
+      <div class="note">
+        <p>
+          <strong>Data on stdout, everything else on stderr.</strong> The JSON
+          from <code>--json</code> and the string from <code>--version</code> go
+          to standard output so they can be piped. Tables, help and messages go
+          to standard error, which is what keeps a pipeline's input clean.
+        </p>
+      </div>
+
+      <h2>Runtime</h2>
+      <ul>
+        <li>Node 22 or later, or Bun 1.3 or later.</li>
+        <li>
+          Runtime dependencies: <code>@modelcontextprotocol/server</code>,
+          <code>zod</code>, <code>semver</code>, <code>smol-toml</code> and
+          <code>yaml</code>. See
+          <a href="/licence/">dependency licence notices</a>.
+        </li>
+        <li>
+          Vector storage uses whichever SQLite the running binary already has.
+          Neither is a dependency; without one, the server still runs and
+          ranking falls back.
+        </li>
+      </ul>

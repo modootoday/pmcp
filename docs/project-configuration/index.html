@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project configuration — pmcp</title>
+  <meta name="description" content="Keep native runtime configuration, MCP servers and explicit guards in one project source." />
+  <link rel="canonical" href="https://pmcp.build/project-configuration/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Project configuration — pmcp" />
+  <meta property="og:description" content="Keep native runtime configuration, MCP servers and explicit guards in one project source." />
+  <meta property="og:url" content="https://pmcp.build/project-configuration/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/" aria-current="page">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Project configuration</p><h1>Project configuration</h1>
+<p><a href="/">Back to the overview</a></p>
+<h2>Project config</h2>
+<p>A <code>pmcp.toml</code> at or above the working directory sets the catalog once, so a
+host entry needs no flags and works from any package in the repository:</p>
+<pre><code>[catalog]
+workspaces = [&quot;.&quot;, &quot;packages/*&quot;]
+packages = [&quot;docs&quot;]
+marketplaces = [&quot;vendor/marketplace&quot;]</code></pre>
+<p>Paths resolve against the file&#39;s directory. Keys are <code>roots</code>, <code>scopes</code>,
+<code>workspaces</code>, <code>packages</code> and <code>marketplaces</code>, each a list mirroring the flag of
+the same meaning; an unknown key is an error. A flag replaces the file&#39;s list
+of its kind. <code>--config &lt;file&gt;</code> names another file and <code>--no-config</code> ignores it.</p>
+<h2>Native files for each agent tool</h2>
+<p><code>pmcp project</code> writes what Claude Code, Codex, Gemini CLI, Grok Build and
+Antigravity read natively, from cross-tool sources under <code>.agents/</code>
+(<code>skills/&lt;name&gt;/SKILL.md</code>, <code>agents/&lt;name&gt;/agent.md</code>, <code>rules/*.md</code>) and the rest
+of <code>pmcp.toml</code>:</p>
+<pre><code>[targets]
+tools = [&quot;claude&quot;, &quot;codex&quot;, &quot;gemini&quot;, &quot;grok&quot;, &quot;antigravity&quot;]
+
+[skills.deploy]
+invocation = &quot;user&quot;          # the person starts it; the model is not offered it
+
+[agents.reviewer.claude]
+tools = &quot;Read, Grep&quot;         # fields one tool reads stay out of agent.md
+
+[rules]
+root = &quot;AGENTS.md&quot;
+
+[mcp.skills]
+command = &quot;node&quot;
+args = [&quot;${PROJECT_ROOT}/node_modules/@modootoday/pmcp/dist/cli.js&quot;, &quot;serve&quot;]</code></pre>
+<pre><code>pmcp project              # write
+pmcp project --check      # exit 2 on drift, stale or undeclared outputs
+pmcp project add &lt;name&gt;   # copy a catalog skill or agent into .agents/
+pmcp project remove &lt;name&gt;
+pmcp doctor               # ask each installed tool what it loads</code></pre>
+<p>Rules go to <code>.claude/rules/&lt;dir&gt;/</code>, never the top level, because Grok Build
+loads top-level <code>.claude/rules/*.md</code> in every session regardless of <code>paths:</code>.
+A server that names <code>${PROJECT_ROOT}</code> is launched through <code>sh</code>, which finds
+<code>pmcp.toml</code> at spawn time, so the generated files hold no machine&#39;s path.
+<code>pmcp.lock</code> records what was written; a file pmcp did not write is never
+overwritten. <code>doctor</code> calls no model: it reads <code>claude mcp list</code>,
+<code>codex mcp list</code>, <code>gemini skills list</code>, <code>gemini mcp list</code> and
+<code>grok inspect --json</code>, and skips a tool that is not installed.</p>
+<h2>Unified project MCP configuration</h2>
+<p>Antigravity receives a native project plugin at .agents/plugins/pmcp-mcp with
+plugin.json and mcp_config.json. Projection removes only lock-owned entries
+from the earlier .agents/mcp_config.json artifact and backs up both layouts.
+Antigravity&#39;s global mcp list does not enumerate project plugin servers;
+validate the generated plugin with agy plugin validate.
+Its HTTP entries use serverUrl, accepted by the installed plugin validator.</p>
+<p>Declare each MCP server once in pmcp.toml. The projector writes the native
+project files for all selected runtimes. A server can narrow its targets:</p>
+<pre><code>[mcp.docs]
+url = &quot;https://example.com/mcp&quot;
+
+[mcp.private-api]
+url = &quot;https://example.com/private-mcp&quot;
+targets = [&quot;claude&quot;, &quot;codex&quot;, &quot;gemini&quot;, &quot;grok&quot;]
+bearer_token_env_var = &quot;PRIVATE_MCP_TOKEN&quot;
+header_env = { &quot;X-Workspace&quot; = &quot;PRIVATE_MCP_WORKSPACE&quot; }
+
+[mcp.local-service]
+command = &quot;my-mcp-server&quot;
+env_vars = [&quot;MY_SERVICE_KEY&quot;]
+cwd = &quot;${PROJECT_ROOT}&quot;
+
+[mcp.local-service.native.codex]
+startup_timeout_sec = 30
+
+[mcp.local-service.native.gemini]
+timeout = 120000</code></pre>
+<p>url means Streamable HTTP; Gemini receives httpUrl. Legacy SSE is not imported
+as HTTP. headers contains literal nonsecret headers, header_env maps header
+names to environment variable names, and bearer_token_env_var references a
+token without writing its value. Each runtime retains its own OAuth session.
+Antigravity HTTP header projection is not qualified and is rejected; explicitly
+limit those servers to supported targets. tools maps to Gemini includeTools and
+Codex enabled_tools; it is not a cross-runtime security boundary. Native timeout
+options retain each runtime&#39;s documented names and units. Unknown fields fail.</p>
+<p>Import explicitly selected native configurations. Preview is the default:</p>
+<pre><code>pmcp project import-mcp --source claude:/path/to/native.json
+pmcp project import-mcp --source codex:/path/to/config.toml --name docs --write
+pmcp project
+pmcp project --check</code></pre>
+<p>Repeat source and name to select multiple inputs. Conflicting aliases, missing
+requested names, unsupported authentication fields and credential-bearing URLs
+block import. Source contents and credential values are not printed. Sources
+are never rewritten. Review plugin-provided servers separately to avoid
+duplicating a server the runtime already loads.</p>
+<p>Literal stdio environment values remain in their source file. The importer
+stores an env_from reference containing file and an RFC 6901 JSON pointer:</p>
+<pre><code>[mcp.local-service.env_from.MY_SERVICE_KEY]
+file = &quot;~/.config/my-client/settings.json&quot;
+pointer = &quot;/mcpServers/local-service/env/MY_SERVICE_KEY&quot;</code></pre>
+<p>The generated entry invokes pmcp project exec-mcp for that declared server.
+It reads only the referenced values and passes them to the child process, using
+inherited stdio. JSON and TOML sources are supported. The source must remain
+available; rotating its value takes effect on the next server launch. A project
+installed CLI is referenced relative to the project; otherwise pmcp must be on
+PATH. Configurations using env_from require this release on every runtime host.</p>
+<p>Writes retain private backups in ~/.cache/pmcp/project-backups, outside the
+project. Receipts record file hashes and absent paths. A conflicting unmanaged
+native alias is refused before projection writes. The managed TOML block and
+JSON keys preserve unrelated settings. Inspect the reported backup before
+restoring any file that another process may have edited.</p>
+<p>Configuration references: <a href="https://developers.openai.com/codex/config-reference/">Codex</a>,
+<a href="https://code.claude.com/docs/en/mcp">Claude Code</a>,
+<a href="https://geminicli.com/docs/tools/mcp-server/">Gemini CLI</a>,
+and <a href="https://docs.x.ai/build/features/mcp-servers">Grok Build</a>.</p>
+<h2>Operator shell guards</h2>
+<p>Declare a project-owned guard explicitly to project it into Codex, Gemini or
+Antigravity&#39;s native hooks. Without a declaration, pmcp generates no hooks.</p>
+<pre><code>[[hooks.shell]]
+name = &quot;shell-command-policy&quot;
+command = [&quot;node&quot;, &quot;.agents/guards/shell-command-policy.mjs&quot;]
+targets = [&quot;codex&quot;, &quot;gemini&quot;, &quot;antigravity&quot;]
+timeout_ms = 15000</code></pre>
+<p>The guard script must exist under .agents/guards/ and cannot resolve outside
+that directory. It receives one JSON object on stdin containing runtime,
+event=before_shell, command and cwd. It returns a JSON object with
+decision=allow or decision=deny and an optional reason. Malformed responses,
+nonzero exits and timeouts deny the shell call. The guard receives PATH and
+LANG rather than the native CLI&#39;s credential environment. Non-shell tools are
+outside this contract.</p>
+<p>Run pmcp project to write lock-owned adapter and policy artifacts under
+.agents/pmcp-hooks/, plus the native entries in .codex/hooks.json,
+.gemini/settings.json and .agents/hooks.json. Peer entries are retained.
+Edited owned hook entries refuse projection for review. Removing a declaration
+removes its generated entries and artifacts while preserving peer settings.
+Writes retain private backups; pmcp project --check only reports drift.</p>
+<p>Guard, policy and adapter fingerprints bind the generated command. Changing
+guard code requires reprojection and native Codex hook review. Generated files
+contain no trust bypass. Grok can load Claude project hooks, so this first scope
+does not generate a second Grok guard. Hooks do not force pmcp catalog use,
+inject reminders or replace the runtime&#39;s execution sandbox.</p>
+<h2>Native memory metadata</h2>
+<pre><code>pmcp doctor --memory --json
+pmcp doctor --memory --tool codex</code></pre>
+<p>This explicit operation reports selected runtimes&#39; native memory configuration
+and path existence. It reads no memory body, index or transcript, writes no
+configuration, connects to no MCP server and makes no provider request.
+Ordinary doctor output is unchanged.</p>
+<p>The report distinguishes enabled, disabled, unknown and unsupported. Path
+existence does not establish activation. Where native metadata cannot identify
+a project-specific location, pathScope=base reports only the storage parent;
+the project identifier is not guessed. Supported native home overrides are
+respected. Codex uses its native features listing. Claude and Grok report
+explicit user settings, with active session overrides and unverified project
+trust left unknown. Gemini context filenames and the global GEMINI.md file
+are separate from unexposed memory-tool activation. Antigravity trajectories
+are not reported as a memory store. pmcp does not synchronize or inject memory.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

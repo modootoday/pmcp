@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>jsdom 30.x — PMCP</title>
+  <meta name="description" content="Use jsdom ^30.0.0 from a plain Bun/Node script to construct and inspect DOMs and create document fragments. The documented v30 package requires Node.js ^22.22.2 || ^24.15.0 || &gt;=26.0.0." />
+  <link rel="canonical" href="https://pmcp.build/skills/jsdom/30/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="jsdom 30.x — PMCP" />
+  <meta property="og:description" content="Use jsdom ^30.0.0 from a plain Bun/Node script to construct and inspect DOMs and create document fragments. The documented v30 package requires Node.js ^22.22.2 || ^24.15.0 || &gt;=26.0.0." />
+  <meta property="og:url" content="https://pmcp.build/skills/jsdom/30/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/jsdom/">Other majors</a></p>
+    <h1>jsdom 30.x</h1><p>Use jsdom ^30.0.0 from a plain Bun/Node script to construct and inspect DOMs and create document fragments. The documented v30 package requires Node.js ^22.22.2 || ^24.15.0 || &gt;=26.0.0.</p>
+    <dl><dt>For</dt><dd><code>jsdom@30.0.1</code></dd><dt>Verified</dt><dd>2026-09-07, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-jsdom@30.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/jsdom/30/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/jsdom/30/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/jsdom/30/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-8JOqipbRrbrq/Uyge2GFR/5mylcU6tQnc4fU+IITIXDv//YrXaELmsIVZdIZcve0O+3xg+6WBoSJnC9AbADwhA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against jsdom@30.0.1 on 2026-09-07. 2 of 2 examples executed.</p>
+<h2>jsdom ^30.0.0</h2>
+<h3>Runtime requirement</h3>
+<p>The v30 release requires Node.js <code>^22.22.2 || ^24.15.0 || &gt;=26.0.0</code>.</p>
+<h3>Construct and query a DOM</h3>
+<p>Import the named <code>JSDOM</code> export. The constructor accepts an HTML string and returns an object whose DOM is available through <code>dom.window.document</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { JSDOM } from &quot;jsdom&quot;;
+
+const dom = new JSDOM(&quot;&lt;!DOCTYPE html&gt;&lt;p&gt;Hello world&lt;/p&gt;&quot;);
+
+assert.equal(dom.window.document.querySelector(&quot;p&quot;)?.textContent, &quot;Hello world&quot;);
+</code></pre>
+<p>A common shape mistake is treating the constructor result as the document itself. Query through <code>dom.window.document</code>, not directly through <code>dom</code>.</p>
+<h3>Document fragments</h3>
+<p><code>JSDOM.fragment()</code> creates a document fragment from markup without requiring a full <code>JSDOM</code> window.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { JSDOM } from &quot;jsdom&quot;;
+
+const fragment = JSDOM.fragment(&quot;&lt;p&gt;One&lt;/p&gt;&lt;p&gt;Two&lt;/p&gt;&quot;);
+
+assert.equal(fragment.querySelectorAll(&quot;p&quot;).length, 2);
+assert.equal(fragment.querySelector(&quot;p&quot;)?.textContent, &quot;One&quot;);
+</code></pre>
+<h3>Inline scripts</h3>
+<p>Scripts are disabled by default. The documented constructor option for enabling inline script execution is <code>{ runScripts: &quot;dangerously&quot; }</code>.</p>
+<p>No standalone runnable example is included for this option: when executed as the required direct Bun script, the documented inline-script example failed before running the script with <code>TypeError: Proxy is not allowed in the global prototype chain.</code> Use this feature only in a runtime where jsdom v30&#39;s script execution works, and only with trusted HTML.</p>
+<h3>Other documented exports and factories</h3>
+<p>The README also documents or demonstrates:</p>
+<ul>
+<li><code>JSDOM.fromURL()</code> for creating a DOM from a URL.</li>
+<li><code>JSDOM.fromFile()</code> for creating a DOM from a file.</li>
+<li><code>VirtualConsole</code>.</li>
+<li><code>CookieJar</code>.</li>
+<li><code>requestInterceptor</code>.</li>
+<li>The <code>toughCookie</code> module export.</li>
+</ul>
+<p><code>fromURL()</code> requires network access and <code>fromFile()</code> requires a file, so neither is used in the isolated examples here. The available research does not provide enough detail to specify their options or behavior safely.</p>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover URL loading, file loading, virtual-console configuration, cookie-jar usage, request interception, the <code>toughCookie</code> export, DOM APIs beyond the demonstrated construction and fragment querying, or configuration beyond the documented <code>runScripts</code> setting. It also does not cover a working standalone example of inline script execution under Bun, or using jsdom through a test runner or framework.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

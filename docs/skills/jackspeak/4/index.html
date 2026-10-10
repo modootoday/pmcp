@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>jackspeak 4.x — PMCP</title>
+  <meta name="description" content="Use jackspeak v4 to declare command-line fields, parse an explicit argument array, validate parsed values, and render usage documentation." />
+  <link rel="canonical" href="https://pmcp.build/skills/jackspeak/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="jackspeak 4.x — PMCP" />
+  <meta property="og:description" content="Use jackspeak v4 to declare command-line fields, parse an explicit argument array, validate parsed values, and render usage documentation." />
+  <meta property="og:url" content="https://pmcp.build/skills/jackspeak/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/jackspeak/">Other majors</a></p>
+    <h1>jackspeak 4.x</h1><p>Use jackspeak v4 to declare command-line fields, parse an explicit argument array, validate parsed values, and render usage documentation.</p>
+    <dl><dt>For</dt><dd><code>jackspeak@4.2.3</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-jackspeak@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/jackspeak/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/jackspeak/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/jackspeak/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-pRTlHDbOd8Z5P21YcYZ43xPGmOSq9qAFuEUEjI31SYZ/+kCrsLf6iGFJEYPTJ/eqTv5qzxCW18FeIsIpdApOCw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against jackspeak@4.2.3 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>jackspeak v4</h2>
+<h3>Use this skill when</h3>
+<p>Use the named <code>jack</code> export to build a declarative command-line parser. The basic shape is:</p>
+<pre><code class="language-ts">import { jack } from &#39;jackspeak&#39;
+
+const result = jack(options)
+  .flag(fieldDefinitions)
+  .opt(fieldDefinitions)
+  .parse(args)
+</code></pre>
+<p><code>parse()</code> returns <code>{ positionals, values }</code>. Pass an explicit <code>string[]</code> in library code and tests; its default is <code>process.argv</code>.</p>
+<p>Version 4 requires Node <code>20</code> or <code>&gt;=22</code>. The package has ESM/CommonJS conditional exports, and the documented public entry point is <code>jackspeak</code> (with <code>jackspeak/min</code> also published). The documented API does not require a separate jackspeak CLI or test runner.</p>
+<h3>Core parsing shape</h3>
+<p><code>jack(options = {})</code> returns a chainable <code>Jack</code>. The documented field-definition methods are:</p>
+<ul>
+<li><code>heading(text, level?)</code></li>
+<li><code>description(text, { pre? } = {})</code></li>
+<li><code>flag(definitions)</code></li>
+<li><code>flagList(definitions)</code></li>
+<li><code>num(definitions)</code></li>
+<li><code>numList(definitions)</code></li>
+<li><code>opt(definitions)</code></li>
+<li><code>optList(definitions)</code></li>
+<li><code>addFields(...)</code></li>
+</ul>
+<p>Definitions are object literals. This is important for TypeScript inference and avoids the older assumption that the parser is configured with a separate schema format.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { jack } from &#39;jackspeak&#39;
+
+const parser = jack({ envPrefix: &#39;FOO&#39; })
+  .flag({
+    foo: { description: &#39;another boolean&#39;, short: &#39;f&#39; },
+  })
+  .optList({
+    &#39;ip-addrs&#39;: {
+      description: &#39;addresses to ip things&#39;,
+      delim: &#39;,&#39;,
+      default: [&#39;127.0.0.1&#39;],
+    },
+  })
+
+const { positionals, values } = parser.parse([
+  &#39;some&#39;,
+  &#39;positional&#39;,
+  &#39;--ip-addrs&#39;,
+  &#39;192.168.0.1&#39;,
+  &#39;--ip-addrs&#39;,
+  &#39;1.1.1.1&#39;,
+  &#39;--foo&#39;,
+])
+
+assert.deepEqual(positionals, [&#39;some&#39;, &#39;positional&#39;])
+assert.equal(values.foo, true)
+assert.deepEqual(values[&#39;ip-addrs&#39;], [&#39;192.168.0.1&#39;, &#39;1.1.1.1&#39;])
+</code></pre>
+<p>Use <code>short</code> for a short flag or option name. A field can have a <code>description</code>, and list options can specify a delimiter and a default list.</p>
+<h3>Field kinds</h3>
+<p>The available field kinds communicate the intended value shape:</p>
+<ul>
+<li><code>flag</code>: boolean option</li>
+<li><code>flagList</code>: repeated/list boolean option</li>
+<li><code>opt</code>: scalar option</li>
+<li><code>optList</code>: repeated/list option; <code>delim</code> controls delimiter splitting</li>
+<li><code>num</code>: numeric option</li>
+<li><code>numList</code>: repeated/list numeric option</li>
+</ul>
+<p>The research documents the methods and the object-definition style, but does not document every individual field configuration or the exact result shape for every kind. Do not infer unsupported configuration names from examples for another major version.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { jack } from &#39;jackspeak&#39;
+
+const parser = jack()
+  .flag({ verbose: { short: &#39;v&#39; } })
+  .opt({ reporter: { short: &#39;R&#39;, description: &#39;report style&#39; } })
+  .num({ jobs: { short: &#39;j&#39;, default: 1 } })
+
+const parsed = parser.parse([&#39;-v&#39;, &#39;--reporter&#39;, &#39;compact&#39;, &#39;--jobs&#39;, &#39;4&#39;, &#39;file.ts&#39;])
+
+assert.equal(parsed.values.verbose, true)
+assert.equal(parsed.values.reporter, &#39;compact&#39;)
+assert.equal(parsed.values.jobs, 4)
+assert.deepEqual(parsed.positionals, [&#39;file.ts&#39;])
+</code></pre>
+<h3>Validation and generated documentation</h3>
+<p>The parser exposes these actions:</p>
+<ul>
+<li><code>parse(args?: string[])</code>: parse arguments and return <code>{ positionals, values }</code>.</li>
+<li><code>validate(o)</code>: assert that an unknown value is a valid <code>OptionsResults</code> value. Invalid values throw.</li>
+<li><code>usage()</code>: return usage text.</li>
+<li><code>usageMarkdown()</code>: return usage documentation in Markdown.</li>
+<li><code>setConfigValues(options, src?)</code>: set configuration values on the parser; <code>src</code> is optional.</li>
+</ul>
+<p>Unrecognized configurations and invalid values throw. Keep validation at the boundary when values come from configuration rather than directly from <code>parse()</code>.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;
+import { jack } from &#39;jackspeak&#39;
+
+const parser = jack({ usage: &#39;foo [options] &lt;files&gt;&#39; })
+  .heading(&#39;The best Foo that ever Fooed&#39;)
+  .description(&#39;Executes all the files.&#39;)
+  .opt({ reporter: { short: &#39;R&#39;, description: &#39;report style&#39; } })
+  .num({ jobs: { short: &#39;j&#39;, default: 1 } })
+
+const { values, positionals } = parser.parse([&#39;--reporter&#39;, &#39;tap&#39;, &#39;a.ts&#39;])
+parser.validate(values)
+
+assert.equal(values.reporter, &#39;tap&#39;)
+assert.equal(values.jobs, 1)
+assert.deepEqual(positionals, [&#39;a.ts&#39;])
+assert.equal(typeof parser.usage(), &#39;string&#39;)
+assert.equal(typeof parser.usageMarkdown(), &#39;string&#39;)
+assert.match(parser.usage(), /foo/)
+assert.match(parser.usageMarkdown(), /Foo|foo/)
+</code></pre>
+<h3>Headings, descriptions, and fields</h3>
+<p><code>heading</code> accepts a text string and an optional heading level from 1 through 6. <code>description</code> accepts text and an optional <code>{ pre: boolean }</code> setting. Both participate in generated usage output. Field methods are chainable.</p>
+<p><code>addFields(...)</code> is also available for adding fields, but the opened research does not specify its argument shape; use the package&#39;s v4 type definitions or documentation when that method is required rather than copying a v3-era shape.</p>
+<h3>Environment integration</h3>
+<p>Environment integration is conditional on <code>envPrefix</code>. The environment source defaults to <code>process.env</code>. Boolean values are represented as <code>&#39;1&#39;</code> and <code>&#39;0&#39;</code>; repeated values use a delimiter whose default is <code>\n</code>. The research does not establish a safe standalone example that changes the process environment, so rely on the v4 documentation and types for the exact field-to-environment naming rules.</p>
+<h3>Common mistakes</h3>
+<ul>
+<li><strong>Using the older runner-oriented mental model.</strong> jackspeak is used programmatically here: import <code>jack</code>, define fields, and call <code>.parse()</code>. There is no documented separate jackspeak CLI for these examples.</li>
+<li><strong>Expecting <code>parse()</code> to return values directly.</strong> It returns <code>{ positionals, values }</code>; read options from <code>result.values</code> and positional arguments from <code>result.positionals</code>.</li>
+<li><strong>Calling <code>.parse()</code> without accounting for <code>process.argv</code>.</strong> The default is <code>process.argv</code>. Pass an explicit array when parsing supplied arguments or writing tests.</li>
+<li><strong>Assuming v3&#39;s runtime requirements.</strong> v4 requires Node <code>20</code> or <code>&gt;=22</code>; v3 had no <code>engines</code> field.</li>
+<li><strong>Assuming the optional parser dependency is required.</strong> v4 lists <code>@pkgjs/parseargs</code> as an optional dependency; it is not required by the documented API.</li>
+<li><strong>Using undocumented configuration shapes.</strong> Invalid or unrecognized configurations throw. In particular, do not invent the <code>addFields</code> argument shape or copy an older major&#39;s examples without checking v4&#39;s definitions.</li>
+<li><strong>Treating list options as scalar options.</strong> Use <code>optList</code>/<code>numList</code>/<code>flagList</code> for list-shaped fields and configure <code>delim</code> where delimiter behavior matters.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover the complete v4 field-definition type signatures, every option supported by each field kind, exact long/short-option syntax beyond the documented examples, the exact environment-variable naming rules, the full behavior or argument shape of <code>addFields</code>, the <code>jackspeak/min</code> subpath API, CommonJS import examples, or the internal optional <code>@pkgjs/parseargs</code> integration. Those details were not established by the opened research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

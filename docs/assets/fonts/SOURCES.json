@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/google/fonts",
+  "revision": "bd8f81ddb5c74d5c8897b36ad88b440266245103",
+  "fonts": [
+    { "file": "space-grotesk.ttf", "source": "ofl/spacegrotesk/SpaceGrotesk[wght].ttf", "license": "SPACE-GROTESK-OFL.txt" },
+    { "file": "ibm-plex-mono.ttf", "source": "ofl/ibmplexmono/IBMPlexMono-Regular.ttf", "license": "IBM-PLEX-MONO-OFL.txt" }
+  ]
+}

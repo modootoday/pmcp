@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>whatwg-mimetype 5.x — PMCP</title>
+  <meta name="description" content="Use whatwg-mimetype ^5.0.0 to parse, inspect, mutate, serialize, classify, and compute MIME types from resource bytes." />
+  <link rel="canonical" href="https://pmcp.build/skills/whatwg-mimetype/5/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="whatwg-mimetype 5.x — PMCP" />
+  <meta property="og:description" content="Use whatwg-mimetype ^5.0.0 to parse, inspect, mutate, serialize, classify, and compute MIME types from resource bytes." />
+  <meta property="og:url" content="https://pmcp.build/skills/whatwg-mimetype/5/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/whatwg-mimetype/">Other majors</a></p>
+    <h1>whatwg-mimetype 5.x</h1><p>Use whatwg-mimetype ^5.0.0 to parse, inspect, mutate, serialize, classify, and compute MIME types from resource bytes.</p>
+    <dl><dt>For</dt><dd><code>whatwg-mimetype@5.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-whatwg-mimetype@5.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/whatwg-mimetype/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/whatwg-mimetype/5/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/whatwg-mimetype/5/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-/YjlQwobklL8rGiMkJNZSRp/Ihb63Q+5hUdiiJ73Zu/XGCQEQ4HXw/dl96l5QMOznp6RslFsSNsLnayzmtqZzQ==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against whatwg-mimetype@5.0.0 on 2026-09-08. 6 of 6 examples executed.</p>
+<h2>whatwg-mimetype</h2>
+<h3>Scope and version</h3>
+<p>This skill targets <code>whatwg-mimetype</code> <code>^5.0.0</code>, which requires Node.js <code>&gt;=20</code>.
+The package root exports exactly the named APIs <code>MIMEType</code> and <code>computedMIMEType</code>.</p>
+<p>In v5, <code>MIMEType</code> is a named export rather than the older default-export shape. Raw parsing and serialization APIs from older versions were removed.</p>
+<h3>Parsing and serialization</h3>
+<p>Constructing a MIME type parses the string and throws an <code>Error</code> if parsing fails. <code>MIMEType.parse(string)</code> performs the same kind of parsing but returns <code>null</code> on failure.</p>
+<p>A parsed instance exposes:</p>
+<ul>
+<li>mutable <code>type</code></li>
+<li>mutable <code>subtype</code></li>
+<li>getter-only <code>essence</code>, which is <code>type/subtype</code></li>
+<li>mutable <code>parameters</code></li>
+<li><code>toString()</code> for serialization</li>
+</ul>
+<p>Parsing and serialization normalize the type, subtype, and parameter names according to the MIME type rules. Parameter values are not generally lowercased: for example, a parameter value of <code>D</code> remains <code>D</code>, while a quoted value such as <code>&quot;utf-8&quot;</code> is serialized without unnecessary quotes.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { MIMEType } from &quot;whatwg-mimetype&quot;;
+
+const mimeType = new MIMEType(&#39;Text/HTML;Charset=&quot;utf-8&quot;&#39;);
+
+assert.equal(mimeType.toString(), &quot;text/html;charset=utf-8&quot;);
+assert.equal(mimeType.type, &quot;text&quot;);
+assert.equal(mimeType.subtype, &quot;html&quot;);
+assert.equal(mimeType.essence, &quot;text/html&quot;);
+assert.equal(mimeType.parameters.get(&quot;charset&quot;), &quot;utf-8&quot;);
+
+assert.equal(MIMEType.parse(&quot;not a MIME type&quot;), null);
+assert.throws(() =&gt; new MIMEType(&quot;not a MIME type&quot;), Error);
+</code></pre>
+<p>Do not use the v4-style default import. Use the v5 named import:</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { MIMEType } from &quot;whatwg-mimetype&quot;;
+
+const mimeType = new MIMEType(&quot;text/plain&quot;);
+mimeType.type = &quot;application&quot;;
+mimeType.subtype = &quot;json&quot;;
+
+assert.equal(mimeType.essence, &quot;application/json&quot;);
+assert.equal(mimeType.toString(), &quot;application/json&quot;);
+</code></pre>
+<p><code>type</code> and <code>subtype</code> are validated when changed. <code>essence</code> is getter-only; update <code>type</code> or <code>subtype</code> instead of assigning to <code>essence</code>.</p>
+<h3>Parameters</h3>
+<p><code>mimeType.parameters</code> is a MIME-specific Map-like object, not a package-root <code>MIMETypeParameters</code> export. Parameter names are handled case-insensitively and normalized to lowercase. Parameter values preserve their parsed spelling. It supports the documented <code>get</code>, <code>set</code>, and iteration usage.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { MIMEType } from &quot;whatwg-mimetype&quot;;
+
+const mimeType = new MIMEType(&quot;x/x;a=b;c=D;E=\&quot;F\&quot;&quot;);
+
+const entries = [...mimeType.parameters];
+assert.deepEqual(entries, [
+  [&quot;a&quot;, &quot;b&quot;],
+  [&quot;c&quot;, &quot;D&quot;],
+  [&quot;e&quot;, &quot;F&quot;],
+]);
+
+mimeType.parameters.set(&quot;Q&quot;, &quot;X&quot;);
+assert.equal(mimeType.parameters.get(&quot;q&quot;), &quot;X&quot;);
+assert.equal(mimeType.toString(), &quot;x/x;a=b;c=D;e=F;q=X&quot;);
+</code></pre>
+<h3>Classification helpers</h3>
+<p><code>MIMEType</code> provides <code>isHTML()</code>, <code>isXML()</code>, and <code>isJavaScript({ prohibitParameters })</code>. These helpers are documented as speculative and may change in a future major; avoid treating them as a permanently stable compatibility contract.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { MIMEType } from &quot;whatwg-mimetype&quot;;
+
+const html = new MIMEType(&#39;Text/HTML;Charset=&quot;utf-8&quot;&#39;);
+assert.equal(html.isHTML(), true);
+assert.equal(html.isXML(), false);
+
+const xml = new MIMEType(&quot;application/xml&quot;);
+assert.equal(xml.isXML(), true);
+
+const javascript = new MIMEType(&quot;text/javascript&quot;);
+assert.equal(javascript.isJavaScript({ prohibitParameters: false }), true);
+</code></pre>
+<h3>Computing a MIME type from bytes</h3>
+<p><code>computedMIMEType(resource, options)</code> is a plain library API. <code>resource</code> must be a <code>Uint8Array</code>; the result is a <code>MIMEType</code>.</p>
+<p>Supported options are <code>contentTypeHeader</code>, <code>providedType</code>, <code>noSniff</code> (default <code>false</code>), and <code>isSupported</code> (default <code>() =&gt; true</code>). The function can sniff resource bytes. A PNG signature is computed as <code>image/png</code> without a header. An <code>image/gif</code> content-type header does not override that PNG result, while a <code>text/html</code> header does produce <code>text/html</code> in the documented example.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { computedMIMEType, MIMEType } from &quot;whatwg-mimetype&quot;;
+
+const pngBytes = new Uint8Array([
+  0x89, 0x50, 0x4e, 0x47,
+  0x0d, 0x0a, 0x1a, 0x0a,
+]);
+
+assert.equal(computedMIMEType(pngBytes).essence, &quot;image/png&quot;);
+assert.equal(
+  computedMIMEType(pngBytes, { contentTypeHeader: &quot;image/gif&quot; }).essence,
+  &quot;image/png&quot;,
+);
+assert.equal(
+  computedMIMEType(pngBytes, { contentTypeHeader: &quot;text/html&quot; }).essence,
+  &quot;text/html&quot;,
+);
+assert.ok(computedMIMEType(pngBytes) instanceof MIMEType);
+</code></pre>
+<p>The options are passed to the computation as an options object; do not pass a string as the second argument.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { computedMIMEType, MIMEType } from &quot;whatwg-mimetype&quot;;
+
+const resource = new Uint8Array();
+const result = computedMIMEType(resource, {
+  contentTypeHeader: &quot;text/plain&quot;,
+  providedType: &quot;text/plain&quot;,
+  noSniff: false,
+  isSupported: () =&gt; true,
+});
+
+assert.ok(result instanceof MIMEType);
+</code></pre>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover MIME sniffing cases beyond the documented PNG examples, the detailed validation rules for every possible type or parameter value, or the exact behavior of each <code>computedMIMEType</code> option combination. It also does not cover removed v4 raw parsing/serialization APIs, package development scripts, or any runner, CLI, build step, or framework integration; the package exposes a plain programmatic API instead.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

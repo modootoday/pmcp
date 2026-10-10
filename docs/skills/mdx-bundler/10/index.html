@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>mdx-bundler 10.x — PMCP</title>
+  <meta name="description" content="Use mdx-bundler 10.x to bundle MDX on Node, preserve frontmatter, and understand the separate React-dependent client consumption helpers." />
+  <link rel="canonical" href="https://pmcp.build/skills/mdx-bundler/10/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="mdx-bundler 10.x — PMCP" />
+  <meta property="og:description" content="Use mdx-bundler 10.x to bundle MDX on Node, preserve frontmatter, and understand the separate React-dependent client consumption helpers." />
+  <meta property="og:url" content="https://pmcp.build/skills/mdx-bundler/10/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/mdx-bundler/">Other majors</a></p>
+    <h1>mdx-bundler 10.x</h1><p>Use mdx-bundler 10.x to bundle MDX on Node, preserve frontmatter, and understand the separate React-dependent client consumption helpers.</p>
+    <dl><dt>For</dt><dd><code>mdx-bundler@10.1.1</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-mdx-bundler@10.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/mdx-bundler/10/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/mdx-bundler/10/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/mdx-bundler/10/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-NllsmX9m2exydJXNvqjFRaHJG5crAxxuhuERL3mUYBhH/08vFOEOuXgDqhcACU6DoekDvYnzWv79YHNklEuj+g==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against mdx-bundler@10.1.1 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>mdx-bundler</h2>
+<h3>Scope and version</h3>
+<p>This skill covers <code>mdx-bundler</code> <code>^10.0.0</code> (the 10.x line, including 10.0.0 through 10.1.1). Node 18 or newer is required. Version 10.1.0 added JSX-runtime support, and 10.1.1 fixed explicit typings.</p>
+<p>Install the bundler and esbuild:</p>
+<pre><code class="language-sh">npm install --save mdx-bundler esbuild
+</code></pre>
+<p>The package uses the esbuild binary and has a dependency that requires working <code>node-gyp</code> setup.</p>
+<h3>Server-side bundling</h3>
+<p>Import <code>bundleMDX</code> from the package root. It returns a promise resolving to <code>{code, frontmatter, matter}</code>:</p>
+<ul>
+<li><code>code</code> is the bundled module source as a string.</li>
+<li><code>frontmatter</code> is the parsed gray-matter frontmatter object.</li>
+<li><code>matter</code> is the complete gray-matter result.</li>
+</ul>
+<p>Use <code>source</code> for an in-memory MDX string. Use <code>files</code> for in-memory imported files. The files map can contain relative imports such as <code>./demo.tsx</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import {bundleMDX} from &#39;mdx-bundler&#39;
+
+const result = await bundleMDX({
+  source: `---
+title: Hello
+---
+
+# Wahoo
+`,
+})
+
+assert.equal(result.frontmatter.title, &#39;Hello&#39;)
+assert.match(result.code, /Wahoo/)
+assert.equal(typeof result.matter, &#39;object&#39;)
+</code></pre>
+<p>An imported in-memory component is bundled together with the MDX source:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import {bundleMDX} from &#39;mdx-bundler&#39;
+
+const result = await bundleMDX({
+  source: `# Demo
+
+import Demo from &#39;./demo&#39;
+
+&lt;Demo /&gt;
+`,
+  files: {
+    &#39;./demo.tsx&#39;: `
+      import * as React from &#39;react&#39;
+      export default function Demo() {
+        return &lt;div&gt;Neat demo!&lt;/div&gt;
+      }
+    `,
+  },
+})
+
+assert.equal(typeof result.code, &#39;string&#39;)
+assert.ok(result.code.length &gt; 0)
+assert.equal(result.frontmatter &amp;&amp; typeof result.frontmatter, &#39;object&#39;)
+</code></pre>
+<p>The documented options are <code>source</code> or <code>file</code>, <code>files</code>, <code>mdxOptions</code>, <code>esbuildOptions</code>, <code>globals</code>, <code>cwd</code>, <code>grayMatterOptions</code>, <code>bundleDirectory</code>, and <code>bundlePath</code>. <code>source</code> and <code>file</code> are alternatives: do not provide both. A <code>file</code> is read from disk and needs an appropriate <code>cwd</code> for relative imports.</p>
+<h3>Consuming bundled code</h3>
+<p>The bundling API is the Node/server/build side. Browser or SSR consumption uses the separate client entry points:</p>
+<ul>
+<li><code>mdx-bundler/client</code> exports <code>getMDXComponent</code> and <code>getMDXExport</code>.</li>
+<li><code>mdx-bundler/client/jsx</code> exports <code>getMDXComponent</code> for the JSX-runtime setup.</li>
+</ul>
+<p>The documented usage is in a React application. <code>getMDXComponent</code> creates the default component, while <code>getMDXExport</code> returns the evaluated module-shaped exports, including the default component and named exports:</p>
+<pre><code class="language-tsx">import * as React from &#39;react&#39;
+import {getMDXComponent} from &#39;mdx-bundler/client&#39;
+
+function Post({code}: {code: string}) {
+  const Component = React.useMemo(() =&gt; getMDXComponent(code), [code])
+  return &lt;Component /&gt;
+}
+</code></pre>
+<pre><code class="language-js">import * as React from &#39;react&#39;
+import {getMDXExport} from &#39;mdx-bundler/client&#39;
+
+function MDXPage({code}) {
+  const mdxExport = getMDXExport(code)
+  console.log(mdxExport.toc)
+  const Component = React.useMemo(() =&gt; mdxExport.default, [code])
+  return &lt;Component /&gt;
+}
+</code></pre>
+<p>These client helpers are not standalone examples for the installation shown above: loading <code>mdx-bundler/client</code> reaches for React, and a direct script with only the package and esbuild installed fails when React is unavailable. Exercise these helpers in the React application or SSR environment that consumes the bundle. <code>getMDXComponent</code> evaluates bundled code with <code>new Function</code>; treat bundled code as executable code and do not use this client path for untrusted content without an appropriate security boundary.</p>
+<h3>JSX runtime configuration</h3>
+<p>Version 10.1.x documents JSX-runtime configuration through <code>jsxConfig</code> and the <code>mdx-bundler/client/jsx</code> entry point. The documented configuration entries are <code>jsxLib</code>, <code>jsxDom</code>, and <code>jsxRuntime</code>.</p>
+<p>Use this path when configuring the MDX bundle for the JSX runtime rather than assuming the older client helper shape is the only supported option.</p>
+<h3>Common mistakes and version traps</h3>
+<ul>
+<li><strong>Running on an old Node version:</strong> v10 requires Node 18 or newer. The v9 call shape may look familiar, but v10&#39;s runtime and dependency requirements still apply.</li>
+<li><strong>Expecting <code>bundleMDX</code> in the browser:</strong> bundling uses the esbuild binary and belongs on the Node/server/build side. Send the generated <code>code</code> to a client or SSR environment instead.</li>
+<li><strong>Providing both <code>source</code> and <code>file</code>:</strong> these are mutually exclusive inputs. Choose the in-memory source or the disk-backed file.</li>
+<li><strong>Forgetting <code>cwd</code> for file-based relative imports:</strong> <code>file</code> reads from disk; set <code>cwd</code> so relative imports resolve from the intended location.</li>
+<li><strong>Using <code>describe</code>, <code>it</code>, or <code>expect</code> in a direct script:</strong> this package does not provide test-runner globals. The runnable examples use only programmatic APIs and <code>node:assert/strict</code>.</li>
+<li><strong>Assuming frontmatter dates are parsed as dates:</strong> the v10 release notes warn that <code>remark-mdx-frontmatter</code> no longer parses dates. Account for the value exposed in <code>frontmatter</code> accordingly.</li>
+<li><strong>Assuming Cloudflare Workers can run the full package:</strong> Workers cannot run the esbuild binary or <code>eval</code>/similar evaluation. Run bundling elsewhere or investigate a WASM-based approach.</li>
+<li><strong>Missing esbuild executable lookup in Next.js/Webpack:</strong> those environments may need <code>ESBUILD_BINARY_PATH</code> configured before calling <code>bundleMDX</code>.</li>
+<li><strong>Copying only the old default-component recipe:</strong> <code>getMDXExport</code> is the module-shaped alternative, and v10.1.x also documents the JSX-runtime configuration and <code>client/jsx</code> entry point. The client helpers require the React-consuming environment rather than functioning as bare standalone scripts with only the bundler installation.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover the complete shapes of every option (<code>mdxOptions</code>, <code>esbuildOptions</code>, <code>globals</code>, <code>grayMatterOptions</code>, <code>bundleDirectory</code>, or <code>bundlePath</code>), custom remark/rehype plugin configuration, detailed React rendering setup, the additional React installation/configuration needed by the client helpers, deployment-specific <code>ESBUILD_BINARY_PATH</code> values, WASM alternatives, or the internal generated-code format. The research also does not establish the exact <code>jsxConfig</code> object type beyond the documented <code>jsxLib</code>, <code>jsxDom</code>, and <code>jsxRuntime</code> entries.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

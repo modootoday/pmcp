@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>human-signals 8.x — PMCP</title>
+  <meta name="description" content="Use human-signals ^8.0.0 as an ES-module lookup table for signal metadata by name or number." />
+  <link rel="canonical" href="https://pmcp.build/skills/human-signals/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="human-signals 8.x — PMCP" />
+  <meta property="og:description" content="Use human-signals ^8.0.0 as an ES-module lookup table for signal metadata by name or number." />
+  <meta property="og:url" content="https://pmcp.build/skills/human-signals/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/human-signals/">Other majors</a></p>
+    <h1>human-signals 8.x</h1><p>Use human-signals ^8.0.0 as an ES-module lookup table for signal metadata by name or number.</p>
+    <dl><dt>For</dt><dd><code>human-signals@8.0.1</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-human-signals@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/human-signals/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/human-signals/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/human-signals/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-3ooWvsQvMBi1eeEocvscbIfUwGvVpOvAQtUva33OuS0d7uT/ofOTbrK3UGa/PC73EK/kpWImlpGGIBMX1MIrGw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against human-signals@8.0.1 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>human-signals</h2>
+<h3>What this package provides</h3>
+<p><code>human-signals</code> 8.x is an ES module with no runtime dependencies. It requires Node.js <code>&gt;=18.18.0</code> and documents two named exports:</p>
+<ul>
+<li><code>signalsByName</code>: signal name → signal object</li>
+<li><code>signalsByNumber</code>: signal number → signal object</li>
+</ul>
+<p>There are no documented functions, CLI commands, or runner APIs. Import the package with ES <code>import</code> or dynamic <code>import()</code>; do not use CommonJS <code>require()</code>. TypeScript output must be ES modules rather than CommonJS.</p>
+<h3>Look up a signal by name</h3>
+<p>Use an established signal name such as <code>SIGINT</code>. Signal names are strict: lowercase names such as <code>sigint</code> and unknown names such as <code>SIGOTHER</code> are not valid v8 signal names.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { signalsByName } from &#39;human-signals&#39;
+
+const sigint = signalsByName.SIGINT
+
+assert.equal(sigint.name, &#39;SIGINT&#39;)
+assert.equal(sigint.number, 2)
+assert.equal(sigint.description, &#39;User interruption with CTRL-C&#39;)
+assert.equal(sigint.supported, true)
+assert.equal(sigint.action, &#39;terminate&#39;)
+assert.equal(sigint.forced, false)
+assert.equal(sigint.standard, &#39;ansi&#39;)
+</code></pre>
+<p>Each value is a signal object with these fields:</p>
+<ul>
+<li><code>name: string</code></li>
+<li><code>number: number</code></li>
+<li><code>description: string</code></li>
+<li><code>supported: boolean</code></li>
+<li><code>action: &#39;terminate&#39; | &#39;core&#39; | &#39;ignore&#39; | &#39;pause&#39; | &#39;unpause&#39;</code></li>
+<li><code>forced: boolean</code></li>
+<li><code>standard: &#39;ansi&#39; | &#39;posix&#39; | &#39;bsd&#39; | &#39;systemv&#39; | &#39;other&#39;</code></li>
+</ul>
+<h3>Look up a signal by number</h3>
+<p>Use a valid signal number as the key. In v8, the TypeScript signal-number types accept valid signal numbers such as <code>1</code> or <code>9</code>; they do not accept <code>-1</code>, <code>1.5</code>, or <code>999</code>. <code>0</code> is not a valid signal number for the package types, even though it may be passed to <code>process.kill()</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { signalsByNumber } from &#39;human-signals&#39;
+
+const sigfpe = signalsByNumber[8]
+
+assert.equal(sigfpe.name, &#39;SIGFPE&#39;)
+assert.equal(sigfpe.number, 8)
+assert.equal(sigfpe.description, &#39;Floating point arithmetic error&#39;)
+assert.equal(sigfpe.supported, true)
+assert.equal(sigfpe.action, &#39;core&#39;)
+assert.equal(sigfpe.forced, false)
+assert.equal(sigfpe.standard, &#39;ansi&#39;)
+</code></pre>
+<h3>Platform support</h3>
+<p><code>signal.supported</code> is OS-specific. It reflects whether Node.js can handle that signal with <code>process.on(name, handler)</code>. Do not treat the field as a universal claim that every operating system supports the signal.</p>
+<h3>Version and compatibility pitfalls</h3>
+<ul>
+<li>The current release in the documented <code>^8.0.0</code> range is <code>8.0.1</code>.</li>
+<li>v8 made signal-number types stricter. Do not carry forward code that uses <code>-1</code>, fractional numbers, <code>999</code>, or <code>0</code> as a package signal number.</li>
+<li>Signal names are strict in the older tightened shape as well: use valid uppercase names such as <code>SIGINT</code>, not lowercase or invented names.</li>
+<li>The package is ESM-only according to the documentation. A direct <code>require(&#39;human-signals&#39;)</code> is not the documented usage.</li>
+<li>The documented v8 lookup types are <code>Signal</code>, not <code>Signal | undefined</code>; still, only use documented signal names and valid signal numbers.</li>
+</ul>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover undocumented exports, the complete signal catalogue, operating-system-specific support results beyond the <code>supported</code> field, sending or handling signals with Node.js, CommonJS integration workarounds, or any CLI/runner behavior. The research documents no CLI, runner, or build-step API for this package.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

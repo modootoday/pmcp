@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Native terminal control — pmcp</title>
+  <meta name="description" content="Manage owned native CLI sessions with tmux, explicit input and recovery." />
+  <link rel="canonical" href="https://pmcp.build/terminal-harness/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Native terminal control — pmcp" />
+  <meta property="og:description" content="Manage owned native CLI sessions with tmux, explicit input and recovery." />
+  <meta property="og:url" content="https://pmcp.build/terminal-harness/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/" aria-current="page">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Native terminal control</p><h1>Native terminal control</h1>
+<p>Use <code>pmcp harness</code> to manage a main runtime and its workers through a local CLI.
+Each runtime keeps its own conversation interface, OAuth login, folder trust and
+tool permissions. PMCP manages owned terminal processes, observations and
+explicit input delivery. These controls are available from version 0.12.0;
+check your installed release&#39;s <code>pmcp harness --help</code> before using them.</p>
+<p>The host currently needs Linux, tmux, util-linux flock and a working user systemd
+manager. Native executables must be on PATH. The terminal transport was tested
+with tmux 3.2a and controlled executable fixtures. That does not qualify every
+vendor&#39;s prompt state, automatic wake, authentication refresh or native children.</p>
+<h2>Check the host</h2>
+<pre><code>pmcp harness capabilities inspect
+pmcp harness doctor inspect</code></pre>
+<p>These commands report executable paths and required tools without starting a
+provider or reading its credentials. An installed executable is not a qualified
+provider feature. Use <code>pmcp doctor</code> separately for project configuration checks.</p>
+<p>Group creation checks required tools and contacts the user manager before it
+writes group state. Missing tools return native_host_tool_unavailable followed
+by the tool name; an unreachable manager returns native_user_manager_unavailable.
+The doctor report lists prerequisites and does not certify cgroup delegation.
+An ordinary isolated Docker container usually lacks this user manager and a
+writable delegated cgroup subtree. Container resource limits alone do not
+qualify the native session controls; the current profile requires its Linux host.</p>
+<h2>Choose native or Docker execution</h2>
+<p>The default native profile starts executables on the Linux host. The optional
+Docker profile keeps the same host-side tmux and user-systemd controller, while
+each native executable runs in its own bounded container. Docker does not
+replace the host prerequisites above. Only a local Docker Engine is supported.</p>
+<p>Prepare an image locally with your runtime installed. PMCP requires its exact
+image ID, refuses a missing image and never builds or pulls one. The image must
+support the host UID/GID and the absolute command paths in your policy.
+Create <code>docker-policy.json</code> with this structure, replacing the image ID:</p>
+<pre><code>{
+  &quot;schemaVersion&quot;: 1,
+  &quot;image&quot;: &quot;sha256:YOUR_64_CHARACTER_IMAGE_ID&quot;,
+  &quot;network&quot;: &quot;none&quot;,
+  &quot;workspaceAccess&quot;: &quot;read-only&quot;,
+  &quot;commands&quot;: {
+    &quot;codex-cli&quot;: [&quot;/usr/local/bin/codex&quot;]
+  }
+}</code></pre>
+<p>Set <code>profile</code> to <code>docker</code> and <code>dockerPolicyFile</code> to the policy&#39;s absolute path in
+your group specification. The policy is validated and frozen into group state;
+editing its file does not expand a running group&#39;s authority. Group creation and
+session start use the same commands as native execution.</p>
+<p>Each container gets a read-only root, no network, all capabilities dropped,
+no-new-privileges, 64 PIDs and a memory/swap ceiling. Its only bind mounts are
+the project at <code>/workspace</code> and a private writable profile at <code>/state</code>.
+The workspace is read-only unless the policy explicitly selects read-write.
+Native arguments belong in the session specification; PMCP adds no native
+permission bypass. Docker access itself is a privileged host capability.</p>
+<p>The session <code>memoryMb</code> reserves both runtime memory and 64 MiB for its host
+connection. Its Docker memory limit is therefore 64 MiB smaller. Leave additional
+headroom in the group budget for its controller and tmux server.
+Session receipts include the owned container identity only for Docker execution.
+Unknown or changed container identity blocks cleanup and admission.</p>
+<h3>Allow provider connections explicitly</h3>
+<p>Network-none containers are offline by default. To allow provider HTTPS, add an
+<code>egress</code> entry to the policy:</p>
+<pre><code>{
+  &quot;hosts&quot;: [&quot;chatgpt.com&quot;, &quot;auth.openai.com&quot;],
+  &quot;bridgeExecutable&quot;: &quot;/usr/local/bin/node&quot;
+}</code></pre>
+<p>These are exact hostnames on port 443, not domain suffixes or wildcards. The
+host proxy rejects private addresses and undeclared destinations. The declared
+Node executable must exist inside the image. PMCP stages a digest-checked opaque
+bridge and provides proxy environment variables to the native process. It does
+not intercept TLS or interpret OAuth. A runtime that ignores proxy variables
+cannot reach the provider through this profile. Actual Codex 0.161.0 login and
+main/worker responses have been qualified; other vendors and token refresh need
+their own validation. These two hosts are an observed test scope, not a promise
+that all future Codex features use only them.</p>
+<h3>Keep authenticated roles independent</h3>
+<p>Omitting <code>privateProfiles</code> creates a new empty profile for each launch. For
+explicit reuse, prepare distinct local directories owned by your UID with mode
+0700, outside the project and credential home. Add named grants to the policy:</p>
+<pre><code>{
+  &quot;main&quot;: {
+    &quot;runtime&quot;: &quot;codex-cli&quot;,
+    &quot;directory&quot;: &quot;/absolute/private/main-profile&quot;,
+    &quot;lockExecutable&quot;: &quot;/usr/bin/flock&quot;
+  },
+  &quot;worker&quot;: {
+    &quot;runtime&quot;: &quot;codex-cli&quot;,
+    &quot;directory&quot;: &quot;/absolute/private/worker-profile&quot;,
+    &quot;lockExecutable&quot;: &quot;/usr/bin/flock&quot;
+  }
+}</code></pre>
+<p>Place this object under <code>privateProfiles</code>. Select <code>privateProfile: &quot;main&quot;</code> or
+<code>privateProfile: &quot;worker&quot;</code> in the corresponding session specification. PMCP
+checks and freezes directory/lock identity; the selected runtime must match its
+grant. The image must provide the declared flock executable.</p>
+<p>Authenticate each role with its vendor&#39;s native login in that role&#39;s isolated
+profile. PMCP supplies no credential import or account-switching command.
+Do not copy your host credentials or clone one role&#39;s profile into another.
+Never place profiles or mailbox actor files below the mounted project. An
+exclusive kernel lock stays held by the container while its runtime lives,
+even if the host terminal connection exits. Stop the exact owned session before
+reusing its profile. This lock is cooperative same-UID fencing, not protection
+against a hostile host administrator.</p>
+<p>Keep private profiles when you stop a group if you intend to reuse their native
+login. Session termination does not log out the account or delete credentials.
+Do not publish these directories or add them to source control.</p>
+<h2>Create a group and its sessions</h2>
+<p>Save this as <code>group-spec.json</code>, replacing the project path:</p>
+<pre><code>{
+  &quot;projectRoot&quot;: &quot;/absolute/project/path&quot;,
+  &quot;allowedRuntimes&quot;: [&quot;codex-cli&quot;, &quot;claude-code&quot;],
+  &quot;memoryMb&quot;: 2048,
+  &quot;maxActive&quot;: 2
+}</code></pre>
+<pre><code>pmcp harness group create --input group-spec.json
+pmcp harness group list</code></pre>
+<p>The JSON receipt provides the private groupFile and generation. Set GROUP_FILE
+and GENERATION to those values for the examples below. Group state lives below
+XDG_STATE_HOME/pmcp/harness, or ~/.local/state/pmcp/harness. The tmux socket path
+must fit within 100 bytes; an unusually long state root is refused.</p>
+<p>Save <code>main-spec.json</code>:</p>
+<pre><code>{
+  &quot;runtime&quot;: &quot;codex-cli&quot;,
+  &quot;role&quot;: &quot;main&quot;,
+  &quot;memoryMb&quot;: 768
+}</code></pre>
+<pre><code>pmcp harness session start --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --input main-spec.json
+pmcp harness session list --group-file &quot;$GROUP_FILE&quot;</code></pre>
+<p>Start a worker with another specification whose role is worker. Supported
+runtime IDs are codex-cli, claude-code, gemini-cli, grok-cli and antigravity;
+their executable names are codex, claude, gemini, grok and agy. Optional args
+contains native CLI arguments. PMCP adds no permission bypass flags.
+Start resolves the executable against the native working directory before
+creating a launch record. A missing or non-executable program is refused as
+runtime_executable_unavailable; directories are not accepted as executables.</p>
+<p>A group has one main. Workers require an available main, a runtime grant and
+room in both the session-count and memory budgets. cwd defaults to projectRoot
+and must resolve inside it. This working-directory check and cooperative writer
+leases do not isolate filesystem access from another process of the same UID.</p>
+<p>Native execution waits behind a start gate until its owned terminal record and
+group registration are saved. The gate checks the group generation, runtime
+grant and role before starting the executable. A failed or interrupted start
+blocks further admission until you explicitly resolve it.</p>
+<h2>Observe or take control</h2>
+<p>Set SESSION to a session ID from the receipt:</p>
+<pre><code>pmcp harness session inspect --group-file &quot;$GROUP_FILE&quot; --session &quot;$SESSION&quot;
+pmcp harness session read --group-file &quot;$GROUP_FILE&quot; --session &quot;$SESSION&quot;
+pmcp harness attach open --group-file &quot;$GROUP_FILE&quot; --session &quot;$SESSION&quot;</code></pre>
+<p>Attachment is read-only by default. Detach with tmux&#39;s Ctrl-b then d, or use
+attach detach with the target session and current generation. Detach preserves
+the runtime. Reading returns terminal text and does not infer model readiness.</p>
+<p>For longer history, save read-options.json:</p>
+<pre><code>{ &quot;lines&quot;: 2000, &quot;maxBytes&quot;: 16384 }</code></pre>
+<pre><code>pmcp harness session read --group-file &quot;$GROUP_FILE&quot; --session &quot;$SESSION&quot; --input read-options.json</code></pre>
+<p>lines accepts 1–2000 and maxBytes accepts 1–65536. Defaults remain 100 lines and
+16384 bytes. A bounded result reports truncated when it omits earlier content.
+During an alternate-screen application, alternate: true reads the saved normal
+screen; omitted or false reads the current screen. This returns the owned native
+pane&#39;s content, separate from a surrounding terminal&#39;s older shell output.</p>
+<p>On the tested tmux 3.2a, read-only native clients ignore typing, wheel reports
+and copy-mode keys; use session read for history without acquiring control.
+Inside another tmux with the same Ctrl-b prefix, Ctrl-b then Ctrl-b forwards
+one prefix to the inner layer. Ctrl-b then [ opens the outer copy mode, while
+Ctrl-b, Ctrl-b, d detaches the inner connection. Outer history is the rendered
+wrapper screen; session read retrieves the owned runtime&#39;s history.
+PMCP does not change the outer tmux configuration. Other terminal mouse and
+trackpad settings require their own qualification.</p>
+<p>For bounded polling, session watch also takes an input file containing count
+(1–10) and intervalMs (100–2000). It returns snapshots rather than an endless
+stream.</p>
+<p>Acquire native control before opening a writable attachment:</p>
+<pre><code>pmcp harness control acquire --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --session &quot;$SESSION&quot; --controller operator --mode native
+pmcp harness attach open --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --session &quot;$SESSION&quot; --mode write --lease-file &quot;$LEASE_FILE&quot;</code></pre>
+<p>Set LEASE_FILE to the acquire receipt&#39;s private credential path. A writable
+attachment renews its 60-second lease and releases it after detach. Failed
+renewal disconnects the client. It does not stop the runtime. Another writable
+tmux client blocks CLI delivery even if it bypassed PMCP&#39;s lease.</p>
+<h2>Deliver input explicitly</h2>
+<p>Use mode cli when acquiring a lease for explicit command-line input.
+Save literal single-line UTF-8 text in prompt.txt:</p>
+<pre><code>pmcp harness input write --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --lease-file &quot;$LEASE_FILE&quot; --request-id task1-attempt1-draft --text-file prompt.txt
+pmcp harness input submit --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --lease-file &quot;$LEASE_FILE&quot; --request-id task1-attempt1-submit
+pmcp harness control release --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --lease-file &quot;$LEASE_FILE&quot;</code></pre>
+<p>Write and Enter submission are separate operations. Newlines, tabs, terminal
+control characters and input above 16 KiB are refused. A tmux paste flag alone
+cannot guarantee safe multiline delivery in a native approval menu.</p>
+<p>Inspect the native screen before writing or submitting. A control lease identifies
+the writer; it does not identify the active native widget. PMCP does not infer
+that a composer is ready or that a native approval has been granted.</p>
+<p>Reuse an input request ID only for an exact retry. Matching retries return the
+previous receipt; they do not send again. Conflicting content is refused.
+input_written means terminal delivery, not model processing or task completion.
+Intent or uncertain delivery requires recovery and is never automatically
+replayed. delivery list and delivery inspect expose this journal.</p>
+<p>An uncertain receipt has ok: false and CLI exit code 1, including an exact
+retry that returns the stored receipt. Inspect its state instead of assuming
+that a nonzero exit means no record exists. An exited worker remains observable;
+stop it by ID and explicitly start a replacement. Old request IDs are not
+transferred to the replacement, and sibling sessions retain their input.</p>
+<p>Input interrupt sends an explicit terminal Ctrl-c under the same lease.
+Cancellation, process termination and provider-side completion are distinct.</p>
+<h2>Coordinate through the existing mailbox</h2>
+<p>Use the existing <code>pmcp mailbox</code> commands for send, inbox, read and ack.
+Keep task and attempt IDs in your message body; send a result with replyToId
+pointing to its request. Main review reads the reply. Acknowledgment records
+receipt handling and does not declare task completion or user acceptance.</p>
+<p>PMCP does not create another message engine or automatically type a wake prompt
+into a native menu. Follow the <a href="/mailbox/">mailbox guide</a> for actor credentials
+and launcher-bound runtime attachments.
+There is no automatic delivery loop. Native readiness and approval stay with
+the operator and runtime; an input receipt does not establish prompt readiness.</p>
+<h3>A manual request and review workflow</h3>
+<p>Mailbox actor names and harness session roles are separate. Creating a main or
+worker terminal does not register a mailbox actor or give it credentials. Use
+the mailbox guide to initialize the project and register main, worker and
+operator actors. Keep their credential files private. The following workflow
+uses CLI actor files for manual coordination; it does not attach a vendor child
+or automatically configure a runtime&#39;s MCP server.</p>
+<p>Save request.json with your actor name and a unique task/attempt pair:</p>
+<pre><code>{
+  &quot;recipients&quot;: [{ &quot;actorId&quot;: &quot;worker&quot; }],
+  &quot;body&quot;: &quot;{\&quot;taskId\&quot;:\&quot;review-1\&quot;,\&quot;attemptId\&quot;:\&quot;attempt-1\&quot;,\&quot;kind\&quot;:\&quot;request\&quot;,\&quot;text\&quot;:\&quot;Review the proposed change\&quot;}&quot;,
+  &quot;idempotencyKey&quot;: &quot;review-1-attempt-1&quot;
+}</code></pre>
+<pre><code>pmcp mailbox send --config ./pmcp.toml --actor-file &quot;$MAIN_ACTOR_FILE&quot; --input request.json
+pmcp mailbox inbox --config ./pmcp.toml --actor-file &quot;$WORKER_ACTOR_FILE&quot;</code></pre>
+<p>The send receipt returns messageId and threadId. Save the returned messageId
+in message.json as {&quot;messageId&quot;:&quot;the-returned-UUID&quot;}, then read and acknowledge:</p>
+<pre><code>pmcp mailbox read --config ./pmcp.toml --actor-file &quot;$WORKER_ACTOR_FILE&quot; --input message.json
+pmcp mailbox ack --config ./pmcp.toml --actor-file &quot;$WORKER_ACTOR_FILE&quot; --input message.json</code></pre>
+<p>Receiving and acknowledging a request sends no terminal input. When its native
+prompt is ready, deliver a single-line prompt through the worker&#39;s CLI lease
+and submit separately. Include the task/attempt and request message ID so the
+worker can associate its response. Preserve uncertain delivery for inspection.</p>
+<p>To report a result, use mailbox send with the same taskId and attemptId in body,
+a new idempotencyKey, recipients containing main, and replyToId containing the
+original request messageId. The worker must first read that request. The result
+keeps its threadId; the main can filter inbox with an input file containing
+{&quot;threadId&quot;:&quot;the-returned-thread-UUID&quot;} and read the selected reply.</p>
+<p>Read the body and verify its task, attempt and sender before accepting the
+result. These body fields are a coordination convention, not a mailbox-enforced
+task state machine. A new attempt uses a new request and idempotency key; keep
+the previous result in its original thread. Exact send retries reuse their key
+and return the existing message; changed payloads are refused.</p>
+<p>The main can send its synthesis to operator as a reply to the reviewed result.
+After reading it, the operator may send a separate acceptance reply. ACK records
+receipt handling only. Neither result text, ACK nor acceptance automatically
+submits a terminal draft, transfers control or executes a command.</p>
+<h2>Pause, stop and recover</h2>
+<p>group pause prevents new sessions without interrupting running providers.
+group resume permits admission again. group configure takes a JSON input to
+adjust budgets or narrow runtime grants; it refuses reductions below active
+reservations. Expanding grants requires a new group.</p>
+<p>session stop names one owned session. group stop explicitly stops its entire
+owned group and removes runtime budget properties. Both require the current
+generation. They do not target an existing external tmux session.</p>
+<p>recovery inspect reports observations, leases, uncertain deliveries and
+unregistered owned sessions. recovery reconcile removes a writer lock only
+after its controller has exited and never resends input. Use recovery
+stop-orphan for a named unregistered session, or recovery replace-main with a
+new main specification after the previous main has stopped. Replacement changes
+the generation and invalidates old control credentials. Unknown server or pane
+identity fails closed; no session is silently adopted.</p>
+<p>Include pending starts explicitly when inspecting a failed launch:</p>
+<pre><code>pmcp harness recovery inspect --group-file &quot;$GROUP_FILE&quot; --include-starts
+pmcp harness recovery abort-start --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --session &quot;$SESSION&quot;</code></pre>
+<p>abort-start stops a named incomplete launch and marks any saved group reference
+as stopped. It neither adopts the session nor restarts it. A committed session
+uses session stop instead. If the start gate died before recording ownership,
+automatic cleanup is refused and admission remains blocked for administrative
+repair. Keep the private state directory as evidence; do not guess a pane target
+or resend an uncertain request.</p>
+<h2>Layout planning</h2>
+<pre><code>pmcp harness layout --columns 120 --rows 40</code></pre>
+<p>This pure command needs no tmux, provider, project or network. It returns layout
+A at 120 columns and 32 rows or larger: a main pane, worker dock and bottom
+coordination pane. Smaller terminals retain a full-width main. The minimum is
+40 columns by 12 rows; the maximum is 1000 in either dimension.</p>
+<p>Use the <a href="/terminal-workspace/">terminal workspace</a> to render this layout over
+an existing owned group. All control operations remain available through the CLI.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

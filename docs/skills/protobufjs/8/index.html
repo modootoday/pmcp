@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>protobufjs 8.x — PMCP</title>
+  <meta name="description" content="Use protobufjs ^8.0.0 for runtime protobuf reflection, schema loading, message conversion, and binary encoding/decoding. Prefer the ordinary reflection API unless generated code is supplied by protobufjs-cli." />
+  <link rel="canonical" href="https://pmcp.build/skills/protobufjs/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="protobufjs 8.x — PMCP" />
+  <meta property="og:description" content="Use protobufjs ^8.0.0 for runtime protobuf reflection, schema loading, message conversion, and binary encoding/decoding. Prefer the ordinary reflection API unless generated code is supplied by protobufjs-cli." />
+  <meta property="og:url" content="https://pmcp.build/skills/protobufjs/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/protobufjs/">Other majors</a></p>
+    <h1>protobufjs 8.x</h1><p>Use protobufjs ^8.0.0 for runtime protobuf reflection, schema loading, message conversion, and binary encoding/decoding. Prefer the ordinary reflection API unless generated code is supplied by protobufjs-cli.</p>
+    <dl><dt>For</dt><dd><code>protobufjs@8.8.0</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-protobufjs@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/protobufjs/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/protobufjs/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/protobufjs/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-fcmGsojcoEvk73GGMewYHc1ClHG7yISnQeP74tAzy6D0HfcA2D7BG0LZh8yP1d0f8sh/0CuqYBvLzEkvCiB7tw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against protobufjs@8.8.0 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>protobufjs ^8.0.0</h2>
+<h3>What this package provides</h3>
+<p><code>protobufjs</code> is the full runtime package: static code, reflection, and <code>.proto</code> parsing. Its documented variants are:</p>
+<ul>
+<li><code>protobufjs</code>: static code, reflection, and <code>.proto</code> parsing</li>
+<li><code>protobufjs/light</code>: static code and reflection</li>
+<li><code>protobufjs/minimal</code>: static code only</li>
+</ul>
+<p>The package exposes reflection constructors and types including <code>Root</code>, <code>Type</code>, <code>Field</code>, <code>Message</code>, <code>Enum</code>, <code>Service</code>, <code>Method</code>, <code>OneOf</code>, and <code>Namespace</code>. It also exposes <code>Reader</code>, <code>Writer</code>, and the <code>converter</code>, <code>rpc</code>, <code>types</code>, and <code>util</code> namespaces.</p>
+<h3>Common runtime workflow</h3>
+<p>The usual reflection workflow is:</p>
+<pre><code class="language-js">const root = await protobuf.load(&quot;awesome.proto&quot;);
+const AwesomeMessage = root.lookupType(&quot;awesomepackage.AwesomeMessage&quot;);
+</code></pre>
+<p><code>load()</code> accepts either a promise-based or callback-based use. <code>loadSync()</code> is documented for synchronous Node.js loading. A <code>.proto</code> field name is converted to camelCase by default; use <code>keepCase</code> when the original spelling must be retained.</p>
+<p>In a standalone script, loading a file is not demonstrated here because examples are run without a filesystem. The programmatic reflection API is useful when the schema can be built in memory.</p>
+<h3>Build a schema with reflection</h3>
+<p>Create a <code>Type</code>, add <code>Field</code> objects, put the type in a <code>Root</code>, and look it up by its fully qualified name:</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import protobuf from &quot;protobufjs&quot;;
+
+const AwesomeMessage = new protobuf.Type(&quot;AwesomeMessage&quot;)
+  .add(new protobuf.Field(&quot;awesomeField&quot;, 1, &quot;string&quot;));
+
+const root = new protobuf.Root()
+  .define(&quot;awesomepackage&quot;)
+  .add(AwesomeMessage);
+
+const MessageType = root.lookupType(&quot;awesomepackage.AwesomeMessage&quot;);
+assert.equal(MessageType, AwesomeMessage);
+
+const message = MessageType.create({ awesomeField: &quot;hello&quot; });
+assert.equal(message.awesomeField, &quot;hello&quot;);
+</code></pre>
+<h3>Message lifecycle and binary encoding</h3>
+<p>The documented message operations are:</p>
+<ul>
+<li><code>create(properties)</code> creates a message instance.</li>
+<li><code>verify(object)</code> returns <code>null</code> for a valid object or an error string.</li>
+<li><code>fromObject(object)</code> converts a plain object to a message.</li>
+<li><code>toObject(message, options?)</code> converts a message to a plain object.</li>
+<li><code>encode(message)</code> and <code>encodeDelimited(message)</code> return a <code>Writer</code>.</li>
+<li>Call <code>.finish()</code> on the writer to obtain encoded bytes.</li>
+<li><code>decode(bytesOrReader)</code> and <code>decodeDelimited(bytesOrReader)</code> decode messages.</li>
+</ul>
+<p>Use <code>create()</code> for the ordinary runtime path. Do not assume a generated message type should be called with <code>new</code>; the documented reflection usage is <code>MessageType.create(...)</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import protobuf from &quot;protobufjs&quot;;
+
+const MessageType = new protobuf.Type(&quot;Greeting&quot;)
+  .add(new protobuf.Field(&quot;text&quot;, 1, &quot;string&quot;));
+
+const message = MessageType.create({ text: &quot;hello&quot; });
+assert.equal(MessageType.verify(message), null);
+
+const encoded = MessageType.encode(message).finish();
+const decoded = MessageType.decode(encoded);
+assert.equal(decoded.text, &quot;hello&quot;);
+
+const plain = MessageType.toObject(decoded);
+assert.equal(plain.text, &quot;hello&quot;);
+
+const converted = MessageType.fromObject({ text: &quot;again&quot; });
+assert.equal(converted.text, &quot;again&quot;);
+
+const delimited = MessageType.encodeDelimited(message).finish();
+const decodedDelimited = MessageType.decodeDelimited(delimited);
+assert.equal(decodedDelimited.text, &quot;hello&quot;);
+</code></pre>
+<h3>Generated code and the CLI</h3>
+<p>The runtime package alone does not provide the <code>pbjs</code> code-generation command. Generation requires <code>protobufjs-cli</code> (or <code>protoc-gen-pbjs</code>), for example:</p>
+<pre><code class="language-sh">npm install --save-dev protobufjs-cli
+npx pbjs -t static-module -w commonjs -o compiled.js --dts file1.proto file2.proto
+npx pbjs -t json-module -w commonjs -o bundle.js --dts file1.proto file2.proto
+</code></pre>
+<p><code>static-module</code> output is reflection-free and uses <code>protobufjs/minimal.js</code>. <code>json-module</code> output is reflection-backed and uses <code>protobufjs/light.js</code>. Generated modules are then consumed as ordinary imports.</p>
+<p>The CLI documentation describes static-module output as non-functional on its own. Do not expect installing only <code>protobufjs</code> to provide the CLI or code generation.</p>
+<h3>Services</h3>
+<p>The documented service-client entry point is <code>MyService.create(rpcImpl, requestDelimited?, responseDelimited?)</code>. The RPC implementation receives <code>(method, requestData, callback)</code> and must eventually invoke the callback with either an error or response bytes:</p>
+<pre><code class="language-js">function myRpcImpl(method, requestData, callback) {
+  performRequest(requestData, function (err, responseData) {
+    callback(err, responseData);
+  });
+}
+</code></pre>
+<p>The service client requires a service definition and an RPC transport implementation; this skill does not provide a standalone service example because the supplied research does not document enough of the service-definition construction API to make one safely runnable without inventing details.</p>
+<h3>Version-specific caution</h3>
+<p>The <code>^8.0.0</code> range permits current 8.x releases; the researched npm page lists 8.8.0. The documented v8.0.0 breaking change is Edition 2024 support. Edition 2023 was added in v7.5.0. Be cautious when copying older examples: ordinary reflection loading and <code>Type.create(...)</code> remain the documented shape, but edition support is part of the v8 runtime.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover the exact <code>.proto</code> schema syntax, descriptor conversion, ProtoJSON, Text Format, every reflection constructor, generated-module APIs in detail, CLI options beyond the shown commands, <code>protoc-gen-pbjs</code>, or the complete service-definition and transport setup. Those areas require documentation or tooling details not present in the supplied research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

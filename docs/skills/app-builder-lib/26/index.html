@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>app-builder-lib 26.x — PMCP</title>
+  <meta name="description" content="Practical app-builder-lib ^26.0.0 API guidance for programmatic use, with runnable checks for architecture and platform helpers and cautions about packaging-only APIs." />
+  <link rel="canonical" href="https://pmcp.build/skills/app-builder-lib/26/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="app-builder-lib 26.x — PMCP" />
+  <meta property="og:description" content="Practical app-builder-lib ^26.0.0 API guidance for programmatic use, with runnable checks for architecture and platform helpers and cautions about packaging-only APIs." />
+  <meta property="og:url" content="https://pmcp.build/skills/app-builder-lib/26/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/app-builder-lib/">Other majors</a></p>
+    <h1>app-builder-lib 26.x</h1><p>Practical app-builder-lib ^26.0.0 API guidance for programmatic use, with runnable checks for architecture and platform helpers and cautions about packaging-only APIs.</p>
+    <dl><dt>For</dt><dd><code>app-builder-lib@26.15.3</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-app-builder-lib@26.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/app-builder-lib/26/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/app-builder-lib/26/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/app-builder-lib/26/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-dorG1MzwfogrQiOv2+8ouP1UBE8OGqQqJEE3eCGz9oUK/Svu4wLRUqDSALHh6kwKNCCu31oY4pcYNELSjYN4fw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against app-builder-lib@26.15.3 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>app-builder-lib (<code>^26.0.0</code>)</h2>
+<p><code>app-builder-lib</code> is the library layer used by electron-builder. The <code>^26.0.0</code> range means the v26 API line, including later 26.x releases; do not assume behavior is limited to 26.0.0.</p>
+<h3>Directly usable helpers</h3>
+<p>The simplest standalone surface is the architecture and platform API.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { Arch, archFromString } from &quot;app-builder-lib&quot;;
+
+assert.equal(Arch.ia32, 0);
+assert.equal(Arch.x64, 1);
+assert.equal(Arch.armv7l, 2);
+assert.equal(Arch.arm64, 3);
+assert.equal(Arch.universal, 4);
+
+assert.equal(archFromString(&quot;ia32&quot;), Arch.ia32);
+assert.equal(archFromString(&quot;x64&quot;), Arch.x64);
+assert.equal(archFromString(&quot;armv7l&quot;), Arch.armv7l);
+assert.equal(archFromString(&quot;arm64&quot;), Arch.arm64);
+assert.equal(archFromString(&quot;universal&quot;), Arch.universal);
+</code></pre>
+<p><code>Platform</code> provides predefined Linux, macOS, and Windows values, conversion from a platform name, the current platform, and target-map construction. Use the predefined values or <code>Platform.fromString()</code> rather than recreating platform instances unnecessarily. A common shape mistake is assuming that the Windows platform&#39;s string form is <code>&quot;win&quot;</code>; <code>Platform.fromString(&quot;win&quot;)</code> accepts that name, but <code>Platform.WINDOWS.toString()</code> returns <code>&quot;windows&quot;</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { Arch, Platform } from &quot;app-builder-lib&quot;;
+
+assert.equal(Platform.fromString(&quot;linux&quot;), Platform.LINUX);
+assert.equal(Platform.fromString(&quot;mac&quot;), Platform.MAC);
+assert.equal(Platform.fromString(&quot;win&quot;), Platform.WINDOWS);
+
+assert.equal(Platform.LINUX.toString(), &quot;linux&quot;);
+assert.equal(Platform.MAC.toString(), &quot;mac&quot;);
+assert.equal(Platform.WINDOWS.toString(), &quot;windows&quot;);
+assert.ok([Platform.LINUX, Platform.MAC, Platform.WINDOWS].includes(Platform.current()));
+
+const targets = Platform.LINUX.createTarget(undefined, Arch.x64);
+assert.ok(targets instanceof Map);
+assert.ok(targets.has(Platform.LINUX));
+assert.deepEqual(targets.get(Platform.LINUX)?.get(Arch.x64), []);
+</code></pre>
+<p><code>Platform.createTarget(type?, ...archs)</code> returns a <code>Map&lt;Platform, Map&lt;Arch, string[]&gt;&gt;</code>. Its first argument may be a target type, a target-type array, or <code>null</code>; architecture arguments select architectures for the target map.</p>
+<h3>Programmatic packaging API</h3>
+<p>The exported functions include:</p>
+<ul>
+<li><code>build(options, packager?)</code>, returning <code>Promise&lt;string[]&gt;</code>.</li>
+<li><code>buildForge(forgeOptions, options)</code>, returning <code>Promise&lt;string[]&gt;</code>.</li>
+<li><code>checkBuildRequestOptions</code>.</li>
+<li><code>combineSignResults</code> and <code>isSignResultSigned</code>.</li>
+<li><code>getArchSuffix</code>.</li>
+</ul>
+<p>The public classes include <code>Packager</code>, <code>PlatformPackager</code>, <code>Target</code>, <code>AppInfo</code>, <code>CancellationToken</code>, <code>PublishManager</code>, platform-specific packagers, and signing managers. <code>new Packager(options, cancellationToken?)</code> and the packager&#39;s <code>build(repositoryInfo?)</code> are documented programmatic entry points. <code>PackagerOptions</code> can include configuration, <code>projectDir</code>, <code>targets</code>, <code>prepackaged</code>, and platform target arrays.</p>
+<p>These APIs are not ordinary pure helpers: packaging requires a build context, project/application inputs, output directories, targets, and often downloaded or cached toolsets. A plain script with no filesystem, network, project, or tool-runner setup cannot execute a real packaging build. Do not use <code>describe</code>, <code>it</code>, <code>expect</code>, or CLI-only configuration syntax in a direct script.</p>
+<p><code>Target</code> is an abstract build participant. Its <code>build(appOutDir, arch)</code> method is implemented by concrete target packages; it is not a general-purpose standalone installer function. Platform packagers likewise receive build context, and hooks receive a <code>PlatformPackager</code>, not merely a filesystem path.</p>
+<h3>v26-specific cautions</h3>
+<ul>
+<li>Publishing files were refactored to <code>electron-publish</code> in 26.0.0. Code that assumes publishing internals live in their older locations is stale.</li>
+<li>In 26.0.1, non-external <code>ObjectMap</code> shapes changed to <code>Record</code>. Prefer the current typed configuration shape rather than copying an older major&#39;s <code>ObjectMap</code> declarations.</li>
+<li>Squirrel.Windows changed implementation in 26.0.3 to use <code>electron-winstaller</code> instead of the package&#39;s former self-contained implementation.</li>
+<li>Windows signing changed in 26.0.7: the vendor directory is signed instead of using Squirrel.Windows&#39; signing method.</li>
+<li>Parallel packaging of architectures and targets became configurable with the <code>concurrency</code> configuration property in 26.0.13.</li>
+<li>TypeScript configuration loading uses <code>jiti</code> from 26.4.1. Electron download handling moved to <code>@electron/get</code> in 26.10.0.</li>
+<li><code>^26.0.0</code> can resolve any later 26.x release, so account for these later-v26 changes when diagnosing behavior.</li>
+</ul>
+<h3>What this skill does not cover</h3>
+<p>This skill does not specify the full <code>Configuration</code>, target-specific option, signing, publishing, Forge, hook, toolset, or platform-packager contracts beyond identifying their public existence. It does not provide a runnable packaging example because the supplied research requires project files, build context, toolsets, and potentially downloads, which are unavailable to the required filesystem-free, network-free example runner. It also does not cover CLI invocation syntax or behavior outside the documented programmatic API.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

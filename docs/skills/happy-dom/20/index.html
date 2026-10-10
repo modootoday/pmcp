@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>happy-dom 20.x — PMCP</title>
+  <meta name="description" content="Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind." />
+  <link rel="canonical" href="https://pmcp.build/skills/happy-dom/20/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="happy-dom 20.x — PMCP" />
+  <meta property="og:description" content="Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind." />
+  <meta property="og:url" content="https://pmcp.build/skills/happy-dom/20/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/happy-dom/">Other majors</a></p>
+    <h1>happy-dom 20.x</h1><p>Use happy-dom ^20.0.0 as a headless DOM/browser implementation in standalone Bun or Node scripts, with v20 security defaults and lifecycle cleanup in mind.</p>
+    <dl><dt>For</dt><dd><code>happy-dom@20.14.0</code></dd><dt>Verified</dt><dd>2026-09-07, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-happy-dom@20.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/happy-dom/20/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/happy-dom/20/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/happy-dom/20/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-JExCSijGBN9PZX5KupQl37J+YKukwnt21ZmsTEm9MH3p6aFFbD9pCZOzVdkoSI+GdGl/KCeitRkGZilXB0Q71A==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against happy-dom@20.14.0 on 2026-09-07. 5 of 5 examples executed.</p>
+<h2>happy-dom</h2>
+<h3>Scope</h3>
+<p><code>happy-dom</code> provides a headless DOM implementation and a programmatic browser API. The examples below are standalone scripts: each can be run as <code>bun example.ts</code> with only <code>happy-dom</code> installed.</p>
+<h3><code>Window</code>: create and manipulate a DOM</h3>
+<p>Import <code>Window</code> from <code>happy-dom</code>. Pass a URL when code under test depends on the document location. Access the DOM through <code>window.document</code>.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Window } from &#39;happy-dom&#39;;
+
+const window = new Window({ url: &#39;https://localhost:8080&#39; });
+const document = window.document;
+
+document.body.innerHTML = &#39;&lt;div class=&quot;container&quot;&gt;&lt;/div&gt;&#39;;
+const container = document.querySelector(&#39;.container&#39;);
+assert.ok(container);
+
+const button = document.createElement(&#39;button&#39;);
+container.appendChild(button);
+
+assert.equal(document.body.innerHTML, &#39;&lt;div class=&quot;container&quot;&gt;&lt;button&gt;&lt;/button&gt;&lt;/div&gt;&#39;);
+assert.equal(window.location.href, &#39;https://localhost:8080/&#39;);
+
+await window.happyDOM.abort();
+window.close();
+</code></pre>
+<p>Use <code>window.happyDOM.abort()</code> when pending Happy DOM work should be stopped, and call <code>window.close()</code> when the window is no longer needed.</p>
+<h3>JavaScript evaluation is disabled by default in v20</h3>
+<p>Do not assume that scripts embedded in markup execute. Since v20, JavaScript evaluation is disabled by default for security reasons. Enable it explicitly with <code>settings: { enableJavaScriptEvaluation: true }</code> only when the evaluated code is trusted. A VM context is not an isolation boundary; untrusted JavaScript can pose an RCE risk.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Window } from &#39;happy-dom&#39;;
+
+const window = new Window({
+  settings: { enableJavaScriptEvaluation: true }
+});
+
+window.document.write(`
+  &lt;script&gt;
+    document.body.setAttribute(&#39;data-evaluated&#39;, &#39;yes&#39;);
+  &lt;/script&gt;
+`);
+
+assert.equal(window.document.body.getAttribute(&#39;data-evaluated&#39;), &#39;yes&#39;);
+
+await window.happyDOM.abort();
+window.close();
+</code></pre>
+<p>A common outdated pattern is to rely on HTML scripts executing without this setting. In v20 that default is intentionally off.</p>
+<h3><code>Browser</code> and pages</h3>
+<p>Import <code>Browser</code> and, when configuring error handling, <code>BrowserErrorCaptureEnum</code>. Create a page with <code>browser.newPage()</code>, navigate with <code>page.goto()</code>, use <code>page.mainFrame.document</code>, and wait with <code>page.waitUntilComplete()</code>.</p>
+<p>The documented browser flow navigates to a URL and therefore requires the browser&#39;s page-loading environment. The standalone example below only exercises the constructible, offline portion of the API and does not make a network request.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { Browser, BrowserErrorCaptureEnum } from &#39;happy-dom&#39;;
+
+const browser = new Browser({
+  settings: { errorCapture: BrowserErrorCaptureEnum.processLevel }
+});
+
+const page = browser.newPage();
+assert.ok(page);
+assert.ok(page.mainFrame);
+assert.ok(page.mainFrame.document);
+
+await page.waitUntilComplete();
+await browser.close();
+</code></pre>
+<p>For a loaded page, the documented sequence is:</p>
+<pre><code class="language-ts">const browser = new Browser({
+  settings: { errorCapture: BrowserErrorCaptureEnum.processLevel }
+});
+const page = browser.newPage();
+await page.goto(&#39;https://example.test/&#39;);
+page.mainFrame.document.querySelector(&#39;a&#39;)?.click();
+await page.waitUntilComplete();
+await browser.close();
+</code></pre>
+<p>Always close the browser when finished. The browser/page API is not the same shape as the older examples that only construct a <code>Window</code>.</p>
+<h3><code>GlobalWindow</code></h3>
+<p><code>GlobalWindow</code> extends <code>Window</code> but evaluates document scripts in the global scope rather than in a Node.js VM context. This changes global state, so use it only when that behavior is required. Enable JavaScript evaluation explicitly in v20.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { GlobalWindow } from &#39;happy-dom&#39;;
+
+const key = &#39;__happyDomSkillExampleValue&#39;;
+const window = new GlobalWindow({
+  settings: { enableJavaScriptEvaluation: true }
+});
+
+window.document.write(`
+  &lt;script&gt;
+    globalThis.${key} = &#39;Hello world!&#39;;
+  &lt;/script&gt;
+`);
+
+assert.equal((globalThis as Record&lt;string, unknown&gt;)[key], &#39;Hello world!&#39;);
+delete (globalThis as Record&lt;string, unknown&gt;)[key];
+
+await window.happyDOM.close();
+</code></pre>
+<p>The older <code>GlobalWindow</code> example shape that expects scripts to run without an explicit setting is not appropriate for v20.</p>
+<h3>Finding the owning window with <code>PropertySymbol</code></h3>
+<p><code>PropertySymbol</code> exposes the internal symbol used to retrieve the Happy DOM window associated with a document. Current code uses <code>PropertySymbol.window</code>; the setup documentation also shows an older <code>PropertySymbol.ownerWindow</code> name, so use the fallback when supporting both shapes.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert&#39;;
+import { PropertySymbol, Window } from &#39;happy-dom&#39;;
+
+const window = new Window();
+const document = window.document as typeof window.document &amp; {
+  [PropertySymbol.ownerWindow]?: Window;
+  [PropertySymbol.window]?: Window;
+};
+
+const owningWindow =
+  document[PropertySymbol.ownerWindow] || document[PropertySymbol.window];
+
+assert.equal(owningWindow, window);
+
+await window.happyDOM.abort();
+window.close();
+</code></pre>
+<h3>Test-environment integrations are separate</h3>
+<p>Happy DOM can be used by test tools, but those integrations are not needed for the standalone <code>Window</code> and <code>Browser</code> APIs:</p>
+<ul>
+<li>Jest requires the separate <code>@happy-dom/jest-environment</code> package.</li>
+<li>Node&#39;s native test runner requires <code>@happy-dom/global-registrator</code> to be imported before tests.</li>
+<li>Global DOM globals require <code>@happy-dom/global-registrator</code>, for example <code>GlobalRegistrator.register({ url: &#39;http://localhost:3000&#39; })</code>.</li>
+<li>In Vitest, the documented timer workaround replaces the host timer functions with the window&#39;s timer functions. The relevant window is obtained through <code>PropertySymbol.ownerWindow</code> or the current <code>PropertySymbol.window</code> fallback.</li>
+</ul>
+<p>Do not copy runner globals such as <code>describe</code>, <code>it</code>, or <code>expect</code> into a direct Bun script; they are not provided by <code>happy-dom</code>.</p>
+<h3>Server rendering is a separate package</h3>
+<p>SSR/SSG command-line rendering belongs to <code>@happy-dom/server-renderer</code>, not the <code>happy-dom</code> package itself. Its command-line JavaScript option is separate from the programmatic <code>Window</code> setting. The server renderer keeps JavaScript disabled by default and enables it with its <code>--javascript</code> option.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover the complete DOM API, browser navigation and network behavior, every browser/page lifecycle method, Vitest/Jest configuration, the <code>@happy-dom/global-registrator</code> package API, or <code>@happy-dom/server-renderer</code> usage beyond identifying that these are separate integrations. It also does not establish a security boundary for evaluated JavaScript.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

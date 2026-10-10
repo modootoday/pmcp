@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>emittery 2.x — PMCP</title>
+  <meta name="description" content="Use Emittery 2.x for asynchronous typed event emission, subscriptions, one-shot waits, async iterables, and listener lifecycle management." />
+  <link rel="canonical" href="https://pmcp.build/skills/emittery/2/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="emittery 2.x — PMCP" />
+  <meta property="og:description" content="Use Emittery 2.x for asynchronous typed event emission, subscriptions, one-shot waits, async iterables, and listener lifecycle management." />
+  <meta property="og:url" content="https://pmcp.build/skills/emittery/2/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/emittery/">Other majors</a></p>
+    <h1>emittery 2.x</h1><p>Use Emittery 2.x for asynchronous typed event emission, subscriptions, one-shot waits, async iterables, and listener lifecycle management.</p>
+    <dl><dt>For</dt><dd><code>emittery@2.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 9 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-emittery@2.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/emittery/2/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/emittery/2/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/emittery/2/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-PNPf5sFyRhHwHcjmR5tooe7+0JwY9QY+4lXQXQFgTNiAwI04zzxQMVpS66R+UNL3SVwHRavPkwd8l/VkGi+8MQ==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against emittery@2.0.0 on 2026-09-08. 9 of 9 examples executed.</p>
+<h2>Emittery 2.x</h2>
+<h3>Version and runtime</h3>
+<p>This skill targets <code>emittery</code> <code>^2.0.0</code>. Emittery 2 requires Node.js 22. It works in browsers when bundled, but this skill&#39;s examples are standalone Bun scripts.</p>
+<p>There is no package-specific runner or CLI documented here. Use the programmatic <code>Emittery</code> API.</p>
+<h3>Critical v2 migration rule</h3>
+<p>Emittery 2 passes an event object to listeners, not the raw event data:</p>
+<pre><code class="language-ts">emitter.on(&#39;event&#39;, ({name, data}) =&gt; {
+	// ...
+});
+</code></pre>
+<p>This applies to <code>on</code>, <code>onAny</code>, <code>once</code> results, <code>events()</code>, and <code>anyEvent()</code>. Code written for v1 commonly still uses <code>data =&gt; ...</code>, <code>(eventName, eventData) =&gt; ...</code>, or <code>const data = await emitter.once(...)</code>; those shapes are incorrect in v2.</p>
+<p>Emission is asynchronous. <code>emit()</code> runs listeners concurrently and must be awaited when ordering or errors matter. <code>emitSerial()</code> waits for each listener before invoking the next one.</p>
+<h3>Basic subscription and removal</h3>
+<p><code>on(eventName, listener, options?)</code> returns an unsubscribe function. The listener may be synchronous or asynchronous. <code>off(eventName, listener)</code> removes a listener explicitly. Both methods accept one event name or a readonly array of event names.</p>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const emitter = new Emittery();
+const received: unknown[] = [];
+
+const listener = ({name, data}: {name: string; data: unknown}) =&gt; {
+	received.push([name, data]);
+};
+
+const off = emitter.on(&#39;message&#39;, listener);
+await emitter.emit(&#39;message&#39;, &#39;hello&#39;);
+off();
+await emitter.emit(&#39;message&#39;, &#39;ignored&#39;);
+
+assert.deepEqual(received, [[&#39;message&#39;, &#39;hello&#39;]]);
+</code></pre>
+<p>An <code>AbortSignal</code> can be supplied to <code>on</code>; aborting it removes the subscription.</p>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const emitter = new Emittery();
+const controller = new AbortController();
+let count = 0;
+
+emitter.on(&#39;tick&#39;, () =&gt; {
+	count++;
+}, {signal: controller.signal});
+
+await emitter.emit(&#39;tick&#39;);
+controller.abort();
+await emitter.emit(&#39;tick&#39;);
+
+assert.equal(count, 1);
+</code></pre>
+<h3>One-shot listeners</h3>
+<p><code>once(eventName, predicate?)</code> returns a promise resolving to the v2 event object. Destructure <code>{data}</code> rather than treating the resolved value as the data itself. The predicate also receives the event object.</p>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const emitter = new Emittery();
+const result = emitter.once(&#39;data&#39;, ({data}: {name: string; data: {ok: boolean; value: number}}) =&gt; data.ok);
+
+await emitter.emit(&#39;data&#39;, {ok: false, value: 1});
+await emitter.emit(&#39;data&#39;, {ok: true, value: 2});
+
+const {name, data} = await result;
+assert.equal(name, &#39;data&#39;);
+assert.deepEqual(data, {ok: true, value: 2});
+</code></pre>
+<h3>Concurrent and serial emission</h3>
+<p><code>emit(name, data?)</code> invokes all matching listeners asynchronously and concurrently. If listeners reject, all listeners still run and the returned promise rejects with an <code>AggregateError</code>; listener errors are available as <code>error.errors</code>.</p>
+<p><code>emitSerial(name, data?)</code> waits between listeners, so use it when listener order or completion order is significant.</p>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const emitter = new Emittery();
+const order: string[] = [];
+
+emitter.on(&#39;event&#39;, async () =&gt; {
+	order.push(&#39;first-start&#39;);
+	await Promise.resolve();
+	order.push(&#39;first-end&#39;);
+});
+emitter.on(&#39;event&#39;, () =&gt; {
+	order.push(&#39;second&#39;);
+});
+
+await emitter.emitSerial(&#39;event&#39;);
+assert.deepEqual(order, [&#39;first-start&#39;, &#39;first-end&#39;, &#39;second&#39;]);
+</code></pre>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const emitter = new Emittery();
+let completed = 0;
+
+emitter.on(&#39;event&#39;, () =&gt; {
+	completed++;
+});
+emitter.on(&#39;event&#39;, async () =&gt; {
+	throw new Error(&#39;listener failure&#39;);
+});
+
+await assert.rejects(
+	emitter.emit(&#39;event&#39;),
+	(error: any) =&gt; error instanceof AggregateError
+		&amp;&amp; Array.isArray(error.errors)
+		&amp;&amp; error.errors.length === 1
+		&amp;&amp; completed === 1,
+);
+</code></pre>
+<h3>Async event streams</h3>
+<p><code>events(eventName)</code> returns an async iterable for one event name. <code>anyEvent()</code> returns an async iterable of <code>{name, data}</code> for all events. Break the loop when the desired event has been received.</p>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const emitter = new Emittery();
+const values: unknown[] = [];
+
+const stream = emitter.events(&#39;message&#39;);
+const consuming = (async () =&gt; {
+	for await (const {data} of stream) {
+		values.push(data);
+		if (data === &#39;stop&#39;) {
+			break;
+		}
+	}
+})();
+
+await emitter.emit(&#39;message&#39;, &#39;one&#39;);
+await emitter.emit(&#39;message&#39;, &#39;stop&#39;);
+await consuming;
+
+assert.deepEqual(values, [&#39;one&#39;, &#39;stop&#39;]);
+</code></pre>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const emitter = new Emittery();
+const seen: unknown[] = [];
+
+const consuming = (async () =&gt; {
+	for await (const {name, data} of emitter.anyEvent()) {
+		seen.push([name, data]);
+		break;
+	}
+})();
+
+await emitter.emit(&#39;ready&#39;, 42);
+await consuming;
+assert.deepEqual(seen, [[&#39;ready&#39;, 42]]);
+</code></pre>
+<h3>Any-event listeners and listener inspection</h3>
+<p><code>onAny(listener)</code> receives one <code>{name, data}</code> object. <code>offAny(listener)</code> removes it. <code>listenerCount(eventName?)</code> reports listeners associated with the event, including an <code>onAny</code> listener when an event name is supplied. <code>clearListeners(eventName?)</code> clears listeners.</p>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const emitter = new Emittery();
+const seen: unknown[] = [];
+const listener = ({name, data}: {name: string; data: unknown}) =&gt; {
+	seen.push([name, data]);
+};
+
+emitter.onAny(listener);
+assert.equal(emitter.listenerCount(&#39;event&#39;), 1);
+await emitter.emit(&#39;event&#39;, 1);
+assert.deepEqual(seen, [[&#39;event&#39;, 1]]);
+
+emitter.offAny(listener);
+emitter.on(&#39;event&#39;, () =&gt; {});
+assert.equal(emitter.listenerCount(&#39;event&#39;), 1);
+emitter.clearListeners(&#39;event&#39;);
+assert.equal(emitter.listenerCount(&#39;event&#39;), 0);
+</code></pre>
+<h3>Other documented API</h3>
+<p>The instance also exposes <code>init</code>, <code>logIfDebugEnabled</code>, and <code>bindMethods</code>. <code>bindMethods(object)</code> binds Emittery methods onto another object:</p>
+<pre><code class="language-ts">import Emittery from &#39;emittery&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const object: Record&lt;string, any&gt; = {};
+new Emittery().bindMethods(object);
+
+assert.equal(typeof object.emit, &#39;function&#39;);
+assert.equal(typeof object.on, &#39;function&#39;);
+</code></pre>
+<p>The type declarations export <code>EventName</code>, <code>EmitteryEvent</code>, <code>DebugLogger</code>, <code>DebugOptions</code>, <code>Options</code>, <code>EmitteryOncePromise</code>, <code>UnsubscribeFunction</code>, and <code>ListenerChangedData</code>. The default export is <code>Emittery</code>; its documented runtime static members include <code>isDebugEnabled</code>, <code>listenerAdded</code>, <code>listenerRemoved</code>, and <code>mixin</code>.</p>
+<h3>Not covered</h3>
+<p>The research does not specify the signatures or behavior of <code>init</code>/<code>deinit</code>, debug configuration and logging, the static members, <code>mixin</code>, decorator support, disposable integrations, typed <code>AllEventData</code> declaration patterns, or the exact cancellation behavior of one-shot operations. Consult the package&#39;s v2 declarations and documentation before using those areas.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

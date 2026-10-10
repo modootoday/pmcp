@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>negotiator 1.x — PMCP</title>
+  <meta name="description" content="Use negotiator 1.x to select preferred media types, languages, charsets, and encodings from request headers, including the 1.0.0 options-object form for preferred encoding order." />
+  <link rel="canonical" href="https://pmcp.build/skills/negotiator/1/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="negotiator 1.x — PMCP" />
+  <meta property="og:description" content="Use negotiator 1.x to select preferred media types, languages, charsets, and encodings from request headers, including the 1.0.0 options-object form for preferred encoding order." />
+  <meta property="og:url" content="https://pmcp.build/skills/negotiator/1/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/negotiator/">Other majors</a></p>
+    <h1>negotiator 1.x</h1><p>Use negotiator 1.x to select preferred media types, languages, charsets, and encodings from request headers, including the 1.0.0 options-object form for preferred encoding order.</p>
+    <dl><dt>For</dt><dd><code>negotiator@1.1.0</code></dd><dt>Verified</dt><dd>2026-09-08, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-negotiator@1.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/negotiator/1/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/negotiator/1/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/negotiator/1/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-ji7XQJh3SNWG6MFX46m+4WjyBAm85UH0JnACudbvJ595Tcf1iL72Kbz9SOX2aDm0lzDU9NbrnpU+1XhGgib2sw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against negotiator@1.1.0 on 2026-09-08. 4 of 4 examples executed.</p>
+<h2>negotiator</h2>
+<p><code>^1.0.0</code> targets the 1.x API. At the documented 1.0.0 baseline, the package drops support for Node versions older than 18 and accepts an options object for preferred encoding order.</p>
+<h3>Loading and constructing</h3>
+<p>The package exports the <code>Negotiator</code> constructor as the default CommonJS export and as <code>.Negotiator</code>:</p>
+<pre><code class="language-js">var Negotiator = require(&#39;negotiator&#39;)
+</code></pre>
+<p>Construct it with a request-shaped object containing <code>headers</code>. The package reads headers from that object; it does not obtain an HTTP request or headers itself.</p>
+<pre><code class="language-js">var negotiator = new Negotiator({
+  headers: {
+    accept: &#39;text/html&#39;
+  }
+})
+</code></pre>
+<p>The constructor can also be called without <code>new</code>, but using <code>new</code> is the documented form.</p>
+<h3>Media-type negotiation</h3>
+<p>Methods:</p>
+<ul>
+<li><code>mediaTypes()</code> returns the client’s preferred media types.</li>
+<li><code>mediaTypes(availableMediaTypes)</code> filters and orders a supplied list.</li>
+<li><code>mediaType(availableMediaTypes)</code> returns the single best match.</li>
+<li><code>mediaType()</code> is the corresponding single-result form without an available list.</li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import Negotiator from &#39;negotiator&#39;
+
+const negotiator = new Negotiator({
+  headers: {
+    accept: &#39;text/html, application/json;q=0.8&#39;
+  }
+})
+
+assert.deepEqual(negotiator.mediaTypes(), [&#39;text/html&#39;, &#39;application/json&#39;])
+assert.deepEqual(
+  negotiator.mediaTypes([&#39;application/json&#39;, &#39;text/plain&#39;, &#39;text/html&#39;]),
+  [&#39;text/html&#39;, &#39;application/json&#39;]
+)
+assert.equal(
+  negotiator.mediaType([&#39;application/json&#39;, &#39;text/plain&#39;, &#39;text/html&#39;]),
+  &#39;text/html&#39;
+)
+assert.equal(negotiator.mediaType(), &#39;text/html&#39;)
+</code></pre>
+<h3>Language negotiation</h3>
+<p>Methods:</p>
+<ul>
+<li><code>languages()</code> returns the preferred languages.</li>
+<li><code>languages(availableLanguages)</code> filters and orders a supplied list.</li>
+<li><code>language(availableLanguages)</code> returns the best available language.</li>
+<li><code>language()</code> is the corresponding single-result form without an available list.</li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import Negotiator from &#39;negotiator&#39;
+
+const negotiator = new Negotiator({
+  headers: {
+    &#39;accept-language&#39;: &#39;es, pt;q=0.8, en;q=0.7&#39;
+  }
+})
+
+assert.deepEqual(negotiator.languages(), [&#39;es&#39;, &#39;pt&#39;, &#39;en&#39;])
+assert.deepEqual(
+  negotiator.languages([&#39;en&#39;, &#39;es&#39;, &#39;fr&#39;]),
+  [&#39;es&#39;, &#39;en&#39;]
+)
+assert.equal(negotiator.language([&#39;en&#39;, &#39;es&#39;, &#39;fr&#39;]), &#39;es&#39;)
+assert.equal(negotiator.language(), &#39;es&#39;)
+</code></pre>
+<h3>Charset negotiation</h3>
+<p>Methods:</p>
+<ul>
+<li><code>charsets()</code> returns preferred character sets.</li>
+<li><code>charsets(availableCharsets)</code> filters and orders a supplied list.</li>
+<li><code>charset(availableCharsets)</code> returns the best available character set.</li>
+<li><code>charset()</code> is the corresponding single-result form without an available list.</li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import Negotiator from &#39;negotiator&#39;
+
+const negotiator = new Negotiator({
+  headers: {
+    &#39;accept-charset&#39;: &#39;utf-8, iso-8859-1;q=0.5&#39;
+  }
+})
+
+assert.deepEqual(negotiator.charsets(), [&#39;utf-8&#39;, &#39;iso-8859-1&#39;])
+assert.deepEqual(
+  negotiator.charsets([&#39;iso-8859-1&#39;, &#39;utf-8&#39;]),
+  [&#39;utf-8&#39;, &#39;iso-8859-1&#39;]
+)
+assert.equal(negotiator.charset([&#39;iso-8859-1&#39;, &#39;utf-8&#39;]), &#39;utf-8&#39;)
+assert.equal(negotiator.charset(), &#39;utf-8&#39;)
+</code></pre>
+<h3>Encoding negotiation</h3>
+<p>Methods:</p>
+<ul>
+<li><code>encodings()</code> returns preferred content encodings.</li>
+<li><code>encodings(availableEncodings)</code> filters and orders a supplied list.</li>
+<li><code>encoding(availableEncodings)</code> returns the best available encoding.</li>
+<li><code>encoding()</code> is the corresponding single-result form without an available list.</li>
+<li><code>encoding(availableEncodings, { preferred })</code> and <code>encodings(availableEncodings, { preferred })</code> use the supplied <code>preferred</code> array to prioritize encodings with the same quality.</li>
+</ul>
+<p>In 1.0.0, the preferred order is an options property, not a second positional array argument. The older 0.6.4 shape was <code>encoding(availableEncodings, preferred)</code> / <code>encodings(availableEncodings, preferred)</code>; do not carry that shape forward.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import Negotiator from &#39;negotiator&#39;
+
+const negotiator = new Negotiator({
+  headers: {
+    &#39;accept-encoding&#39;: &#39;gzip;q=1, br;q=1, identity;q=0.5&#39;
+  }
+})
+
+assert.deepEqual(negotiator.encodings(), [&#39;gzip&#39;, &#39;br&#39;, &#39;identity&#39;])
+assert.deepEqual(
+  negotiator.encodings([&#39;br&#39;, &#39;gzip&#39;, &#39;identity&#39;]),
+  [&#39;gzip&#39;, &#39;br&#39;, &#39;identity&#39;]
+)
+assert.equal(negotiator.encoding([&#39;br&#39;, &#39;gzip&#39;, &#39;identity&#39;]), &#39;gzip&#39;)
+assert.deepEqual(
+  negotiator.encodings([&#39;br&#39;, &#39;gzip&#39;], { preferred: [&#39;br&#39;, &#39;gzip&#39;] }),
+  [&#39;br&#39;, &#39;gzip&#39;]
+)
+assert.equal(
+  negotiator.encoding([&#39;br&#39;, &#39;gzip&#39;], { preferred: [&#39;br&#39;, &#39;gzip&#39;] }),
+  &#39;br&#39;
+)
+</code></pre>
+<h3>Backward-compatible aliases</h3>
+<p>The following aliases remain available:</p>
+<ul>
+<li><code>preferredCharset</code> → <code>charset</code></li>
+<li><code>preferredCharsets</code> → <code>charsets</code></li>
+<li><code>preferredEncoding</code> → <code>encoding</code></li>
+<li><code>preferredEncodings</code> → <code>encodings</code></li>
+<li><code>preferredLanguage</code> → <code>language</code></li>
+<li><code>preferredLanguages</code> → <code>languages</code></li>
+<li><code>preferredMediaType</code> → <code>mediaType</code></li>
+<li><code>preferredMediaTypes</code> → <code>mediaTypes</code></li>
+</ul>
+<p>Use the canonical names in new code; aliases are useful when maintaining code written against the older naming scheme.</p>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover HTTP server integration, framework adapters, CLI usage, installation commands, detailed wildcard and quality-factor edge cases, missing-header behavior, or behavior outside the documented 1.x API. The package is exercised directly with a caller-supplied request object; the research does not document a runner, CLI, or build step.</p>
+<p>Sources:</p>
+<ul>
+<li><a href="https://github.com/jshttp/negotiator/tree/v1.0.0">https://github.com/jshttp/negotiator/tree/v1.0.0</a></li>
+<li><a href="https://raw.githubusercontent.com/jshttp/negotiator/v1.0.0/README.md">https://raw.githubusercontent.com/jshttp/negotiator/v1.0.0/README.md</a></li>
+<li><a href="https://raw.githubusercontent.com/jshttp/negotiator/v1.0.0/HISTORY.md">https://raw.githubusercontent.com/jshttp/negotiator/v1.0.0/HISTORY.md</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

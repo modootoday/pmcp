@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>socks-proxy-agent 10.x — PMCP</title>
+  <meta name="description" content="Use socks-proxy-agent ^10.0.0 to create SOCKS agents for Node HTTP clients and compatible integrations." />
+  <link rel="canonical" href="https://pmcp.build/skills/socks-proxy-agent/10/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="socks-proxy-agent 10.x — PMCP" />
+  <meta property="og:description" content="Use socks-proxy-agent ^10.0.0 to create SOCKS agents for Node HTTP clients and compatible integrations." />
+  <meta property="og:url" content="https://pmcp.build/skills/socks-proxy-agent/10/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/socks-proxy-agent/">Other majors</a></p>
+    <h1>socks-proxy-agent 10.x</h1><p>Use socks-proxy-agent ^10.0.0 to create SOCKS agents for Node HTTP clients and compatible integrations.</p>
+    <dl><dt>For</dt><dd><code>socks-proxy-agent@10.1.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-socks-proxy-agent@10.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/socks-proxy-agent/10/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/socks-proxy-agent/10/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/socks-proxy-agent/10/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-cL1zFnYmqyHKc5XrdaliP9c+uOd7Vulz0EXvNsNVMAcowQwbX8484mG7m01xDjW9uqx9TMzVeCnF66aLWDxQCg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against socks-proxy-agent@10.1.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>socks-proxy-agent skill</h2>
+<h3>Version and module requirements</h3>
+<ul>
+<li>This skill targets <code>socks-proxy-agent</code> <code>^10.0.0</code> (published version covered by the research: <code>10.1.0</code>).</li>
+<li>Node.js 20 or newer is required.</li>
+<li>The package is ESM. Use <code>import</code>, not the older CommonJS-oriented examples.</li>
+<li>The named runtime export is <code>SocksProxyAgent</code>. <code>SocksProxyAgentOptions</code> is a type export.</li>
+</ul>
+<h3>Constructing an agent</h3>
+<p>The v10 constructor takes a SOCKS URI (or a <code>URL</code>) as its first argument and optional options as its second argument:</p>
+<pre><code class="language-ts">new SocksProxyAgent(uri: string | URL, opts?: SocksProxyAgentOptions)
+</code></pre>
+<p>Use a URI such as:</p>
+<pre><code class="language-text">socks://username:password@proxy.example.com
+</code></pre>
+<p>Credentials in a URI must be URL-encoded. For example, an <code>@</code> in a username is written as <code>%40</code>.</p>
+<p>The supported protocol strings are:</p>
+<ul>
+<li><code>socks</code></li>
+<li><code>socks4</code></li>
+<li><code>socks4a</code></li>
+<li><code>socks5</code></li>
+<li><code>socks5h</code></li>
+</ul>
+<p><code>socks</code> defaults to SOCKS5 with hostname resolution performed by the proxy.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { SocksProxyAgent } from &#39;socks-proxy-agent&#39;;
+
+const agent = new SocksProxyAgent(
+  &#39;socks://your-name%40example.com:secret@proxy.example.com:1080&#39;
+);
+
+assert.deepEqual(SocksProxyAgent.protocols, [
+  &#39;socks&#39;,
+  &#39;socks4&#39;,
+  &#39;socks4a&#39;,
+  &#39;socks5&#39;,
+  &#39;socks5h&#39;,
+]);
+assert.equal(typeof agent.proxyUrl, &#39;string&#39;);
+assert.equal(agent.proxyUrl, &#39;socks://your-name%40example.com:secret@proxy.example.com:1080&#39;);
+assert.equal(typeof agent.shouldLookup, &#39;boolean&#39;);
+assert.equal(typeof agent.proxy, &#39;object&#39;);
+</code></pre>
+<p>A <code>URL</code> object is also accepted:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { SocksProxyAgent } from &#39;socks-proxy-agent&#39;;
+
+const proxyUrl = new URL(&#39;socks5h://proxy.example.com:1080&#39;);
+const agent = new SocksProxyAgent(proxyUrl);
+
+assert.equal(typeof agent.proxyUrl, &#39;string&#39;);
+assert.equal(agent.proxyUrl, proxyUrl.toString());
+assert.equal(agent.proxy.type, 5);
+assert.equal(agent.shouldLookup, false);
+</code></pre>
+<h3>Options</h3>
+<p>The second argument can contain SOCKS proxy options, <code>socketOptions</code>, and Node HTTP agent options. <code>socketOptions</code> is for TCP connection options other than <code>host</code> and <code>port</code>.</p>
+<p>The agent exposes these documented members:</p>
+<ul>
+<li><code>shouldLookup: boolean</code></li>
+<li><code>proxy: SocksProxy</code></li>
+<li><code>proxyUrl: string</code></li>
+<li><code>timeout: number | null</code></li>
+<li><code>socketOptions: SocksSocketOptions | null</code></li>
+<li><code>connect(req, opts): Promise&lt;net.Socket&gt;</code></li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { SocksProxyAgent } from &#39;socks-proxy-agent&#39;;
+
+const agent = new SocksProxyAgent(&#39;socks5h://proxy.example.com:1080&#39;, {
+  timeout: 1000,
+  socketOptions: {
+    keepAlive: true,
+  },
+});
+
+assert.equal(agent.timeout, 1000);
+assert.deepEqual(agent.socketOptions, { keepAlive: true });
+assert.equal(agent.proxy.type, 5);
+assert.equal(agent.shouldLookup, false);
+</code></pre>
+<h3>Using the agent with Node HTTP clients</h3>
+<p>Pass the agent through the built-in HTTP client&#39;s <code>{ agent }</code> option. The documented HTTPS integration is:</p>
+<pre><code class="language-ts">import https from &#39;https&#39;;
+import { SocksProxyAgent } from &#39;socks-proxy-agent&#39;;
+
+const agent = new SocksProxyAgent(
+  &#39;socks://your-name%40gmail.com:abcdef12345124@br41.nordvpn.com&#39;
+);
+
+https.get(&#39;https://ipinfo.io&#39;, { agent }, (res) =&gt; {
+  console.log(res.headers);
+  res.pipe(process.stdout);
+});
+</code></pre>
+<p>That request requires a reachable SOCKS proxy and network access, so it is not used as a standalone validation example here.</p>
+<p>The same agent can be supplied to the separately installed <code>ws</code> package for WebSocket connections:</p>
+<pre><code class="language-ts">import WebSocket from &#39;ws&#39;;
+import { SocksProxyAgent } from &#39;socks-proxy-agent&#39;;
+
+const agent = new SocksProxyAgent(
+  &#39;socks://your-name%40gmail.com:abcdef12345124@br41.nordvpn.com&#39;
+);
+
+const socket = new WebSocket(&#39;ws://echo.websocket.events&#39;, { agent });
+</code></pre>
+<p>This integration also requires the separate <code>ws</code> package and a network connection.</p>
+<h3>Common migration mistake</h3>
+<p>Do not use the v7-era single-object constructor. Older examples commonly show:</p>
+<pre><code class="language-ts">new SocksProxyAgent(
+  {
+    hostname: &#39;myproxy.mydomain.com&#39;,
+    username: &#39;proxyUser&#39;,
+    password: &#39;proxyPass&#39;,
+  },
+  { timeout: 1000 }
+);
+</code></pre>
+<p>In v10, the first argument must be a <code>string</code> or <code>URL</code>; put proxy credentials and endpoint information in the SOCKS URI, and pass options as the second argument:</p>
+<pre><code class="language-ts">new SocksProxyAgent(
+  &#39;socks5://proxyUser:proxyPass@myproxy.mydomain.com:1080&#39;,
+  { timeout: 1000 }
+);
+</code></pre>
+<p>Also account for the v10 runtime requirements: Node.js must be 20 or newer, and the package is ESM.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover SOCKS server setup, proxy authentication behavior beyond URI encoding, detailed SOCKS protocol internals, custom socket connection behavior, the complete <code>http.AgentOptions</code> or <code>SocksSocketOptions</code> type surfaces, or testing live HTTP/WebSocket connections. The HTTP and WebSocket examples require network access and, for WebSockets, the separate <code>ws</code> dependency.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

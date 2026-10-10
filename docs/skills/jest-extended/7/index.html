@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>jest-extended 7.x — PMCP</title>
+  <meta name="description" content="Use jest-extended v7 matchers with a Jest/Vitest-compatible expect.extend host, and understand the small subset that can be exercised directly without a test runner." />
+  <link rel="canonical" href="https://pmcp.build/skills/jest-extended/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="jest-extended 7.x — PMCP" />
+  <meta property="og:description" content="Use jest-extended v7 matchers with a Jest/Vitest-compatible expect.extend host, and understand the small subset that can be exercised directly without a test runner." />
+  <meta property="og:url" content="https://pmcp.build/skills/jest-extended/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/jest-extended/">Other majors</a></p>
+    <h1>jest-extended 7.x</h1><p>Use jest-extended v7 matchers with a Jest/Vitest-compatible expect.extend host, and understand the small subset that can be exercised directly without a test runner.</p>
+    <dl><dt>For</dt><dd><code>jest-extended@7.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-jest-extended@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/jest-extended/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/jest-extended/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/jest-extended/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-SzEx2AFhJIMErnWvtupLBWmR4yWdqCyLSEvnOcd25HePrL2MkM1H5q/M1jSS7zcaNfNYL4F3zr2oHz3oVAJrcg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against jest-extended@7.0.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>jest-extended v7</h2>
+<h3>What this package is</h3>
+<p><code>jest-extended</code> v7 provides additional Jest matchers. Its package entry point re-exports the matchers from <code>./matchers</code>.</p>
+<p>The documented integration is with Jest&#39;s <code>expect.extend</code>:</p>
+<pre><code class="language-ts">import * as matchers from &#39;jest-extended&#39;;
+expect.extend(matchers);
+</code></pre>
+<p>Selective registration is also supported:</p>
+<pre><code class="language-ts">import { toBeArray, toBeSealed } from &#39;jest-extended&#39;;
+expect.extend({ toBeArray, toBeSealed });
+</code></pre>
+<p>The package does not provide a standalone assertion runner. <code>describe</code>, <code>it</code>, and <code>expect</code> are not supplied by the package in a directly executed script. Vitest can use the same matchers through Vitest&#39;s compatible <code>expect.extend</code> API and a setup file.</p>
+<h3>Exported matcher surface</h3>
+<p>The v7 entry point exports:</p>
+<ul>
+<li><code>fail</code>, <code>pass</code></li>
+<li>Type/value matchers: <code>toBeArray</code>, <code>toBeArrayOfSize</code>, <code>toBeBigInt</code>, <code>toBeBoolean</code>, <code>toBeDate</code>, <code>toBeDateString</code>, <code>toBeEmpty</code>, <code>toBeEmptyObject</code>, <code>toBeEven</code>, <code>toBeExtensible</code>, <code>toBeFalse</code>, <code>toBeFinite</code>, <code>toBeFrozen</code>, <code>toBeFunction</code>, <code>toBeHexadecimal</code>, <code>toBeInteger</code>, <code>toBeNaN</code>, <code>toBeNegative</code>, <code>toBeNil</code>, <code>toBeNumber</code>, <code>toBeObject</code>, <code>toBeOdd</code>, <code>toBeOneOf</code>, <code>toBePositive</code>, <code>toBeSealed</code>, <code>toBeString</code>, <code>toBeSymbol</code>, <code>toBeTrue</code>, <code>toBeValidDate</code></li>
+<li>Range/date matchers: <code>toBeAfter</code>, <code>toBeAfterOrEqualTo</code>, <code>toBeBefore</code>, <code>toBeBeforeOrEqualTo</code>, <code>toBeBetween</code>, <code>toBeWithin</code>, <code>toBeInRange</code></li>
+<li>Collection/content matchers: <code>toContainAllEntries</code>, <code>toContainAllKeys</code>, <code>toContainAllValues</code>, <code>toContainAnyEntries</code>, <code>toContainAnyKeys</code>, <code>toContainAnyValues</code>, <code>toContainEntries</code>, <code>toContainEntry</code>, <code>toContainKey</code>, <code>toContainKeys</code>, <code>toContainValue</code>, <code>toContainValues</code>, <code>toInclude</code>, <code>toIncludeAllMembers</code>, <code>toIncludeAllPartialMembers</code>, <code>toIncludeSamePartialMembers</code>, <code>toIncludeAnyMembers</code>, <code>toIncludeMultiple</code>, <code>toIncludeRepeated</code>, <code>toIncludeSameMembers</code>, <code>toPartiallyContain</code></li>
+<li>String/predicate matchers: <code>toEndWith</code>, <code>toEqualCaseInsensitive</code>, <code>toEqualIgnoringWhitespace</code>, <code>toSatisfy</code>, <code>toSatisfyAll</code>, <code>toSatisfyAny</code>, <code>toStartWith</code></li>
+<li>Change/spy/promise/error matchers: <code>toChange</code>, <code>toChangeBy</code>, <code>toChangeTo</code>, <code>toHaveBeenCalledAfter</code>, <code>toHaveBeenCalledBefore</code>, <code>toHaveBeenCalledOnce</code>, <code>toHaveBeenCalledExactlyOnceWith</code>, <code>toReject</code>, <code>toResolve</code>, <code>toThrowWithMessage</code></li>
+</ul>
+<h3>Directly exercising matchers without a runner</h3>
+<p>The matcher functions themselves can be imported and called with a matcher context. A direct script must provide the <code>this.utils</code> methods the matcher uses; this tests the matcher result, not a Jest assertion environment.</p>
+<p><code>toBeArray</code> uses <code>Array.isArray</code>, so arrays pass and other values fail.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { toBeArray } from &#39;jest-extended&#39;;
+
+const context = {
+  utils: {
+    matcherHint: (hint: string) =&gt; hint,
+    printReceived: (value: unknown) =&gt; String(value),
+  },
+};
+
+const isArray = (toBeArray as any).call(context, [1, 2]);
+const isNotArray = (toBeArray as any).call(context, &#39;not an array&#39;);
+
+assert.equal(isArray.pass, true);
+assert.equal(isNotArray.pass, false);
+</code></pre>
+<p><code>toInclude</code> only passes when the received value is a string containing the expected string. It does not use array membership semantics.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { toInclude } from &#39;jest-extended&#39;;
+
+const context = {
+  utils: {
+    matcherHint: (hint: string) =&gt; hint,
+    printReceived: (value: unknown) =&gt; String(value),
+    printExpected: (value: unknown) =&gt; String(value),
+  },
+};
+
+const included = (toInclude as any).call(context, &#39;hello world&#39;, &#39;world&#39;);
+const absent = (toInclude as any).call(context, &#39;hello world&#39;, &#39;mars&#39;);
+const wrongType = (toInclude as any).call(context, [&#39;hello&#39;, &#39;world&#39;], &#39;world&#39;);
+
+assert.equal(included.pass, true);
+assert.equal(absent.pass, false);
+assert.equal(wrongType.pass, false);
+</code></pre>
+<p><code>toBeWithin</code> uses an inclusive start and exclusive end. It accepts numbers and bigints according to its type check. Keep the operand types compatible with JavaScript comparisons.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { toBeWithin } from &#39;jest-extended&#39;;
+
+const context = {
+  utils: {
+    matcherHint: (hint: string) =&gt; hint,
+    printReceived: (value: unknown) =&gt; String(value),
+    printExpected: (value: unknown) =&gt; String(value),
+  },
+};
+
+const atStart = (toBeWithin as any).call(context, 10, 10, 20);
+const atEnd = (toBeWithin as any).call(context, 20, 10, 20);
+const bigintValue = (toBeWithin as any).call(context, 15n, 10n, 20n);
+const wrongType = (toBeWithin as any).call(context, &#39;15&#39;, 10, 20);
+
+assert.equal(atStart.pass, true);
+assert.equal(atEnd.pass, false);
+assert.equal(bigintValue.pass, true);
+assert.equal(wrongType.pass, false);
+</code></pre>
+<h3>Setup mistakes to avoid</h3>
+<ul>
+<li>Do not call <code>expect(...)</code> in a plain script unless you supply a compatible <code>expect</code> host. The package supplies matchers, not the runner or assertion global.</li>
+<li>Do not assume importing the package automatically installs every matcher. Register all matchers with <code>expect.extend(matchers)</code>, or register selected named exports.</li>
+<li>Do not treat <code>jest-extended/all</code> as a standalone implementation. Its v7 entry point forwards to the built <code>dist/all</code> output and is intended for Jest setup configuration such as <code>setupFilesAfterEnv</code>.</li>
+<li>Do not use the old <code>toHaveBeenCalledOnceWith</code> name. It was renamed in an earlier major to <code>toHaveBeenCalledExactlyOnceWith</code>.</li>
+<li>BigInt support and the <code>toBeBigInt</code> matcher were added in v6; code targeting older versions may show a shape that does not reflect v7.</li>
+<li>v7&#39;s documented Jest support is Jest <code>27.2.5</code> and newer. The package metadata declares Jest as an optional peer and TypeScript as a peer, with TypeScript <code>&gt;=5.0.0</code>.</li>
+<li>v7 changed the supported Node engine range: it drops Node 18 and Node 23 and adds Node 24 and 25 support. Its published engine range is <code>^20.9.0 || ^22.11.0 || ^24.11.0 || &gt;=25.0.0</code>.</li>
+</ul>
+<h3>What this skill does not cover</h3>
+<p>The supplied research does not document the argument semantics or implementation behavior of most exported matchers beyond the three shown above. It also does not cover Jest configuration details beyond the setup-file pattern, matcher failure formatting in a real Jest run, TypeScript declaration usage, Vitest version compatibility, or the behavior of <code>fail</code>, <code>pass</code>, spies, promises, changes, dates, objects, collections, and predicate matchers. Those parts should be exercised through the compatible Jest/Vitest host or verified from their individual v7 implementations.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

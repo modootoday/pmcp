@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>firebase-admin 14.x — PMCP</title>
+  <meta name="description" content="Practical firebase-admin ^14.0.0 guidance for Node.js 22+ server applications, using v14 modular imports and avoiding removed legacy APIs." />
+  <link rel="canonical" href="https://pmcp.build/skills/firebase-admin/14/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="firebase-admin 14.x — PMCP" />
+  <meta property="og:description" content="Practical firebase-admin ^14.0.0 guidance for Node.js 22+ server applications, using v14 modular imports and avoiding removed legacy APIs." />
+  <meta property="og:url" content="https://pmcp.build/skills/firebase-admin/14/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/firebase-admin/">Other majors</a></p>
+    <h1>firebase-admin 14.x</h1><p>Practical firebase-admin ^14.0.0 guidance for Node.js 22+ server applications, using v14 modular imports and avoiding removed legacy APIs.</p>
+    <dl><dt>For</dt><dd><code>firebase-admin@14.3.0</code></dd><dt>Verified</dt><dd>2026-09-08, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-firebase-admin@14.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/firebase-admin/14/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/firebase-admin/14/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/firebase-admin/14/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-tBTyIri7wRfXTGTiLqb5VvZgm0209ZM/b49yB5l89yc30HCfPd0iGE/gj9tnzbFJAU8tIjbymqkid2A/a2ct1g==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against firebase-admin@14.3.0 on 2026-09-08. 4 of 4 examples executed.</p>
+<h2>firebase-admin ^14.0.0</h2>
+<p>Use this skill for <code>firebase-admin</code> version <code>^14.0.0</code> in a Node.js 22+ server application. Firebase Admin SDK v14 requires Node.js 22 or newer; Node.js 18 and 20 are no longer supported.</p>
+<h3>Use the modular API</h3>
+<p>Import each service from its documented module:</p>
+<pre><code class="language-ts">import { initializeApp } from &#39;firebase-admin/app&#39;;
+import { getAuth } from &#39;firebase-admin/auth&#39;;
+import { getFirestore } from &#39;firebase-admin/firestore&#39;;
+import { getMessaging } from &#39;firebase-admin/messaging&#39;;
+</code></pre>
+<p>Do not use the older namespaced shape:</p>
+<pre><code class="language-ts">import * as admin from &#39;firebase-admin&#39;;
+admin.initializeApp();
+admin.auth();
+</code></pre>
+<p>The v13 namespaced API was retained temporarily but was documented for removal. v14 removes legacy namespace support. The deprecated Instance ID API was also removed; code using <code>admin.instanceId()</code> must be migrated to the supported Installations APIs.</p>
+<h3>Initialize and retrieve apps</h3>
+<p>Import app functions from <code>firebase-admin/app</code>:</p>
+<ul>
+<li><code>initializeApp(options?, appName?)</code> creates an app.</li>
+<li><code>getApp(appName?)</code> retrieves an existing app.</li>
+<li><code>getApps()</code> returns all initialized apps.</li>
+</ul>
+<p>The default app has no name argument. A named app must be retrieved with the same name used during initialization.</p>
+<p>In Google environments, default credentials are looked up automatically. <code>FIREBASE_CONFIG</code> may provide configuration for Realtime Database, Cloud Storage, or Cloud Functions. The SDK is intended for a server application with Firebase credentials and project setup.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { getApp, getApps, initializeApp } from &#39;firebase-admin/app&#39;;
+
+const app = initializeApp({ projectId: &#39;example-project&#39; }, &#39;example-app&#39;);
+assert.equal(getApp(&#39;example-app&#39;), app);
+assert.equal(getApps().includes(app), true);
+assert.equal(app.name, &#39;example-app&#39;);
+</code></pre>
+<p>The example uses a local project ID only to exercise app initialization. Production code should configure appropriate credentials and project settings.</p>
+<h3>Authentication</h3>
+<p>Use <code>getAuth(app?)</code> from <code>firebase-admin/auth</code>. Omitting the argument uses the default app; passing an app binds the Auth instance to that app.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { initializeApp } from &#39;firebase-admin/app&#39;;
+import { getAuth } from &#39;firebase-admin/auth&#39;;
+
+const app = initializeApp({ projectId: &#39;auth-example&#39; }, &#39;auth-app&#39;);
+const auth = getAuth(app);
+
+assert.equal(typeof auth, &#39;object&#39;);
+assert.equal(getAuth(app), auth);
+</code></pre>
+<p>This constructs the service without making a user or token request. User and token operations require Firebase credentials and a reachable Firebase service.</p>
+<h3>Cloud Firestore</h3>
+<p>Use <code>getFirestore</code> or <code>initializeFirestore</code> from <code>firebase-admin/firestore</code>:</p>
+<ul>
+<li><code>getFirestore()</code> gets the default database for the default app.</li>
+<li><code>getFirestore(app)</code> gets the default database for a specific app.</li>
+<li><code>getFirestore(databaseId)</code> selects a named database.</li>
+<li><code>getFirestore(app, databaseId)</code> selects a named database for an app.</li>
+<li><code>initializeFirestore(app, settings?)</code> initializes Firestore with settings such as <code>{ preferRest: true }</code>.</li>
+</ul>
+<p>The named-database overloads are documented as Public Preview.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { initializeApp } from &#39;firebase-admin/app&#39;;
+import { getFirestore, initializeFirestore } from &#39;firebase-admin/firestore&#39;;
+
+const app = initializeApp({ projectId: &#39;firestore-example&#39; }, &#39;firestore-app&#39;);
+const firestore = getFirestore(app);
+const restFirestore = initializeFirestore(
+  initializeApp({ projectId: &#39;rest-example&#39; }, &#39;rest-app&#39;),
+  { preferRest: true },
+);
+
+assert.equal(typeof firestore, &#39;object&#39;);
+assert.equal(typeof restFirestore, &#39;object&#39;);
+assert.equal(getFirestore(app), firestore);
+</code></pre>
+<p>The example does not read or write data, so it does not need network access. Firestore operations require a configured project and credentials.</p>
+<h3>Cloud Messaging</h3>
+<p>Use <code>getMessaging(app?)</code> from <code>firebase-admin/messaging</code>. A message contains the base message fields and exactly one target: <code>fid</code>, <code>token</code> (deprecated), <code>topic</code>, or <code>condition</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { initializeApp } from &#39;firebase-admin/app&#39;;
+import { getMessaging } from &#39;firebase-admin/messaging&#39;;
+
+const app = initializeApp({ projectId: &#39;messaging-example&#39; }, &#39;messaging-app&#39;);
+const messaging = getMessaging(app);
+
+assert.equal(typeof messaging, &#39;object&#39;);
+assert.equal(getMessaging(app), messaging);
+</code></pre>
+<p>Do not copy older Cloud Messaging message types: v14 removed legacy message types. Later 14.x releases also deprecate additional Messaging types, so check the exact installed 14.x release before depending on a type.</p>
+<h3>Other documented modules</h3>
+<p>The documented module entry points also include:</p>
+<ul>
+<li><code>firebase-admin/app-check</code></li>
+<li><code>firebase-admin/data-connect</code></li>
+<li><code>firebase-admin/database</code></li>
+<li><code>firebase-admin/eventarc</code></li>
+<li><code>firebase-admin/extensions</code></li>
+<li><code>firebase-admin/functions</code></li>
+<li><code>firebase-admin/installations</code></li>
+<li><code>firebase-admin/machine-learning</code></li>
+<li><code>firebase-admin/phone-number-verification</code></li>
+<li><code>firebase-admin/project-management</code></li>
+<li><code>firebase-admin/remote-config</code></li>
+<li><code>firebase-admin/security-rules</code></li>
+<li><code>firebase-admin/storage</code></li>
+</ul>
+<p>Use the corresponding module entry point rather than assuming a top-level namespace API. The reviewed material does not provide exact signatures or credential-free standalone behavior for these modules.</p>
+<h3>Version and runtime cautions</h3>
+<ul>
+<li>v14.0.0 requires Node.js 22 or newer.</li>
+<li><code>^14.0.0</code> permits later 14.x releases. The release notes document additional changes in 14.1.0 and 14.2.0, including more Messaging deprecations and a Cloud Functions <code>taskQueue()</code> scoping change.</li>
+<li>SDK-wide error handling was revamped in v14.</li>
+<li>Deprecated <code>url.parse()</code> usage was replaced by Node&#39;s built-in <code>URL</code>.</li>
+<li>The SDK is for server applications, not browser or unprivileged client code.</li>
+<li>Service calls generally need Firebase credentials, project configuration, and network access. The examples above only exercise local initialization and service construction.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover service-operation signatures, credential-file setup, emulator configuration, Realtime Database, Storage, Cloud Functions, or the detailed APIs of the other documented modules. It also does not specify the exact error classes or error-handling migration rules introduced in v14, nor the precise later-14.x <code>taskQueue()</code> or Messaging changes.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@typescript-eslint/utils 8.x — PMCP</title>
+  <meta name="description" content="Use @typescript-eslint/utils ^8.0.0 to author typed custom ESLint rules, work with TypeScript-ESTree node types, and access parser services from rules running under ESLint." />
+  <link rel="canonical" href="https://pmcp.build/skills/typescript-eslint-utils/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="@typescript-eslint/utils 8.x — PMCP" />
+  <meta property="og:description" content="Use @typescript-eslint/utils ^8.0.0 to author typed custom ESLint rules, work with TypeScript-ESTree node types, and access parser services from rules running under ESLint." />
+  <meta property="og:url" content="https://pmcp.build/skills/typescript-eslint-utils/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/typescript-eslint-utils/">Other majors</a></p>
+    <h1>@typescript-eslint/utils 8.x</h1><p>Use @typescript-eslint/utils ^8.0.0 to author typed custom ESLint rules, work with TypeScript-ESTree node types, and access parser services from rules running under ESLint.</p>
+    <dl><dt>For</dt><dd><code>@typescript-eslint/utils@8.70.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-typescript-eslint-utils@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/typescript-eslint-utils/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/typescript-eslint-utils/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/typescript-eslint-utils/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-8PbZ8R98qFZNjd+Et0FZQGXUug78EpPV4UGauDnrQgEEDJxeafS+96lkNiTyUlcgynmFThrTHcPP6fRCmwA7hQ==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against @typescript-eslint/utils@8.70.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>@typescript-eslint/utils</h2>
+<h3>What this package is</h3>
+<p><code>@typescript-eslint/utils</code> is a library for writing custom ESLint rules and plugins in TypeScript. It provides AST types and constants, ESLint rule types, rule factories, and parser-service types. It is not an ESLint CLI or configuration runner.</p>
+<p>The documented top-level exports include:</p>
+<ul>
+<li><code>AST_NODE_TYPES</code></li>
+<li><code>AST_TOKEN_TYPES</code></li>
+<li><code>ASTUtils</code></li>
+<li><code>ESLintUtils</code></li>
+<li><code>JSONSchema</code></li>
+<li><code>ParserServices</code></li>
+<li><code>TSESLint</code></li>
+<li><code>TSESLintScope</code></li>
+<li><code>TSESTree</code></li>
+</ul>
+<p>Use public package exports rather than imports from <code>dist</code> or other internal paths.</p>
+<h3>Creating a rule</h3>
+<p>Use <code>ESLintUtils.RuleCreator</code> for a typed custom rule. Its argument converts the rule name into a documentation URL, and the factory infers valid message IDs from <code>meta.messages</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { ESLintUtils } from &#39;@typescript-eslint/utils&#39;;
+
+const createRule = ESLintUtils.RuleCreator(
+  name =&gt; `https://typescript-eslint.io/rules/${name}`,
+);
+
+const rule = createRule({
+  name: &#39;demo-rule&#39;,
+  meta: {
+    docs: { description: &#39;Demonstrates a rule.&#39; },
+    messages: { found: &#39;Found it.&#39; },
+    type: &#39;suggestion&#39;,
+    schema: [],
+  },
+  defaultOptions: [],
+  create(context) {
+    return {
+      Identifier(node) {
+        if (node.name === &#39;bad&#39;) {
+          context.report({ messageId: &#39;found&#39;, node });
+        }
+      },
+    };
+  },
+});
+
+assert.equal(rule.meta.messages.found, &#39;Found it.&#39;);
+const reports: unknown[] = [];
+const visitors = rule.create({
+  report(problem: unknown) {
+    reports.push(problem);
+  },
+} as never);
+
+visitors.Identifier({ type: &#39;Identifier&#39;, name: &#39;bad&#39; } as never);
+assert.equal(reports.length, 1);
+</code></pre>
+<p><code>ESLintUtils.RuleCreator.withoutDocs</code> creates a rule without requiring a documentation URL. Use it when the rule intentionally has no documentation metadata requirement.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { ESLintUtils } from &#39;@typescript-eslint/utils&#39;;
+
+const rule = ESLintUtils.RuleCreator.withoutDocs({
+  meta: {
+    messages: { notice: &#39;Notice.&#39; },
+    type: &#39;suggestion&#39;,
+    schema: [],
+  },
+  create() {
+    return {};
+  },
+});
+
+assert.equal(rule.meta.messages.notice, &#39;Notice.&#39;);
+assert.deepEqual(rule.create({} as never), {});
+</code></pre>
+<p>Rules themselves are executed by ESLint. A plain script can construct and call a rule visitor as above, but it does not provide ESLint&#39;s complete context or traversal.</p>
+<h3>AST node types</h3>
+<p><code>AST_NODE_TYPES</code> contains the values used by TypeScript-ESTree node <code>type</code> fields. <code>TSESTree.Node</code> is the discriminated union for those nodes, so switching on <code>node.type</code> narrows the node type in TypeScript.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { AST_NODE_TYPES, TSESTree } from &#39;@typescript-eslint/utils&#39;;
+
+function describeNode(node: TSESTree.Node): string {
+  switch (node.type) {
+    case AST_NODE_TYPES.Literal:
+      return `Literal value ${node.raw}`;
+    default:
+      return &#39;unknown&#39;;
+  }
+}
+
+const node = {
+  type: AST_NODE_TYPES.Literal,
+  value: 42,
+  raw: &#39;42&#39;,
+} as TSESTree.Literal;
+
+assert.equal(describeNode(node), &#39;Literal value 42&#39;);
+</code></pre>
+<p>The same public package import can provide <code>TSESTree</code>, <code>TSESLint</code>, and the other exported namespaces. Do not use old internal paths such as <code>@typescript-eslint/utils/dist/ts-eslint</code>.</p>
+<p>A documented named subpath is available for the ESLint type surface:</p>
+<pre><code class="language-ts">import { RuleModule } from &#39;@typescript-eslint/utils/ts-eslint&#39;;
+</code></pre>
+<p>Prefer the public package and documented subpaths; package <code>exports</code> hide internal <code>dist</code> files.</p>
+<h3>Parser services and typed rules</h3>
+<p>Inside a rule running with the TypeScript parser, call <code>ESLintUtils.getParserServices(context)</code>. The returned services include:</p>
+<ul>
+<li><code>program</code></li>
+<li><code>esTreeNodeToTSNodeMap</code></li>
+<li><code>tsNodeToESTreeNodeMap</code></li>
+<li>type-checker wrappers such as <code>getTypeAtLocation</code> and <code>getSymbolAtLocation</code> when type checking is enabled</li>
+</ul>
+<p>For example, a typed rule can obtain a TypeScript type and inspect its symbol:</p>
+<pre><code class="language-ts">const services = ESLintUtils.getParserServices(context);
+const type = services.getTypeAtLocation(node.right);
+
+if (type.symbol.flags &amp; ts.SymbolFlags.Enum) {
+  context.report({ messageId: &#39;loopOverEnum&#39;, node: node.right });
+}
+</code></pre>
+<p>This is not standalone type analysis. ESLint must invoke the rule with the TypeScript parser and an appropriate type-checking configuration. A plain <code>bun example.ts</code> script cannot provide the parser context or parser services, so this part must be exercised through ESLint.</p>
+<h3>v8 compatibility notes</h3>
+<p>In v8, the <code>ESLint</code> export changed from the legacy ESLint class to <code>FlatESLint</code>. Code that needs the legacy eslintrc-config class must import <code>LegacyESLint</code> instead:</p>
+<pre><code class="language-ts">// v8 legacy class
+import { LegacyESLint } from &#39;@typescript-eslint/utils&#39;;
+</code></pre>
+<p>Do not mechanically preserve older examples that import <code>ESLint</code> when they specifically require the legacy class.</p>
+<p>The v6 migration already moved consumers away from deep <code>dist</code> imports. Use:</p>
+<pre><code class="language-ts">import { TSESLint } from &#39;@typescript-eslint/utils&#39;;
+</code></pre>
+<p>rather than:</p>
+<pre><code class="language-ts">import * as TSESLint from &#39;@typescript-eslint/utils/dist/ts-eslint&#39;;
+</code></pre>
+<h3>Testing and adjacent configuration</h3>
+<p>This package does not run rules or provide the complete test runner experience. The documented replacement for ESLint core&#39;s <code>RuleTester</code> is <code>@typescript-eslint/rule-tester</code>.</p>
+<p>In v8, when a rule test has multiple possible fix passes, its <code>output</code> is an array containing the output for each pass, for example:</p>
+<pre><code class="language-ts">output: [&#39;const b = 1;&#39;, &#39;const c = 1;&#39;]
+</code></pre>
+<p><code>projectService: true</code> is also a v8 configuration name replacing <code>EXPERIMENTAL_useProjectService</code>, but it belongs to parser/ESLint configuration, not to a standalone <code>@typescript-eslint/utils</code> API.</p>
+<h3>What this skill does not cover</h3>
+<ul>
+<li>Complete ESLint configuration or CLI usage.</li>
+<li>Running a rule over source files.</li>
+<li>The full <code>@typescript-eslint/rule-tester</code> API.</li>
+<li>TypeScript parser configuration, project-service configuration, or project files.</li>
+<li>The behavior of the additional exported namespaces beyond the AST and rule-authoring surfaces described above.</li>
+<li>Undocumented internal <code>dist</code> modules or unsupported deep imports.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

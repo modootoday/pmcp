@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@typescript-eslint/visitor-keys 8.x — PMCP</title>
+  <meta name="description" content="Use @typescript-eslint/visitor-keys ^8.0.0 to read TypeScript-ESTree visitor-key definitions and obtain keys for AST nodes." />
+  <link rel="canonical" href="https://pmcp.build/skills/typescript-eslint-visitor-keys/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="@typescript-eslint/visitor-keys 8.x — PMCP" />
+  <meta property="og:description" content="Use @typescript-eslint/visitor-keys ^8.0.0 to read TypeScript-ESTree visitor-key definitions and obtain keys for AST nodes." />
+  <meta property="og:url" content="https://pmcp.build/skills/typescript-eslint-visitor-keys/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/typescript-eslint-visitor-keys/">Other majors</a></p>
+    <h1>@typescript-eslint/visitor-keys 8.x</h1><p>Use @typescript-eslint/visitor-keys ^8.0.0 to read TypeScript-ESTree visitor-key definitions and obtain keys for AST nodes.</p>
+    <dl><dt>For</dt><dd><code>@typescript-eslint/visitor-keys@8.70.0</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-typescript-eslint-visitor-keys@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/typescript-eslint-visitor-keys/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/typescript-eslint-visitor-keys/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/typescript-eslint-visitor-keys/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-9aJNS9f9wsz299Pyw1fKoELMSKpNVXFSPVu2Dl418A0EIbNfJaCSX8ovk9Gqa4dAI3dzgsLk4cDJJumv6dC3Dw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against @typescript-eslint/visitor-keys@8.70.0 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>@typescript-eslint/visitor-keys</h2>
+<h3>Scope</h3>
+<p><code>@typescript-eslint/visitor-keys</code> provides visitor keys for the TypeScript-ESTree AST. Version <code>^8.0.0</code> exposes these named exports from the package root:</p>
+<ul>
+<li><code>getKeys</code></li>
+<li><code>visitorKeys</code></li>
+<li><code>VisitorKeys</code> (a TypeScript type alias, not a runtime value)</li>
+</ul>
+<p>The package is marked as an internal monorepo package, and its README says that users likely do not want to use it directly. It has no documented CLI or build-step API. Use its ordinary programmatic exports from a Node/Bun script when direct access is appropriate.</p>
+<p>The package requires Node <code>^18.18.0 || ^20.9.0 || &gt;=21.1.0</code>.</p>
+<h3><code>visitorKeys</code></h3>
+<p><code>visitorKeys</code> is an ESLint visitor-key map extended with TypeScript-ESTree keys. A map entry associates an AST node type with the property names containing child nodes. The arrays are intentionally ordered in source-code visitation order. <strong>Do not sort them alphabetically.</strong></p>
+<p>Examples of v8 entries include:</p>
+<pre><code class="language-ts">visitorKeys.CallExpression
+// [&#39;callee&#39;, &#39;typeArguments&#39;, &#39;arguments&#39;]
+
+visitorKeys.ImportExpression
+// [&#39;source&#39;, &#39;options&#39;]
+
+visitorKeys.TSConditionalType
+// [&#39;checkType&#39;, &#39;extendsType&#39;, &#39;trueType&#39;, &#39;falseType&#39;]
+
+visitorKeys.TSTypeReference
+// [&#39;typeName&#39;, &#39;typeArguments&#39;]
+</code></pre>
+<p>Use the map by node type when traversing an AST. A missing or <code>undefined</code> entry means this package does not provide child-property names for that node type; do not assume every arbitrary string is present.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { visitorKeys } from &#39;@typescript-eslint/visitor-keys&#39;;
+
+assert.deepEqual(visitorKeys.CallExpression, [
+  &#39;callee&#39;,
+  &#39;typeArguments&#39;,
+  &#39;arguments&#39;,
+]);
+assert.deepEqual(visitorKeys.ImportExpression, [&#39;source&#39;, &#39;options&#39;]);
+assert.deepEqual(visitorKeys.TSConditionalType, [
+  &#39;checkType&#39;,
+  &#39;extendsType&#39;,
+  &#39;trueType&#39;,
+  &#39;falseType&#39;,
+]);
+assert.deepEqual(visitorKeys.TSTypeReference, [&#39;typeName&#39;, &#39;typeArguments&#39;]);
+</code></pre>
+<h3><code>getKeys</code></h3>
+<p><code>getKeys</code> is a typed alias of <code>eslint-visitor-keys</code>&#39;s <code>getKeys</code>. Its TypeScript signature accepts a <code>TSESTree.Node</code> and returns a readonly string array:</p>
+<pre><code class="language-ts">(node: TSESTree.Node) =&gt; readonly string[]
+</code></pre>
+<p>It is a function export, not a parser and not a complete AST traversal function. Supply it with an AST node obtained from elsewhere, then use the returned property names to discover that node&#39;s properties.</p>
+<p>For an identifier-shaped node containing <code>type</code> and <code>name</code>, the function returns those property names:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { getKeys } from &#39;@typescript-eslint/visitor-keys&#39;;
+
+assert.equal(typeof getKeys, &#39;function&#39;);
+
+const node = { type: &#39;Identifier&#39;, name: &#39;value&#39; } as never;
+assert.deepEqual(getKeys(node), [&#39;type&#39;, &#39;name&#39;]);
+</code></pre>
+<h3>v8 migration hazards</h3>
+<p>Do not copy visitor-key shapes from older <code>@typescript-eslint/visitor-keys</code> versions:</p>
+<ul>
+<li>v7 represented enum declarations as <code>TSEnumDeclaration: [&#39;id&#39;, &#39;members&#39;]</code>; v8 uses <code>TSEnumDeclaration: [&#39;id&#39;, &#39;body&#39;]</code> and adds <code>TSEnumBody: [&#39;members&#39;]</code>.</li>
+<li>v7 represented <code>TSMappedType</code> with <code>[&#39;nameType&#39;, &#39;typeParameter&#39;, &#39;typeAnnotation&#39;]</code>; v8 splits this into <code>[&#39;key&#39;, &#39;constraint&#39;, &#39;nameType&#39;, &#39;typeAnnotation&#39;]</code>.</li>
+<li>Older v5 code used <code>typeParameters</code>; v8 uses <code>typeArguments</code>.</li>
+<li>Older v5 code used <code>superTypeParameters</code>; v8 uses <code>superTypeArguments</code>.</li>
+<li>Older v5 code used <code>TSImportType.parameter</code>; v8 uses <code>TSImportType.argument</code>.</li>
+</ul>
+<p>These are visitor-property names, so using a legacy shape can silently skip children or look for properties that are no longer present. Preserve the order supplied by v8.</p>
+<h3>TypeScript usage</h3>
+<p><code>VisitorKeys</code> is the type alias:</p>
+<pre><code class="language-ts">type VisitorKeys = Record&lt;string, readonly string[] | undefined&gt;;
+</code></pre>
+<p>It describes the shape of the exported map and is available for type annotations. It is not a runtime constructor or value.</p>
+<h3>What this skill does not cover</h3>
+<ul>
+<li>Parsing source text into a TypeScript-ESTree AST.</li>
+<li>A complete AST traversal implementation.</li>
+<li>ESLint rules, parser configuration, or runner APIs.</li>
+<li>The full contents of the visitor-key map beyond the entries and version differences described above.</li>
+<li>Compatibility details for package versions outside <code>^8.0.0</code>.</li>
+<li>Any CLI or build-step interface; none is documented by the supplied research.</li>
+</ul>
+<p>Sources: <a href="https://raw.githubusercontent.com/typescript-eslint/typescript-eslint/v8.0.0/packages/visitor-keys/src/index.ts">package index</a>, <a href="https://raw.githubusercontent.com/typescript-eslint/typescript-eslint/v8.0.0/packages/visitor-keys/README.md">README</a>, <a href="https://raw.githubusercontent.com/typescript-eslint/typescript-eslint/v8.0.0/packages/visitor-keys/package.json">package metadata</a>, <a href="https://raw.githubusercontent.com/typescript-eslint/typescript-eslint/v8.0.0/packages/visitor-keys/src/get-keys.ts">get-keys implementation</a>, <a href="https://raw.githubusercontent.com/typescript-eslint/typescript-eslint/v7.18.0/packages/visitor-keys/src/visitor-keys.ts">v7 visitor keys</a>, <a href="https://raw.githubusercontent.com/typescript-eslint/typescript-eslint/v5.62.0/packages/visitor-keys/src/visitor-keys.ts">v5 visitor keys</a>.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

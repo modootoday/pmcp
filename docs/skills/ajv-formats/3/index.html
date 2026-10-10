@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ajv-formats 3.x — PMCP</title>
+  <meta name="description" content="Use ajv-formats 3.x with Ajv 8 to add standard and OpenAPI format validation, fast/selective modes, direct format access, and format comparison keywords." />
+  <link rel="canonical" href="https://pmcp.build/skills/ajv-formats/3/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="ajv-formats 3.x — PMCP" />
+  <meta property="og:description" content="Use ajv-formats 3.x with Ajv 8 to add standard and OpenAPI format validation, fast/selective modes, direct format access, and format comparison keywords." />
+  <meta property="og:url" content="https://pmcp.build/skills/ajv-formats/3/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/ajv-formats/">Other majors</a></p>
+    <h1>ajv-formats 3.x</h1><p>Use ajv-formats 3.x with Ajv 8 to add standard and OpenAPI format validation, fast/selective modes, direct format access, and format comparison keywords.</p>
+    <dl><dt>For</dt><dd><code>ajv-formats@3.0.1</code></dd><dt>Verified</dt><dd>2026-09-08, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-ajv-formats@3.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/ajv-formats/3/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/ajv-formats/3/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/ajv-formats/3/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-Hvqnb1/FW0/cfM173WjQT2mzqsuuZLg3DQ+EvGnxRw2Cci8dL68yU3gkH0lZTukDPVyt9KAo1wUAdUU9wZ283A==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against ajv-formats@3.0.1 on 2026-09-08. 5 of 5 examples executed.</p>
+<h2>ajv-formats 3.x</h2>
+<p><code>ajv-formats</code> is an Ajv plugin, not a standalone validator. Version 3 is for Ajv 7+ and declares Ajv 8 as both a dependency and peer dependency. The normal shape is still the same as older examples:</p>
+<pre><code class="language-ts">import Ajv from &quot;ajv&quot;
+import addFormats from &quot;ajv-formats&quot;
+
+const ajv = new Ajv()
+addFormats(ajv)
+</code></pre>
+<p>Use the same Ajv installation/version for the application and <code>ajv-formats</code>.</p>
+<h3>Add all formats</h3>
+<p>Calling <code>addFormats(ajv)</code> registers the package&#39;s formats with the Ajv instance. The documented formats include:</p>
+<ul>
+<li><code>date</code>, <code>time</code>, <code>date-time</code></li>
+<li><code>iso-time</code>, <code>iso-date-time</code></li>
+<li><code>duration</code></li>
+<li><code>uri</code>, <code>uri-reference</code>, <code>uri-template</code>, deprecated <code>url</code></li>
+<li><code>email</code>, <code>hostname</code>, <code>ipv4</code>, <code>ipv6</code>, <code>regex</code>, <code>uuid</code></li>
+<li><code>json-pointer</code>, <code>json-pointer-uri-fragment</code>, <code>relative-json-pointer</code></li>
+<li>OpenAPI formats: <code>byte</code>, <code>int32</code>, <code>int64</code>, <code>float</code>, <code>double</code>, <code>password</code>, <code>binary</code></li>
+</ul>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;
+import Ajv from &quot;ajv&quot;
+import addFormats from &quot;ajv-formats&quot;
+
+const ajv = new Ajv()
+addFormats(ajv)
+
+const validate = ajv.compile({
+  type: &quot;object&quot;,
+  properties: {
+    birthday: { type: &quot;string&quot;, format: &quot;date&quot; },
+    email: { type: &quot;string&quot;, format: &quot;email&quot; },
+    ip: { type: &quot;string&quot;, format: &quot;ipv4&quot; },
+  },
+  required: [&quot;birthday&quot;, &quot;email&quot;, &quot;ip&quot;],
+  additionalProperties: false,
+})
+
+assert.equal(validate({ birthday: &quot;2024-02-29&quot;, email: &quot;a@example.com&quot;, ip: &quot;192.0.2.1&quot; }), true)
+assert.equal(validate({ birthday: &quot;2024-02-30&quot;, email: &quot;a@example.com&quot;, ip: &quot;192.0.2.1&quot; }), false)
+assert.equal(validate({ birthday: &quot;2024-02-29&quot;, email: &quot;not-an-email&quot;, ip: &quot;192.0.2.1&quot; }), false)
+</code></pre>
+<h3>Select formats and choose fast mode</h3>
+<p>The second argument can be a format-name array:</p>
+<pre><code class="language-ts">addFormats(ajv, [&quot;date&quot;, &quot;time&quot;])
+</code></pre>
+<p>It can also be an options object. <code>mode</code> accepts <code>&quot;fast&quot;</code>; <code>formats</code> selects formats; and <code>keywords</code> controls the comparison keywords. The options form can combine these settings:</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;
+import Ajv from &quot;ajv&quot;
+import addFormats from &quot;ajv-formats&quot;
+
+const ajv = new Ajv()
+addFormats(ajv, {
+  mode: &quot;fast&quot;,
+  formats: [&quot;date&quot;, &quot;time&quot;],
+})
+
+const validateDate = ajv.compile({ type: &quot;string&quot;, format: &quot;date&quot; })
+
+assert.equal(validateDate(&quot;2024-02-29&quot;), true)
+assert.equal(validateDate(&quot;not-a-date&quot;), false)
+// With Ajv&#39;s default strict schema handling, compiling an unregistered format fails.
+assert.throws(
+  () =&gt; ajv.compile({ type: &quot;string&quot;, format: &quot;email&quot; }),
+  /unknown format/i,
+)
+</code></pre>
+<p>The <code>fast</code> mode is a validation mode, not a separate plugin or Ajv instance.</p>
+<h3>v3 date and time behavior</h3>
+<p>In v3, <code>time</code> and <code>date-time</code> require a timezone. This differs from older v2 examples. Use <code>iso-time</code> and <code>iso-date-time</code> when the optional-timezone behavior is wanted.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;
+import Ajv from &quot;ajv&quot;
+import addFormats from &quot;ajv-formats&quot;
+
+const ajv = new Ajv()
+addFormats(ajv, [&quot;time&quot;, &quot;date-time&quot;, &quot;iso-time&quot;, &quot;iso-date-time&quot;])
+
+const time = ajv.compile({ type: &quot;string&quot;, format: &quot;time&quot; })
+const isoTime = ajv.compile({ type: &quot;string&quot;, format: &quot;iso-time&quot; })
+const dateTime = ajv.compile({ type: &quot;string&quot;, format: &quot;date-time&quot; })
+const isoDateTime = ajv.compile({ type: &quot;string&quot;, format: &quot;iso-date-time&quot; })
+
+assert.equal(time(&quot;12:30:00Z&quot;), true)
+assert.equal(time(&quot;12:30:00&quot;), false)
+assert.equal(isoTime(&quot;12:30:00&quot;), true)
+
+assert.equal(dateTime(&quot;2024-01-02T12:30:00Z&quot;), true)
+assert.equal(dateTime(&quot;2024-01-02T12:30:00&quot;), false)
+assert.equal(isoDateTime(&quot;2024-01-02T12:30:00&quot;), true)
+</code></pre>
+<p>Comparisons for <code>time</code> and <code>date-time</code> account for timezone. The <code>iso-*</code> formats retain the timezone-ignoring comparison behavior.</p>
+<h3>Format comparison keywords</h3>
+<p>Format comparison keywords are enabled by default in v3. They can also be enabled explicitly with <code>keywords: true</code>. They are <code>formatMinimum</code>, <code>formatMaximum</code>, <code>formatExclusiveMinimum</code>, and <code>formatExclusiveMaximum</code>, and apply only to strings.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;
+import Ajv from &quot;ajv&quot;
+import addFormats from &quot;ajv-formats&quot;
+
+const ajv = new Ajv()
+addFormats(ajv, { keywords: true })
+
+const validate = ajv.compile({
+  type: &quot;string&quot;,
+  format: &quot;date&quot;,
+  formatMinimum: &quot;2024-01-01&quot;,
+  formatExclusiveMaximum: &quot;2024-12-31&quot;,
+})
+
+assert.equal(validate(&quot;2024-01-01&quot;), true)
+assert.equal(validate(&quot;2024-06-15&quot;), true)
+assert.equal(validate(&quot;2023-12-31&quot;), false)
+assert.equal(validate(&quot;2024-12-31&quot;), false)
+</code></pre>
+<h3>Access a format directly</h3>
+<p>The plugin function exposes <code>get(format, mode?)</code>, including a mode-specific lookup:</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;
+import addFormats from &quot;ajv-formats&quot;
+
+const dateFormat = addFormats.get(&quot;date&quot;)
+const fastDateFormat = addFormats.get(&quot;date&quot;, &quot;fast&quot;)
+
+assert.ok(dateFormat)
+assert.ok(fastDateFormat)
+</code></pre>
+<h3>Common mistakes</h3>
+<ul>
+<li>Do not use an older v2 assumption that <code>time</code> or <code>date-time</code> may omit a timezone. Use <code>iso-time</code> or <code>iso-date-time</code> for that behavior.</li>
+<li>Do not call <code>formatMinimum</code> or related keywords without registering them; use the default plugin options or <code>{ keywords: true }</code>.</li>
+<li>Do not expect <code>ajv-formats</code> to validate by itself. Create an Ajv instance and install the plugin on it.</li>
+<li>Do not assume a selected-format call registers every format. An array or <code>formats</code> option limits registration to the listed names. With Ajv&#39;s default strict schema handling, compiling a schema using an unregistered format throws an unknown-format error.</li>
+<li><code>url</code> is documented as deprecated; prefer the appropriate current format where possible.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover standalone generated validators, Ajv&#39;s generation step or CLI, the exact <code>Format</code> object shape returned by <code>get</code>, or detailed semantics for every individual listed format. Standalone output additionally requires Ajv <code>code.source: true</code> and matching Ajv code/import versions; it is exercised by the generation tool rather than by these direct scripts.</p>
+<h3>Sources</h3>
+<ul>
+<li><a href="https://ajv.js.org/packages/ajv-formats.html">https://ajv.js.org/packages/ajv-formats.html</a></li>
+<li><a href="https://github.com/ajv-validator/ajv-formats/blob/master/package.json?utm_source=openai">https://github.com/ajv-validator/ajv-formats/blob/master/package.json?utm_source=openai</a></li>
+<li><a href="https://raw.githubusercontent.com/ajv-validator/ajv-formats/v3.0.0/README.md">https://raw.githubusercontent.com/ajv-validator/ajv-formats/v3.0.0/README.md</a></li>
+<li><a href="https://github.com/ajv-validator/ajv-formats/releases?utm_source=openai">https://github.com/ajv-validator/ajv-formats/releases?utm_source=openai</a></li>
+<li><a href="https://ajv.js.org/guide/formats?utm_source=openai">https://ajv.js.org/guide/formats?utm_source=openai</a></li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

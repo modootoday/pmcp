@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>typescript-eslint 8.x — PMCP</title>
+  <meta name="description" content="Use typescript-eslint v8's unified flat-config package, extension lists, presets, and typed-linting configuration. Avoid carrying forward the split-package or legacy ESLint configuration shape unless the project explicitly uses legacy config." />
+  <link rel="canonical" href="https://pmcp.build/skills/typescript-eslint/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="typescript-eslint 8.x — PMCP" />
+  <meta property="og:description" content="Use typescript-eslint v8's unified flat-config package, extension lists, presets, and typed-linting configuration. Avoid carrying forward the split-package or legacy ESLint configuration shape unless the project explicitly uses legacy config." />
+  <meta property="og:url" content="https://pmcp.build/skills/typescript-eslint/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/typescript-eslint/">Other majors</a></p>
+    <h1>typescript-eslint 8.x</h1><p>Use typescript-eslint v8's unified flat-config package, extension lists, presets, and typed-linting configuration. Avoid carrying forward the split-package or legacy ESLint configuration shape unless the project explicitly uses legacy config.</p>
+    <dl><dt>For</dt><dd><code>typescript-eslint@8.70.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-typescript-eslint@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/typescript-eslint/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/typescript-eslint/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/typescript-eslint/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-lQYuw/lRtzKHjAd4H07NzrgOrR8hKCh16Lh8LZhkLcz4dYPXm4fVJpJzxicvvsIjRlB6jD1kpL1LBCJ1Obtvyw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against typescript-eslint@8.70.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>typescript-eslint v8</h2>
+<h3>Use the unified package first</h3>
+<p>For v8, install the unified package:</p>
+<pre><code class="language-sh">npm i -D typescript-eslint@8
+</code></pre>
+<p>The main package exports <code>config</code>, <code>configs</code>, <code>extensions</code>, <code>globs</code>, <code>parser</code>, <code>plugin</code>, and <code>FlatConfig</code>. Its <code>parser</code> and <code>plugin</code> exports provide the TypeScript parser and ESLint plugin surfaces.</p>
+<p>The preferred v8 setup is ESLint flat config. The recommended and stylistic presets already configure the TypeScript parser and plugin, so do not manually register them when using those presets.</p>
+<pre><code class="language-js">import js from &#39;@eslint/js&#39;;
+import { defineConfig } from &#39;eslint/config&#39;;
+import tseslint from &#39;typescript-eslint&#39;;
+
+export default defineConfig({
+  files: [&#39;**/*.{js,ts}&#39;],
+  extends: [js.configs.recommended, tseslint.configs.recommended],
+});
+</code></pre>
+<p><code>tseslint.config(...)</code> accepts any number of ESLint configuration objects, but it is deprecated. Prefer ESLint core&#39;s <code>defineConfig(...)</code> for new flat configurations.</p>
+<h3>File extensions and globs</h3>
+<p>Use the exported extension lists instead of duplicating them:</p>
+<ul>
+<li><code>extensions.ts</code>: <code>[&#39;mts&#39;, &#39;ts&#39;, &#39;cts&#39;, &#39;tsx&#39;]</code></li>
+<li><code>extensions.js</code>: <code>[&#39;mjs&#39;, &#39;js&#39;, &#39;cjs&#39;, &#39;jsx&#39;]</code></li>
+<li><code>extensions.jsts</code>: both sets; do not rely on the order of this combined list</li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import tseslint from &#39;typescript-eslint&#39;;
+
+assert.deepEqual(tseslint.extensions.ts, [&#39;mts&#39;, &#39;ts&#39;, &#39;cts&#39;, &#39;tsx&#39;]);
+assert.deepEqual(tseslint.extensions.js, [&#39;mjs&#39;, &#39;js&#39;, &#39;cjs&#39;, &#39;jsx&#39;]);
+assert.deepEqual(
+  [...tseslint.extensions.jsts].sort(),
+  [&#39;mjs&#39;, &#39;js&#39;, &#39;cjs&#39;, &#39;jsx&#39;, &#39;mts&#39;, &#39;ts&#39;, &#39;cts&#39;, &#39;tsx&#39;].sort(),
+);
+
+const customGlob = `src/**/*.{${tseslint.extensions.ts.join(&#39;,&#39;)}}`;
+assert.equal(customGlob, &#39;src/**/*.{mts,ts,cts,tsx}&#39;);
+</code></pre>
+<h3>Main package exports</h3>
+<p>A plain script can inspect and compose the main package exports without running ESLint:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import tseslint from &#39;typescript-eslint&#39;;
+
+assert.equal(typeof tseslint.config, &#39;function&#39;);
+assert.equal(typeof tseslint.parser, &#39;object&#39;);
+assert.equal(typeof tseslint.plugin, &#39;object&#39;);
+assert.equal(typeof tseslint.configs.recommended, &#39;object&#39;);
+assert.ok(tseslint.extensions.ts.includes(&#39;ts&#39;));
+assert.ok(tseslint.extensions.js.includes(&#39;js&#39;));
+</code></pre>
+<p>Do not assume that the parser export has a <code>parse</code> method. The package exposes the parser object, but that particular method is not part of the verified standalone surface.</p>
+<p>The <code>config</code> helper is still available for compatibility, but new configuration should use ESLint&#39;s <code>defineConfig</code>. When using <code>config</code>, pass ESLint configuration objects rather than legacy string-based <code>extends</code> entries.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import tseslint from &#39;typescript-eslint&#39;;
+
+const result = tseslint.config({
+  files: [&#39;**/*.ts&#39;],
+  extends: [tseslint.configs.recommended],
+  rules: {
+    &#39;@typescript-eslint/array-type&#39;: &#39;error&#39;,
+  },
+});
+
+assert.ok(Array.isArray(result));
+assert.ok(result.length &gt; 0);
+</code></pre>
+<h3>Typed linting</h3>
+<p>Type-aware rules need TypeScript project/type information. They are not enabled merely by selecting a TypeScript parser. In flat config, use parser options with <code>projectService: true</code>:</p>
+<pre><code class="language-js">import tseslint from &#39;typescript-eslint&#39;;
+
+export default [
+  {
+    files: [&#39;**/*.ts&#39;],
+    extends: [tseslint.configs.recommendedTypeChecked],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
+  },
+];
+</code></pre>
+<p>The type-checked preset names in v8 are <code>recommendedTypeChecked</code> and <code>stylisticTypeChecked</code>. The hyphenated names <code>recommended-type-checked</code> and <code>stylistic-type-checked</code> are the legacy names commonly shown in older configuration examples.</p>
+<p><code>projectService</code> uses TypeScript&#39;s editor-style service and generally replaces manually specifying <code>project</code> paths or creating a separate <code>tsconfig.eslint.json</code>. It is parser configuration consumed by ESLint; it is not a standalone typed-linting switch for an arbitrary script.</p>
+<h3>Parser utilities</h3>
+<p>The research describes parser utilities such as <code>createProgram(configFile, projectDirectory?)</code> and <code>withoutProjectParserOptions(options)</code>. However, the verified <code>typescript-eslint</code> v8 standalone package export does not expose the tested utility methods through <code>tseslint.parser</code>; do not write code that assumes <code>tseslint.parser.createProgram</code> or <code>tseslint.parser.withoutProjectParserOptions</code> exists.</p>
+<p>These APIs are therefore not demonstrated here. Parser configuration and typed project services are primarily consumed while ESLint runs the configuration.</p>
+<h3>Legacy configuration warning</h3>
+<p>Older projects may still use the split packages and <code>.eslintrc</code> shape:</p>
+<pre><code class="language-js">module.exports = {
+  extends: [&#39;eslint:recommended&#39;, &#39;plugin:@typescript-eslint/recommended&#39;],
+  parser: &#39;@typescript-eslint/parser&#39;,
+  plugins: [&#39;@typescript-eslint&#39;],
+  root: true,
+};
+</code></pre>
+<p>That setup requires separately installed <code>@typescript-eslint/parser</code> and <code>@typescript-eslint/eslint-plugin</code> and is run through ESLint. Do not translate it mechanically into v8 flat config: use the unified <code>typescript-eslint</code> package and its exported presets instead. v8 supports ESLint v9 and flat config; v7 was the first version with flat-config support.</p>
+<h3>What this skill does not cover</h3>
+<ul>
+<li>Running ESLint, loading an <code>eslint.config.*</code> file, or invoking the ESLint CLI.</li>
+<li>The detailed contents of every preset or every rule.</li>
+<li>Creating a real TypeScript <code>Program</code> from a filesystem project.</li>
+<li>The standalone <code>@typescript-eslint/project-service</code> API, including <code>createProjectService</code>, its settings, and lifecycle.</li>
+<li>The separate <code>@typescript-eslint/utils</code> package and its exported AST, scope, and utility APIs.</li>
+<li>Parser utility methods not verified on the unified package&#39;s standalone parser export.</li>
+<li>Legacy ESLint configuration migration details beyond the v8 versus older configuration shapes described above.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

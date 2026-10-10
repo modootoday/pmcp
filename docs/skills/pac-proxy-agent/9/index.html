@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>pac-proxy-agent 9.x — PMCP</title>
+  <meta name="description" content="Use pac-proxy-agent@^9.0.0 as an ESM Node.js HTTP Agent backed by a PAC file or PAC URI." />
+  <link rel="canonical" href="https://pmcp.build/skills/pac-proxy-agent/9/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="pac-proxy-agent 9.x — PMCP" />
+  <meta property="og:description" content="Use pac-proxy-agent@^9.0.0 as an ESM Node.js HTTP Agent backed by a PAC file or PAC URI." />
+  <meta property="og:url" content="https://pmcp.build/skills/pac-proxy-agent/9/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/pac-proxy-agent/">Other majors</a></p>
+    <h1>pac-proxy-agent 9.x</h1><p>Use pac-proxy-agent@^9.0.0 as an ESM Node.js HTTP Agent backed by a PAC file or PAC URI.</p>
+    <dl><dt>For</dt><dd><code>pac-proxy-agent@9.1.0</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-pac-proxy-agent@9.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/pac-proxy-agent/9/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/pac-proxy-agent/9/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/pac-proxy-agent/9/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-vvZsQdoVzZjAj4/V/Ye9mLK6z0Ghad3PWLPRaFFHwjlm67ASyLNhWIzLOaPmmIh12DLm5FX84B66vGfGUGLIog==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against pac-proxy-agent@9.1.0 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>pac-proxy-agent</h2>
+<h3>Scope and runtime</h3>
+<p><code>pac-proxy-agent</code> provides an <code>http.Agent</code> for Node&#39;s built-in <code>http</code> and <code>https</code> modules. It retrieves a PAC file, evaluates it, and selects an HTTP, HTTPS, SOCKS, or direct connection for each request.</p>
+<p>The 9.x line requires Node.js 20 or newer and is ESM-only. Import <code>PacProxyAgent</code> by name; do not use the CommonJS <code>require()</code> shape shown in older examples.</p>
+<h3>Constructor</h3>
+<pre><code class="language-ts">new PacProxyAgent(uri: string | URL, options?)
+</code></pre>
+<p>The PAC source protocols exposed by the package are:</p>
+<ul>
+<li><code>pac+data:</code></li>
+<li><code>pac+file:</code></li>
+<li><code>pac+ftp:</code></li>
+<li><code>pac+http:</code></li>
+<li><code>pac+https:</code></li>
+</ul>
+<p>The underlying URI is loaded after removing the <code>pac+</code> prefix. The constructor also accepts the corresponding underlying URI protocols according to the package source.</p>
+<p>Options combine Node <code>http.Agent</code> options with PAC resolver, URI-loading, HTTP proxy, HTTPS proxy, and SOCKS proxy options. The package-specific option is:</p>
+<pre><code class="language-ts">fallbackToDirect?: boolean
+</code></pre>
+<p>Pass the resulting agent to Node&#39;s built-in HTTP APIs with <code>{ agent }</code>:</p>
+<pre><code class="language-ts">import * as http from &#39;http&#39;;
+import { PacProxyAgent } from &#39;pac-proxy-agent&#39;;
+
+const agent = new PacProxyAgent(&#39;pac+https://example.invalid/proxy.pac&#39;);
+http.get(&#39;http://example.invalid/&#39;, { agent }, (res) =&gt; {
+  res.resume();
+});
+</code></pre>
+<p>A request is needed for connection selection and proxy-agent creation. The package is not itself a request client.</p>
+<h3>Resolving a PAC file without making a request</h3>
+<p><code>getResolver()</code> loads the PAC source lazily and returns the callable <code>FindProxyForURL</code> resolver. Calling it directly is useful when code needs to inspect the PAC decision without issuing an HTTP request.</p>
+<p>This standalone example uses a <code>data:</code> PAC source, so it needs no network or filesystem access:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { PacProxyAgent } from &#39;pac-proxy-agent&#39;;
+
+const pac = `
+function FindProxyForURL(url, host) {
+  if (host === &#39;internal.example&#39;) return &#39;DIRECT&#39;;
+  return &#39;PROXY proxy.example:8080&#39;;
+}
+`;
+
+const agent = new PacProxyAgent(
+  `pac+data:text/plain,${encodeURIComponent(pac)}`
+);
+
+const resolver = await agent.getResolver();
+assert.equal(await resolver(&#39;http://internal.example/&#39;, &#39;internal.example&#39;), &#39;DIRECT&#39;);
+assert.equal(
+  await resolver(&#39;http://external.example/&#39;, &#39;external.example&#39;),
+  &#39;PROXY proxy.example:8080&#39;
+);
+</code></pre>
+<p>The resolver is loaded and cached lazily. Reusing the agent allows the implementation to reuse the existing resolver when the PAC content has not changed.</p>
+<h3>Static protocol list</h3>
+<p>The class exposes the PAC protocols it handles through <code>PacProxyAgent.protocols</code>:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { PacProxyAgent } from &#39;pac-proxy-agent&#39;;
+
+assert.deepEqual(PacProxyAgent.protocols, [
+  &#39;pac+data&#39;,
+  &#39;pac+file&#39;,
+  &#39;pac+ftp&#39;,
+  &#39;pac+http&#39;,
+  &#39;pac+https&#39;,
+]);
+</code></pre>
+<h3>Common mistakes</h3>
+<ul>
+<li>Do not copy pre-8.x CommonJS examples. Version 9 is ESM and requires Node.js 20 or newer.</li>
+<li>Do not instantiate the agent with an ordinary PAC URL while forgetting the PAC scheme expected by the package. PAC sources are represented with schemes such as <code>pac+http:</code>, <code>pac+https:</code>, or <code>pac+data:</code>.</li>
+<li>Do not expect <code>PacProxyAgent</code> to execute a PAC decision merely by constructing it. PAC loading is lazy; call <code>getResolver()</code> or use the agent in a Node HTTP request.</li>
+<li>Do not use <code>describe</code>, <code>it</code>, <code>expect</code>, or runner-provided globals in a direct script. The agent integrates with Node&#39;s <code>http</code> and <code>https</code> APIs rather than providing a test-runner interface.</li>
+<li>Do not assume an agent is a standalone request client. Requests must be made through Node&#39;s built-in HTTP APIs with the agent supplied in the request options.</li>
+<li>Do not rely on older 7.x implementation details involving CommonJS imports or the older QuickJS runtime. The 8.x and 9.x lines changed those internals; 9.x uses the package&#39;s ESM setup and requires Node 20 or newer.</li>
+</ul>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover the behavior of the underlying <code>get-uri</code>, PAC resolver, QuickJS runtime, HTTP proxy agent, HTTPS proxy agent, or SOCKS proxy agent packages individually. It does not cover PAC-file authoring beyond the resolver examples, proxy authentication, detailed option behavior, error handling, or running real HTTP/HTTPS requests through a network or filesystem-backed PAC source. Those behaviors require the package&#39;s own runtime dependencies and an actual Node HTTP request environment.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

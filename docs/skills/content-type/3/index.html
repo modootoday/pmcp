@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>content-type 3.x — PMCP</title>
+  <meta name="description" content="Use content-type 3.x as an ESM-only parser and formatter for HTTP Content-Type header values. Covers parse options, formatting, validation boundaries, and migration away from older CommonJS/request-response examples." />
+  <link rel="canonical" href="https://pmcp.build/skills/content-type/3/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="content-type 3.x — PMCP" />
+  <meta property="og:description" content="Use content-type 3.x as an ESM-only parser and formatter for HTTP Content-Type header values. Covers parse options, formatting, validation boundaries, and migration away from older CommonJS/request-response examples." />
+  <meta property="og:url" content="https://pmcp.build/skills/content-type/3/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/content-type/">Other majors</a></p>
+    <h1>content-type 3.x</h1><p>Use content-type 3.x as an ESM-only parser and formatter for HTTP Content-Type header values. Covers parse options, formatting, validation boundaries, and migration away from older CommonJS/request-response examples.</p>
+    <dl><dt>For</dt><dd><code>content-type@3.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-content-type@3.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/content-type/3/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/content-type/3/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/content-type/3/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-7Fm7FJXs1zV5a2qIii27/hJ0AT6K1d6RXYJZnza1rvjFRShc7JILqodcxLo5XqCKWOKjBfLMvqvNLGvGVrfuUg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against content-type@3.0.0 on 2026-09-08. 5 of 5 examples executed.</p>
+<h2>content-type</h2>
+<h3>Scope</h3>
+<p>This skill targets <code>content-type</code> <code>^3.0.0</code> (3.0.0). The package is ESM-only and requires Node.js <code>&gt;=22</code>.</p>
+<p>Import the package as an ESM namespace:</p>
+<pre><code class="language-ts">import * as assert from &quot;node:assert/strict&quot;;
+import * as contentType from &quot;content-type&quot;;
+
+const parsed = contentType.parse(&quot;image/svg+xml; charset=utf-8&quot;);
+
+assert.equal(parsed.type, &quot;image/svg+xml&quot;);
+assert.equal(parsed.parameters.charset, &quot;utf-8&quot;);
+</code></pre>
+<h3>Parse a Content-Type string</h3>
+<p>Use <code>parse(string, options?)</code>. The result contains <code>type</code> and <code>parameters</code>. Parameter names are lower case.</p>
+<p>The parser is lenient and does not error. Validate the returned <code>type</code> and <code>parameters</code> before trusting them.</p>
+<pre><code class="language-ts">import * as assert from &quot;node:assert/strict&quot;;
+import * as contentType from &quot;content-type&quot;;
+
+const parsed = contentType.parse(&quot;Text/Plain; CHARSET=utf-8&quot;);
+
+assert.equal(parsed.type, &quot;text/plain&quot;);
+assert.equal(parsed.parameters.charset, &quot;utf-8&quot;);
+</code></pre>
+<h3>Parse options</h3>
+<p>The documented options are:</p>
+<ul>
+<li><code>parameters: true</code> by default. Set it to <code>false</code> to skip parameters.</li>
+<li><code>comma: false</code> by default. Set it to <code>true</code> to stop parsing at a comma.</li>
+<li><code>start: 0</code> by default. Set it to the index from which parsing should begin.</li>
+</ul>
+<pre><code class="language-ts">import * as assert from &quot;node:assert/strict&quot;;
+import * as contentType from &quot;content-type&quot;;
+
+const withoutParameters = contentType.parse(
+  &quot;text/plain; charset=utf-8&quot;,
+  { parameters: false },
+);
+assert.equal(withoutParameters.type, &quot;text/plain&quot;);
+assert.deepEqual(withoutParameters.parameters, {});
+
+const firstValue = contentType.parse(
+  &quot;text/plain, application/json&quot;,
+  { comma: true },
+);
+assert.equal(firstValue.type, &quot;text/plain&quot;);
+
+const fromOffset = contentType.parse(
+  &quot;prefix text/html; charset=utf-8&quot;,
+  { start: &quot;prefix &quot;.length },
+);
+assert.equal(fromOffset.type, &quot;text/html&quot;);
+assert.equal(fromOffset.parameters.charset, &quot;utf-8&quot;);
+</code></pre>
+<h3>Format a Content-Type value</h3>
+<p>Use <code>format({ type, parameters? })</code> to create a Content-Type header string. <code>parameters</code> is optional.</p>
+<pre><code class="language-ts">import * as assert from &quot;node:assert/strict&quot;;
+import * as contentType from &quot;content-type&quot;;
+
+assert.equal(
+  contentType.format({
+    type: &quot;image/svg+xml&quot;,
+    parameters: { charset: &quot;utf-8&quot; },
+  }),
+  &quot;image/svg+xml; charset=utf-8&quot;,
+);
+
+assert.equal(
+  contentType.format({ type: &quot;application/json&quot; }),
+  &quot;application/json&quot;,
+);
+</code></pre>
+<p><code>format</code> throws <code>TypeError</code> for an invalid media type or invalid parameter name. Treat this as validation at the formatting boundary rather than relying on the lenient parser to validate input.</p>
+<pre><code class="language-ts">import * as assert from &quot;node:assert/strict&quot;;
+import * as contentType from &quot;content-type&quot;;
+
+assert.throws(
+  () =&gt; contentType.format({ type: &quot;not a valid type&quot; }),
+  TypeError,
+);
+
+assert.throws(
+  () =&gt; contentType.format({
+    type: &quot;text/plain&quot;,
+    parameters: { &quot;invalid parameter name&quot;: &quot;value&quot; },
+  }),
+  TypeError,
+);
+</code></pre>
+<h3>Migration traps</h3>
+<ul>
+<li>Do not use the older CommonJS shape (<code>require(&#39;content-type&#39;)</code>) with version 3.0.0. This release is ESM-only; use <code>import * as contentType from &quot;content-type&quot;</code>.</li>
+<li>Do not assume the older 1.x request/response overloads are part of the current documented API. The current documented call is <code>parse(string, options?)</code>, not <code>parse(req)</code> or <code>parse(res)</code>.</li>
+<li>Do not assume parsing validates input. The parser is documented as lenient and non-throwing; validate its returned <code>type</code> and <code>parameters</code> before trusting them.</li>
+<li>Do not treat repository development commands such as <code>build</code>, <code>test</code>, <code>specs</code>, <code>bench</code>, or <code>format</code> as application APIs.</li>
+</ul>
+<h3>What this skill does not cover</h3>
+<p>The research does not specify the complete grammar accepted by the parser, every edge-case result for malformed input, exact error messages, TypeScript type details, or integration with HTTP request/response objects. It also does not cover a CLI or runner API; none is documented for this package.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

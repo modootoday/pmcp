@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>z-schema 12.x — PMCP</title>
+  <meta name="description" content="Use z-schema ^12.0.0 for JSON Schema validation with synchronous and asynchronous APIs, safe results, draft-aware schemas, custom formats, and registered remote references." />
+  <link rel="canonical" href="https://pmcp.build/skills/z-schema/12/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="z-schema 12.x — PMCP" />
+  <meta property="og:description" content="Use z-schema ^12.0.0 for JSON Schema validation with synchronous and asynchronous APIs, safe results, draft-aware schemas, custom formats, and registered remote references." />
+  <meta property="og:url" content="https://pmcp.build/skills/z-schema/12/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/z-schema/">Other majors</a></p>
+    <h1>z-schema 12.x</h1><p>Use z-schema ^12.0.0 for JSON Schema validation with synchronous and asynchronous APIs, safe results, draft-aware schemas, custom formats, and registered remote references.</p>
+    <dl><dt>For</dt><dd><code>z-schema@12.4.5</code></dd><dt>Verified</dt><dd>2026-09-08, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-z-schema@12.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/z-schema/12/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/z-schema/12/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/z-schema/12/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-qWOMPhHhXqsfoCEhjmq+t49d1M436M0kBe2BhAt9Ra1pzhuG6p+9NrYcI9sGGsmKy7tPFl+kvRuqZGoHtjrtEw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against z-schema@12.4.5 on 2026-09-08. 7 of 7 examples executed.</p>
+<h2>z-schema ^12.0.0</h2>
+<h3>Runtime and defaults</h3>
+<ul>
+<li>z-schema v12 requires Node.js 22 or later.</li>
+<li>Use <code>ZSchema.create()</code> rather than constructing <code>ZSchema</code> directly. Older examples may still show <code>new ZSchema(...)</code>.</li>
+<li>The default JSON Schema dialect is <code>draft2020-12</code>. Draft-2019-09, draft-07, draft-06, and draft-04 are also supported.</li>
+<li>Existing draft-04, draft-06, and draft-07 schemas must either declare <code>$schema</code> or use a matching factory option such as <code>{ version: &#39;draft-07&#39; }</code>.</li>
+<li>In draft-2019-09 and draft-2020-12, <code>format</code> is annotation-only by default. <code>{ formatAssertions: null }</code> restores legacy assertion behavior; <code>{ formatAssertions: true }</code> enables vocabulary-aware assertions.</li>
+</ul>
+<h3>Synchronous validation</h3>
+<p>The default validator throws when validation fails. A successful call returns <code>true</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ZSchema from &#39;z-schema&#39;;
+
+const validator = ZSchema.create();
+const schema = {
+  type: &#39;object&#39;,
+  properties: { answer: { type: &#39;number&#39; } },
+  required: [&#39;answer&#39;],
+  additionalProperties: false,
+};
+
+assert.equal(validator.validate({ answer: 42 }, schema), true);
+
+try {
+  validator.validate({ answer: &#39;wrong&#39; }, schema);
+  assert.fail(&#39;validation should throw&#39;);
+} catch (error) {
+  assert.equal((error as Error).name, &#39;ValidateError&#39;);
+  assert.ok(Array.isArray((error as { details: unknown[] }).details));
+}
+</code></pre>
+<p>Do not expect the old boolean-plus-<code>getLastErrors()</code> behavior. The removed public methods include <code>getLastError()</code>, <code>getLastErrors()</code>, <code>isValid()</code>, <code>compileSchema()</code>, <code>getMissingReferences()</code>, <code>getMissingRemoteReferences()</code>, and <code>getResolvedSchema()</code>.</p>
+<h3>Safe validation</h3>
+<p>Use <code>{ safe: true }</code> when failure should be returned rather than thrown. The result is <code>{ valid: true }</code> or <code>{ valid: false, err }</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ZSchema from &#39;z-schema&#39;;
+
+const validator = ZSchema.create({ safe: true });
+const schema = { type: &#39;string&#39; };
+
+const good = validator.validate(&#39;ok&#39;, schema);
+assert.deepEqual(good, { valid: true });
+
+const bad = validator.validate(123, schema);
+assert.equal(bad.valid, false);
+if (bad.valid) throw new Error(&#39;expected invalid result&#39;);
+assert.ok(Array.isArray(bad.err.details));
+</code></pre>
+<p><code>validateSafe()</code> and <code>validateSchemaSafe()</code> are also available. <code>validateSchema()</code> and <code>validateSchemaSafe()</code> validate schema documents themselves rather than instance data.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ZSchema from &#39;z-schema&#39;;
+
+const validator = ZSchema.create();
+const schema = { type: &#39;object&#39;, required: [&#39;name&#39;] };
+
+assert.equal(validator.validateSchema(schema), true);
+const result = validator.validateSchemaSafe({ type: 17 });
+assert.equal(result.valid, false);
+</code></pre>
+<h3>Draft-version migration</h3>
+<p>Version 12 changed the default from draft-07 to draft-2020-12. Select an older draft explicitly when using its schema vocabulary:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ZSchema from &#39;z-schema&#39;;
+
+const validator = ZSchema.create({ version: &#39;draft-07&#39; });
+const schema = {
+  $schema: &#39;http://json-schema.org/draft-07/schema#&#39;,
+  type: &#39;array&#39;,
+  items: [{ type: &#39;string&#39; }],
+  additionalItems: false,
+};
+
+assert.equal(validator.validate([&#39;value&#39;], schema), true);
+</code></pre>
+<p>When migrating schemas to draft-2020-12, the vocabulary shapes differ:</p>
+<ul>
+<li><code>id</code> becomes <code>$id</code>.</li>
+<li><code>definitions</code> becomes <code>$defs</code>.</li>
+<li>Tuple <code>items: [...]</code> becomes <code>prefixItems</code>.</li>
+<li><code>additionalItems</code> becomes <code>items</code> alongside <code>prefixItems</code>.</li>
+<li><code>dependencies</code> becomes either <code>dependentSchemas</code> or <code>dependentRequired</code>.</li>
+</ul>
+<p>Version 12 also supports <code>unevaluatedProperties</code>, <code>unevaluatedItems</code>, <code>$dynamicRef</code>, and <code>$dynamicAnchor</code>.</p>
+<h3>Asynchronous validation</h3>
+<p>Create the validator with <code>{ async: true }</code>. Its validation methods return promises. With <code>{ async: true, safe: true }</code>, the promise resolves to a safe result rather than rejecting for validation failure.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ZSchema from &#39;z-schema&#39;;
+
+const validator = ZSchema.create({ async: true });
+assert.equal(await validator.validate(&#39;ok&#39;, { type: &#39;string&#39; }), true);
+
+const safe = ZSchema.create({ async: true, safe: true });
+const result = await safe.validate(123, { type: &#39;string&#39; });
+assert.equal(result.valid, false);
+</code></pre>
+<p>The explicit methods are <code>validateAsync()</code> and <code>validateAsyncSafe()</code>. Async format validators require the async factory option; do not call an async validator through a synchronous validator.</p>
+<h3>Custom formats</h3>
+<p>Formats can be registered on a validator. The package also exports format-management helpers, including <code>registerFormat</code>, <code>unregisterFormat</code>, <code>getRegisteredFormats</code>, <code>getSupportedFormats</code>, <code>getFormatValidators</code>, and <code>isFormatSupported</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ZSchema from &#39;z-schema&#39;;
+
+const validator = ZSchema.create({ formatAssertions: true });
+validator.registerFormat(&#39;uppercase&#39;, (value: unknown): boolean =&gt;
+  typeof value === &#39;string&#39; &amp;&amp; value === value.toUpperCase(),
+);
+
+const schema = { type: &#39;string&#39;, format: &#39;uppercase&#39; };
+assert.equal(validator.validate(&#39;YES&#39;, schema), true);
+</code></pre>
+<p>For draft-2019-09 and draft-2020-12, registering a format does not by itself make <code>format</code> an assertion under the default settings. Configure <code>formatAssertions</code> when format failures must invalidate data. The format-management functions are also available as package exports.</p>
+<h3>Remote references</h3>
+<p>Register a remote schema before validating a <code>$ref</code> that points to it. In v12, <code>setRemoteReference()</code> is a static API; older examples that call it on an instance are outdated.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import ZSchema from &#39;z-schema&#39;;
+
+ZSchema.setRemoteReference(&#39;https://example.test/person.json&#39;, {
+  $id: &#39;https://example.test/person.json&#39;,
+  type: &#39;object&#39;,
+  required: [&#39;name&#39;],
+  properties: { name: { type: &#39;string&#39; } },
+});
+
+const validator = ZSchema.create();
+const schema = { $ref: &#39;https://example.test/person.json&#39; };
+assert.equal(validator.validate({ name: &#39;Ada&#39; }, schema), true);
+</code></pre>
+<p>A schema reader can be installed with <code>ZSchema.setSchemaReader(...)</code> and inspected with <code>ZSchema.getSchemaReader()</code>. A reader is responsible for resolving the URI; remote references otherwise need registration before validation.</p>
+<h3>Recursion</h3>
+<p>The default recursion limit is 100. Deep recursive validation can produce <code>MAX_RECURSION_DEPTH_EXCEEDED</code>; increase it with <code>{ maxRecursionDepth: 500 }</code> when the schema and data require a deeper limit.</p>
+<h3>What this skill does not cover</h3>
+<ul>
+<li>The command-line executable and its file-oriented invocation.</li>
+<li>Browser use of the published UMD bundle.</li>
+<li>Detailed error-code and error-parameter catalogs.</li>
+<li>Building a filesystem-backed <code>SchemaReader</code>.</li>
+<li>The complete TypeScript type surface beyond the public APIs described here.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

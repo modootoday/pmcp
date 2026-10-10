@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@pothos/core 4.x — PMCP</title>
+  <meta name="description" content="Use @pothos/core ^4.0.0 to build executable GraphQL schemas, account for v4 nullability and ID defaults, use context caching, and write/register typed plugins." />
+  <link rel="canonical" href="https://pmcp.build/skills/pothos-core/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="@pothos/core 4.x — PMCP" />
+  <meta property="og:description" content="Use @pothos/core ^4.0.0 to build executable GraphQL schemas, account for v4 nullability and ID defaults, use context caching, and write/register typed plugins." />
+  <meta property="og:url" content="https://pmcp.build/skills/pothos-core/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/pothos-core/">Other majors</a></p>
+    <h1>@pothos/core 4.x</h1><p>Use @pothos/core ^4.0.0 to build executable GraphQL schemas, account for v4 nullability and ID defaults, use context caching, and write/register typed plugins.</p>
+    <dl><dt>For</dt><dd><code>@pothos/core@4.13.1</code></dd><dt>Verified</dt><dd>2026-09-07, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-pothos-core@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/pothos-core/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/pothos-core/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/pothos-core/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-J4xc27xKLuNfzE1W4wvn59UCy6HSO6UgqNgGXJpeg/mc7LGH9AJh1UQNPl7xTowJGM3DHIgOoBNV0DSX7H9DFw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against @pothos/core@4.13.1 on 2026-09-07. 7 of 7 examples executed.</p>
+<h2>@pothos/core v4</h2>
+<p>Use this skill for <code>@pothos/core</code> <code>^4.0.0</code>. The package builds standard <code>graphql.js</code> schemas; serving the schema requires an external GraphQL server such as Yoga.</p>
+<h3>Requirements</h3>
+<p>v4 requires TypeScript 4.7.0 or newer, GraphQL 16.6.0 or newer, and Node 18.0 or newer.</p>
+<h3>Build a schema</h3>
+<p>The default export is <code>SchemaBuilder</code>. Define the query type, then call <code>toSchema()</code>:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import SchemaBuilder from &#39;@pothos/core&#39;;
+
+const builder = new SchemaBuilder({});
+
+builder.queryType({
+  fields: (t) =&gt; ({
+    hello: t.string({
+      args: {
+        name: t.arg.string(),
+      },
+      resolve: (_parent, { name }) =&gt; `hello, ${name || &#39;World&#39;}`,
+    }),
+  }),
+});
+
+const schema = builder.toSchema();
+const query = schema.getQueryType();
+assert.ok(query);
+assert.ok(query.getFields().hello);
+assert.equal(query.getFields().hello.type.toString(), &#39;String&#39;);
+assert.equal(query.getFields().hello.args[0]?.name, &#39;name&#39;);
+</code></pre>
+<p>Fields are nullable by default in v4. Do not assume the v3 default of non-null fields. Set <code>nullable: false</code> on an individual field when required, or configure the builder globally.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import SchemaBuilder from &#39;@pothos/core&#39;;
+
+const builder = new SchemaBuilder({});
+builder.queryType({
+  fields: (t) =&gt; ({
+    required: t.string({ nullable: false, resolve: () =&gt; &#39;ok&#39; }),
+    optional: t.string({ resolve: () =&gt; null }),
+  }),
+});
+
+const fields = builder.toSchema().getQueryType()!.getFields();
+assert.equal(fields.required.type.toString(), &#39;String!&#39;);
+assert.equal(fields.optional.type.toString(), &#39;String&#39;);
+</code></pre>
+<h3>Restore v3 defaults when migrating</h3>
+<p>A common migration error is copying v3 code that expects non-null-by-default fields or v3 configuration names. For one-shot compatibility, use the <code>Defaults: &#39;v3&#39;</code> type parameter and <code>defaults: &#39;v3&#39;</code> option:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import SchemaBuilder from &#39;@pothos/core&#39;;
+
+const builder = new SchemaBuilder&lt;{
+  Defaults: &#39;v3&#39;;
+}&gt;({ defaults: &#39;v3&#39; });
+
+builder.queryType({
+  fields: (t) =&gt; ({
+    value: t.string({ resolve: () =&gt; &#39;v3-style&#39; }),
+  }),
+});
+
+const field = builder.toSchema().getQueryType()!.getFields().value;
+assert.equal(field.type.toString(), &#39;String!&#39;);
+</code></pre>
+<p>The more explicit alternative is to configure only nullability:</p>
+<pre><code class="language-ts">const builder = new SchemaBuilder&lt;{
+  DefaultFieldNullability: false;
+}&gt;({
+  defaultFieldNullability: false,
+});
+</code></pre>
+<h3>ID scalar changes</h3>
+<p>In v4, <code>ID</code> input is <code>string</code>; <code>ID</code> output is <code>number | string | bigint</code>. Code written for the v3 ID input shape (<code>number | string</code>) can fail type checking. Restore the v3 scalar shape explicitly if that is required by the application:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import SchemaBuilder from &#39;@pothos/core&#39;;
+
+const builder = new SchemaBuilder&lt;{
+  Scalars: { ID: { Input: number | string; Output: number | string } };
+}&gt;({});
+
+builder.queryType({
+  fields: (t) =&gt; ({
+    id: t.id({ resolve: () =&gt; 42 }),
+  }),
+});
+
+const field = builder.toSchema().getQueryType()!.getFields().id;
+assert.equal(field.type.toString(), &#39;ID&#39;);
+</code></pre>
+<h3>Context cache</h3>
+<p><code>initContextCache</code> is a named export intended for creating the cache portion of a request context. Merge its result into the context object supplied to the GraphQL server, alongside application-specific values:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { initContextCache } from &#39;@pothos/core&#39;;
+
+const context = {
+  ...initContextCache(),
+  currentUser: { id: &#39;user-1&#39; },
+};
+
+assert.equal(context.currentUser.id, &#39;user-1&#39;);
+assert.ok(context);
+</code></pre>
+<p>The cache is request context data; initialize it per request rather than sharing one context object across requests.</p>
+<h3>ObjectRef and shared object fields</h3>
+<p><code>ObjectRef</code> is a named export. In v4, refs carry the <code>Types extends SchemaTypes</code> type parameter. Use an object ref when common fields should be attached to multiple refs:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import SchemaBuilder, { ObjectRef } from &#39;@pothos/core&#39;;
+
+const builder = new SchemaBuilder({});
+const userRef = builder.objectRef&lt;{ id: string }&gt;(&#39;User&#39;);
+
+function addCommonFields(refs: ObjectRef&lt;unknown, { id: string }&gt;[]) {
+  for (const ref of refs) {
+    builder.objectFields(ref, (t) =&gt; ({
+      id: t.exposeID(&#39;id&#39;, {}),
+      idLength: t.int({
+        resolve: (parent) =&gt; parent.id.length,
+      }),
+    }));
+  }
+}
+
+builder.objectType(userRef, {
+  fields: (t) =&gt; ({
+    name: t.string({ resolve: () =&gt; &#39;Ada&#39; }),
+  }),
+});
+addCommonFields([userRef]);
+builder.queryType({
+  fields: (t) =&gt; ({
+    user: t.field({
+      type: userRef,
+      resolve: () =&gt; ({ id: &#39;abc&#39; }),
+    }),
+  }),
+});
+
+const fields = builder.toSchema().getType(&#39;User&#39;) as any;
+assert.ok(fields.getFields().id);
+assert.ok(fields.getFields().idLength);
+</code></pre>
+<p>Do not use the older constructor shape that passes <code>typename</code> to builder constructors; v4 changed builder constructors and ref/type authoring APIs. <code>FieldRef</code> constructors also take builder/field options, and input field refs are separated from argument refs.</p>
+<h3>Plugins</h3>
+<p>Plugin authors can import <code>BasePlugin</code>, <code>SchemaTypes</code>, and <code>SchemaBuilder</code> as named exports. A plugin is registered by name and class:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import SchemaBuilder, { BasePlugin, SchemaTypes } from &#39;@pothos/core&#39;;
+
+const pluginName = &#39;example&#39;;
+
+class PothosExamplePlugin&lt;Types extends SchemaTypes&gt; extends BasePlugin&lt;Types&gt; {}
+
+SchemaBuilder.registerPlugin(pluginName, PothosExamplePlugin);
+
+const builder = new SchemaBuilder({ plugins: [pluginName] });
+builder.queryType({
+  fields: (t) =&gt; ({
+    ok: t.boolean({ resolve: () =&gt; true }),
+  }),
+});
+
+assert.ok(builder.toSchema().getQueryType()!.getFields().ok);
+</code></pre>
+<p>Plugin behavior depends on registration/import side effects and Pothos&#39;s schema-build lifecycle; it is not an independent helper API. Plugins are instantiated each time <code>toSchema()</code> is called, and <code>beforeBuild</code> is the last opportunity for a plugin to add types or fields. If a plugin is split into a global registration module, import that module before building the schema.</p>
+<h3>What this skill does not cover</h3>
+<ul>
+<li>Running or serving a schema with Yoga or another GraphQL server.</li>
+<li>Plugin hooks beyond the registration and lifecycle facts documented here.</li>
+<li>GraphQL execution, HTTP context construction, authentication, or request handling.</li>
+<li>Pothos plugins other than the core plugin authoring surface shown above.</li>
+<li>The complete <code>SchemaBuilder</code>, field, argument, scalar, input, interface, union, or subscription API beyond the documented examples.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

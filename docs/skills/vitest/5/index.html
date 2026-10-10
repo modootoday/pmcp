@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>vitest 5.x — PMCP</title>
+  <meta name="description" content="Use Vitest ^5.0.0 standalone assertions and mock functions correctly, while avoiding APIs that require the Vitest runner and accounting for v5 migration changes." />
+  <link rel="canonical" href="https://pmcp.build/skills/vitest/5/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="vitest 5.x — PMCP" />
+  <meta property="og:description" content="Use Vitest ^5.0.0 standalone assertions and mock functions correctly, while avoiding APIs that require the Vitest runner and accounting for v5 migration changes." />
+  <meta property="og:url" content="https://pmcp.build/skills/vitest/5/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/vitest/">Other majors</a></p>
+    <h1>vitest 5.x</h1><p>Use Vitest ^5.0.0 standalone assertions and mock functions correctly, while avoiding APIs that require the Vitest runner and accounting for v5 migration changes.</p>
+    <dl><dt>For</dt><dd><code>vitest@5.0.0</code></dd><dt>Verified</dt><dd>2026-09-07, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-vitest@5.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/vitest/5/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/vitest/5/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/vitest/5/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-iSfnL92nXDk6nG6Ss8FgmGgr9mwf/gIYfZtfRppQcJIKZBdQXC0Ht5JMbaPEN5PHlF+yq75xUDKniDjJXqoNcw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against vitest@5.0.0 on 2026-09-07. 5 of 5 examples executed.</p>
+<h2>Vitest ^5.0.0</h2>
+<h3>Requirements</h3>
+<p>Vitest 5 requires Node.js &gt;= 22.12.0 and Vite &gt;= 6.4.0.</p>
+<p>Assertions are bundled into <code>vitest</code>; import <code>expect</code>, <code>vi</code>, and test APIs from <code>vitest</code> rather than relying on <code>@vitest/expect</code>.</p>
+<h3>What can run in a plain script</h3>
+<p>A plain script can directly exercise assertions and several mock-function APIs exported by <code>vitest</code>. The examples below are standalone files: they do not use the Vitest runner.</p>
+<h4>Assertions</h4>
+<p>Use <code>expect</code> from <code>vitest</code> for matchers such as <code>toBe</code>, <code>toBeCloseTo</code>, and <code>toContain</code>.</p>
+<pre><code class="language-ts">import { expect } from &#39;vitest&#39;
+
+expect(Math.sqrt(4)).toBe(2)
+expect(Math.sqrt(144)).toBe(12)
+expect(Math.sqrt(0)).toBe(0)
+expect(0.1 + 0.2).toBeCloseTo(0.3)
+expect(&#39;vitest&#39;).toContain(&#39;test&#39;)
+</code></pre>
+<p><code>expect.assertions(count)</code> is documented for checking the number of assertions made during a test run; it is not a standalone assertion-counting mechanism to rely on in an ordinary script.</p>
+<h4>Mock functions</h4>
+<p><code>vi.fn()</code> creates a mock function. Calls are recorded even when the function has no implementation, in which case it returns <code>undefined</code>.</p>
+<pre><code class="language-ts">import { expect, vi } from &#39;vitest&#39;
+
+const getApples = vi.fn()
+
+getApples()
+
+expect(getApples).toHaveBeenCalled()
+expect(getApples).toHaveBeenCalledTimes(1)
+expect(getApples()).toBeUndefined()
+</code></pre>
+<h4>Spying on an object method</h4>
+<p><code>vi.spyOn(object, key)</code> creates a mock around an existing object method. Restore it with <code>vi.restoreAllMocks()</code> when the original implementation should be put back.</p>
+<pre><code class="language-ts">import { expect, vi } from &#39;vitest&#39;
+
+const calculator = {
+  add(a: number, b: number) {
+    return a + b
+  },
+}
+
+const add = vi.spyOn(calculator, &#39;add&#39;)
+
+expect(calculator.add(2, 3)).toBe(5)
+expect(add).toHaveBeenCalledWith(2, 3)
+
+vi.restoreAllMocks()
+expect(calculator.add(1, 1)).toBe(2)
+</code></pre>
+<h4>Conditional mock behavior with <code>vi.when</code></h4>
+<p>Vitest 5 adds argument-based behavior configuration for mocks. Chain <code>calledWith(...).thenReturn(...)</code> clauses to return different values for different arguments.</p>
+<pre><code class="language-ts">import { expect, vi } from &#39;vitest&#39;
+
+const spy = vi.fn()
+
+vi.when(spy)
+  .calledWith(1)
+  .thenReturn(&#39;one&#39;)
+  .calledWith(2)
+  .thenReturn(&#39;two&#39;)
+
+expect(spy(1)).toBe(&#39;one&#39;)
+expect(spy(2)).toBe(&#39;two&#39;)
+</code></pre>
+<h4>Mock lifecycle APIs</h4>
+<ul>
+<li><code>vi.clearAllMocks()</code> clears recorded calls while preserving mock implementations.</li>
+<li><code>vi.resetAllMocks()</code> resets mock state and restores the mock&#39;s initial implementation. For a mock created with an implementation, that initial implementation remains available.</li>
+<li><code>vi.restoreAllMocks()</code> restores spied-on originals.</li>
+</ul>
+<p>Vitest 5 also defaults <code>clearMocks</code> to <code>true</code>, so the runner calls <code>vi.clearAllMocks()</code> before every test while preserving implementations.</p>
+<pre><code class="language-ts">import { expect, vi } from &#39;vitest&#39;
+
+const mock = vi.fn(() =&gt; &#39;value&#39;)
+
+mock()
+expect(mock).toHaveBeenCalledTimes(1)
+
+vi.clearAllMocks()
+expect(mock).toHaveBeenCalledTimes(0)
+expect(mock()).toBe(&#39;value&#39;)
+
+vi.resetAllMocks()
+expect(mock()).toBe(&#39;value&#39;)
+</code></pre>
+<p><code>vi.mockObject(value)</code> is not a standalone API in this environment: it reaches for Vitest&#39;s initialized mocker and throws when no runner has initialized it. Use it only under Vitest&#39;s transformed module runner.</p>
+<h3>APIs that require the Vitest runner</h3>
+<p>Importing <code>test</code> or <code>it</code> from <code>vitest</code> is not enough to execute tests in an ordinary script. The callback is collected and run by Vitest&#39;s runner or its CLI/build integration.</p>
+<p>The documented form is:</p>
+<pre><code class="language-ts">import { expect, test } from &#39;vitest&#39;
+
+test(&#39;Math.sqrt works for perfect squares&#39;, () =&gt; {
+  expect(Math.sqrt(4)).toBe(2)
+})
+</code></pre>
+<p>Test callbacks can receive a test context. Documented built-ins include <code>task</code>, <code>expect</code>, <code>signal</code>, <code>bench</code>, <code>onTestFailed</code>, and <code>onTestFinished</code>:</p>
+<pre><code class="language-ts">import { it } from &#39;vitest&#39;
+
+it(&#39;math is easy&#39;, ({ expect }) =&gt; {
+  expect(2 + 2).toBe(4)
+})
+</code></pre>
+<p>These snippets belong in files executed by Vitest, not in a direct <code>bun example.ts</code> invocation.</p>
+<h3>v5 benchmarks</h3>
+<p>Benchmarks moved into regular tests through the <code>bench</code> test-context fixture. The old standalone shape is not the v5 shape:</p>
+<pre><code class="language-ts">import { test } from &#39;vitest&#39;
+
+test(&#39;sort&#39;, async ({ bench }) =&gt; {
+  await bench(&#39;sort&#39;, () =&gt; {
+    [3, 1, 2].sort()
+  }).run()
+})
+</code></pre>
+<p><code>bench.skip</code>, <code>bench.only</code>, and <code>bench.todo</code> were removed. Use <code>test.skip</code>, <code>test.only</code>, and <code>test.todo</code> around the containing test instead. The <code>bench</code> fixture is runner-provided, so this is not a standalone Bun example.</p>
+<h3>Module mocking</h3>
+<p><code>vi.mock</code> substitutes imported modules and works with <code>import</code>, not <code>require</code>. Vitest statically analyzes and hoists it, so calls must be at module top level in v5:</p>
+<pre><code class="language-ts">import { vi } from &#39;vitest&#39;
+
+vi.mock(&#39;./path/to/module.js&#39;, () =&gt; ({
+  default: { myDefaultKey: vi.fn() },
+  namedExport: vi.fn(),
+}))
+</code></pre>
+<p>Module mocking depends on Vitest&#39;s transformed module runner and is intended for test files. It is not equivalent to ordinary standalone Node or Bun module behavior. Unlike <code>vi.mock</code>, <code>vi.doMock</code> and <code>vi.doUnmock</code> remain non-hoisted.</p>
+<p>Do not put <code>vi.mock</code>, <code>vi.unmock</code>, or <code>vi.hoisted</code> inside a function or nested scope in v5; nested calls throw.</p>
+<h3>v5 migration traps</h3>
+<ul>
+<li>Replace removed <code>test.sequential</code>, <code>describe.sequential</code>, and <code>sequential</code> options with <code>concurrent: false</code>.</li>
+<li>Do not use the former top-level <code>bench(...)</code> API for v5 benchmarks; use the test-context <code>bench</code> fixture.</li>
+<li>Do not import removed entrypoints such as <code>vitest/coverage</code>, <code>vitest/reporters</code>, <code>vitest/environments</code>, <code>vitest/snapshot</code>, <code>vitest/runners</code>, <code>vitest/suite</code>, <code>vitest/mocker</code>, or <code>vitest/internal/module-runner</code>. The migration replacements include <code>vitest/node</code>, <code>vitest/runtime</code>, <code>TestRunner</code> from <code>vitest</code>, static <code>TestRunner</code> methods, and <code>@vitest/mocker</code>.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover Vitest configuration, CLI invocation, runner/build integration, environment setup, reporters, coverage configuration, snapshots, the complete matcher catalog, custom matcher implementation, module-resolution details, <code>vi.mockObject</code> outside the runner, or the full test-context lifecycle API. Those areas require the Vitest runner or additional documentation beyond the supplied research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>zod schema validation 3.x — PMCP</title>
+  <meta name="description" content="Parse at the boundary, read the failure, and let the schema be the type." />
+  <link rel="canonical" href="https://pmcp.build/skills/zod-schema-validation/3/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="zod schema validation 3.x — PMCP" />
+  <meta property="og:description" content="Parse at the boundary, read the failure, and let the schema be the type." />
+  <meta property="og:url" content="https://pmcp.build/skills/zod-schema-validation/3/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/zod-schema-validation/">Other majors</a></p>
+    <h1>zod schema validation 3.x</h1><p>Parse at the boundary, read the failure, and let the schema be the type.</p><p class="notice">This 3.x line is no longer revised. The recorded verification date is historical.</p>
+    <dl><dt>For</dt><dd><code>zod@3.25.76</code></dd><dt>Verified</dt><dd>2026-09-07, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-zod-schema-validation@3.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/zod-schema-validation/3/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/zod-schema-validation/3/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/zod-schema-validation/3/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-uNlJoXwAlotaohT/jedzF6eA0qjYoaDs29gvuNw9rNnQS6mFNyU0zsY6aSARpNf6Dy1U7WrirNwm1VqETtClag==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against zod@3.25.76 on 2026-09-07. 7 of 7 examples executed.</p>
+<h2>Zod 3</h2>
+<p>Use this skill for the <code>zod</code> package with version range <code>^3.0.0</code>. The documented API is the Zod 3 API. The documentation requires TypeScript 4.5+ with <code>strict</code> mode enabled.</p>
+<h3>Import and version boundary</h3>
+<p>The documented default import is:</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+</code></pre>
+<p>When supporting both Zod major versions, the maintainer documentation identifies <code>zod/v3</code> as the stable Zod 3 subpath. Do not assume examples written for another major have the same exports or signatures. In particular, use the exported <code>z</code> variable rather than older import shapes.</p>
+<h3>Primitive schemas and parsing</h3>
+<p>Create primitive schemas with constructors such as:</p>
+<ul>
+<li><code>z.string()</code></li>
+<li><code>z.number()</code></li>
+<li><code>z.bigint()</code></li>
+<li><code>z.boolean()</code></li>
+<li><code>z.date()</code></li>
+<li><code>z.symbol()</code></li>
+<li><code>z.undefined()</code></li>
+<li><code>z.null()</code></li>
+<li><code>z.void()</code></li>
+<li><code>z.any()</code></li>
+<li><code>z.unknown()</code></li>
+<li><code>z.never()</code></li>
+</ul>
+<p><code>.parse(value)</code> returns the parsed value when valid and throws a <code>ZodError</code> when invalid. <code>.safeParse(value)</code> does not throw for validation failure; it returns an object with either <code>{ success: true, data }</code> or <code>{ success: false, error }</code>.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const schema = z.string();
+
+assert.equal(schema.parse(&quot;tuna&quot;), &quot;tuna&quot;);
+assert.throws(() =&gt; schema.parse(12));
+
+const valid = schema.safeParse(&quot;tuna&quot;);
+assert.equal(valid.success, true);
+if (valid.success) assert.equal(valid.data, &quot;tuna&quot;);
+
+const invalid = schema.safeParse(12);
+assert.equal(invalid.success, false);
+</code></pre>
+<h3>Object schemas and inferred types</h3>
+<p>Use <code>z.object({...})</code> to validate object shapes. <code>z.infer&lt;typeof Schema&gt;</code> is a TypeScript-only utility that extracts the schema&#39;s inferred type; it does not perform runtime work.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const User = z.object({
+  username: z.string(),
+});
+
+type User = z.infer&lt;typeof User&gt;;
+const user: User = { username: &quot;Ludwig&quot; };
+
+assert.deepEqual(User.parse(user), { username: &quot;Ludwig&quot; });
+assert.equal(User.safeParse({ username: 42 }).success, false);
+</code></pre>
+<h3>Coercion</h3>
+<p>The <code>z.coerce</code> constructors convert input before applying the schema:</p>
+<ul>
+<li><code>z.coerce.string()</code> uses string coercion.</li>
+<li><code>z.coerce.number()</code> uses number coercion.</li>
+<li><code>z.coerce.boolean()</code> uses boolean coercion.</li>
+<li><code>z.coerce.bigint()</code> uses bigint coercion.</li>
+<li><code>z.coerce.date()</code> constructs a date.</li>
+</ul>
+<p>A coerced string schema is a normal <code>ZodString</code>, so string methods such as <code>.email()</code> and <code>.min()</code> can be chained.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+assert.equal(z.coerce.string().parse(12), &quot;12&quot;);
+assert.equal(z.coerce.string().parse(&quot;tuna&quot;), &quot;tuna&quot;);
+assert.equal(z.coerce.number().parse(&quot;12&quot;), 12);
+assert.equal(z.coerce.boolean().parse(1), true);
+
+const email = z.coerce.string().email().min(5);
+assert.equal(email.parse(&quot;a@b.co&quot;), &quot;a@b.co&quot;);
+assert.equal(email.safeParse(&quot;not-an-email&quot;).success, false);
+</code></pre>
+<h3>Custom messages</h3>
+<p>Primitive schemas accept <code>invalid_type_error</code> and <code>required_error</code> options for custom validation messages.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const name = z.string({
+  invalid_type_error: &quot;Name must be string&quot;,
+  required_error: &quot;Name is required&quot;,
+});
+
+const result = name.safeParse(123);
+assert.equal(result.success, false);
+if (!result.success) {
+  assert.equal(result.error.issues[0]?.message, &quot;Name must be string&quot;);
+}
+</code></pre>
+<h3>Tuples and rest elements</h3>
+<p><code>z.tuple([...])</code> defines positional elements. Add trailing elements with <code>.rest(schema)</code>. <code>z.output&lt;typeof schema&gt;</code> is a TypeScript utility for the parsed output type.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const myTuple = z.tuple([z.string(), z.number()]).rest(z.boolean());
+type TupleOutput = z.output&lt;typeof myTuple&gt;;
+
+const value: TupleOutput = [&quot;count&quot;, 2, true, false];
+assert.deepEqual(myTuple.parse(value), [&quot;count&quot;, 2, true, false]);
+assert.equal(myTuple.safeParse([&quot;count&quot;, 2, &quot;not boolean&quot;]).success, false);
+</code></pre>
+<h3>Selective partial objects</h3>
+<p>For an object schema, <code>.partial({ name: true })</code> makes only the selected property optional. It does not make every property optional.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const user = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+const optionalNameUser = user.partial({ name: true });
+
+assert.deepEqual(optionalNameUser.parse({ age: 30 }), { age: 30 });
+assert.equal(optionalNameUser.safeParse({ name: &quot;Ada&quot; }).success, false);
+</code></pre>
+<h3>Records</h3>
+<p>Use <code>z.record(keySchema, valueSchema)</code> to validate record keys and values. The inferred type can be extracted with <code>z.infer</code>.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const schema = z.record(z.number(), z.boolean());
+type Schema = z.infer&lt;typeof schema&gt;;
+
+const empty: Schema = {};
+assert.deepEqual(schema.parse(empty), {});
+</code></pre>
+<h3>Async parsing</h3>
+<p>Schemas that use asynchronous refinements or transforms must use <code>.parseAsync()</code> or <code>.safeParseAsync()</code> rather than their synchronous counterparts. The reviewed material identifies these method names but does not provide a complete Zod 3 async signature or example; keep async schema details within the package&#39;s documented API rather than inventing a synchronous equivalent.</p>
+<h3>Common version and shape mistakes</h3>
+<ul>
+<li>Do not substitute a newer-major API for the Zod 3 API when the dependency is <code>^3.0.0</code>.</li>
+<li>Do not rely on older examples that omit the exported <code>z</code> variable; Zod 3 documents <code>import { z } from &quot;zod&quot;</code>.</li>
+<li>Do not treat <code>.safeParse()</code> as throwing on invalid input. Inspect its <code>success</code> field and read <code>data</code> or <code>error</code> conditionally.</li>
+<li>Do not treat <code>z.infer</code> or <code>z.output</code> as runtime functions. They are TypeScript type utilities.</li>
+<li>Do not use <code>.parse()</code> for schemas with asynchronous refinements or transforms; use <code>.parseAsync()</code> or <code>.safeParseAsync()</code>.</li>
+<li>Within Zod 3, <code>.or()</code> and <code>.transform()</code> changed in 3.2 to return new wrapper instances rather than the earlier flattening/avoiding-nesting shape. Code that depends on the internal schema nesting should not assume the pre-3.2 shape.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not cover the complete exported-symbol list, exhaustive method signatures, every Zod 3 schema combinator, detailed asynchronous refinement/transform construction, custom error maps, custom <code>ZodType</code> subclasses, CLI or build commands, or the complete differences between Zod 1, Zod 2, Zod 3, and later majors.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

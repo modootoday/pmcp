@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>yeoman-environment 7.x — PMCP</title>
+  <meta name="description" content="Use yeoman-environment's ESM environment API when working against the v7.0.0 source shape. Note that ^7.0.0 is not a published version according to the researched npm metadata; verify the installed version before relying on this skill." />
+  <link rel="canonical" href="https://pmcp.build/skills/yeoman-environment/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="yeoman-environment 7.x — PMCP" />
+  <meta property="og:description" content="Use yeoman-environment's ESM environment API when working against the v7.0.0 source shape. Note that ^7.0.0 is not a published version according to the researched npm metadata; verify the installed version before relying on this skill." />
+  <meta property="og:url" content="https://pmcp.build/skills/yeoman-environment/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/yeoman-environment/">Other majors</a></p>
+    <h1>yeoman-environment 7.x</h1><p>Use yeoman-environment's ESM environment API when working against the v7.0.0 source shape. Note that ^7.0.0 is not a published version according to the researched npm metadata; verify the installed version before relying on this skill.</p>
+    <dl><dt>For</dt><dd><code>yeoman-environment@7.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-yeoman-environment@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/yeoman-environment/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/yeoman-environment/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/yeoman-environment/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-HPadcUfGvCnorYqZUIPkCZoQPIhTaSvL19oX89apEHbgxwrVu0G9ni0aeEpeQIgksjva62PEQb3D8MSbmxz/yg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against yeoman-environment@7.0.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>yeoman-environment</h2>
+<h3>Version reality</h3>
+<p>The requested range is <code>^7.0.0</code>, but the researched npm versions list <code>6.3.0</code> as the current published version. No v7 release or v7 changelog was found. Do not assume that <code>^7.0.0</code> can be installed from npm, and do not describe this as a verified published v7 API. The API notes below follow the v7.0.0 source snapshot supplied for this task.</p>
+<p>The source snapshot is an ESM package. Use named imports or the default <code>Environment</code> export; do not copy the older CommonJS examples blindly.</p>
+<h3>Core environment</h3>
+<p>Create an environment with <code>createEnv(options?)</code>:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { createEnv } from &#39;yeoman-environment&#39;;
+
+const env = createEnv({ skipInstall: true });
+
+assert.equal(typeof env.lookup, &#39;function&#39;);
+assert.equal(typeof env.create, &#39;function&#39;);
+assert.equal(typeof env.run, &#39;function&#39;);
+assert.equal(typeof env.runGenerator, &#39;function&#39;);
+assert.equal(typeof env.register, &#39;function&#39;);
+assert.equal(typeof env.registerStub, &#39;function&#39;);
+</code></pre>
+<p><code>Environment.run(arguments?, options?)</code> accepts either a command string or an argument array. The documented workflow first awaits <code>env.lookup()</code> to search the current working directory for installed generators, then awaits <code>env.run(...)</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { createEnv } from &#39;yeoman-environment&#39;;
+
+const env = createEnv({ skipInstall: true });
+const result = await env.lookup();
+
+// Lookup completes without requiring a generator to be selected.
+assert.ok(result === undefined || typeof result === &#39;object&#39;);
+</code></pre>
+<p>The environment also exposes <code>create</code>, <code>runGenerator</code>, <code>register</code>, and <code>registerStub</code> for programmatic generator lifecycle work. The supplied research identifies these methods but does not specify their complete argument and return-value contracts, so do not invent those contracts from older documentation.</p>
+<h3>Generator lookup</h3>
+<p><code>lookupGenerator(namespace, options?)</code> is a named export. By default it returns one string; with <code>{singleResult: false}</code> it returns an array of strings. With <code>{packagePath: true}</code>, the lookup can return the generator package path rather than a generator namespace match.</p>
+<p>Lookup depends on installed generators and the process environment, so a deterministic standalone assertion should only check the documented result shape for a lookup that actually resolves in the target installation:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { lookupGenerator } from &#39;yeoman-environment&#39;;
+
+const matches = lookupGenerator(&#39;yeoman-environment&#39;, { singleResult: false });
+assert.ok(Array.isArray(matches));
+for (const match of matches) assert.equal(typeof match, &#39;string&#39;);
+</code></pre>
+<p>Do not confuse <code>lookupGenerator</code> with <code>env.lookup()</code>: the former is the exported generator-resolution helper, while the latter performs environment lookup before a run.</p>
+<h3>Registering and running</h3>
+<p>The current README shape uses ESM and async calls:</p>
+<pre><code class="language-ts">import { createEnv } from &#39;yeoman-environment&#39;;
+
+const env = createEnv({ skipInstall: true });
+await env.lookup();
+await env.run(&#39;angular&#39;, { skipInstall: true });
+</code></pre>
+<p>An environment can register a generator with a namespace and resolved location, then run an argument array:</p>
+<pre><code class="language-ts">import { createEnv } from &#39;yeoman-environment&#39;;
+
+const env = createEnv({ skipInstall: true });
+env.register(generator, { namespace: &#39;example:app&#39;, resolved });
+await env.run([&#39;example:app&#39;, &#39;arg&#39;], { help: true });
+</code></pre>
+<p>The names <code>generator</code> and <code>resolved</code> above must be supplied by the caller. The research does not define a standalone generator implementation or a complete stub-generator contract, so do not turn this snippet into a supposedly runnable generator test without consulting the installed package&#39;s types/source.</p>
+<h3>Command preparation</h3>
+<p><code>prepareCommand(options)</code> prepares a Commander command. <code>prepareGeneratorCommand(options)</code> registers a generator and runs it through the environment. The documented preparation shape includes <code>resolved</code> and <code>namespace</code>:</p>
+<pre><code class="language-ts">import { prepareCommand } from &#39;yeoman-environment&#39;;
+
+const command = await prepareCommand({
+  resolved: &#39;/path/to/generator&#39;,
+  namespace: &#39;example:app&#39;,
+});
+await command.parseAsync(process.argv);
+</code></pre>
+<p>These functions are command/CLI integration APIs. They are not appropriate for a direct <code>bun example.ts</code> example unless the caller supplies a real generator path and command-line setup.</p>
+<h3>Package-manager installation task</h3>
+<p><code>packageManagerInstallTask(options)</code> returns <code>Promise&lt;boolean&gt;</code>. Its options include <code>memFs</code>, <code>packageJsonLocation</code>, <code>adapter</code>, and <code>skipInstall</code>; supported package managers are npm, Yarn, pnpm, and Bun.</p>
+<pre><code class="language-ts">import { packageManagerInstallTask } from &#39;yeoman-environment&#39;;
+
+const installed = await packageManagerInstallTask({
+  memFs,
+  packageJsonLocation: process.cwd(),
+  adapter,
+  skipInstall: false,
+});
+</code></pre>
+<p>This task requires caller-provided <code>memFs</code> and adapter objects and can invoke a package manager. It is therefore not a valid isolated example under the execution constraints for this skill; use it from the Yeoman environment that supplies those dependencies.</p>
+<h3>Common mistakes</h3>
+<ul>
+<li>Do not use <code>require(&#39;yeoman-environment&#39;)</code> for the researched source shape; it is ESM.</li>
+<li>Do not assume <code>^7.0.0</code> is installable: the researched npm metadata reports <code>6.3.0</code> as the latest published version.</li>
+<li>Do not copy the older v2-style <code>const yeoman = require(...)</code> example as the current API.</li>
+<li>Do not call <code>describe</code>, <code>it</code>, or <code>expect</code> in a direct script. Yeoman environment is not a test runner.</li>
+<li>Do not expect <code>TerminalAdapter</code> or <code>EnvironmentCommand.execute()</code> to be standalone helpers. They provide CLI interaction and Commander-based command execution.</li>
+<li>Do not claim that a successful <code>env.lookup()</code> means a generator was run; lookup and run are separate operations.</li>
+<li>Pass <code>skipInstall: true</code> when demonstrating lifecycle behavior that should not install dependencies.</li>
+<li>Await <code>lookup</code>, <code>run</code>, command parsing, and package-manager tasks.</li>
+</ul>
+<h3>Not covered</h3>
+<p>This skill does not establish a published v7 release, a v7 migration path, complete generator or stub-generator argument contracts, the exact return values of all <code>Environment</code> methods, a standalone <code>TerminalAdapter</code> setup, or a runnable package-manager installation example. It also does not cover generator implementation APIs, filesystem/mem-fs construction, Commander configuration beyond the preparation surface described above, or behavior that requires a real installed generator or Yeoman CLI environment.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

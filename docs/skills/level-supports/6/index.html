@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>level-supports 6.x — PMCP</title>
+  <meta name="description" content="Use level-supports ^6.0.0 to construct abstract-level capability manifests, merge manifests, and test optional database features safely." />
+  <link rel="canonical" href="https://pmcp.build/skills/level-supports/6/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="level-supports 6.x — PMCP" />
+  <meta property="og:description" content="Use level-supports ^6.0.0 to construct abstract-level capability manifests, merge manifests, and test optional database features safely." />
+  <meta property="og:url" content="https://pmcp.build/skills/level-supports/6/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/level-supports/">Other majors</a></p>
+    <h1>level-supports 6.x</h1><p>Use level-supports ^6.0.0 to construct abstract-level capability manifests, merge manifests, and test optional database features safely.</p>
+    <dl><dt>For</dt><dd><code>level-supports@6.2.0</code></dd><dt>Verified</dt><dd>2026-09-08, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-level-supports@6.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/level-supports/6/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/level-supports/6/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/level-supports/6/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-61NVGfOOCFMyVB+QsFBD+OyAF+29QIwZnE4Gb5cLs6PBhKCmxSurjvxTLlzv4Xc7dHh3IyEPCoPJvroSqcR/Wg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against level-supports@6.2.0 on 2026-09-08. 6 of 6 examples executed.</p>
+<h2>level-supports</h2>
+<h3>Scope</h3>
+<p><code>level-supports</code> creates capability manifests for <code>abstract-level</code> databases. Version 6 is not compatible with <code>levelup</code> or <code>abstract-leveldown</code>. Node.js 16 or newer is required.</p>
+<p>The package is ordinary module code, not a test runner or CLI. Import its named <code>supports</code> export and attach the resulting manifest to a database object yourself.</p>
+<h3>Import the v6 API</h3>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { supports } from &#39;level-supports&#39;
+
+const manifest = supports()
+assert.equal(manifest.seek, false)
+assert.equal(manifest.permanence, false)
+assert.deepEqual(manifest.encodings, {})
+assert.deepEqual(manifest.events, {})
+assert.deepEqual(manifest.additionalMethods, {})
+assert.deepEqual(manifest.signals, {})
+</code></pre>
+<p>A common migration mistake is retaining the old v2 default-import shape:</p>
+<pre><code class="language-js">// v2 / older code — do not use with v6
+const supports = require(&#39;level-supports&#39;)
+</code></pre>
+<p>Use the v6 named export instead:</p>
+<pre><code class="language-js">const { supports } = require(&#39;level-supports&#39;)
+</code></pre>
+<h3>Build a manifest</h3>
+<p>Pass a partial manifest to <code>supports()</code> and assign the result to the database&#39;s <code>supports</code> property:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { supports } from &#39;level-supports&#39;
+
+const db = { supports: supports({
+  permanence: false,
+  seek: true,
+  encodings: {
+    utf8: true,
+    json: true
+  },
+  events: {
+    put: true
+  },
+  additionalMethods: {
+    compact: true
+  },
+  signals: {
+    iterators: true
+  }
+}) }
+
+assert.equal(db.supports.permanence, false)
+assert.equal(db.supports.seek, true)
+assert.equal(db.supports.encodings.utf8, true)
+assert.equal(db.supports.encodings.json, true)
+assert.equal(db.supports.events.put, true)
+assert.equal(db.supports.additionalMethods.compact, true)
+assert.equal(db.supports.signals.iterators, true)
+</code></pre>
+<p>The top-level capability fields documented for v6 are <code>snapshots</code>, <code>permanence</code>, <code>seek</code>, <code>createIfMissing</code>, <code>errorIfExists</code>, <code>deferredOpen</code>, and <code>streams</code>. Nested capability groups are <code>encodings</code>, <code>events</code>, <code>additionalMethods</code>, and <code>signals</code>. Snapshot-related manifests also expose <code>implicitSnapshots</code> and <code>explicitSnapshots</code>; <code>snapshots</code> is the backwards-compatible snapshot alias.</p>
+<h3>Merge manifests</h3>
+<p><code>supports()</code> accepts zero or more partial manifests. Later top-level properties overwrite earlier ones. Nested capability objects are also replaced as properties of the merged manifest; they are not recursively combined.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { supports } from &#39;level-supports&#39;
+
+const merged = supports(
+  {
+    seek: true,
+    encodings: { utf8: true },
+    events: { put: true }
+  },
+  {
+    seek: false,
+    encodings: { json: true }
+  }
+)
+
+assert.equal(merged.seek, false)
+assert.deepEqual(merged.encodings, { json: true })
+assert.deepEqual(merged.events, { put: true })
+</code></pre>
+<p>If you need both encoding declarations, include both in the same input object rather than expecting nested objects from earlier manifests to be merged.</p>
+<h3>Test capabilities by truthiness</h3>
+<p>Feature values are not coerced to the boolean <code>true</code>. Falsy or absent top-level properties become <code>false</code>, while truthy values are retained. Test support with truthiness, not <code>=== true</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { supports } from &#39;level-supports&#39;
+
+const manifest = supports(
+  { seek: true, permanence: 1 },
+  { seek: { mode: &#39;fast&#39; } }
+)
+
+assert.deepEqual(manifest.seek, { mode: &#39;fast&#39; })
+assert.equal(manifest.permanence, 1)
+assert.equal(Boolean(manifest.seek), true)
+assert.notEqual(manifest.seek, true)
+
+const unsupported = supports({ seek: false })
+assert.equal(unsupported.seek, false)
+assert.equal(Boolean(unsupported.seek), false)
+</code></pre>
+<p>The same rule applies to snapshot-related capability values and other top-level feature properties. Do not assume every supported value is literally <code>true</code>.</p>
+<h3>Snapshot capabilities</h3>
+<p>Use the snapshot fields when describing database snapshot support. The manifest surface includes <code>implicitSnapshots</code>, the backwards-compatible <code>snapshots</code> alias, and <code>explicitSnapshots</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { supports } from &#39;level-supports&#39;
+
+const manifest = supports({
+  implicitSnapshots: true,
+  snapshots: true,
+  explicitSnapshots: false
+})
+
+assert.equal(manifest.implicitSnapshots, true)
+assert.equal(manifest.snapshots, true)
+assert.equal(manifest.explicitSnapshots, false)
+assert.equal(Boolean(manifest.implicitSnapshots), true)
+</code></pre>
+<h3>Signals and iterators</h3>
+<p>In v6, <code>signals.iterators</code> describes signal support for <code>db.iterator()</code>, <code>db.keys()</code>, and <code>db.values()</code>. The manifest only declares the capability; it does not create an iterator or an <code>AbortController</code> integration.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import { supports } from &#39;level-supports&#39;
+
+const manifest = supports({
+  signals: { iterators: true }
+})
+
+assert.equal(manifest.signals.iterators, true)
+if (manifest.signals.iterators) {
+  const controller = new AbortController()
+  assert.ok(controller.signal)
+}
+</code></pre>
+<h3>v6 versus older manifests</h3>
+<p>Do not copy the v2 manifest shape into v6 code. Older documentation described fields such as <code>bufferKeys</code>, <code>openCallback</code>, <code>promises</code>, <code>status</code>, and <code>clear</code>, and described <code>encodings</code> as a boolean. In v6, <code>encodings</code> is an object of encoding capabilities and cannot be <code>false</code>; the v6 surface instead documents the fields and nested groups listed above.</p>
+<h3>Does not cover</h3>
+<p>This skill does not cover opening or operating an <code>abstract-level</code> database, implementing any declared capability, iterator behavior, abort behavior, or integration with a particular database package. It also does not cover the old <code>levelup</code> or <code>abstract-leveldown</code> APIs, package installation, or CLI/test-runner usage.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

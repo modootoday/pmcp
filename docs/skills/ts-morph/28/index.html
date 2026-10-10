@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ts-morph 28.x — PMCP</title>
+  <meta name="description" content="Use ts-morph 28.x for in-memory TypeScript project analysis, AST navigation and manipulation, type checking, printing, diagnostics, and emission." />
+  <link rel="canonical" href="https://pmcp.build/skills/ts-morph/28/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="ts-morph 28.x — PMCP" />
+  <meta property="og:description" content="Use ts-morph 28.x for in-memory TypeScript project analysis, AST navigation and manipulation, type checking, printing, diagnostics, and emission." />
+  <meta property="og:url" content="https://pmcp.build/skills/ts-morph/28/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/ts-morph/">Other majors</a></p>
+    <h1>ts-morph 28.x</h1><p>Use ts-morph 28.x for in-memory TypeScript project analysis, AST navigation and manipulation, type checking, printing, diagnostics, and emission.</p>
+    <dl><dt>For</dt><dd><code>ts-morph@28.0.0</code></dd><dt>Verified</dt><dd>2026-09-07, 8 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-ts-morph@28.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/ts-morph/28/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/ts-morph/28/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/ts-morph/28/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-i/BrudDnQ0HTk2LV70SXBk6n+s5tKgamoHbTEp4y/AO8i+++l5WYo3UTCXq1ztD6P5cH+CL+CFwe/Vw0aH3E8w==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against ts-morph@28.0.0 on 2026-09-07. 8 of 8 examples executed.</p>
+<h2>ts-morph 28.x</h2>
+<h3>Version boundary</h3>
+<p>This skill targets <code>ts-morph</code> <code>^28.0.0</code>. Version 28 is based on TypeScript 6.0 and has breaking changes from the TypeScript 5.9-based 27.x line. The release notes do not enumerate the individual migration changes, so do not assume that an older-major API shape remains valid.</p>
+<p>Version 28 adds the standalone <code>printStructure</code> function. Prefer it when a structure needs to be rendered without first creating a <code>Project</code> or AST node.</p>
+<h3>Project setup and virtual source files</h3>
+<p>Create a project with <code>new Project()</code>. Compiler options can be passed through the constructor; the documented example uses <code>ScriptTarget.ES3</code>.</p>
+<p>Source files can be created from text, a structure, or a writer callback. Newly created source files are in memory and are not written to disk unless <code>save()</code> or <code>saveSync()</code> is called.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { Project, ScriptTarget } from &quot;ts-morph&quot;;
+
+const project = new Project({
+  compilerOptions: { target: ScriptTarget.ES3 },
+});
+
+const sourceFile = project.createSourceFile(
+  &quot;src/example.ts&quot;,
+  &quot;export const answer: number = 42;\n&quot;,
+);
+
+assert.equal(sourceFile.getVariableDeclarationOrThrow(&quot;answer&quot;).getType().getText(), &quot;number&quot;);
+assert.equal(project.getSourceFiles().length, 1);
+</code></pre>
+<p>A writer callback is also supported:</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { Project } from &quot;ts-morph&quot;;
+
+const project = new Project();
+const sourceFile = project.createSourceFile(&quot;src/generated.ts&quot;, writer =&gt; {
+  writer
+    .writeLine(&quot;import * as ts from &#39;typescript&#39;;&quot;)
+    .blankLine()
+    .writeLine(&quot;export class MyClass {}\n&quot;);
+});
+
+assert.equal(sourceFile.getClassOrThrow(&quot;MyClass&quot;).getName(), &quot;MyClass&quot;);
+assert.match(sourceFile.getFullText(), /import \* as ts/);
+</code></pre>
+<h3>Finding source files and navigating nodes</h3>
+<p>Use <code>project.getSourceFiles()</code> for all loaded files. It accepts a glob or an array of globs; the documented array form supports negation such as <code>!src/test/**/*.ts</code>. <code>getSourceFile()</code> accepts a path or a predicate.</p>
+<p>On a source file, use <code>getClasses()</code>, <code>getClass()</code>, or a predicate to find classes. For general traversal, use <code>sourceFile.forEachDescendant(...)</code>.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { Project } from &quot;ts-morph&quot;;
+
+const project = new Project();
+project.createSourceFile(&quot;src/Models/Person.ts&quot;, &quot;export class Person {}\n&quot;);
+project.createSourceFile(&quot;src/test/Fixture.ts&quot;, &quot;export class Fixture {}\n&quot;);
+
+const modelFiles = project.getSourceFiles(&quot;src/**/*.ts&quot;);
+const nonTestFiles = project.getSourceFiles([&quot;src/**/*.ts&quot;, &quot;!src/test/**/*.ts&quot;]);
+const personFile = project.getSourceFile(&quot;src/Models/Person.ts&quot;);
+const fileWithOneClass = project.getSourceFile(file =&gt; file.getClasses().length === 1);
+
+assert.equal(modelFiles.length, 2);
+assert.equal(nonTestFiles.length, 1);
+assert.equal(personFile?.getClass(&quot;Person&quot;)?.getName(), &quot;Person&quot;);
+assert.equal(fileWithOneClass?.getClasses()[0].getName(), &quot;Person&quot;);
+</code></pre>
+<h3>AST manipulation</h3>
+<p>Classes and members can be added, changed, and removed directly. The class API includes singular and plural add/insert methods; use insertion methods when position matters.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { Project } from &quot;ts-morph&quot;;
+
+const project = new Project();
+const sourceFile = project.createSourceFile(&quot;src/models.ts&quot;, &quot;&quot;);
+const classDeclaration = sourceFile.addClass({ name: &quot;ClassName&quot; });
+
+classDeclaration.setExtends(&quot;BaseClass&quot;);
+classDeclaration.addImplements([&quot;Named&quot;, &quot;Aged&quot;]);
+const method = classDeclaration.addMethod({
+  isStatic: true,
+  name: &quot;myMethod&quot;,
+  returnType: &quot;string&quot;,
+});
+const property = classDeclaration.addProperty({
+  isStatic: true,
+  name: &quot;prop&quot;,
+  type: &quot;string&quot;,
+});
+
+assert.match(sourceFile.getFullText(), /class ClassName extends BaseClass/);
+assert.match(sourceFile.getFullText(), /static myMethod\(\): string/);
+assert.match(sourceFile.getFullText(), /static prop: string/);
+
+method.remove();
+property.remove();
+assert.doesNotMatch(sourceFile.getFullText(), /myMethod|prop/);
+
+classDeclaration.remove();
+assert.equal(sourceFile.getClasses().length, 0);
+</code></pre>
+<h3>Type checking and diagnostics</h3>
+<p>Get the project type checker with <code>project.getTypeChecker()</code>. For a call-like node, <code>getResolvedSignature()</code> resolves the call signature. Pre-emit diagnostics are available from either the project or an individual source file. Diagnostic source files may be absent, so treat <code>diagnostic.getSourceFile()</code> as <code>SourceFile | undefined</code>.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { Project, Node } from &quot;ts-morph&quot;;
+
+const project = new Project();
+const sourceFile = project.createSourceFile(
+  &quot;src/check.ts&quot;,
+  &quot;function add(a: number, b: number): number { return a + b; }\nconst result = add(1, 2);\n&quot;,
+);
+
+const call = sourceFile.getDescendants().find(Node.isCallExpression);
+assert.ok(call);
+
+const signature = project.getTypeChecker().getResolvedSignature(call);
+assert.ok(signature);
+assert.equal(signature.getReturnType().getText(), &quot;number&quot;);
+assert.equal(project.getPreEmitDiagnostics().length, 0);
+assert.equal(sourceFile.getPreEmitDiagnostics().length, 0);
+</code></pre>
+<p>Use <code>project.formatDiagnosticsWithColorAndContext(diagnostics)</code> to format diagnostics for display. The underlying compiler object is available as <code>typeChecker.compilerObject</code>, but it is discarded whenever manipulation occurs; do not retain and reuse it across mutations.</p>
+<h3>Standalone structure printing</h3>
+<p><code>printStructure</code> is a 28.0.0 standalone export. It accepts a structure and returns TypeScript text without requiring a project.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { printStructure, StructureKind } from &quot;ts-morph&quot;;
+
+const code = printStructure({
+  kind: StructureKind.Class,
+  name: &quot;MyClass&quot;,
+  isExported: true,
+  properties: [{ name: &quot;myProp&quot;, type: &quot;string&quot; }],
+  methods: [{
+    name: &quot;myMethod&quot;,
+    parameters: [{ name: &quot;param&quot;, type: &quot;number&quot; }],
+    returnType: &quot;void&quot;,
+  }],
+});
+
+assert.match(code, /export class MyClass/);
+assert.match(code, /myProp: string/);
+assert.match(code, /myMethod\(param: number\): void/);
+</code></pre>
+<h3>Emitting without filesystem output</h3>
+<p><code>project.emitToMemory()</code> generates output without writing files. <code>emit()</code> and <code>emitSync()</code> are the explicit JavaScript/declaration emission APIs; <code>emitSync()</code> is documented as slow. Configure <code>outDir</code> and <code>declaration</code> through project compiler options when generating those outputs.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { Project } from &quot;ts-morph&quot;;
+
+const project = new Project({
+  compilerOptions: { outDir: &quot;dist&quot;, declaration: true },
+});
+project.createSourceFile(&quot;MyFile.ts&quot;, &quot;export const num: number = 1;\n&quot;);
+
+const result = project.emitToMemory();
+const files = result.getFiles();
+
+assert.ok(files.length &gt;= 2);
+assert.ok(files.some(file =&gt; file.text.includes(&quot;const num&quot;)));
+assert.ok(files.some(file =&gt; file.text.includes(&quot;declare const num&quot;)));
+</code></pre>
+<h3>Utilities</h3>
+<p><code>Node.isClassDeclaration(node)</code> is a type guard for narrowing nodes. <code>printNode(compilerNode)</code> prints an underlying compiler node. <code>getCompilerOptionsFromTsConfig(path)</code> reads and parses a tsconfig path and returns <code>{ options, errors }</code>; it requires an actual readable file path, so it is not demonstrated in the filesystem-free examples above.</p>
+<pre><code class="language-ts">import { strict as assert } from &quot;node:assert&quot;;
+import { Node, Project, printNode } from &quot;ts-morph&quot;;
+
+const project = new Project();
+const sourceFile = project.createSourceFile(&quot;src/node.ts&quot;, &quot;class Example {}\n&quot;);
+const node = sourceFile.getClasses()[0];
+
+assert.equal(Node.isClassDeclaration(node), true);
+assert.match(printNode(node.compilerNode), /class Example/);
+</code></pre>
+<h3>Persistence boundary</h3>
+<p>Manipulation and inspection can remain entirely in memory. Filesystem persistence is explicit: use <code>await project.save()</code>, <code>await sourceFile.save()</code>, or <code>sourceFile.saveSync()</code>. JavaScript/declaration generation is also explicit through <code>emit()</code>, <code>emitSync()</code>, or <code>emitToMemory()</code>.</p>
+<p>Do not assume that <code>createSourceFile()</code> or AST edits automatically save files. Do not use runner globals such as <code>describe</code>, <code>it</code>, or <code>expect</code>; ts-morph exposes ordinary programmatic APIs rather than a package-owned runner or CLI.</p>
+<h3>Not covered</h3>
+<ul>
+<li>Individual TypeScript 6.0 migration changes beyond the fact that version 28 is a breaking TypeScript 6.0 release.</li>
+<li>APIs not shown by the supplied research, including detailed writer, structure, compiler-option, and node-manipulation variants.</li>
+<li>The exact formatting of every printed structure or emitted file.</li>
+<li>Filesystem-backed examples for <code>save()</code>, <code>saveSync()</code>, or <code>getCompilerOptionsFromTsConfig()</code>.</li>
+<li>Any ts-morph runner, CLI, mandatory build step, or framework integration; the supplied research describes none.</li>
+</ul>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

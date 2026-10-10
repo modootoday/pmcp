@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>figures 6.x — PMCP</title>
+  <meta name="description" content="Use figures 6.x to render Unicode symbols with terminal-aware fallbacks, access explicit main/fallback symbol sets, and replace symbols in strings." />
+  <link rel="canonical" href="https://pmcp.build/skills/figures/6/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="figures 6.x — PMCP" />
+  <meta property="og:description" content="Use figures 6.x to render Unicode symbols with terminal-aware fallbacks, access explicit main/fallback symbol sets, and replace symbols in strings." />
+  <meta property="og:url" content="https://pmcp.build/skills/figures/6/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/figures/">Other majors</a></p>
+    <h1>figures 6.x</h1><p>Use figures 6.x to render Unicode symbols with terminal-aware fallbacks, access explicit main/fallback symbol sets, and replace symbols in strings.</p>
+    <dl><dt>For</dt><dd><code>figures@6.1.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-figures@6.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/figures/6/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/figures/6/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/figures/6/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-XEiyRMGCAlg2BLNp5TmxqNlnGRKqJRnzt+SPIpNzMMDP8QhlB7xjWmxz2MFr85FpIFB2VB1gnoCb6w1Dv9Ktqw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against figures@6.1.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>figures</h2>
+<p><code>figures</code> 6.x is a native ESM package for Unicode symbols with fallbacks for terminals that do not support all Unicode figures. The documented version is 6.1.0 and it requires Node.js 18 or newer.</p>
+<h3>Imports and package shape</h3>
+<p>Use named exports for the symbol collections and replacement helper:</p>
+<pre><code class="language-ts">import figures, {mainSymbols, fallbackSymbols, replaceSymbols} from &#39;figures&#39;;
+</code></pre>
+<p>The default export is the terminal-selected figure set. <code>mainSymbols</code> always contains the Unicode symbols, while <code>fallbackSymbols</code> always contains their fallback equivalents. The listed figures are also attached to the default export, so <code>figures.tick</code>, <code>figures.star</code>, <code>figures.line</code>, and similar properties are valid.</p>
+<p>Do not rely on the commonly copied v5-style shape:</p>
+<pre><code class="language-ts">figures.mainSymbols.tick
+figures.fallbackSymbols.tick
+figures.replaceSymbols(&#39;✔ check&#39;)
+</code></pre>
+<p>In v6, use the named exports <code>mainSymbols</code>, <code>fallbackSymbols</code>, and <code>replaceSymbols</code>. The v6 package is native ESM, so use <code>import</code>, not CommonJS <code>require</code>.</p>
+<h3>Default terminal-selected symbols</h3>
+<p>The default export selects symbols using terminal Unicode support detection. For example, <code>figures.tick</code> is <code>✔</code> on a Unicode-capable terminal and <code>√</code> otherwise. Because selection is environment-dependent, do not assert one exact value for the default export in portable tests.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import figures, {mainSymbols, fallbackSymbols} from &#39;figures&#39;;
+
+assert.ok(typeof figures.tick === &#39;string&#39;);
+assert.ok(figures.tick === mainSymbols.tick || figures.tick === fallbackSymbols.tick);
+assert.equal(typeof figures.star, &#39;string&#39;);
+assert.equal(typeof figures.line, &#39;string&#39;);
+</code></pre>
+<p>The default export includes the documented figure names, including common status symbols such as <code>tick</code>, <code>info</code>, <code>warning</code>, and <code>cross</code>; shapes such as <code>circle</code>, <code>checkboxOn</code>, <code>pointer</code>, and <code>star</code>; arrows and fractions; and box-drawing names such as <code>line</code>, <code>lineBold</code>, <code>lineVertical</code>, and <code>lineCross</code>.</p>
+<h3>Explicit symbol sets</h3>
+<p>Use <code>mainSymbols</code> when output must always use the Unicode figures, regardless of the terminal. Use <code>fallbackSymbols</code> when output must always use the fallback figures.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {mainSymbols, fallbackSymbols} from &#39;figures&#39;;
+
+assert.equal(mainSymbols.tick, &#39;✔&#39;);
+assert.equal(fallbackSymbols.tick, &#39;√&#39;);
+assert.equal(typeof mainSymbols.info, &#39;string&#39;);
+assert.equal(typeof fallbackSymbols.warning, &#39;string&#39;);
+assert.equal(typeof mainSymbols.lineCross, &#39;string&#39;);
+assert.equal(typeof fallbackSymbols.oneSeventh, &#39;string&#39;);
+</code></pre>
+<p>Both collections expose readonly string properties. Do not mutate them.</p>
+<h3>Replacing symbols in text</h3>
+<p><code>replaceSymbols(string, options?)</code> replaces recognized main symbols with the terminal-appropriate versions by default. Pass <code>{useFallback: true}</code> to force fallback symbols even on a Unicode-capable terminal.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import {replaceSymbols} from &#39;figures&#39;;
+
+const input = &#39;✔ check&#39;;
+const replaced = replaceSymbols(input);
+
+assert.ok(replaced === &#39;✔ check&#39; || replaced === &#39;√ check&#39;);
+assert.equal(replaceSymbols(input, {useFallback: true}), &#39;√ check&#39;);
+</code></pre>
+<p>The option type is:</p>
+<pre><code class="language-ts">type Options = {
+	readonly useFallback?: boolean;
+};
+</code></pre>
+<p><code>useFallback: true</code> is the v6.1 addition. Use it when generated output must be stable and use fallback symbols rather than depending on terminal detection.</p>
+<h3>Terminal behavior</h3>
+<p>The default set and <code>replaceSymbols()</code> without <code>useFallback</code> are terminal-sensitive. Unsupported terminals documented by the package include <code>xterm</code>, Linux Terminal (kernel), and <code>cmder</code>; they can display most but not all symbols. Prefer <code>fallbackSymbols</code> or <code>replaceSymbols(text, {useFallback: true})</code> when compatibility matters.</p>
+<p>In v6.0, <code>circleQuestionMark</code> and <code>questionMarkPrefix</code> are always displayed as <code>(?)</code>. Older macOS-specific circled-question-mark behavior should not be expected.</p>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover symbols beyond the documented named properties, terminal detection internals, or behavior of terminals not described by the package research. It also does not cover a CLI, build step, or test-runner integration: the package exposes no such tool surface in the researched material and is used directly from a Node ESM script.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

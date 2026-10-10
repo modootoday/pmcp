@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>yargs-parser 22.x — PMCP</title>
+  <meta name="description" content="Use yargs-parser v22 as a standalone ESM-first argument parser, including its callable parser, detailed results, helper methods, and documented parsing options." />
+  <link rel="canonical" href="https://pmcp.build/skills/yargs-parser/22/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="yargs-parser 22.x — PMCP" />
+  <meta property="og:description" content="Use yargs-parser v22 as a standalone ESM-first argument parser, including its callable parser, detailed results, helper methods, and documented parsing options." />
+  <meta property="og:url" content="https://pmcp.build/skills/yargs-parser/22/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/yargs-parser/">Other majors</a></p>
+    <h1>yargs-parser 22.x</h1><p>Use yargs-parser v22 as a standalone ESM-first argument parser, including its callable parser, detailed results, helper methods, and documented parsing options.</p>
+    <dl><dt>For</dt><dd><code>yargs-parser@22.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 8 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-yargs-parser@22.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/yargs-parser/22/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/yargs-parser/22/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/yargs-parser/22/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-usFTjC+TEowlqrDc4b/JuAqI7uE4Ul2GeoE7v2W53VyxnL5j8r+HMg1AOK4GeblBwFxss/e6sayxCYu/iO99Hw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against yargs-parser@22.0.0 on 2026-09-08. 8 of 8 examples executed.</p>
+<h2>yargs-parser v22</h2>
+<h3>Import and runtime</h3>
+<p><code>yargs-parser</code> v22 is ESM-first. In an ESM script, use its default export:</p>
+<pre><code class="language-ts">import parser from &#39;yargs-parser&#39;
+</code></pre>
+<p>The package metadata declares <code>type: &quot;module&quot;</code> and supports Node <code>^20.19.0 || ^22.12.0 || &gt;=23</code>. The callable default export accepts either a command-line string or an array and returns parsed values, including <code>_</code> for positional arguments.</p>
+<p>Older examples commonly use <code>require(&#39;yargs-parser&#39;)</code>. Do not copy that shape into an ESM-first v22 application without checking the module environment. The documented v22 import is the default ESM import above.</p>
+<h3>Basic parsing</h3>
+<p>Pass a string or an array of argument strings. Long options support <code>--name=value</code> and separated values. Positional arguments are returned in <code>_</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import parser from &#39;yargs-parser&#39;
+
+const argv = parser(&#39;--foo=99 --bar=9987930 positional&#39;, {
+  string: [&#39;bar&#39;]
+})
+
+assert.equal(argv.foo, 99)
+assert.equal(argv.bar, &#39;9987930&#39;)
+assert.deepEqual(argv._, [&#39;positional&#39;])
+</code></pre>
+<p>When the caller already has an argument vector, pass the array directly rather than joining it into a string:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import parser from &#39;yargs-parser&#39;
+
+const argv = parser([&#39;--name&#39;, &#39;Ada&#39;, &#39;file.txt&#39;], {
+  string: [&#39;name&#39;]
+})
+
+assert.equal(argv.name, &#39;Ada&#39;)
+assert.deepEqual(argv._, [&#39;file.txt&#39;])
+</code></pre>
+<h3>Typed and repeated options</h3>
+<p>The documented option groups include <code>string</code>, <code>number</code>, <code>boolean</code>, <code>array</code>, <code>count</code>, <code>default</code>, <code>narg</code>, <code>coerce</code>, <code>config</code>, <code>configObjects</code>, <code>configuration</code>, <code>envPrefix</code>, and <code>normalize</code>.</p>
+<p>Use <code>string</code> when a value must not be converted to a number. Use <code>number</code> when a numeric option should be treated as numeric. <code>array</code> collects repeated values, while <code>count</code> increments each time the flag occurs.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import parser from &#39;yargs-parser&#39;
+
+const argv = parser([
+  &#39;--tag&#39;, &#39;one&#39;,
+  &#39;--tag&#39;, &#39;two&#39;,
+  &#39;--verbose&#39;,
+  &#39;--verbose&#39;,
+  &#39;--port&#39;, &#39;8080&#39;
+], {
+  array: [&#39;tag&#39;],
+  boolean: [&#39;verbose&#39;],
+  count: [&#39;verbose&#39;],
+  number: [&#39;port&#39;]
+})
+
+assert.deepEqual(argv.tag, [&#39;one&#39;, &#39;two&#39;])
+assert.equal(argv.verbose, 2)
+assert.equal(argv.port, 8080)
+</code></pre>
+<p>Defaults and coercion are parser options, not post-processing requirements:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import parser from &#39;yargs-parser&#39;
+
+const argv = parser(&#39;--user ada&#39;, {
+  string: [&#39;user&#39;, &#39;mode&#39;],
+  default: { mode: &#39;safe&#39; },
+  coerce: {
+    user: (value: string) =&gt; value.toUpperCase()
+  }
+})
+
+assert.equal(argv.user, &#39;ADA&#39;)
+assert.equal(argv.mode, &#39;safe&#39;)
+</code></pre>
+<p><code>narg</code> declares how many arguments an option consumes. Keep the declaration consistent with the input shape; it is not equivalent to declaring an option as an array.</p>
+<h3>Detailed parsing</h3>
+<p><code>parser.detailed(args, opts)</code> returns more than the final argument object. Its result contains <code>argv</code>, <code>error</code>, <code>aliases</code>, <code>newAliases</code>, <code>defaulted</code>, and <code>configuration</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import parser from &#39;yargs-parser&#39;
+
+const result = parser.detailed(&#39;--foo=99&#39;, {
+  alias: { foo: [&#39;f&#39;] }
+})
+
+assert.equal(result.error, null)
+assert.equal(result.argv.foo, 99)
+assert.equal(result.argv.f, 99)
+assert.ok(result.aliases)
+assert.ok(result.newAliases)
+assert.ok(result.defaulted)
+assert.ok(result.configuration)
+</code></pre>
+<p>Use the detailed form when the caller needs to distinguish parser metadata, aliases, defaults, configuration, or an error from the final <code>argv</code> object. Use the callable form when only parsed arguments are needed.</p>
+<h3>Helper exports</h3>
+<p>The default parser function exposes these helpers:</p>
+<ul>
+<li><code>parser.camelCase(str)</code></li>
+<li><code>parser.decamelize(str, joinString?)</code></li>
+<li><code>parser.looksLikeNumber(value)</code></li>
+</ul>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import parser from &#39;yargs-parser&#39;
+
+assert.equal(parser.camelCase(&#39;foo-bar&#39;), &#39;fooBar&#39;)
+assert.equal(parser.decamelize(&#39;fooBar&#39;), &#39;foo-bar&#39;)
+assert.equal(parser.looksLikeNumber(&#39;99.3&#39;), true)
+assert.equal(parser.looksLikeNumber(&#39;not-a-number&#39;), false)
+</code></pre>
+<h3>Environment and configuration-related options</h3>
+<p><code>envPrefix</code> reads matching prefixed environment variables. Set the environment in the process before parsing if a standalone script needs to exercise this behavior:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import parser from &#39;yargs-parser&#39;
+
+process.env.DEMO_PORT = &#39;4321&#39;
+const argv = parser(&#39;&#39;, { envPrefix: &#39;DEMO&#39; })
+
+assert.equal(argv.port, 4321)
+</code></pre>
+<p><code>configObjects</code> accepts configuration objects directly and is suitable when configuration is already available in memory:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import parser from &#39;yargs-parser&#39;
+
+const argv = parser(&#39;--cli yes&#39;, {
+  string: [&#39;cli&#39;, &#39;fromConfig&#39;],
+  configObjects: [{ fromConfig: &#39;memory&#39; }]
+})
+
+assert.equal(argv.cli, &#39;yes&#39;)
+assert.equal(argv.fromConfig, &#39;memory&#39;)
+</code></pre>
+<p><code>config</code> loads a configuration-file path, and <code>normalize</code> uses <code>path.normalize()</code>. These options depend on Node-specific environment or filesystem behavior and are not demonstrated in the standalone examples here.</p>
+<h3><code>--</code> values and configuration</h3>
+<p>The parser can optionally retain values after <code>--</code>, depending on the <code>configuration</code> options. Treat this as an explicit parser configuration rather than assuming every invocation exposes a <code>--</code> property. The returned object may contain the optional <code>--</code> values in addition to <code>_</code> and named options.</p>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover yargs itself, command registration, <code>describe</code>/<code>it</code>/<code>expect</code>, CLI runner behavior, browser or Deno entrypoints, the exact filesystem format consumed by <code>config</code>, or platform-specific results of <code>normalize</code>. It also does not cover options or behaviors not supported by the supplied v22 research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Terminal workspace — pmcp</title>
+  <meta name="description" content="View a native main runtime and its workers with read-only observation and explicit control." />
+  <link rel="canonical" href="https://pmcp.build/terminal-workspace/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Terminal workspace — pmcp" />
+  <meta property="og:description" content="View a native main runtime and its workers with read-only observation and explicit control." />
+  <meta property="og:url" content="https://pmcp.build/terminal-workspace/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/" aria-current="page">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Terminal workspace</p><h1>Terminal workspace</h1>
+<p>Use <code>pmcp tui</code> to view an existing main runtime and its workers in one terminal.
+The main conversation stays in its native interface. PMCP adds a worker dock,
+coordination panel and explicit control switching. Provider login, folder trust
+and tool approvals stay in their native screens.</p>
+<p>This feature requires PMCP 0.13.0 or later. The host requires Linux, tmux,
+util-linux flock, Node.js 22 or later and a working
+user systemd manager. The PMCP CLI supports Node or Bun; pane helpers use Node.
+The presentation gets its own 512 MiB, 128-task, one-CPU scope. Native sessions
+retain their existing group budgets and execution profile.</p>
+<h2>Open a workspace</h2>
+<p>First <a href="/terminal-harness/">create a harness group and its sessions</a>. Set GROUP_FILE
+to that group&#39;s private state path, then check prerequisites and create a view:</p>
+<pre><code>pmcp --version
+pmcp tui doctor
+pmcp tui create --group-file &quot;$GROUP_FILE&quot; --columns 160 --rows 48</code></pre>
+<p>Set VIEW_FILE to viewFile from the JSON receipt:</p>
+<pre><code>pmcp tui inspect --view &quot;$VIEW_FILE&quot;
+pmcp tui open --view &quot;$VIEW_FILE&quot;</code></pre>
+<p>Only open requires an interactive terminal. Create can take its dimensions from
+the current terminal; give both dimensions explicitly when calling from a script.
+At 120 columns by 32 rows or larger, main fills the left, workers appear on the
+right, and coordination occupies four bottom rows. Smaller terminals keep a
+full-width main and a separate management window. The minimum is 40 by 12.
+Views refer to an existing owned group and do not start a provider.</p>
+<h2>Observe and control</h2>
+<p>Press Ctrl-g, release it, then press a key:</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Action</th><th>CLI operation</th></tr></thead><tbody><tr><td>m</td><td>Return to main and release worker control</td><td>main</td></tr>
+<tr><td>w or 1–4</td><td>Observe a worker</td><td>observe --index 1</td></tr>
+<tr><td>c</td><td>Request control of the current native target</td><td>control</td></tr>
+<tr><td>r</td><td>Release control</td><td>release</td></tr>
+<tr><td>h</td><td>Read owned native history</td><td>history</td></tr>
+<tr><td>b</td><td>Show configured inbox metadata</td><td>mailbox</td></tr>
+<tr><td>g</td><td>Open compact management window</td><td>management</td></tr>
+<tr><td>d</td><td>Detach the view, preserving runtimes</td><td>detach</td></tr>
+<tr><td>!</td><td>Dismiss the last visible error</td><td>dismiss</td></tr>
+<tr><td>?</td><td>Show key help</td><td>Help in the status line</td></tr></tbody></table></div>
+<p>CLI operations use pmcp tui OPERATION --view &quot;$VIEW_FILE&quot;. Worker indices follow
+the dock; CLI observe supports all available indices. Press Ctrl-g twice to
+forward Ctrl-g to the native interface. Native Ctrl-b remains available when
+you hold control. A surrounding tmux may consume its own prefix first.</p>
+<p>The default is read only. Control progresses through REQUESTING CONTROL and
+CONNECTING WRITER to CONTROL READY. A lease alone does not enable typing: PMCP
+checks that the writable native client is attached to the selected pane&#39;s TTY.
+Input stays blocked during acquisition and release. A control lease identifies
+the writer, not which native prompt or approval menu is active.</p>
+<p>Another writer causes a visible error with a next step. Failures remain in the
+status line, coordination panel and inspect receipt until explicitly dismissed.
+Resize does not clear them. CONTROL UNKNOWN blocks input and requires inspection.
+PMCP never replays uncertain input. An input receipt or mailbox ACK does not
+establish model completion. Provider state remains unknown.</p>
+<h2>History and mailbox</h2>
+<p>History reads only the owned runtime pane, bounded to 2000 lines and 64 KiB.
+It does not include shell history from before the runtime. The history panel
+supports tmux copy mode; returning to main preserves its native draft. Closing
+the view removes its private history cache.</p>
+<p>To observe inbox metadata, supply an explicitly chosen mailbox observer actor:</p>
+<pre><code>pmcp tui create --group-file &quot;$GROUP_FILE&quot; --columns 160 --rows 48 --config ./pmcp.toml --actor-file &quot;$OBSERVER_ACTOR_FILE&quot;</code></pre>
+<p>The actor must have no live attachment. PMCP uses the existing mailbox service
+and refuses a conflicting attachment. The panel shows message, thread and reply
+IDs. It never reads bodies, marks messages read, acknowledges them, submits input
+or wakes a runtime. Use the <a href="/mailbox/">mailbox CLI</a> for those explicit actions.
+The view stores the private credential file reference, not its contents.</p>
+<h2>Detach, close and stop</h2>
+<p>Detach preserves processes and drafts. Reopening returns to read-only main
+observation after releasing this view&#39;s control. A lost outer terminal also
+requests release; a crash or unreachable manager may prevent confirmation.
+Inspect before retrying, without replaying input:</p>
+<pre><code>pmcp harness recovery inspect --group-file &quot;$GROUP_FILE&quot;
+pmcp harness attach inspect --group-file &quot;$GROUP_FILE&quot; --session &quot;$SESSION&quot;</code></pre>
+<p>Close ends the presentation and preserves all native runtimes:</p>
+<pre><code>pmcp tui close --view &quot;$VIEW_FILE&quot;</code></pre>
+<p>Stop names the exact current native target and requires confirmation:</p>
+<pre><code>pmcp tui stop --view &quot;$VIEW_FILE&quot; --confirm-session &quot;$SESSION&quot;</code></pre>
+<p>There is no stop keyboard shortcut. Group replacement invalidates a view&#39;s
+generation: create a fresh view instead of transferring old authority. These
+controls are CLI-only and cannot be invoked through the MCP server.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

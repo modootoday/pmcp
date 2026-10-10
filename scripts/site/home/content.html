@@ -1,0 +1,245 @@
+<section id="intro" class="hero section">
+  <div class="hero-copy">
+    <h1 class="control-copy">Your runtimes.<br />One working system.</h1>
+
+    <p>
+      Find skills, share configuration, and coordinate native AI runtimes. Keep
+      the CLI you trust. Give it a shared workspace.
+    </p>
+    <div class="actions">
+      <a class="button primary" href="/guide/">
+        Start with your runtime
+        <svg class="hero-action-mark" viewBox="0 0 10 10" aria-hidden="true">
+          <path d="M2 8 8 2M2 2h6v6" /></svg></a
+      ><a class="text-link" href="#journey"> See how it works ↓ </a>
+    </div>
+    <p class="hero-footnote">
+      Claude · Codex · Gemini · Grok Build · Antigravity
+    </p>
+  </div>
+  {{hero}}
+</section>
+<section id="journey" class="section journey">
+  <div class="section-intro">
+    <h2>One project.<br />A clearer way to work.</h2>
+    <p>
+      Start with skill discovery. Add a shared configuration. Coordinate
+      sessions when you need them.
+    </p>
+  </div>
+  <div class="journey-steps">
+    <article>
+      <span class="step">1</span>
+      <h3>Discover</h3>
+      <p>
+        Find the skill that fits your next task, then read its instructions.
+      </p>
+      <code>skill_find → skill_read</code>
+    </article>
+    <article>
+      <span class="step">2</span>
+      <h3>Configure</h3>
+      <p>
+        Keep common MCP settings in pmcp.toml and project them to your tools.
+      </p>
+      <code>pmcp project</code>
+    </article>
+    <article>
+      <span class="step">3</span>
+      <h3>Coordinate</h3>
+      <p>
+        Use optional mailbox and owned sessions without replacing native
+        approvals.
+      </p>
+      <code>mailbox + harness + tui</code>
+    </article>
+  </div>
+</section>
+<section id="workspace" class="section workspace">
+  <div class="section-intro">
+    <h2>Keep the runtime.<br />Connect the work.</h2>
+    <p>
+      A main session leads. Workers keep their native tools. PMCP supplies the
+      shared layer underneath.
+    </p>
+  </div>
+  <div class="terminal-preview">
+    <div class="terminal-title">
+      <span>pmcp tui / project workspace</span><span>Illustrative layout</span>
+    </div>
+    <div class="terminal-grid">
+      <div class="main-terminal">
+        <div class="terminal-label">
+          MAIN · <span class="selected-runtime">Codex</span> · native terminal
+        </div>
+        <p class="prompt">› Review the release plan with the workers.</p>
+        <p>
+          I’ll ask a worker to inspect configuration, then compare the results.
+        </p>
+        <p class="muted">
+          The provider conversation remains in its own runtime.
+        </p>
+        <div class="terminal-cursor">› <span></span></div>
+      </div>
+      <div class="worker-terminal">
+        <div class="terminal-label">WORKERS</div>
+        <p>config-review<br /><small>Native session · example</small></p>
+        <p>test-review<br /><small>Native session · example</small></p>
+        <p class="muted">Inspect before sending input.</p>
+      </div>
+      <div class="mailbox-terminal">
+        <span>MAILBOX / optional</span>
+        <p>config-review → main &nbsp; “Configuration reviewed.”</p>
+      </div>
+    </div>
+  </div>
+  <div class="workspace-bottom">
+    <p>
+      OAuth, folder trust, and tool approvals stay with each native runtime.
+    </p>
+    <a class="text-link" href="/terminal-harness/">
+      Explore the optional session layer
+    </a>
+  </div>
+</section>
+<section id="capabilities" class="section capabilities">
+  <div class="section-intro">
+    <h2>A small core.<br />Room to grow.</h2>
+    <p>
+      Use what your project needs. Skill discovery works without an embedding
+      model or a session manager.
+    </p>
+  </div>
+  <div class="feature-layout">
+    <div class="feature-list" aria-label="Feature selection">
+      {{featureButtons}}
+    </div>
+    <article class="feature-detail" aria-live="polite">
+      <span id="feature-scope">{{featureScope}}</span>
+      <h3 id="feature-title">{{featureTitle}}</h3>
+      <p id="feature-description">{{featureDescription}}</p>
+      <pre><code id="feature-code">{{featureCode}}</code></pre>
+      <a id="feature-link" href="/guide/">Read the guide</a>
+    </article>
+  </div>
+</section>
+<section data-examples id="catalog-preview" class="section catalog-preview">
+  <div class="catalog-heading">
+    <h2>The right skill.<br />At the right moment.</h2>
+    <p>
+      Search by the task you want to finish.<br />Inspect the instructions
+      before you use them.
+    </p>
+  </div>
+  <label class="search-box"
+    ><span>Find a skill</span
+    ><input
+      id="home-search"
+      data-example-search
+      type="search"
+      placeholder="Try “dependencies” or “catalog”"
+    /><span class="search-hint">From the published package</span></label
+  >
+  <div
+    id="home-results"
+    data-example-results
+    class="results"
+    aria-live="polite"
+  >
+    {{exampleResults}}
+  </div>
+  <p data-example-empty hidden>
+    No example matches. Clear the search to see the shipped skill.
+  </p>
+  <p>
+    Package-specific skills are free to read, download and use without login.
+  </p>
+  <a class="text-link" href="/skills/"> Browse free package skills </a>
+</section>
+<section id="start-preview" class="section start-preview">
+  <div class="section-intro">
+    <h2>From install<br />to shared workspace.</h2>
+    <p>
+      Choose a runtime. Add PMCP to your project. Review generated changes
+      before applying them.
+    </p>
+    <small>Node.js 22+ or Bun 1.3+ for the core package.</small>
+  </div>
+  <div class="install-preview">
+    <div class="install-tabs" aria-label="Installation steps">
+      <button data-install="0" aria-pressed="true">1. Install</button
+      ><button data-install="1" aria-pressed="false">2. Configure</button
+      ><button data-install="2" aria-pressed="false">3. Check</button>
+    </div>
+    <div class="code-header">
+      <span id="install-file">Terminal / project root</span
+      ><button id="copy-install">Copy</button>
+    </div>
+    <pre><code id="install-code">npm install --save-dev @modootoday/pmcp</code></pre>
+    <p id="install-note">
+      Node.js 22+ or Bun 1.3+. Your runtime keeps its existing authentication.
+    </p>
+    <a class="text-link" href="/guide/"> Open the complete setup guide</a
+    ><span id="copy-status" aria-live="polite"></span>
+  </div>
+</section>
+<section id="trust" class="section trust">
+  <div class="section-intro">
+    <h2>Your tools.<br />Your boundaries.</h2>
+    <p>
+      Shared infrastructure should make the working model easier to understand.
+    </p>
+  </div>
+  <div class="faq">
+    <details open>
+      <summary>Does PMCP replace my AI runtime?</summary>
+      <p>
+        No. Your native runtime makes model requests and handles its own
+        authentication. PMCP provides discovery, shared configuration, and
+        optional coordination tools.
+      </p>
+    </details>
+    <details>
+      <summary>Do I need mailbox, tmux, or embeddings?</summary>
+      <p>
+        Skill discovery and shared configuration do not require them. Mailbox
+        and semantic search are optional. The optional harness and TUI need
+        Linux, tmux, util-linux flock, and the documented Node and user-systemd
+        setup.
+      </p>
+    </details>
+    <details>
+      <summary>Can MCP clients run the session manager?</summary>
+      <p>
+        Session execution belongs to the optional CLI host. It is separate from
+        the MCP server execution boundary.
+      </p>
+    </details>
+    <details>
+      <summary>What is the license?</summary>
+      <p>
+        PMCP is source available under Elastic License 2.0. Read the license
+        before redistributing or offering a hosted service.
+      </p>
+    </details>
+  </div>
+</section>
+<section id="resources" class="section resources">
+  <h2>Make it fit<br />your project.</h2>
+  <div class="resource-links">
+    <a href="/guide/">
+      <strong>Start here</strong
+      ><span>Install and connect your runtime</span></a
+    ><a href="/skills/">
+      <strong>Explore skills</strong
+      ><span>Find and inspect task instructions</span></a
+    ><a href="https://github.com/modootoday/pmcp" target="_blank" rel="noopener"
+      ><strong>Read the source</strong
+      ><span>Code, releases, and license</span></a
+    >
+  </div>
+  <div class="closing">
+    <p>Native tools.<br />Shared possibilities.</p>
+    <a class="button primary" href="/guide/"> Build your shared workspace </a>
+  </div>
+</section>

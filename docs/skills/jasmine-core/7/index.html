@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>jasmine-core 7.x — PMCP</title>
+  <meta name="description" content="Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner." />
+  <link rel="canonical" href="https://pmcp.build/skills/jasmine-core/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="jasmine-core 7.x — PMCP" />
+  <meta property="og:description" content="Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner." />
+  <meta property="og:url" content="https://pmcp.build/skills/jasmine-core/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/jasmine-core/">Other majors</a></p>
+    <h1>jasmine-core 7.x</h1><p>Use jasmine-core ^7.0.0 directly from Node: install its globals into a chosen object, inspect the core version, reset shared state, and define Jasmine specs, expectations, spies, and not-applicable specs. It is not the Jasmine CLI or test runner.</p>
+    <dl><dt>For</dt><dd><code>jasmine-core@7.0.2</code></dd><dt>Verified</dt><dd>2026-09-08, 5 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-jasmine-core@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/jasmine-core/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/jasmine-core/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/jasmine-core/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-RJqRnou1rEwCTZe/O8AIuGO29Mz2meBNYAAMJrECbEHdux/E1KAVl3B3nHMZdNGd0/p8hUwJw/HE4GS6m16sYw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against jasmine-core@7.0.2 on 2026-09-08. 5 of 5 examples executed.</p>
+<h2>jasmine-core 7.x</h2>
+<h3>What this package is</h3>
+<p><code>jasmine-core</code> is the Jasmine core/assets package. In Node, importing it returns an automatically-created core instance. The same instance is returned on every import. Node does not install globals automatically.</p>
+<p>Node test discovery, test-file loading, configuration, and terminal execution belong to the separate <code>jasmine</code> package. Browser execution belongs to the browser tooling. This package alone is not a CLI runner.</p>
+<h3>Import and booting in 7.x</h3>
+<pre><code class="language-js">const jasmineCore = require(&#39;jasmine-core&#39;);
+</code></pre>
+<p>The module exposes the documented module members and the Jasmine globals. It does <strong>not</strong> expose <code>boot</code>, <code>noGlobals</code>, or <code>jasmineRequire</code>.</p>
+<p>Install globals explicitly when a script needs the global Jasmine API:</p>
+<pre><code class="language-js">jasmineCore.installGlobals();
+</code></pre>
+<p><code>installGlobals(dest)</code> copies the Jasmine globals to <code>dest</code>; if <code>dest</code> is omitted, it uses <code>globalThis</code>. The exported globals include <code>describe</code>, <code>it</code>, <code>expect</code>, <code>expectAsync</code>, lifecycle hooks, spy helpers, pending/focused/disabled spec helpers, spec-property helpers, <code>throwUnless</code>, and <code>notApplicable</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import jasmineCore from &quot;jasmine-core&quot;;
+
+const target: Record&lt;string, unknown&gt; = {};
+jasmineCore.installGlobals(target);
+
+for (const name of [&quot;describe&quot;, &quot;it&quot;, &quot;expect&quot;, &quot;spyOn&quot;, &quot;notApplicable&quot;]) {
+  assert.equal(typeof target[name], &quot;function&quot;, `${name} should be installed`);
+}
+assert.equal(typeof (globalThis as any).describe, &quot;undefined&quot;);
+</code></pre>
+<h3>State and version</h3>
+<p><code>version()</code> returns the jasmine-core version. <code>reset()</code> removes specs, suites, and reporters and restores default configuration. Use <code>reset()</code> between independent runs in the same process because imports share the automatically-created core instance.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import jasmineCore from &quot;jasmine-core&quot;;
+
+assert.equal(typeof jasmineCore.version(), &quot;string&quot;);
+assert.match(jasmineCore.version(), /^7\./);
+assert.equal(typeof jasmineCore.reset, &quot;function&quot;);
+
+jasmineCore.reset();
+</code></pre>
+<h3>Defining specs and expectations</h3>
+<p>After installing globals into a destination, use the installed functions from that destination rather than assuming Node globals exist. A spec has the form <code>describe(description, specDefinitions)</code>, with <code>it(description, testFunction, timeout)</code> for examples and <code>expect(actual)</code> for expectations.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import jasmineCore from &quot;jasmine-core&quot;;
+
+const j: Record&lt;string, any&gt; = {};
+jasmineCore.installGlobals(j);
+
+assert.doesNotThrow(() =&gt; {
+  j.describe(&quot;a suite&quot;, () =&gt; {
+    j.it(&quot;passes&quot;, () =&gt; {
+      j.expect(true).toBe(true);
+    });
+  });
+});
+</code></pre>
+<p>Defining a suite is not the same as executing it. Use the separate Jasmine runner/tooling when you need discovery, loading, configuration, reporters, and terminal execution.</p>
+<h3>Spies</h3>
+<p>The documented spy helpers are:</p>
+<ul>
+<li><code>spyOn(obj, methodName)</code>, returning a <code>Spy</code>.</li>
+<li><code>spyOnAllFunctions(obj, includeNonEnumerable)</code>, returning the spied object.</li>
+<li><code>spyOnProperty(obj, propertyName, accessType)</code>, returning a <code>Spy</code>.</li>
+</ul>
+<p>They are intended for use in Jasmine specs or another correctly initialized Jasmine environment.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import jasmineCore from &quot;jasmine-core&quot;;
+
+const j: Record&lt;string, any&gt; = {};
+jasmineCore.installGlobals(j);
+
+assert.equal(typeof j.spyOn, &quot;function&quot;);
+assert.equal(typeof j.spyOnAllFunctions, &quot;function&quot;);
+assert.equal(typeof j.spyOnProperty, &quot;function&quot;);
+
+const object = { greet() { return &quot;hello&quot;; } };
+assert.doesNotThrow(() =&gt; {
+  j.describe(&quot;spies&quot;, () =&gt; {
+    j.it(&quot;can define a method spy&quot;, () =&gt; {
+      const spy = j.spyOn(object, &quot;greet&quot;);
+      assert.equal(typeof spy, &quot;object&quot;);
+    });
+  });
+});
+</code></pre>
+<h3>Pending versus not applicable</h3>
+<p>Jasmine 7 adds <code>notApplicable(reason)</code>. It marks a spec as not applicable, which is distinct from <code>pending</code>. Reporters must handle the <code>notApplicable</code> status; results can include <code>notApplicableReason</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import jasmineCore from &quot;jasmine-core&quot;;
+
+const j: Record&lt;string, any&gt; = {};
+jasmineCore.installGlobals(j);
+assert.equal(typeof j.notApplicable, &quot;function&quot;);
+assert.equal(typeof j.pending, &quot;function&quot;);
+
+assert.doesNotThrow(() =&gt; {
+  j.describe(&quot;environment-specific behavior&quot;, () =&gt; {
+    j.it(&quot;is not applicable here&quot;, () =&gt; {
+      j.notApplicable(&quot;This environment does not provide the required feature&quot;);
+    });
+  });
+});
+</code></pre>
+<h3>6.x shapes that are wrong in 7.x</h3>
+<p>Do not carry these older boot patterns forward:</p>
+<pre><code class="language-js">// 6.x — not a 7.x Node API
+const jasmineCore = require(&#39;jasmine-core&#39;);
+jasmineCore.boot();
+</code></pre>
+<p>Use:</p>
+<pre><code class="language-js">const jasmineCore = require(&#39;jasmine-core&#39;);
+jasmineCore.installGlobals();
+</code></pre>
+<p>Likewise, <code>noGlobals()</code> was removed. In 7.x, simply importing the module is the no-automatic-globals behavior; call <code>installGlobals()</code> only when globals are wanted. To discard state, use <code>installGlobals()</code> as needed and then <code>reset()</code>; do not use the old <code>boot(false)</code> shape.</p>
+<p>The 7.0 module redesign also removed most private APIs, stopped exposing <code>jasmineRequire</code>, and blocks monkey-patching. Do not depend on removed <code>HtmlReporter</code>, <code>HtmlSpecFilter</code>, or <code>jsApiReporter</code> surfaces.</p>
+<h3>Configuration and integration migration notes</h3>
+<p>The documented 7.x migration uses a runner&#39;s <code>configureDefaultReporter</code> API rather than the old configuration shape:</p>
+<pre><code class="language-js">const runner = new Jasmine();
+runner.configureDefaultReporter({
+  color: false,
+  alwaysListPendingSpecs: false
+});
+</code></pre>
+<p><code>jsLoader: &quot;require&quot;</code> is no longer supported; remove it or provide a custom loader. These runner configuration APIs are not APIs of the <code>jasmine-core</code> module itself.</p>
+<h3>Does not cover</h3>
+<p>This skill does not cover the separate <code>jasmine</code> CLI/runner, browser runner boot files, test discovery or file loading, reporter implementation, complete matcher/async-matcher behavior, the full environment API, custom loaders, or migration details not documented in the supplied research. It also does not cover Zone.js or Karma integration; the supplied 7.0 notes state that Zone.js cannot be used with 7.x and current <code>karma-jasmine</code> is incompatible.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

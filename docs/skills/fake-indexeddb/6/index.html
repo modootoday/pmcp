@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>fake-indexeddb 6.x — PMCP</title>
+  <meta name="description" content="Use fake-indexeddb ^6.0.0 as a pure-JavaScript, in-memory IndexedDB implementation in Node.js scripts and test environments." />
+  <link rel="canonical" href="https://pmcp.build/skills/fake-indexeddb/6/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="fake-indexeddb 6.x — PMCP" />
+  <meta property="og:description" content="Use fake-indexeddb ^6.0.0 as a pure-JavaScript, in-memory IndexedDB implementation in Node.js scripts and test environments." />
+  <meta property="og:url" content="https://pmcp.build/skills/fake-indexeddb/6/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/fake-indexeddb/">Other majors</a></p>
+    <h1>fake-indexeddb 6.x</h1><p>Use fake-indexeddb ^6.0.0 as a pure-JavaScript, in-memory IndexedDB implementation in Node.js scripts and test environments.</p>
+    <dl><dt>For</dt><dd><code>fake-indexeddb@6.2.5</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-fake-indexeddb@6.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/fake-indexeddb/6/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/fake-indexeddb/6/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/fake-indexeddb/6/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-b3EzX5JDiGgw4nhpw5QNnvw9OK69VnUvkXoNXvO908S4YSbU28SdEL+QSFIMXnsxaTe4GreTkSohLf2FLrvmnw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against fake-indexeddb@6.2.5 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>fake-indexeddb ^6.0.0</h2>
+<h3>What this package provides</h3>
+<p><code>fake-indexeddb</code> is a pure-JavaScript, in-memory implementation of IndexedDB. Data is not persisted to disk. Version 6 requires Node.js <code>&gt;=18</code> and a native or polyfilled <code>structuredClone</code>.</p>
+<p>The package is useful when code expects browser IndexedDB but is running under Node.js. It can either install its implementation on the global object or provide IndexedDB objects for explicit use.</p>
+<h3>Global setup</h3>
+<p>Import <code>fake-indexeddb/auto</code> before code that uses the global IndexedDB names. This installs the fake <code>indexedDB</code> implementation and related globals.</p>
+<pre><code class="language-ts">import &quot;fake-indexeddb/auto&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const request = indexedDB.open(&quot;global-example&quot;, 1);
+
+await new Promise&lt;void&gt;((resolve, reject) =&gt; {
+  request.onupgradeneeded = () =&gt; {
+    const db = request.result;
+    const store = db.createObjectStore(&quot;books&quot;, { keyPath: &quot;isbn&quot; });
+    store.createIndex(&quot;by_title&quot;, &quot;title&quot;, { unique: true });
+    store.put({ isbn: 123456, title: &quot;Quarry Memories&quot;, author: &quot;Fred&quot; });
+  };
+
+  request.onsuccess = () =&gt; {
+    const db = request.result;
+    const read = db.transaction(&quot;books&quot;).objectStore(&quot;books&quot;).get(123456);
+    read.onsuccess = () =&gt; {
+      assert.deepEqual(read.result, {
+        isbn: 123456,
+        title: &quot;Quarry Memories&quot;,
+        author: &quot;Fred&quot;,
+      });
+      db.close();
+      resolve();
+    };
+    read.onerror = () =&gt; reject(read.error);
+  };
+  request.onerror = () =&gt; reject(request.error);
+});
+</code></pre>
+<p><code>auto</code> is the global-installing entry point. Import it before wrappers such as Dexie or other code that reads the global IndexedDB implementation.</p>
+<h3>Explicit imports</h3>
+<p>For a plain script that does not want global setup, import the objects from the package root. The root exports <code>indexedDB</code>, <code>IDBFactory</code>, <code>IDBKeyRange</code>, <code>IDBCursor</code>, <code>IDBCursorWithValue</code>, <code>IDBDatabase</code>, <code>IDBIndex</code>, <code>IDBObjectStore</code>, <code>IDBOpenDBRequest</code>, <code>IDBRequest</code>, <code>IDBTransaction</code>, and <code>IDBVersionChangeEvent</code>. The default export is the fake factory as well.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { indexedDB, IDBKeyRange } from &quot;fake-indexeddb&quot;;
+
+const request = indexedDB.open(&quot;explicit-example&quot;, 1);
+
+await new Promise&lt;void&gt;((resolve, reject) =&gt; {
+  request.onupgradeneeded = () =&gt; {
+    request.result.createObjectStore(&quot;numbers&quot;);
+  };
+
+  request.onsuccess = () =&gt; {
+    const db = request.result;
+    const store = db.transaction(&quot;numbers&quot;, &quot;readwrite&quot;).objectStore(&quot;numbers&quot;);
+    store.put(&quot;low&quot;, 10);
+    store.put(&quot;high&quot;, 20);
+
+    const readTransaction = db.transaction(&quot;numbers&quot;);
+    const cursorRequest = readTransaction
+      .objectStore(&quot;numbers&quot;)
+      .openCursor(IDBKeyRange.lowerBound(15));
+
+    cursorRequest.onsuccess = () =&gt; {
+      assert.equal(cursorRequest.result.key, 20);
+      db.close();
+      resolve();
+    };
+    cursorRequest.onerror = () =&gt; reject(cursorRequest.error);
+  };
+  request.onerror = () =&gt; reject(request.error);
+});
+</code></pre>
+<p>Use <code>IDBKeyRange</code> from this package with the fake implementation. Do not assume the browser&#39;s global <code>IDBKeyRange</code> is present when using explicit imports.</p>
+<h3>Resetting in-memory state</h3>
+<p>The database is in memory. To start with a fresh factory and no previous database state, construct a new <code>IDBFactory</code> and replace the global factory when using the <code>auto</code> surface.</p>
+<pre><code class="language-ts">import &quot;fake-indexeddb/auto&quot;;
+import assert from &quot;node:assert/strict&quot;;
+import { IDBFactory } from &quot;fake-indexeddb&quot;;
+
+const first = indexedDB.open(&quot;reset-example&quot;, 1);
+await new Promise&lt;void&gt;((resolve, reject) =&gt; {
+  first.onupgradeneeded = () =&gt; {
+    first.result.createObjectStore(&quot;items&quot;);
+  };
+  first.onsuccess = () =&gt; {
+    first.result.close();
+    resolve();
+  };
+  first.onerror = () =&gt; reject(first.error);
+});
+
+globalThis.indexedDB = new IDBFactory();
+
+const second = indexedDB.open(&quot;reset-example&quot;, 1);
+await new Promise&lt;void&gt;((resolve, reject) =&gt; {
+  second.onupgradeneeded = () =&gt; {
+    assert.equal(second.result.objectStoreNames.contains(&quot;items&quot;), false);
+    second.result.close();
+    resolve();
+  };
+  second.onerror = () =&gt; reject(second.error);
+});
+</code></pre>
+<p>Resetting replaces the factory; it does not persist or reload data from disk.</p>
+<h3>Common version-6 mistakes</h3>
+<ul>
+<li><strong>Using only <code>import &quot;fake-indexeddb/auto&quot;</code> when explicit objects are needed:</strong> <code>auto</code> installs globals. For dependency injection or a script that avoids globals, import <code>indexedDB</code> and the relevant classes from <code>fake-indexeddb</code>.</li>
+<li><strong>Using the old root CommonJS shape:</strong> CommonJS is supported, but older examples may use a v4-era default shape. The documented current destructuring form is <code>const { indexedDB, IDBKeyRange } = require(&quot;fake-indexeddb&quot;)</code>; older code may instead need <code>require(&quot;fake-indexeddb&quot;).default</code>.</li>
+<li><strong>Expecting persistence:</strong> this implementation is in memory only. Create a new <code>IDBFactory</code> when a fresh state is required.</li>
+<li><strong>Expecting the v5 <code>structuredClone</code> polyfill:</strong> v5 removed that polyfill, and v6 requires native or polyfilled <code>structuredClone</code> in environments such as jsdom. A supported polyfill setup is <code>import &quot;core-js/stable/structured-clone&quot;</code> before <code>import &quot;fake-indexeddb/auto&quot;</code>.</li>
+<li><strong>Assuming old error behavior:</strong> v6 uses <code>DOMException</code> rather than ordinary errors for IndexedDB errors.</li>
+<li><strong>Running under an unsupported Node version:</strong> v6 declares Node.js <code>&gt;=18</code>.</li>
+<li><strong>Putting runner globals in a standalone script:</strong> <code>describe</code>, <code>it</code>, and <code>expect</code> are not provided by this package. Direct scripts should use IndexedDB&#39;s request and transaction events, as in the examples.</li>
+</ul>
+<h3>Other entry points</h3>
+<p>The package publishes <code>fake-indexeddb/auto</code> and individual <code>fake-indexeddb/lib/*</code> modules, including modules for cursors, factories, key ranges, object stores, and transactions. Both <code>import</code> and <code>require</code> conditions are provided.</p>
+<p>The package also exposes the package-specific <code>forceCloseDatabase</code> helper for forcibly closing a database. Its behavior and usage are not demonstrated by the supplied research, so use it only where the package&#39;s own API documentation or source has been consulted.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover the complete IndexedDB API semantics, every individual exported class or <code>lib/*</code> subpath, the detailed behavior of <code>forceCloseDatabase</code>, jsdom configuration beyond the <code>structuredClone</code> requirement, Jest configuration beyond loading <code>fake-indexeddb/auto</code>, or integration-specific setup for wrappers such as Dexie. It also does not cover persistence, since this package does not provide it.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

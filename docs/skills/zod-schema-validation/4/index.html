@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>zod schema validation 4.x — PMCP</title>
+  <meta name="description" content="Parse at the boundary, read the failure, and let the schema be the type." />
+  <link rel="canonical" href="https://pmcp.build/skills/zod-schema-validation/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="zod schema validation 4.x — PMCP" />
+  <meta property="og:description" content="Parse at the boundary, read the failure, and let the schema be the type." />
+  <meta property="og:url" content="https://pmcp.build/skills/zod-schema-validation/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/zod-schema-validation/">Other majors</a></p>
+    <h1>zod schema validation 4.x</h1><p>Parse at the boundary, read the failure, and let the schema be the type.</p>
+    <dl><dt>For</dt><dd><code>zod@4.5.4</code></dd><dt>Verified</dt><dd>2026-09-07, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-zod-schema-validation@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/zod-schema-validation/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/zod-schema-validation/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/zod-schema-validation/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-XicOImJVjHWBm97H8k/zZTlAmiFY8WeO1CJlIvWHWdmeQPM7vEMLe98MUwSkoP4pU5N6yi1EjLzuWIS60LeZYQ==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against zod@4.5.4 on 2026-09-07. 7 of 7 examples executed.</p>
+<h2>zod</h2>
+<p>Parse at the boundary, then trust the value. The point of a schema is that
+everything past it is typed because it was checked, not because it was cast.</p>
+<h3>When to reach for it</h3>
+<p>Reach for this when data arrives from outside the program and its shape is a
+claim rather than a fact: a request body, a config file, an environment
+variable, a third-party response. Do not reach for it to re-check a value your
+own code just produced.</p>
+<h3>Parse or branch, not both</h3>
+<p><code>parse</code> throws and <code>safeParse</code> returns a result. Pick by whether the caller has
+something to do about a failure. A route that must answer 400 branches; a boot
+path that cannot continue throws.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const Config = z.object({ port: z.number(), host: z.string() });
+
+// safeParse when the caller answers for the failure.
+const result = Config.safeParse({ port: &quot;8080&quot;, host: &quot;localhost&quot; });
+assert.equal(result.success, false);
+
+// parse when there is no answer but to stop.
+assert.deepEqual(Config.parse({ port: 8080, host: &quot;localhost&quot; }), {
+  port: 8080,
+  host: &quot;localhost&quot;,
+});
+</code></pre>
+<h3>Unknown keys are dropped, not rejected</h3>
+<p>An object schema ignores keys it does not declare and returns only what it
+declared. This is the behaviour most often assumed wrong in both directions:
+it does not fail, and it does not pass the extra key through.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const User = z.object({ id: z.string() });
+const parsed = User.parse({ id: &quot;u1&quot;, role: &quot;admin&quot; });
+
+// The undeclared key is gone. Reading parsed.role would be undefined, so an
+// authorization check written against it silently never fires.
+assert.deepEqual(parsed, { id: &quot;u1&quot; });
+assert.equal(&quot;role&quot; in parsed, false);
+</code></pre>
+<p>If the extra key should be an error, say so with <code>.strict()</code>; if it should
+survive, say so with <code>.passthrough()</code>. Both are explicit, and the default is
+neither.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const Strict = z.object({ id: z.string() }).strict();
+assert.equal(Strict.safeParse({ id: &quot;u1&quot;, extra: 1 }).success, false);
+
+const Open = z.object({ id: z.string() }).passthrough();
+assert.deepEqual(Open.parse({ id: &quot;u1&quot;, extra: 1 }), { id: &quot;u1&quot;, extra: 1 });
+</code></pre>
+<h3>Read the failure, do not stringify it</h3>
+<p>A <code>ZodError</code> carries <code>issues</code>, and each issue names the path that failed. That
+path is what a person needs; the stack trace is not.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const Order = z.object({ item: z.object({ qty: z.number() }) });
+const outcome = Order.safeParse({ item: { qty: &quot;two&quot; } });
+
+assert.equal(outcome.success, false);
+if (!outcome.success) {
+  const [issue] = outcome.error.issues;
+  assert.deepEqual(issue.path, [&quot;item&quot;, &quot;qty&quot;]);
+  assert.equal(issue.code, &quot;invalid_type&quot;);
+  // `expected` is what the schema wanted, which is what the message should say.
+  assert.equal(issue.expected, &quot;number&quot;);
+}
+</code></pre>
+<p>For a whole-form answer, <code>z.treeifyError</code> groups messages by field, which maps
+onto a form without any reshaping of your own.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const Signup = z.object({ email: z.string(), age: z.number() });
+const outcome = Signup.safeParse({ email: 1, age: &quot;old&quot; });
+
+assert.equal(outcome.success, false);
+if (!outcome.success) {
+  const tree = z.treeifyError(outcome.error);
+  assert.ok(tree.properties?.email?.errors.length);
+  assert.ok(tree.properties?.age?.errors.length);
+}
+</code></pre>
+<h3>Let the schema be the type</h3>
+<p>Infer the type from the schema instead of declaring both. Two declarations
+drift, and the one that drifts is the one the compiler is not checking.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const Session = z.object({ userId: z.string(), expiresAt: z.number() });
+type Session = z.infer&lt;typeof Session&gt;;
+
+const session: Session = Session.parse({ userId: &quot;u1&quot;, expiresAt: 1 });
+assert.equal(session.userId, &quot;u1&quot;);
+</code></pre>
+<h3>Coerce only where the wire is untyped</h3>
+<p><code>z.coerce</code> converts before checking, which is right for query strings and
+environment variables and wrong for a JSON body that already has types. Coercing
+a JSON number field hides a producer sending strings.</p>
+<pre><code class="language-ts">import { z } from &quot;zod&quot;;
+import assert from &quot;node:assert/strict&quot;;
+
+const Query = z.object({ page: z.coerce.number() });
+assert.deepEqual(Query.parse({ page: &quot;2&quot; }), { page: 2 });
+
+const Body = z.object({ page: z.number() });
+assert.equal(Body.safeParse({ page: &quot;2&quot; }).success, false);
+</code></pre>
+<h3>What this skill does not cover</h3>
+<p>Async refinement, custom error maps, and codec composition each have enough
+surface to be their own skill. Discriminated unions are worth reading about
+before modelling a tagged payload as a plain union, because the error a plain
+union produces names every branch it tried.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>data-urls 7.x — PMCP</title>
+  <meta name="description" content="Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing." />
+  <link rel="canonical" href="https://pmcp.build/skills/data-urls/7/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="data-urls 7.x — PMCP" />
+  <meta property="og:description" content="Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing." />
+  <meta property="og:url" content="https://pmcp.build/skills/data-urls/7/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/data-urls/">Other majors</a></p>
+    <h1>data-urls 7.x</h1><p>Parse WHATWG data: URLs with data-urls@^7.0.0, including MIME types, byte bodies, invalid input, base64 payloads, and URL-record parsing.</p>
+    <dl><dt>For</dt><dd><code>data-urls@7.0.0</code></dd><dt>Verified</dt><dd>2026-09-08, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-data-urls@7.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/data-urls/7/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/data-urls/7/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/data-urls/7/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-9AsixcHpE0pgssQkMW9wzZ4EGeGa/PFzLFlwaYM6Z2GE+4VhCp5H3lx1cG08IydowodvATgMixIXnqe1V0k0Ww==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against data-urls@7.0.0 on 2026-09-08. 6 of 6 examples executed.</p>
+<h2>data-urls</h2>
+<p>Use this skill for <code>data-urls@^7.0.0</code>.</p>
+<h3>Surface</h3>
+<p>The default export is callable:</p>
+<pre><code class="language-js">const parseDataURL = require(&quot;data-urls&quot;);
+const result = parseDataURL(input);
+</code></pre>
+<p>It returns either:</p>
+<ul>
+<li><code>{ mimeType, body }</code>, where <code>mimeType</code> is a <code>whatwg-mimetype</code> <code>MIMEType</code> and <code>body</code> is a <code>Uint8Array</code>.</li>
+<li><code>null</code> when the input cannot be parsed as a <code>data:</code> URL.</li>
+</ul>
+<p>The named <code>fromURLRecord</code> export accepts a <code>whatwg-url</code> URL record:</p>
+<pre><code class="language-js">const { fromURLRecord } = require(&quot;data-urls&quot;);
+const { parseURL } = require(&quot;whatwg-url&quot;);
+const result = fromURLRecord(parseURL(&quot;data:,Hello&quot;));
+</code></pre>
+<h3>Important version differences</h3>
+<ul>
+<li>In v7, the main export is directly callable and returns <code>{ mimeType, body }</code> or <code>null</code>. Do not use an older API shape from examples that returns or requires a different parser object.</li>
+<li>The runtime floor declared by v7 is <code>^20.19.0 || ^22.12.0 || &gt;=24.0.0</code>.</li>
+<li>The v7 dependency generations are <code>whatwg-mimetype</code> <code>^5.0.0</code> and <code>whatwg-url</code> <code>^16.0.0</code>.</li>
+<li>For decoding the returned bytes, v7 documents <code>TextDecoder</code>. Older examples using <code>whatwg-encoding</code> are not the documented v7 approach.</li>
+</ul>
+<h3>Parse ordinary text data URLs</h3>
+<p>A missing media type receives the MIME type shown below. Percent escapes in the payload are decoded into bytes.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import parseDataURL from &quot;data-urls&quot;;
+
+const result = parseDataURL(&quot;data:,Hello%2C%20World!&quot;);
+
+assert.notEqual(result, null);
+assert.equal(result.mimeType.toString(), &quot;text/plain;charset=US-ASCII&quot;);
+assert.deepEqual([...result.body], [...new TextEncoder().encode(&quot;Hello, World!&quot;)]);
+</code></pre>
+<p>A declared MIME type is preserved in the returned MIMEType object.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import parseDataURL from &quot;data-urls&quot;;
+
+const result = parseDataURL(&quot;data:text/html,%3Ch1%3EHello%2C%20World!%3C%2Fh1%3E&quot;);
+
+assert.notEqual(result, null);
+assert.equal(result.mimeType.toString(), &quot;text/html&quot;);
+assert.equal(new TextDecoder().decode(result.body), &quot;&lt;h1&gt;Hello, World!&lt;/h1&gt;&quot;);
+</code></pre>
+<h3>Parse base64 data URLs</h3>
+<p>Use the <code>;base64</code> marker in the metadata portion. The result body remains a <code>Uint8Array</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import parseDataURL from &quot;data-urls&quot;;
+
+const result = parseDataURL(
+  &quot;data:image/png;base64,iVBORw0KGgoAAA&quot; +
+  &quot;ANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4&quot; +
+  &quot;//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU&quot; +
+  &quot;5ErkJggg==&quot;
+);
+
+assert.notEqual(result, null);
+assert.equal(result.mimeType.toString(), &quot;image/png&quot;);
+assert.ok(result.body instanceof Uint8Array);
+assert.deepEqual([...result.body.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+assert.equal(result.body.length, 85);
+</code></pre>
+<h3>Handle invalid input</h3>
+<p>Check for <code>null</code> before accessing <code>mimeType</code> or <code>body</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import parseDataURL from &quot;data-urls&quot;;
+
+assert.equal(parseDataURL(&quot;https://example.com/resource&quot;), null);
+assert.equal(parseDataURL(&quot;not a URL&quot;), null);
+</code></pre>
+<h3>Parse from a URL record</h3>
+<p>Use <code>fromURLRecord</code> when the caller already has a <code>whatwg-url</code> URL record. A string should be passed to the default export instead.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import dataURLs from &quot;data-urls&quot;;
+import { parseURL } from &quot;whatwg-url&quot;;
+
+const urlRecord = parseURL(&quot;data:,Hello%2C%20World!&quot;);
+assert.notEqual(urlRecord, null);
+
+const result = dataURLs.fromURLRecord(urlRecord);
+assert.notEqual(result, null);
+assert.equal(result.mimeType.toString(), &quot;text/plain;charset=US-ASCII&quot;);
+assert.equal(new TextDecoder().decode(result.body), &quot;Hello, World!&quot;);
+</code></pre>
+<h3>Decode bytes as text</h3>
+<p>Parsing returns bytes, not a JavaScript string. Use <code>TextDecoder</code> when text decoding is needed. The package documentation suggests <code>@exodus/bytes</code> as a <code>TextDecoder</code> polyfill when required.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import parseDataURL from &quot;data-urls&quot;;
+
+const result = parseDataURL(&quot;data:text/plain;charset=utf-8,Hello%20world&quot;);
+assert.notEqual(result, null);
+assert.equal(new TextDecoder().decode(result.body), &quot;Hello world&quot;);
+</code></pre>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover the internal WHATWG parsing algorithm, the complete <code>MIMEType</code> API, the complete <code>whatwg-url</code> URL-record API, runtime polyfill setup, or any CLI/tool workflow. The research describes no package-owned consumer CLI; the documented parser exports are used directly from a script.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

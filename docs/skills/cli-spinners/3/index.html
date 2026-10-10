@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cli-spinners 3.x — PMCP</title>
+  <meta name="description" content="Use cli-spinners ^3.0.0 as a pure ESM source of spinner definitions and random spinner selection." />
+  <link rel="canonical" href="https://pmcp.build/skills/cli-spinners/3/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="cli-spinners 3.x — PMCP" />
+  <meta property="og:description" content="Use cli-spinners ^3.0.0 as a pure ESM source of spinner definitions and random spinner selection." />
+  <meta property="og:url" content="https://pmcp.build/skills/cli-spinners/3/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/cli-spinners/">Other majors</a></p>
+    <h1>cli-spinners 3.x</h1><p>Use cli-spinners ^3.0.0 as a pure ESM source of spinner definitions and random spinner selection.</p>
+    <dl><dt>For</dt><dd><code>cli-spinners@3.4.0</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-cli-spinners@3.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/cli-spinners/3/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/cli-spinners/3/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/cli-spinners/3/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-Kf/qW62qeIU8nyN1L/bYp6iRqhW7fCAvbUkS1512G4mNIWYEnK10MCHfdTws+GFvmsHOTUin1HMxQY1FTfE3mg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against cli-spinners@3.4.0 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>cli-spinners</h2>
+<p><code>cli-spinners</code> provides spinner data. It does not render, animate, or run a CLI. The package is pure ESM and requires Node <code>&gt;=18.20</code>.</p>
+<h3>Import the package</h3>
+<p>Use the default export for the spinner collection:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import cliSpinners from &#39;cli-spinners&#39;;
+
+const dots = cliSpinners.dots;
+
+assert.equal(dots.interval, 80);
+assert.deepEqual(dots.frames, [&#39;⠋&#39;, &#39;⠙&#39;, &#39;⠹&#39;, &#39;⠸&#39;, &#39;⠼&#39;, &#39;⠴&#39;, &#39;⠦&#39;, &#39;⠧&#39;, &#39;⠇&#39;, &#39;⠏&#39;]);
+assert.equal(cliSpinners.line.interval, 130);
+assert.ok(Array.isArray(cliSpinners.hearts.frames));
+</code></pre>
+<p>Each spinner has:</p>
+<ul>
+<li><code>interval</code>: the recommended time per frame, in milliseconds.</li>
+<li><code>frames</code>: an array of strings.</li>
+</ul>
+<p>The collection includes names such as <code>dots</code>, <code>dots2</code> through <code>dots12</code>, <code>dots8Bit</code>, <code>sand</code>, <code>line</code>, <code>binary</code>, <code>material</code>, <code>weather</code>, <code>christmas</code>, <code>betaWave</code>, <code>fingerDance</code>, <code>fistBump</code>, <code>soccerHeader</code>, <code>mindblown</code>, <code>speaker</code>, <code>orangePulse</code>, <code>bluePulse</code>, <code>orangeBluePulse</code>, <code>timeTravel</code>, <code>aesthetic</code>, and <code>dwarfFortress</code>.</p>
+<h3>Select a random spinner</h3>
+<p>Import <code>randomSpinner</code> as a named export:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import cliSpinners, {randomSpinner} from &#39;cli-spinners&#39;;
+
+const spinner = randomSpinner();
+
+assert.equal(typeof spinner.interval, &#39;number&#39;);
+assert.ok(Array.isArray(spinner.frames));
+assert.ok(spinner.frames.length &gt; 0);
+assert.ok(Object.values(cliSpinners).includes(spinner));
+</code></pre>
+<p><code>randomSpinner()</code> returns one of the spinner objects from the default collection. It does not return a spinner name.</p>
+<h3>Use the data in an animation</h3>
+<p>The package only supplies data. A consumer must implement the timing and output, or pass the spinner definition to another package that renders it. <code>interval</code> is the suggested delay between frames; <code>frames</code> supplies the strings to display.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import cliSpinners from &#39;cli-spinners&#39;;
+
+const spinner = cliSpinners.dots;
+const displayedFrames: string[] = [];
+
+for (const frame of spinner.frames) {
+	displayedFrames.push(frame);
+}
+
+assert.deepEqual(displayedFrames, spinner.frames);
+assert.equal(typeof spinner.interval, &#39;number&#39;);
+</code></pre>
+<h3>Important migration notes</h3>
+<p>Version 3 is not the older CommonJS API. Do not use:</p>
+<pre><code class="language-js">const spinners = require(&#39;cli-spinners&#39;);
+spinners.random;
+</code></pre>
+<p>The old <code>random</code> property was replaced by the named <code>randomSpinner()</code> function:</p>
+<pre><code class="language-js">import {randomSpinner} from &#39;cli-spinners&#39;;
+
+const spinner = randomSpinner();
+</code></pre>
+<p>Likewise, use a default ESM import for the collection:</p>
+<pre><code class="language-js">import cliSpinners from &#39;cli-spinners&#39;;
+
+const spinner = cliSpinners.dots;
+</code></pre>
+<p>The TypeScript surface defines a <code>Spinner</code> with readonly numeric <code>interval</code> and readonly string-array <code>frames</code>. <code>randomSpinner()</code> returns a <code>Spinner</code>.</p>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover spinner rendering, animation loops, terminal cursor control, CLI integration, or a specific renderer such as <code>ora</code>; those are outside this package&#39;s documented surface. It also does not cover consuming internal package files directly or package versions before 3.0.0.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

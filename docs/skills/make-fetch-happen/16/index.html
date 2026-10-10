@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>make-fetch-happen 16.x — PMCP</title>
+  <meta name="description" content="Use make-fetch-happen ^16.0.0 for fetch-compatible HTTP requests with caching, retries, proxy support, integrity verification, DNS caching, and Node.js transport options." />
+  <link rel="canonical" href="https://pmcp.build/skills/make-fetch-happen/16/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="make-fetch-happen 16.x — PMCP" />
+  <meta property="og:description" content="Use make-fetch-happen ^16.0.0 for fetch-compatible HTTP requests with caching, retries, proxy support, integrity verification, DNS caching, and Node.js transport options." />
+  <meta property="og:url" content="https://pmcp.build/skills/make-fetch-happen/16/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/make-fetch-happen/">Other majors</a></p>
+    <h1>make-fetch-happen 16.x</h1><p>Use make-fetch-happen ^16.0.0 for fetch-compatible HTTP requests with caching, retries, proxy support, integrity verification, DNS caching, and Node.js transport options.</p>
+    <dl><dt>For</dt><dd><code>make-fetch-happen@16.0.1</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-make-fetch-happen@16.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/make-fetch-happen/16/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/make-fetch-happen/16/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/make-fetch-happen/16/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-RZHqKgF5R9BcxKN6QrRu0U9aSN6pc1cLoxpL1hjlBQl2U4Tar+mscZyEi8DzBiWXO5P+qDlZIlZ9H95bnj5viQ==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against make-fetch-happen@16.0.1 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>make-fetch-happen v16</h2>
+<h3>Runtime and import</h3>
+<p>Version 16.0.0 requires Node <code>^22.22.2 || ^24.15.0 || &gt;=26.0.0</code>. It is directly loadable with CommonJS:</p>
+<pre><code class="language-js">const fetch = require(&#39;make-fetch-happen&#39;)
+</code></pre>
+<p>The package exports the main fetch function plus <code>FetchError</code>, <code>Headers</code>, <code>Request</code>, and <code>Response</code>.</p>
+<p>The main call is:</p>
+<pre><code class="language-js">fetch(uriOrRequest, opts) // Promise&lt;Response&gt;
+</code></pre>
+<p><code>uriOrRequest</code> may be a URI string or a <code>Request</code> object. The returned <code>Response</code> follows the fetch-style API, including methods such as <code>json()</code>, <code>text()</code>, and <code>buffer()</code>.</p>
+<h3>Defaults and caching</h3>
+<p>Use <code>.defaults()</code> to create a fetch function with default options:</p>
+<pre><code class="language-js">const fetch = require(&#39;make-fetch-happen&#39;).defaults({
+  cachePath: &#39;./my-cache&#39;
+})
+</code></pre>
+<p>A defaulted fetch function also has <code>.defaults()</code>. The overload accepts an optional default URL followed by default options.</p>
+<p><code>cachePath</code> is required for cache behavior. Setting <code>cache</code> without a <code>cachePath</code> does nothing. Cached response bodies are written only after the response body is consumed, for example with <code>res.json()</code>, <code>res.buffer()</code>, or by draining <code>res.body</code>.</p>
+<p>Useful cache modes include:</p>
+<ul>
+<li><code>no-cache</code>: force a conditional request when a cached response is available.</li>
+<li><code>only-if-cached</code>: do not use the network. It produces a network error when no cached response exists and can only be used when the request mode is <code>same-origin</code>.</li>
+</ul>
+<p>Do not assume that receiving a <code>Response</code> means its body has been cached; consume the body first.</p>
+<h3>Retry behavior</h3>
+<p>The <code>retry</code> option may be:</p>
+<ul>
+<li><code>false</code>, disabling retries;</li>
+<li>a number, specifying the retry count;</li>
+<li>an object with <code>retries</code>, <code>factor</code>, <code>minTimeout</code>, <code>maxTimeout</code>, and <code>randomize</code>.</li>
+</ul>
+<p><code>onRetry(cause)</code> receives the response or error that caused a retry.</p>
+<pre><code class="language-js">fetch(&#39;https://example.invalid&#39;, {
+  retry: {
+    retries: 10,
+    randomize: true
+  },
+  onRetry (cause) {
+    console.error(&#39;retrying because of&#39;, cause)
+  }
+})
+</code></pre>
+<p>Do not use <code>retry: 3</code> when retries must be disabled; use <code>retry: false</code>.</p>
+<h3>Integrity verification</h3>
+<p>Pass an <code>integrity</code> value to verify the response body. A mismatch fails with an error whose code is <code>EINTEGRITY</code>.</p>
+<pre><code class="language-js">fetch(&#39;https://registry.npmjs.org/make-fetch-happen/-/make-fetch-happen-1.0.0.tgz&#39;, {
+  integrity: &#39;sha1-o47j7zAYnedYFn1dF/fR9OV3z8Q=&#39;
+})
+</code></pre>
+<p>Integrity applies to the response body, so handle the rejected promise rather than expecting a successful response with a bad body.</p>
+<h3>Other request options</h3>
+<p>Options from <code>minipass-fetch</code> are used as-is, including <code>method</code>, <code>body</code>, <code>redirect</code>, <code>follow</code>, <code>timeout</code>, <code>compress</code>, and <code>size</code>.</p>
+<p>Additional options include:</p>
+<ul>
+<li><code>cachePath</code>, <code>cache</code>, and <code>cacheAdditionalHeaders</code></li>
+<li><code>proxy</code> and <code>noProxy</code></li>
+<li><code>ca</code>, <code>cert</code>, <code>key</code>, and <code>strictSSL</code></li>
+<li><code>localAddress</code> and <code>maxSockets</code></li>
+<li><code>retry</code> and <code>onRetry</code></li>
+<li><code>integrity</code></li>
+<li><code>dns</code> and <code>agent</code></li>
+</ul>
+<p>Proxy handling can fall back to <code>HTTP_PROXY</code>, <code>HTTPS_PROXY</code>, and <code>PROXY</code> from the environment. <code>noProxy</code> can use <code>NO_PROXY</code>.</p>
+<h3>Standalone fetch-compatible classes</h3>
+<p>The exported <code>Headers</code>, <code>Request</code>, and <code>Response</code> classes can be used from a plain script without a test runner or framework globals:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+
+const {
+  Headers,
+  Request,
+  Response
+} = require(&#39;make-fetch-happen&#39;)
+
+const headers = new Headers({
+  &#39;content-type&#39;: &#39;application/json&#39;,
+  &#39;x-example&#39;: &#39;yes&#39;
+})
+
+assert.equal(headers.get(&#39;content-type&#39;), &#39;application/json&#39;)
+assert.equal(headers.get(&#39;x-example&#39;), &#39;yes&#39;)
+
+const request = new Request(&#39;https://example.invalid/data&#39;, {
+  method: &#39;POST&#39;,
+  headers,
+  body: JSON.stringify({ input: 1 })
+})
+
+assert.equal(request.method, &#39;POST&#39;)
+assert.equal(request.url, &#39;https://example.invalid/data&#39;)
+assert.equal(request.headers.get(&#39;x-example&#39;), &#39;yes&#39;)
+
+const response = new Response(JSON.stringify({ ok: true }), {
+  status: 201,
+  headers: { &#39;content-type&#39;: &#39;application/json&#39; }
+})
+
+assert.equal(response.status, 201)
+assert.equal(response.headers.get(&#39;content-type&#39;), &#39;application/json&#39;)
+assert.deepEqual(await response.json(), { ok: true })
+</code></pre>
+<h3>Creating configured fetch functions without making a request</h3>
+<p><code>.defaults()</code> is available on the package export and on functions returned by <code>.defaults()</code>. This can be checked without a network request or filesystem access:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;
+import makeFetchHappen from &#39;make-fetch-happen&#39;
+
+const withDefaults = makeFetchHappen.defaults({
+  cachePath: &#39;./cache&#39;,
+  retry: false
+})
+
+assert.equal(typeof makeFetchHappen, &#39;function&#39;)
+assert.equal(typeof withDefaults, &#39;function&#39;)
+assert.equal(typeof withDefaults.defaults, &#39;function&#39;)
+
+const withUrl = makeFetchHappen.defaults(&#39;https://example.invalid&#39;, {
+  retry: false
+})
+
+assert.equal(typeof withUrl, &#39;function&#39;)
+assert.equal(typeof withUrl.defaults, &#39;function&#39;)
+</code></pre>
+<p>The actual fetch operation, cache reads and writes, retry callbacks, proxy behavior, DNS caching, and integrity verification require an HTTP response or transport environment. Exercise those through the application or tool that supplies the network and operational conditions; this skill does not use a network or filesystem in its standalone examples.</p>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover the package&#39;s internal cache layout, every HTTP status or retry decision, detailed proxy and DNS resolution rules, agent implementation details, stream-level APIs beyond body consumption, or package-maintenance commands. It also does not cover standalone network-fetch examples, cache integration tests, or the exact behavior of all exported error and transport types.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

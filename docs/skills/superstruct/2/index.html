@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>superstruct 2.x — PMCP</title>
+  <meta name="description" content="Use Superstruct ^2.0.0 for runtime validation, coercion, defaults, refinements, and object-shape utilities. Prefer the current named-export API; do not copy older struct.object/User.assert examples." />
+  <link rel="canonical" href="https://pmcp.build/skills/superstruct/2/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="superstruct 2.x — PMCP" />
+  <meta property="og:description" content="Use Superstruct ^2.0.0 for runtime validation, coercion, defaults, refinements, and object-shape utilities. Prefer the current named-export API; do not copy older struct.object/User.assert examples." />
+  <meta property="og:url" content="https://pmcp.build/skills/superstruct/2/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/superstruct/">Other majors</a></p>
+    <h1>superstruct 2.x</h1><p>Use Superstruct ^2.0.0 for runtime validation, coercion, defaults, refinements, and object-shape utilities. Prefer the current named-export API; do not copy older struct.object/User.assert examples.</p>
+    <dl><dt>For</dt><dd><code>superstruct@2.0.2</code></dd><dt>Verified</dt><dd>2026-09-08, 4 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-superstruct@2.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/superstruct/2/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/superstruct/2/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/superstruct/2/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-FpCnlGytffLvNaC/asF5VkFhFFiENZV5qU5MS68PCrSJP2pBpt0xZWfCS31SyW8X/d1wVGzfek1yRmwAVkbbpQ==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against superstruct@2.0.2 on 2026-09-08. 4 of 4 examples executed.</p>
+<h2>Superstruct 2.x</h2>
+<h3>Import and version boundary</h3>
+<p>Use named exports from <code>superstruct</code>, or a namespace import:</p>
+<pre><code class="language-ts">import { object, string, number, assert } from &#39;superstruct&#39;
+
+const User = object({ name: string(), age: number() })
+assert(data, User)
+</code></pre>
+<p><code>import * as s from &#39;superstruct&#39;</code> is also supported (<code>s.object(...)</code>, <code>s.number()</code>, and so on).</p>
+<p>This skill targets <code>^2.0.0</code>. Node.js 14 is deprecated by the maintainers and is no longer tested.</p>
+<h3>Core operations</h3>
+<ul>
+<li><code>assert(value, struct, message?)</code> throws when validation fails and narrows the value in TypeScript.</li>
+<li><code>create(value, struct, message?)</code> validates and returns the coerced/defaulted value.</li>
+<li><code>is(value, struct)</code> returns a type guard and does not throw.</li>
+<li><code>mask(value, struct, message?)</code> validates and returns a value limited to the struct&#39;s recognized shape.</li>
+<li><code>validate(value, struct, options)</code> returns <code>[error, value]</code>; use <code>{}</code> when no validation options are needed.</li>
+<li><code>StructError</code> is the exported error class for validation failures.</li>
+</ul>
+<p>An <code>object()</code> struct validates its declared object shape. Do not assume that arbitrary extra properties make the input valid. Use <code>type()</code> when the documented shape should permit additional properties.</p>
+<pre><code class="language-ts">import { strict as nodeAssert } from &#39;node:assert&#39;
+import { StructError, assert, create, is, mask, number, object, string, validate } from &#39;superstruct&#39;
+
+const User = object({ id: number(), name: string() })
+const input = { id: 1, name: &#39;Ada&#39; }
+
+nodeAssert.equal(is(input, User), true)
+nodeAssert.deepEqual(create(input, User), input)
+nodeAssert.deepEqual(mask(input, User), input)
+
+const [error, value] = validate(input, User, {})
+nodeAssert.equal(error, undefined)
+nodeAssert.deepEqual(value, input)
+
+assert(input, User, &#39;The user is invalid!&#39;)
+
+const [badError] = validate({ id: &#39;wrong&#39;, name: &#39;Ada&#39; }, User, {})
+nodeAssert.ok(badError instanceof StructError)
+</code></pre>
+<h3>Struct factories</h3>
+<p>The documented factories are <code>any</code>, <code>array</code>, <code>bigint</code>, <code>boolean</code>, <code>date</code>, <code>enums</code>, <code>func</code>, <code>instance</code>, <code>integer</code>, <code>intersection</code>, <code>literal</code>, <code>map</code>, <code>never</code>, <code>number</code>, <code>nullable</code>, <code>object</code>, <code>optional</code>, <code>record</code>, <code>regexp</code>, <code>set</code>, <code>string</code>, <code>tuple</code>, <code>type</code>, <code>union</code>, and <code>unknown</code>.</p>
+<p>Use factory calls for constraints and nested structures:</p>
+<pre><code class="language-ts">const Article = object({
+  tags: array(string()),
+  author: object({ id: number() }),
+})
+</code></pre>
+<p><code>object()</code> describes a recognized object shape. <code>type()</code> is the alternative shape that permits additional properties. <code>optional()</code> and <code>nullable()</code> express those states explicitly.</p>
+<p>Custom types use <code>define(name, validator)</code>, or <code>struct(...)</code> for custom struct construction. The documented email example is:</p>
+<pre><code class="language-ts">const Email = define(&#39;Email&#39;, isEmail)
+</code></pre>
+<h3>Refinements</h3>
+<p>Use <code>empty</code>, <code>max</code>, <code>min</code>, <code>nonempty</code>, <code>pattern</code>, <code>size</code>, and <code>refine</code> to add constraints. Examples include <code>min(integer(), 0)</code>, <code>size(string(), 1, 100)</code>, and a named predicate with <code>refine</code>.</p>
+<pre><code class="language-ts">import { strict as nodeAssert } from &#39;node:assert&#39;
+import { integer, min, nonempty, pattern, refine, size, string, validate } from &#39;superstruct&#39;
+
+const Index = min(integer(), 0)
+const Name = size(nonempty(string()), 1, 20)
+const StartsWithThe = refine(string(), &#39;StartsWithThe&#39;, (value) =&gt; {
+  return value.startsWith(&#39;The&#39;) &amp;&amp; value.length &gt; 3
+})
+const Hex = pattern(string(), /^[0-9a-f]+$/i)
+
+nodeAssert.equal(validate(3, Index, {})[0], undefined)
+nodeAssert.equal(validate(&#39;&#39;, Name, {})[0] instanceof Error, true)
+nodeAssert.equal(validate(&#39;The book&#39;, StartsWithThe, {})[0], undefined)
+nodeAssert.equal(validate(&#39;abc&#39;, Hex, {})[0], undefined)
+</code></pre>
+<h3>Coercion and defaults</h3>
+<ul>
+<li><code>coerce(target, source, transform)</code> transforms a value before applying the target struct.</li>
+<li><code>create()</code> is the current operation for validating and coercing a value; do not use the old <code>coerce(data, User)</code> operation shape.</li>
+<li><code>defaulted(struct, value)</code> supplies a value when the input is absent.</li>
+<li><code>trimmed(string())</code> trims string input.</li>
+</ul>
+<pre><code class="language-ts">import { strict as nodeAssert } from &#39;node:assert&#39;
+import { coerce, create, defaulted, number, object, string, trimmed } from &#39;superstruct&#39;
+
+const MyNumber = coerce(number(), string(), (value) =&gt; parseFloat(value))
+nodeAssert.equal(create(&#39;42&#39;, MyNumber), 42)
+
+const User = defaulted(object({ id: number(), name: string() }), { id: 1, name: &#39;Anonymous&#39; })
+nodeAssert.deepEqual(create({}, User), { id: 1, name: &#39;Anonymous&#39; })
+
+nodeAssert.equal(create(&#39;  Ada  &#39;, trimmed(string())), &#39;Ada&#39;)
+</code></pre>
+<h3>Struct utilities</h3>
+<p>The documented utility exports are <code>assign</code>, <code>deprecated</code>, <code>dynamic</code>, <code>lazy</code>, <code>omit</code>, <code>partial</code>, and <code>pick</code>. They compose or derive structs. Recursive structures use <code>lazy</code>, for example:</p>
+<pre><code class="language-ts">const Node = object({ id: number(), children: lazy(() =&gt; array(Node)) })
+</code></pre>
+<p><code>omit</code>, <code>pick</code>, and <code>partial</code> derive object structs:</p>
+<pre><code class="language-ts">const PublicUser = omit(object({ id: number(), name: string() }), [&#39;name&#39;])
+const OptionalUser = partial(object({ id: number(), name: string() }))
+</code></pre>
+<pre><code class="language-ts">import { strict as nodeAssert } from &#39;node:assert&#39;
+import { array, lazy, number, object, omit, partial, pick, string, validate } from &#39;superstruct&#39;
+
+const Node = object({ id: number(), children: lazy(() =&gt; array(Node)) })
+nodeAssert.equal(validate({ id: 1, children: [{ id: 2, children: [] }] }, Node, {})[0], undefined)
+
+const User = object({ id: number(), name: string(), role: string() })
+const PublicUser = omit(User, [&#39;name&#39;])
+const NamedUser = pick(User, [&#39;id&#39;, &#39;name&#39;])
+const OptionalUser = partial(object({ id: number(), name: string() }))
+
+nodeAssert.equal(validate({ id: 1, role: &#39;admin&#39; }, PublicUser, {})[0], undefined)
+nodeAssert.equal(validate({ id: 1, name: &#39;Ada&#39; }, NamedUser, {})[0], undefined)
+nodeAssert.equal(validate({}, OptionalUser, {})[0], undefined)
+</code></pre>
+<h3>v2 migration traps</h3>
+<p>Do not use examples from the older pre-1.0 API merely because they remain common in existing code:</p>
+<ul>
+<li><code>struct.object({ name: &#39;string&#39; })</code> → <code>object({ name: string() })</code></li>
+<li><code>User.assert(data)</code> → <code>assert(data, User)</code></li>
+<li><code>struct(&#39;email&#39;, isEmail)</code> → <code>define(&#39;email&#39;, isEmail)</code></li>
+<li><code>refinement(...)</code> → <code>refine(...)</code></li>
+<li><code>coercion(...)</code> → <code>coerce(...)</code></li>
+<li><code>coerce(data, User)</code> → <code>create(data, User)</code></li>
+<li><code>length(string(), 1, 100)</code> → <code>size(string(), 1, 100)</code></li>
+<li><code>StructType&lt;typeof User&gt;</code> → <code>Infer&lt;typeof User&gt;</code></li>
+<li>old <code>interface</code>, <code>enum</code>, and <code>function</code> names → <code>type</code>, <code>enums</code>, and <code>func</code></li>
+<li>defaults and optional values → explicit <code>defaulted(...)</code> and <code>optional(...)</code></li>
+</ul>
+<p>In v2, arrays correctly fail validation against <code>object()</code>, <code>type()</code>, and <code>record()</code>. Object coercion no longer turns arrays into objects with numeric index keys. <code>mask()</code> also handles union members correctly. Do not preserve workarounds written for those older behaviors.</p>
+<h3>What this skill does not cover</h3>
+<p>It does not cover every individual factory&#39;s full option and error-message behavior, TypeScript <code>Infer</code> usage beyond the migration note, browser UMD loading, or application-specific validation schemas. It also does not cover a CLI, test runner, framework integration, network behavior, or filesystem behavior; Superstruct&#39;s documented usage is direct library code.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

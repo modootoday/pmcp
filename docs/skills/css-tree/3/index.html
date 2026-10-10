@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>css-tree 3.x — PMCP</title>
+  <meta name="description" content="Use css-tree 3.x to parse, traverse, transform, generate, and lex CSS ASTs. Covers the v3 AST/API changes that commonly break v2-era code." />
+  <link rel="canonical" href="https://pmcp.build/skills/css-tree/3/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="css-tree 3.x — PMCP" />
+  <meta property="og:description" content="Use css-tree 3.x to parse, traverse, transform, generate, and lex CSS ASTs. Covers the v3 AST/API changes that commonly break v2-era code." />
+  <meta property="og:url" content="https://pmcp.build/skills/css-tree/3/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/css-tree/">Other majors</a></p>
+    <h1>css-tree 3.x</h1><p>Use css-tree 3.x to parse, traverse, transform, generate, and lex CSS ASTs. Covers the v3 AST/API changes that commonly break v2-era code.</p>
+    <dl><dt>For</dt><dd><code>css-tree@3.2.1</code></dd><dt>Verified</dt><dd>2026-09-08, 6 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-css-tree@3.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/css-tree/3/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/css-tree/3/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/css-tree/3/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-37MVL1RaMK7eF4lzb992gs3eSqyoLWMEbDsYEZutciGygVbmqso/OKQl4KLOvD3uELt2KKuJHRmwUcwInPuFKg==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against css-tree@3.2.1 on 2026-09-08. 6 of 6 examples executed.</p>
+<h2>css-tree 3.x</h2>
+<h3>Scope</h3>
+<p>This skill targets <code>css-tree</code> versions in <code>^3.0.0</code> (the researched documentation currently shows 3.2.1). Import the package by name:</p>
+<pre><code class="language-ts">import * as csstree from &#39;css-tree&#39;;
+</code></pre>
+<p>The package also exposes subpath exports including <code>css-tree/parser</code>, <code>css-tree/tokenizer</code>, <code>css-tree/selector-parser</code>, <code>css-tree/generator</code>, <code>css-tree/walker</code>, <code>css-tree/convertor</code>, <code>css-tree/lexer</code>, <code>css-tree/definition-syntax</code>, and related data/utilities. Prefer the top-level API when it provides the operation you need.</p>
+<h3>Parse and generate</h3>
+<p><code>parse(source[, options])</code> creates an AST. <code>generate(ast[, options])</code> serializes an AST back to CSS. Parsing can be directed at a specific grammar context, such as <code>selector</code>, <code>value</code>, or <code>condition</code>.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { generate, parse } from &#39;css-tree&#39;;
+
+const ast = parse(&#39;.example { world: &quot;!&quot; }&#39;);
+assert.equal(generate(ast), &#39;.example{world:&quot;!&quot;}&#39;);
+</code></pre>
+<p>Useful parsing options documented by the package include:</p>
+<ul>
+<li><code>context</code></li>
+<li><code>atrule</code></li>
+<li><code>positions</code></li>
+<li><code>onComment</code></li>
+<li><code>onToken</code></li>
+<li><code>onParseError</code></li>
+<li><code>filename</code>, <code>offset</code>, <code>line</code>, and <code>column</code></li>
+<li><code>parseAtrulePrelude</code></li>
+<li><code>parseRulePrelude</code></li>
+<li><code>parseValue</code></li>
+<li><code>parseCustomProperty</code></li>
+</ul>
+<p>For a fragment rather than a complete stylesheet, provide the appropriate context:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { generate, parse } from &#39;css-tree&#39;;
+
+const selector = parse(&#39;.foo.bar&#39;, {
+    context: &#39;selector&#39;,
+    positions: true
+});
+
+assert.equal(generate(selector), &#39;.foo.bar&#39;);
+assert.equal(selector.type, &#39;Selector&#39;);
+assert.ok(selector.loc);
+</code></pre>
+<h3>Walk and mutate ASTs</h3>
+<p><code>walk(ast, fn)</code> is shorthand for <code>walk(ast, { enter: fn })</code>. A callback receives <code>(node, item, list)</code>. The options form also supports <code>enter</code>, <code>leave</code>, <code>visit</code>, and <code>reverse</code>.</p>
+<p><code>List</code> fields such as <code>first</code> and <code>size</code> are getters. Do not treat them as the older mutable fields shown in v2-era code.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { generate, parse, walk } from &#39;css-tree&#39;;
+
+const ast = parse(&#39;.example { world: &quot;!&quot; }&#39;);
+
+walk(ast, (node) =&gt; {
+    if (node.type === &#39;ClassSelector&#39; &amp;&amp; node.name === &#39;example&#39;) {
+        node.name = &#39;hello&#39;;
+    }
+});
+
+assert.equal(generate(ast), &#39;.hello{world:&quot;!&quot;}&#39;);
+</code></pre>
+<p>To remove nodes, use the containing list and the callback&#39;s <code>item</code>:</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { generate, parse, walk } from &#39;css-tree&#39;;
+
+const ast = parse(`
+    .a { foo: 1; bar: 2; }
+    .b { bar: 3; baz: 4; }
+`);
+
+walk(ast, (node, item, list) =&gt; {
+    if (node.type === &#39;Declaration&#39; &amp;&amp; node.property === &#39;bar&#39; &amp;&amp; list) {
+        list.remove(item);
+    }
+});
+
+assert.equal(generate(ast), &#39;.a{foo:1}.b{baz:4}&#39;);
+</code></pre>
+<h3>Find nodes</h3>
+<p>The top-level API also provides <code>find(ast, fn)</code>, <code>findLast(ast, fn)</code>, and <code>findAll(ast, fn)</code> for predicate-based lookup. Use these when you need a result rather than an in-place traversal.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { find, findAll, findLast, parse } from &#39;css-tree&#39;;
+
+const ast = parse(&#39;.a { color: red } .b { color: blue }&#39;);
+const isClass = (node) =&gt; node.type === &#39;ClassSelector&#39;;
+
+assert.equal(find(ast, isClass).name, &#39;a&#39;);
+assert.equal(findLast(ast, isClass).name, &#39;b&#39;);
+assert.deepEqual(findAll(ast, isClass).map((node) =&gt; node.name), [&#39;a&#39;, &#39;b&#39;]);
+</code></pre>
+<h3>Lexer</h3>
+<p>The top-level <code>lexer</code> can match a parsed value against a property grammar. <code>matchProperty(property, ast)</code> returns a match result. Use <code>isType(node, type)</code> to test a node and <code>getTrace(node)</code> to inspect the grammar trace.</p>
+<pre><code class="language-ts">import assert from &#39;node:assert/strict&#39;;
+import { lexer, parse } from &#39;css-tree&#39;;
+
+const ast = parse(&#39;red 1px solid&#39;, { context: &#39;value&#39; });
+const matchResult = lexer.matchProperty(&#39;border&#39;, ast);
+const first = ast.children.first;
+
+assert.equal(matchResult.isType(first, &#39;color&#39;), true);
+assert.ok(matchResult.getTrace(first));
+</code></pre>
+<h3>v3 AST and syntax changes</h3>
+<p>Code written against v2-era examples needs particular care:</p>
+<ul>
+<li>v3 adds support for <code>@container</code>, <code>@starting-style</code>, <code>@scope</code>, <code>@position-try</code>, and <code>@layer</code>, plus <code>layer</code>, <code>layer()</code>, and <code>supports()</code> in <code>@media</code>.</li>
+<li>New AST node types include <code>Layer</code>, <code>LayerList</code>, <code>Feature</code>, <code>FeatureRange</code>, <code>FeatureFunction</code>, <code>Condition</code>, <code>GeneralEnclosure</code>, and <code>SupportsDeclaration</code>.</li>
+<li>Query conditions can be parsed with <code>parse(&#39;...&#39;, { context: &#39;condition&#39;, kind: &#39;media&#39; })</code>.</li>
+<li><code>MediaQuery</code> now has <code>modifier</code>, <code>mediaType</code>, and <code>condition</code>; its shape is not the older shape.</li>
+<li><code>MediaFeature</code> is now <code>Feature</code> with <code>kind: &#39;media&#39;</code>.</li>
+<li><code>Parentheses</code> is replaced by <code>SupportsDeclaration</code> / <code>Condition</code> for <code>@supports</code>.</li>
+<li><code>Block</code> no longer includes <code>{</code> and <code>}</code>. <code>Atrule</code> and <code>Rule</code> include them when they have a block.</li>
+<li><code>Ratio</code> parts are nodes, can be functions, can contain any number of parts, and may have an omitted right part during construction or transformation.</li>
+<li><code>TokenStream</code> has <code>lookupTypeNonSC()</code>; generic <code>&lt;dashed-ident&gt;</code> is supported.</li>
+</ul>
+<h3>v2 compatibility traps</h3>
+<p>Do not copy these older assumptions into v3 code:</p>
+<ul>
+<li>v2&#39;s ESM/CommonJS dual-support examples and standalone subpath imports may still appear in code, but verify the v3 package export you intend to use.</li>
+<li><code>Lexer#matchDeclaration()</code> was removed.</li>
+<li><code>SyntaxError</code> moved to <code>parse.SyntaxError</code>.</li>
+<li><code>TokenStream#skipWS()</code> and <code>getTokenLength()</code> were removed.</li>
+<li><code>List</code> fields became getters, including <code>list.first</code> and <code>list.size</code>; do not use the old field shape.</li>
+</ul>
+<h3>Plain-script boundary</h3>
+<p>The parser, walker, generator, and lexer are usable directly from a Node or browser module. They do not require a test runner, CSS build step, or framework globals. The browser-global form requires the shipped bundle (<code>dist/csstree.js</code> or <code>dist/csstree.esm.js</code>) and a browser script environment.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover the detailed AST schema for every CSS grammar node, the complete lexer-definition API, tokenizer internals, selector-parser internals, generator options, convertors, definition-syntax utilities, browser bundling configuration, or APIs not demonstrated or described by the supplied research.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

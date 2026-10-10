@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>fast-check 4.x — PMCP</title>
+  <meta name="description" content="Use fast-check 4.x for property-based testing in standalone JavaScript/TypeScript scripts, with v3-to-v4 migration guidance and runnable Bun examples." />
+  <link rel="canonical" href="https://pmcp.build/skills/fast-check/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="fast-check 4.x — PMCP" />
+  <meta property="og:description" content="Use fast-check 4.x for property-based testing in standalone JavaScript/TypeScript scripts, with v3-to-v4 migration guidance and runnable Bun examples." />
+  <meta property="og:url" content="https://pmcp.build/skills/fast-check/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/fast-check/">Other majors</a></p>
+    <h1>fast-check 4.x</h1><p>Use fast-check 4.x for property-based testing in standalone JavaScript/TypeScript scripts, with v3-to-v4 migration guidance and runnable Bun examples.</p>
+    <dl><dt>For</dt><dd><code>fast-check@4.9.0</code></dd><dt>Verified</dt><dd>2026-09-08, 7 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-fast-check@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/fast-check/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/fast-check/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/fast-check/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-9o3SYTQSS//t1QkBNJ+hBzKBgojsVgdYIs9YVRA9dIcAow20NFilYd+BJE3FemrKBJo71t4bkQXgChoQ5TcXEA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against fast-check@4.9.0 on 2026-09-08. 7 of 7 examples executed.</p>
+<h2>fast-check 4.x</h2>
+<p><code>fast-check</code> is a property-based testing library for JavaScript and TypeScript. This skill targets <code>^4.0.0</code>.</p>
+<h3>Runtime and language requirements</h3>
+<ul>
+<li>Node.js must be at least <code>12.17.0</code>.</li>
+<li>v4 targets ECMAScript 2020.</li>
+<li>TypeScript support is documented for TypeScript <code>5.0</code> or newer.</li>
+<li>Import the package as a namespace:</li>
+</ul>
+<pre><code class="language-ts">import * as fc from &#39;fast-check&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const values = fc.sample(fc.nat(), 10);
+assert.equal(values.length, 10);
+assert.ok(values.every((value) =&gt; Number.isInteger(value) &amp;&amp; value &gt;= 0));
+</code></pre>
+<h3>Properties, preconditions, and assertions</h3>
+<p>Build a property with <code>fc.property(arbitrary1, arbitrary2, predicate)</code>, then run it with <code>fc.assert</code>. The predicate receives generated values and must return a truthy result. <code>fc.pre(condition)</code> discards a generated case when the precondition is not met; it is useful when the property only applies to part of an arbitrary&#39;s domain.</p>
+<p><code>fc.assert</code> throws when the property fails. It is synchronous for synchronous properties.</p>
+<pre><code class="language-ts">import * as fc from &#39;fast-check&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+function crop(text: string, maxLength: number): string {
+  return text.slice(0, maxLength);
+}
+
+fc.assert(
+  fc.property(fc.nat(), fc.string(), (maxLength, label) =&gt; {
+    fc.pre(label.length &lt;= maxLength);
+    return crop(label, maxLength) === label;
+  }),
+  { seed: 42, numRuns: 20 },
+);
+
+assert.ok(true);
+</code></pre>
+<p>Use <code>fc.asyncProperty</code> for asynchronous predicates. Await <code>fc.assert</code>; otherwise a rejected promise can escape the intended control flow.</p>
+<pre><code class="language-ts">import * as fc from &#39;fast-check&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const property = fc.asyncProperty(fc.nat(), async (value) =&gt; {
+  await Promise.resolve();
+  return value &gt;= 0;
+});
+
+await fc.assert(property, { seed: 42, numRuns: 10 });
+assert.ok(true);
+</code></pre>
+<h3>Inspecting runs with <code>check</code></h3>
+<p><code>fc.check</code> returns <code>RunDetails</code> instead of throwing immediately. The documented v4 result exposes <code>errorInstance</code> when a predicate fails; do not use the v3-shaped <code>error</code> field. Async checks must be awaited.</p>
+<pre><code class="language-ts">import * as fc from &#39;fast-check&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const details = fc.check(
+  fc.property(fc.constant(1), (value) =&gt; value === 1),
+  { numRuns: 1, seed: 42 },
+);
+
+assert.equal(details.failed, false);
+assert.equal(details.numRuns, 1);
+
+const asyncDetails = await fc.check(
+  fc.asyncProperty(fc.constant(&#39;ok&#39;), async (value) =&gt; {
+    await Promise.resolve();
+    return value === &#39;ok&#39;;
+  }),
+  { numRuns: 1, seed: 42 },
+);
+
+assert.equal(asyncDetails.failed, false);
+</code></pre>
+<h3>Sampling arbitraries</h3>
+<p><code>fc.sample(arbitrary, count)</code> extracts generated values. Passing <code>{ seed }</code> samples as though the run used that seed. The result is an array of generated values.</p>
+<pre><code class="language-ts">import * as fc from &#39;fast-check&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const tenNaturals = fc.sample(fc.nat(), 10);
+assert.equal(tenNaturals.length, 10);
+assert.ok(tenNaturals.every((value) =&gt; value &gt;= 0));
+
+const first = fc.sample(fc.nat(), { seed: 42 });
+const second = fc.sample(fc.nat(), { seed: 42 });
+assert.deepEqual(first, second);
+</code></pre>
+<h3>Global configuration</h3>
+<p><code>fc.configureGlobal(parameters)</code> changes default parameters used by subsequent operations, such as <code>numRuns</code>. A per-call parameter still applies to that call and can override the global setting. In a test framework, global configuration is typically placed in that framework&#39;s setup file; a standalone script can call it directly.</p>
+<pre><code class="language-ts">import * as fc from &#39;fast-check&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+fc.configureGlobal({ numRuns: 10 });
+
+const details = fc.check(
+  fc.property(fc.nat(), fc.nat(), (a, b) =&gt; a + b === b + a),
+  { seed: 42 },
+);
+
+assert.equal(details.failed, false);
+assert.equal(details.numRuns, 10);
+</code></pre>
+<h3>Common arbitraries and v4 inference</h3>
+<p>The documented API includes <code>anything</code>, <code>array</code>, <code>boolean</code>, <code>constant</code>, <code>constantFrom</code>, <code>nat</code>, <code>object</code>, <code>oneof</code>, <code>record</code>, <code>string</code>, and <code>tuple</code>, among others. <code>constant</code> and <code>constantFrom</code> have improved literal inference in v4: for example, <code>fc.constant(&#39;a&#39;)</code> is an <code>Arbitrary&lt;&#39;a&#39;&gt;</code>, and <code>fc.constantFrom(&#39;a&#39;, &#39;b&#39;)</code> is an <code>Arbitrary&lt;&#39;a&#39; | &#39;b&#39;&gt;</code>.</p>
+<pre><code class="language-ts">import * as fc from &#39;fast-check&#39;;
+import assert from &#39;node:assert/strict&#39;;
+
+const literal = fc.constant(&#39;a&#39;);
+const choice = fc.constantFrom(&#39;a&#39;, &#39;b&#39;);
+const pair = fc.tuple(fc.boolean(), fc.nat());
+const objectValue = fc.record({ name: fc.string(), enabled: fc.boolean() });
+
+assert.equal(fc.sample(literal, 1)[0], &#39;a&#39;);
+assert.ok(fc.sample(choice, 20).every((value) =&gt; value === &#39;a&#39; || value === &#39;b&#39;));
+assert.equal(fc.sample(pair, 1)[0].length, 2);
+assert.equal(typeof fc.sample(objectValue, 1)[0].enabled, &#39;boolean&#39;);
+</code></pre>
+<h3>v3-to-v4 migration traps</h3>
+<p>Do not copy older v3 examples without checking their options and names.</p>
+<ul>
+<li>Valid-only dates are no longer the default. Use <code>fc.date({ noInvalidDate: true })</code> to preserve the v3 behavior.</li>
+<li>Dictionaries and records no longer use the old default prototype behavior. Use <code>{ noNullPrototype: true }</code> with <code>fc.dictionary</code> or <code>fc.record</code> to preserve the v3 behavior.</li>
+<li>UUID generation changed defaults. Use <code>fc.uuid({ version: [1, 2, 3, 4, 5] })</code> to preserve v3 UUID versions.</li>
+<li>Replace <code>fc.record(model, { withDeletedKeys: true })</code> with <code>fc.record(model, { requiredKeys: [] })</code>.</li>
+<li>Removed or deprecated v3 names include <code>uuidV</code>, <code>unicodeJson*</code>, <code>ascii*</code>, <code>hexa*</code>, <code>base64</code>, <code>stringOf</code>, <code>char16bits</code>, <code>string16bits</code>, <code>fullUnicode*</code>, <code>unicode*</code>, <code>char</code>, <code>bigIntN</code>, <code>bigUintN</code>, <code>bigUint</code>, and <code>.noShrink</code>.</li>
+<li>Use <code>fc.noShrink(myArbitrary)</code> rather than the removed <code>.noShrink</code> shape.</li>
+<li>Use <code>fc.string({ unit: fc.constantFrom(&#39;Hello&#39;, &#39;World&#39;) })</code> rather than the removed string helpers.</li>
+<li>For bounded big integers, use <code>fc.bigInt({ min: 0n, max: (1n &lt;&lt; BigInt(n)) - 1n })</code>.</li>
+<li>Predicate errors now retain the original error as <code>cause</code>. If v3-style reporting is required, use <code>includeErrorInReport</code>.</li>
+<li>Custom property runners must explicitly call <code>runBeforeEach</code> and <code>runAfterEach</code>.</li>
+<li>Custom <code>Arbitrary</code> implementations must not use the removed <code>Random.nextArrayInt</code>.</li>
+</ul>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover every arbitrary, matcher, class, custom <code>Arbitrary</code> implementation, runner integration, or framework-specific setup API. It does not cover the complete <code>Random</code>, <code>Stream</code>, <code>Value</code>, or <code>Arbitrary</code> class APIs, advanced shrinking, failure-report formatting, or the full <code>Parameters</code> and <code>RunDetails</code> type definitions. fast-check is runner-agnostic; framework hooks and test-runner configuration are outside the documented standalone examples here.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

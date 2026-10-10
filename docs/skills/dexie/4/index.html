@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>dexie 4.x — PMCP</title>
+  <meta name="description" content="Use Dexie 4.x for typed IndexedDB databases, table access, and reactive queries. Covers the Dexie/EntityTable TypeScript shapes, schema setup, liveQuery, and the boundary between standalone Dexie and dexie-cloud." />
+  <link rel="canonical" href="https://pmcp.build/skills/dexie/4/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="dexie 4.x — PMCP" />
+  <meta property="og:description" content="Use Dexie 4.x for typed IndexedDB databases, table access, and reactive queries. Covers the Dexie/EntityTable TypeScript shapes, schema setup, liveQuery, and the boundary between standalone Dexie and dexie-cloud." />
+  <meta property="og:url" content="https://pmcp.build/skills/dexie/4/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/dexie/">Other majors</a></p>
+    <h1>dexie 4.x</h1><p>Use Dexie 4.x for typed IndexedDB databases, table access, and reactive queries. Covers the Dexie/EntityTable TypeScript shapes, schema setup, liveQuery, and the boundary between standalone Dexie and dexie-cloud.</p>
+    <dl><dt>For</dt><dd><code>dexie@4.4.5</code></dd><dt>Verified</dt><dd>2026-09-08, 3 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-dexie@4.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/dexie/4/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/dexie/4/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/dexie/4/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-+AsXoXTt2czksI3zUKHfApjYXaqrDjpmH5uwrSAwL87fNVHExmUdw+yqGFd471tKWRfX6yOKZSA1MiY0VoRtJw==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against dexie@4.4.5 on 2026-09-08. 3 of 3 examples executed.</p>
+<h2>Dexie 4</h2>
+<h3>Use this when</h3>
+<p>Use <code>dexie</code> as the main class for defining an IndexedDB database, its schema, and typed tables. Dexie is usable from a normal module or script; it is not itself a test runner or framework.</p>
+<h3>Core database setup</h3>
+<p><code>Dexie</code> is both the default export and a named export. Define stores with a version before opening the database:</p>
+<pre><code class="language-ts">import { Dexie } from &quot;dexie&quot;;
+
+const db = new Dexie(&quot;MyDatabase&quot;);
+db.version(1).stores({
+  friends: &quot;++id, name, age&quot;,
+});
+
+await db.open();
+</code></pre>
+<p>The schema string uses the primary key first, followed by indexed fields. <code>++id</code> declares an auto-generated primary key. Ordinary table operations are asynchronous:</p>
+<pre><code class="language-ts">await db.table(&quot;friends&quot;).add({ name: &quot;Ada&quot;, age: 36 });
+const friends = await db.table(&quot;friends&quot;).toArray();
+</code></pre>
+<p>Do not assume that declaring a store opens the database. Call <code>open()</code> or perform an operation that opens it, and handle the resulting promise.</p>
+<p><code>db.table(storeName)</code> returns a table dynamically. If the table is declared as a property on a typed database, use that property instead; the dynamic form is useful when the store name is only available at runtime.</p>
+<h3>TypeScript table shapes</h3>
+<p>Dexie 4 adds <code>EntityTable&lt;T, KeyPropName&gt;</code>. It derives the key type from the entity and makes an auto-generated key optional when inserting plain objects:</p>
+<pre><code class="language-ts">import { Dexie, type EntityTable } from &quot;dexie&quot;;
+
+interface Friend {
+  id: number;
+  name: string;
+  age: number;
+}
+
+const db = new Dexie(&quot;FriendsDatabase&quot;) as Dexie &amp; {
+  friends: EntityTable&lt;Friend, &quot;id&quot;&gt;;
+};
+
+db.version(1).stores({
+  friends: &quot;++id, name, age&quot;,
+});
+
+await db.friends.add({ name: &quot;Ada&quot;, age: 36 });
+</code></pre>
+<p>The older, commonly seen <code>Table&lt;T, TKey&gt;</code> shape is still valid in Dexie 4. Do not rewrite working code merely because it uses <code>Table</code>; <code>EntityTable</code> is the newer convenience for entity-oriented TypeScript:</p>
+<pre><code class="language-ts">import { Dexie, type Table } from &quot;dexie&quot;;
+
+interface Friend {
+  id: number;
+  name: string;
+  age: number;
+}
+
+const db = new Dexie(&quot;FriendsDatabase&quot;) as Dexie &amp; {
+  friends: Table&lt;Friend, number&gt;;
+};
+
+db.version(1).stores({
+  friends: &quot;++id, name, age&quot;,
+});
+</code></pre>
+<p>A class-oriented database can declare an <code>EntityTable</code> and map records to a class:</p>
+<pre><code class="language-ts">import { Dexie, type EntityTable } from &quot;dexie&quot;;
+
+class Friend {
+  id!: number;
+  constructor(public name: string, public age: number) {}
+}
+
+class AppDB extends Dexie {
+  friends!: EntityTable&lt;Friend, &quot;id&quot;&gt;;
+
+  constructor() {
+    super(&quot;FriendsDB&quot;);
+    this.version(1).stores({ friends: &quot;++id, name, age&quot; });
+    this.friends.mapToClass(Friend);
+  }
+}
+</code></pre>
+<p>The <code>EntityTable</code> type omits class methods for inserts, so plain objects can be passed. <code>mapToClass()</code> is the separate choice when reads should be mapped to instances.</p>
+<h3>Reactive queries with <code>liveQuery</code></h3>
+<p><code>liveQuery</code> is a named export. It accepts a synchronous or asynchronous querier and returns an Observable. Subscribe with <code>next</code> and <code>error</code>; retain the subscription and unsubscribe when the consumer is disposed:</p>
+<pre><code class="language-ts">import { liveQuery } from &quot;dexie&quot;;
+
+const observable = liveQuery(() =&gt;
+  db.friends.where(&quot;age&quot;).between(50, 75).toArray()
+);
+
+const subscription = observable.subscribe({
+  next: (friends) =&gt; console.log(friends),
+  error: (error) =&gt; console.error(error),
+});
+
+subscription.unsubscribe();
+</code></pre>
+<p>The querier should perform the Dexie query whose changes should be observed. <code>liveQuery</code> is not a replacement for <code>subscribe</code>; creating the Observable alone does not establish a consumer subscription.</p>
+<h3>Cloud boundary</h3>
+<p>Cloud support is not part of standalone <code>dexie</code>. Install and configure <code>dexie-cloud-addon</code>, pass the addon when constructing the database, then call <code>db.cloud.configure(...)</code>. Do not expect <code>db.cloud</code> to exist on a database created only from <code>dexie</code>.</p>
+<p>Cloud administration is a CLI concern: use <code>npx dexie-cloud ...</code>. It requires Node.js and uses <code>dexie-cloud.json</code> and <code>dexie-cloud.key</code>; it is not something to exercise through the standalone Dexie API.</p>
+<h3>Runnable checks</h3>
+<p>These examples only exercise construction and schema declaration, so they do not require an IndexedDB implementation, a browser, a network, or a filesystem. Database reads and writes require the runtime&#39;s IndexedDB support.</p>
+<h4>Named and default exports, versioned stores, and <code>table()</code></h4>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import DexieDefault, { Dexie } from &quot;dexie&quot;;
+
+assert.equal(DexieDefault, Dexie);
+
+const db = new Dexie(&quot;DexieSkillCore&quot;);
+db.version(1).stores({
+  friends: &quot;++id, name, age&quot;,
+  pets: &quot;++id, name, kind&quot;,
+});
+
+const friends = db.table(&quot;friends&quot;);
+assert.equal(friends.name, &quot;friends&quot;);
+assert.deepEqual(
+  db.tables.map((table) =&gt; table.name).sort(),
+  [&quot;friends&quot;, &quot;pets&quot;],
+);
+</code></pre>
+<h4><code>liveQuery</code> is a named export</h4>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { liveQuery } from &quot;dexie&quot;;
+
+assert.equal(typeof liveQuery, &quot;function&quot;);
+const observable = liveQuery(() =&gt; 42);
+assert.equal(typeof observable.subscribe, &quot;function&quot;);
+</code></pre>
+<h4>TypeScript entity declaration shape</h4>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { Dexie, type EntityTable } from &quot;dexie&quot;;
+
+interface Friend {
+  id: number;
+  name: string;
+}
+
+const db = new Dexie(&quot;DexieSkillEntities&quot;) as Dexie &amp; {
+  friends: EntityTable&lt;Friend, &quot;id&quot;&gt;;
+};
+
+db.version(1).stores({ friends: &quot;++id, name&quot; });
+assert.equal(db.table(&quot;friends&quot;).name, &quot;friends&quot;);
+</code></pre>
+<h3>What this skill does not cover</h3>
+<p>It does not cover IndexedDB support or runtime-specific setup, detailed query/filtering APIs beyond the documented <code>liveQuery</code> example, transactions and error classes, database migrations, addon installation/configuration details, or the <code>dexie-cloud</code> CLI command set. Those areas require the package/runtime or sources beyond the research provided here.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

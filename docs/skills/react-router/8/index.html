@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>react-router 8.x — PMCP</title>
+  <meta name="description" content="Use react-router ^8.0.0 APIs correctly, including v8 import boundaries, pure path helpers, and the parts that require a React or framework runtime." />
+  <link rel="canonical" href="https://pmcp.build/skills/react-router/8/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="react-router 8.x — PMCP" />
+  <meta property="og:description" content="Use react-router ^8.0.0 APIs correctly, including v8 import boundaries, pure path helpers, and the parts that require a React or framework runtime." />
+  <meta property="og:url" content="https://pmcp.build/skills/react-router/8/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/react-router/">Other majors</a></p>
+    <h1>react-router 8.x</h1><p>Use react-router ^8.0.0 APIs correctly, including v8 import boundaries, pure path helpers, and the parts that require a React or framework runtime.</p>
+    <dl><dt>For</dt><dd><code>react-router@8.3.1</code></dd><dt>Verified</dt><dd>2026-09-08, 2 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-react-router@8.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/react-router/8/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/react-router/8/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/react-router/8/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-s0Qo7oV86BSdQcbQq8sOMoungwi4O2+4j75v4HY9eKmq4/DL0Pcn4ZV4+JZSLh0bv4gy8SDtirvdHBJlHqAJmA==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against react-router@8.3.1 on 2026-09-08. 2 of 2 examples executed.</p>
+<h2>react-router ^8.0.0</h2>
+<h3>Version and module boundary</h3>
+<ul>
+<li>The v8 line is ESM-only and requires Node 22.22.0+, React 19.2.7+, and Vite 7+.</li>
+<li>Import general routing APIs from <code>react-router</code>:</li>
+</ul>
+<pre><code class="language-ts">import { Link, Route, createBrowserRouter } from &quot;react-router&quot;;
+</code></pre>
+<ul>
+<li>Import DOM-specific <code>RouterProvider</code> and <code>HydratedRouter</code> from <code>react-router/dom</code>:</li>
+</ul>
+<pre><code class="language-ts">import { RouterProvider, HydratedRouter } from &quot;react-router/dom&quot;;
+</code></pre>
+<ul>
+<li>Do not use the older v7 compatibility shape with <code>react-router-dom</code>; v8 removes <code>react-router-dom</code>.</li>
+<li><code>createBrowserRouter(routes, opts?)</code> creates a data router backed by <code>history.pushState</code> and <code>history.replaceState</code>. Its result is passed to <code>RouterProvider</code>.</li>
+</ul>
+<h3>Pure path helpers</h3>
+<h4><code>generatePath</code></h4>
+<p><code>generatePath(originalPath, params?)</code> substitutes route parameters and URL-encodes parameter values.</p>
+<pre><code class="language-ts">import { generatePath } from &quot;react-router&quot;;
+
+const userPath = generatePath(&quot;/users/:id&quot;, { id: &quot;123&quot; });
+const filePath = generatePath(&quot;/files/:name&quot;, { name: &quot;a b&quot; });
+</code></pre>
+<p><code>userPath</code> is <code>/users/123</code>; <code>filePath</code> is <code>/files/a%20b</code>.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { generatePath } from &quot;react-router&quot;;
+
+assert.equal(generatePath(&quot;/users/:id&quot;, { id: &quot;123&quot; }), &quot;/users/123&quot;);
+assert.equal(generatePath(&quot;/files/:name&quot;, { name: &quot;a b&quot; }), &quot;/files/a%20b&quot;);
+</code></pre>
+<h4><code>matchPath</code></h4>
+<p><code>matchPath(pattern, pathname)</code> returns a path match or <code>null</code>.</p>
+<p>When the pattern is a string, its defaults are <code>caseSensitive: false</code> and <code>end: true</code>. The result contains the parsed route parameters.</p>
+<pre><code class="language-ts">import assert from &quot;node:assert/strict&quot;;
+import { matchPath } from &quot;react-router&quot;;
+
+const match = matchPath(&quot;/users/:id&quot;, &quot;/USERS/123&quot;);
+assert.ok(match);
+assert.equal(match.params.id, &quot;123&quot;);
+
+assert.equal(matchPath(&quot;/users/:id&quot;, &quot;/users/123/settings&quot;), null);
+</code></pre>
+<h3>React-bound APIs</h3>
+<h4><code>useRoutes</code></h4>
+<p><code>useRoutes(routes, locationArg?)</code> is a React hook that renders the element matched by a route-object tree. It must be called from a React component, not from a plain script or at module scope.</p>
+<p>The route tree can contain nested children:</p>
+<pre><code class="language-tsx">function App() {
+  return useRoutes([
+    {
+      path: &quot;/&quot;,
+      element: &lt;Dashboard /&gt;,
+      children: [
+        { path: &quot;messages&quot;, element: &lt;DashboardMessages /&gt; },
+        { path: &quot;tasks&quot;, element: &lt;DashboardTasks /&gt; },
+      ],
+    },
+    { path: &quot;team&quot;, element: &lt;AboutPage /&gt; },
+  ]);
+}
+</code></pre>
+<p>No standalone <code>ts pmcp-example</code> is provided for this hook because executing it requires a React render environment, which a direct <code>bun example.ts</code> process does not provide.</p>
+<h4><code>createBrowserRouter</code></h4>
+<p><code>createBrowserRouter</code> is a DOM data-router API. Create the router from route objects and pass it to <code>RouterProvider</code> imported from <code>react-router/dom</code> in a browser application. A direct script has no browser history or DOM setup, so this API is exercised through the application/tool runtime rather than a standalone example.</p>
+<h3>v8 migration traps</h3>
+<ul>
+<li>Do not import <code>RouterProvider</code> or <code>HydratedRouter</code> from <code>react-router</code>; use <code>react-router/dom</code>.</li>
+<li>Do not import from <code>react-router-dom</code>; it was retained as a v7 re-export but is removed in v8.</li>
+<li>The deprecated <code>meta</code> data is removed. Use <code>loaderData</code> in <code>MetaArgs</code>, <code>MetaMatch</code>, <code>Route.ComponentProps.matches</code>, and <code>UIMatch</code>.</li>
+<li>Middleware is always enabled. Loader, action, and middleware <code>context</code> is always a <code>RouterContextProvider</code>; a custom <code>getLoadContext</code> must return that type rather than a plain object.</li>
+<li><code>future.v8_*</code> flags are removed or promoted to defaults. In particular, <code>future.v8_splitRouteModules</code> is replaced by top-level <code>splitRouteModules</code>, whose documented values include <code>false</code> and <code>&quot;enforce&quot;</code>; its default is <code>true</code>.</li>
+<li><code>hasErrorBoundary</code> is no longer accepted on route objects, JSX route props, or lazy route definitions.</li>
+</ul>
+<h3>Framework and server boundaries</h3>
+<p>Framework Mode depends on <code>@react-router/dev</code>&#39;s Vite plugin for type-safe route modules, code splitting, SPA/SSR/SSG, and generated route types. Its setup is CLI/build-oriented rather than a self-contained package API.</p>
+<p><code>ServerRouter</code> is a framework-entry API. It requires the generated/server entry context and is not a standalone helper for a plain script.</p>
+<h3>Not covered</h3>
+<p>This skill does not cover the complete route-object type surface, loaders and actions, middleware implementation, <code>RouterProvider</code> options, framework route-file conventions, generated route types, SSR/SSG setup, or the <code>ServerRouter</code> entry context. The available research also does not establish a standalone Node-only data-router setup.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

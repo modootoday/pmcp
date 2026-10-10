@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ip-address 10.x — PMCP</title>
+  <meta name="description" content="Use ip-address ^10.0.0 for standalone IPv4 and IPv6 parsing, validation, subnet checks, conversions, special-address inspection, and URL parsing. This skill emphasizes the v10 native-BigInt API and avoids older v9 method names." />
+  <link rel="canonical" href="https://pmcp.build/skills/ip-address/10/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="ip-address 10.x — PMCP" />
+  <meta property="og:description" content="Use ip-address ^10.0.0 for standalone IPv4 and IPv6 parsing, validation, subnet checks, conversions, special-address inspection, and URL parsing. This skill emphasizes the v10 native-BigInt API and avoids older v9 method names." />
+  <meta property="og:url" content="https://pmcp.build/skills/ip-address/10/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Free package skills</p><p><a href="/skills/">All free skills</a> / <a href="/skills/ip-address/">Other majors</a></p>
+    <h1>ip-address 10.x</h1><p>Use ip-address ^10.0.0 for standalone IPv4 and IPv6 parsing, validation, subnet checks, conversions, special-address inspection, and URL parsing. This skill emphasizes the v10 native-BigInt API and avoids older v9 method names.</p>
+    <dl><dt>For</dt><dd><code>ip-address@10.7.0</code></dd><dt>Verified</dt><dd>2026-09-08, 8 examples executed</dd><dt>Skill package</dt><dd><code>@modootoday/pmcp-ip-address@10.0.0</code></dd></dl>
+    <section class="skill-download"><h2>Use this skill for free</h2>
+    <p>No PMCP login or subscription is required. Download the original instructions, or install the content-only archive with your project's package manager.</p>
+    <p><a href="/skills/ip-address/10/SKILL.md" download>Download SKILL.md</a> · <a href="/skills/ip-address/10/package.tgz" download>Download package archive</a></p>
+    <pre><code>npm install --save-dev https://pmcp.build/skills/ip-address/10/package.tgz</code></pre>
+    <p>PMCP discovers the installed package's instructions. <a href="/guide/">Connect your runtime</a> after installation.</p>
+    <details><summary>Archive integrity</summary><code>sha512-m7WrEqAeHsZX4jtSyXNDByQjCKFcGTy4/2uESM3Sfg9RBrORBIrMTktlPCSq0RFIX5wPqAeCRR+foQA6Q0LYow==</code></details></section>
+    <section class="skill-source"><h2>Complete instructions</h2><p>Verified against ip-address@10.7.0 on 2026-09-08. 8 of 8 examples executed.</p>
+<h2>ip-address ^10.0.0</h2>
+<p><code>ip-address</code> 10.x exports <code>Address4</code>, <code>Address6</code>, and <code>AddressError</code>. It supports ESM and CommonJS and includes TypeScript declarations. The documented runtime requires Node.js 12 or newer. Install it before running the examples.</p>
+<h3>Importing</h3>
+<p>Use the named ESM exports:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert/strict&#39;;
+import { Address4, Address6 } from &#39;ip-address&#39;;
+
+assert.equal(Address4.isValid(&#39;192.168.1.1&#39;), true);
+assert.equal(Address6.isValid(&#39;2001:db8::1&#39;), true);
+assert.equal(Address6.isValid(&#39;not an address&#39;), false);
+
+const v4 = new Address4(&#39;192.168.1.1/24&#39;);
+const v6 = new Address6(&#39;2001:db8::1/64&#39;);
+
+assert.ok(v4);
+assert.ok(v6);
+</code></pre>
+<p>CommonJS is also documented:</p>
+<pre><code class="language-js">const { Address6 } = require(&#39;ip-address&#39;);
+const address = new Address6(&#39;2001:0:ce49:7601:e866:efff:62c3:fffe&#39;);
+const teredo = address.inspectTeredo();
+console.log(teredo.client4);
+</code></pre>
+<h3>IPv4</h3>
+<p>Construct an address with an optional CIDR prefix. <code>isValid</code> is a static validity check. IPv4 addresses support subnet membership, subnet boundaries, private/global checks, and alternate constructors.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert/strict&#39;;
+import { Address4 } from &#39;ip-address&#39;;
+
+const host = new Address4(&#39;192.168.1.42&#39;);
+const network = new Address4(&#39;192.168.1.0/24&#39;);
+
+assert.equal(host.isInSubnet(network), true);
+assert.equal(network.startAddress().correctForm(), &#39;192.168.1.0&#39;);
+assert.equal(network.endAddress().correctForm(), &#39;192.168.1.255&#39;);
+assert.equal(new Address4(&#39;192.168.1.1&#39;).isPrivate(), true);
+assert.equal(typeof new Address4(&#39;192.168.1.1&#39;).isGlobal(), &#39;boolean&#39;);
+</code></pre>
+<p>Available IPv4 constructors and checks include:</p>
+<ul>
+<li><code>new Address4(address)</code></li>
+<li><code>Address4.isValid(address)</code></li>
+<li><code>Address4.fromAddressAndMask(address, mask)</code></li>
+<li><code>Address4.fromAddressAndWildcardMask(address, wildcardMask)</code></li>
+<li><code>Address4.fromWildcard(input)</code></li>
+<li><code>Address4.fromHex(hex)</code></li>
+<li><code>Address4.fromInteger(integer)</code></li>
+<li><code>isInSubnet(subnet)</code></li>
+<li><code>startAddress()</code> and <code>endAddress()</code></li>
+<li><code>isPrivate()</code> and <code>isGlobal()</code></li>
+<li><code>correctForm()</code></li>
+</ul>
+<p>The alternate constructors return <code>Address4</code> instances. <code>fromWildcard</code> takes a four-octet wildcard pattern; use <code>*</code> for wildcard octets.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert/strict&#39;;
+import { Address4 } from &#39;ip-address&#39;;
+
+const fromMask = Address4.fromAddressAndMask(&#39;192.168.1.42&#39;, &#39;255.255.255.0&#39;);
+const fromWildcardMask = Address4.fromAddressAndWildcardMask(&#39;192.168.1.42&#39;, &#39;0.0.0.255&#39;);
+const fromWildcard = Address4.fromWildcard(&#39;192.168.*.*&#39;);
+const fromHex = Address4.fromHex(&#39;c0a80101&#39;);
+const fromInteger = Address4.fromInteger(3232235777);
+
+for (const address of [fromMask, fromWildcardMask, fromWildcard, fromHex, fromInteger]) {
+  assert.ok(address instanceof Address4);
+}
+</code></pre>
+<h3>IPv6</h3>
+<p>Construct an IPv6 address with an optional CIDR prefix and optionally an <code>optionalGroups</code> value. IPv6 provides canonical and native-BigInt forms, byte conversion, special-address predicates, embedded IPv4 handling, URL parsing, and protocol-specific inspection.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert/strict&#39;;
+import { Address6 } from &#39;ip-address&#39;;
+
+const address = new Address6(&#39;2001:db8::1/64&#39;);
+assert.equal(address.canonicalForm(), &#39;2001:0db8:0000:0000:0000:0000:0000:0001&#39;);
+assert.equal(typeof address.bigInt(), &#39;bigint&#39;);
+assert.equal(Array.isArray(address.toByteArray()), true);
+
+const link = new Address6(&#39;fe80::1&#39;);
+assert.equal(link.isLinkLocal(), true);
+assert.equal(link.isMulticast(), false);
+assert.equal(link.isLoopback(), false);
+assert.equal(typeof link.isGlobal(), &#39;boolean&#39;);
+</code></pre>
+<p>The documented IPv6 surface includes:</p>
+<ul>
+<li><code>new Address6(address, optionalGroups?)</code></li>
+<li><code>Address6.isValid(address)</code></li>
+<li><code>Address6.fromBigInt(bigInt)</code></li>
+<li><code>bigInt()</code></li>
+<li><code>canonicalForm()</code> and <code>toByteArray()</code></li>
+<li><code>isLinkLocal()</code>, <code>isMulticast()</code>, <code>isLoopback()</code>, and <code>isGlobal()</code></li>
+<li><code>inspectTeredo()</code> and <code>inspect6to4()</code></li>
+<li><code>toAddress4Nat64(prefix?)</code></li>
+<li><code>embeddedIPv4()</code></li>
+<li><code>href(optionalPort?)</code></li>
+<li><code>link(options?)</code>, where options may contain <code>className</code>, <code>prefix</code>, and <code>v4</code></li>
+</ul>
+<p>Use native <code>bigint</code> in v10:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert/strict&#39;;
+import { Address6 } from &#39;ip-address&#39;;
+
+const original = new Address6(&#39;2001:db8::1&#39;);
+const numeric = original.bigInt();
+const restored = Address6.fromBigInt(numeric);
+
+assert.equal(typeof numeric, &#39;bigint&#39;);
+assert.ok(restored instanceof Address6);
+assert.equal(restored.canonicalForm(), original.canonicalForm());
+</code></pre>
+<p>Teredo addresses can expose the decoded client IPv4 address:</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert/strict&#39;;
+import { Address6 } from &#39;ip-address&#39;;
+
+const teredo = new Address6(&#39;2001:0:ce49:7601:e866:efff:62c3:fffe&#39;);
+assert.equal(teredo.inspectTeredo().client4, &#39;157.60.0.1&#39;);
+</code></pre>
+<h3>IPv6 URLs and errors</h3>
+<p><code>Address6.fromURL(url)</code> returns either an error result with <code>address: null</code> and <code>port: null</code>, or a result containing an <code>Address6</code> and a nullable port.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert/strict&#39;;
+import { Address6 } from &#39;ip-address&#39;;
+
+const parsed = Address6.fromURL(&#39;http://[2001:db8::1]:8080/&#39;);
+assert.equal(parsed.port, 8080);
+assert.ok(parsed.address instanceof Address6);
+</code></pre>
+<p><code>AddressError</code> can be constructed with a message and an optional parse message; its <code>parseMessage</code> property is exposed.</p>
+<pre><code class="language-ts">import { strict as assert } from &#39;node:assert/strict&#39;;
+import { AddressError } from &#39;ip-address&#39;;
+
+const error = new AddressError(&#39;invalid address&#39;, &#39;parse failed&#39;);
+assert.equal(error.parseMessage, &#39;parse failed&#39;);
+assert.equal(error.message, &#39;invalid address&#39;);
+</code></pre>
+<h3>v10 migration warning</h3>
+<p>Do not copy the older v9 API names shown in older generated documentation:</p>
+<ul>
+<li><code>fromBigInteger()</code> became <code>fromBigInt()</code>.</li>
+<li><code>bigInteger()</code> became <code>bigInt()</code>.</li>
+<li>v10 returns and accepts native JavaScript <code>BigInt</code> values rather than the removed <code>jsbn</code>-based shape.</li>
+</ul>
+<p>The package’s v10 generated documentation may still show <code>fromBigInteger</code> and <code>bigInteger</code>; follow the v10 migration names instead.</p>
+<h3>What this skill does not cover</h3>
+<p>This skill does not cover browser bundling, the package’s build or release workflow, generated documentation, or command-line/tool execution. The research describes browser use through browserify but does not provide a standalone browser example. It also does not specify the exact results or input formats for every documented conversion, formatting, NAT64, 6to4, URL-error, or link option, so those details are left for the package’s TypeScript declarations or API documentation.</p>
+</section></article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>
