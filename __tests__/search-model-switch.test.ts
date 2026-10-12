@@ -44,7 +44,9 @@ it("serves Korean requests from a complete persisted index with a stub embedder"
   );
   expect(prepared.ranking).toBe("semantic");
   const tools = createSkillTools({ roots: [], ...prepared.options });
-  const result = await tools.find("변경 사항을 검토해서 커밋하자");
+  const result = await tools.find(
+    "\ubcc0\uacbd \uc0ac\ud56d\uc744 \uac80\ud1a0\ud574\uc11c \ucee4\ubc0b\ud558\uc790",
+  );
   expect(result.ranking).toBe("semantic");
   expect(result.matches[0]?.name).toBe(entry.name);
 });

@@ -37,7 +37,7 @@ const cache = await openIntentCache({
 });
 assert.ok(cache, "SQLite unavailable");
 try {
-  const query = "변경 사항 검토";
+  const query = "\ubcc0\uacbd \uc0ac\ud56d \uac80\ud1a0";
   cache.put(query.normalize("NFD"), new Float32Array([1, 2]));
   assert.equal(cache.get(query)?.[1], 2);
   console.log(

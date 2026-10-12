@@ -12,7 +12,7 @@ afterAll(() => rmSync(dir, { recursive: true, force: true }));
 const vec = (...values: number[]) => new Float32Array(values);
 
 describe("normaliseIntent", () => {
-  it.each(["변경 사항 검토", "café résumé"])(
+  it.each(["\ubcc0\uacbd \uc0ac\ud56d \uac80\ud1a0", "café résumé"])(
     "uses one key for composed and decomposed Unicode: %s",
     (intent) => {
       expect(normaliseIntent(intent.normalize("NFD"))).toBe(
@@ -58,7 +58,7 @@ describe("openIntentCache", () => {
 
   it("reuses a persisted query vector across equivalent Hangul forms", async () => {
     const path = join(dir, "hangul.sqlite");
-    const intent = "변경 사항 검토";
+    const intent = "\ubcc0\uacbd \uc0ac\ud56d \uac80\ud1a0";
     const first = (await openIntentCache({ path, modelId: "m1", dims: 3 }))!;
     first.put(intent.normalize("NFD"), vec(1, 2, 3));
     first.close();
