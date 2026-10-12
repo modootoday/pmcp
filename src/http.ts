@@ -34,6 +34,10 @@ import type { SkillServerOptions } from "./server.js";
 import type { MailboxService } from "./mailbox/service.js";
 
 export { DEFAULT_MODEL_ID, loadEmbedder } from "./embed.js";
+export { readCatalog } from "./catalog.js";
+export { verifiedRuntimesOf } from "./runtime.js";
+export type { CatalogOptions, SkillEntry } from "./catalog.js";
+export type { Runtime } from "./runtime.js";
 export type { Embedder } from "./find.js";
 export {
   DEFAULT_MAX_REQUEST_BYTES,

@@ -26,6 +26,19 @@ const skills = createSkillHttpHandler({
 export default { fetch: (request: Request) => skills.fetch(request) };
 ```
 
+Import `readCatalog` and `verifiedRuntimesOf` from the same `/http` entry when
+the host also displays the catalog. `verifiedRuntimesOf(metadata)` accepts an
+array or a comma/whitespace-separated string, drops unknown names and removes
+duplicates while preserving declaration order. Hosts that need a fixed display
+order can sort the result themselves.
+
+Pass `onReject: ({ path, reason }) => reportRejectedCatalog(path, reason)` to
+observe rejected marketplace entries during startup and `reload()`. This callback
+is synchronous and reports only the path and reason. A custom `loadCatalog` must
+forward its options to `readCatalog` to retain rejection reporting. If the host
+loads a separate site catalog, pass the callback to that load as well. Deduplicate
+repeated warnings in the host and keep local paths out of public responses.
+
 The handler checks requests before they reach MCP:
 
 | Option            | Default | Effect                                                                                                                                                                                                                                  |

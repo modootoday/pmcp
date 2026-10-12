@@ -12,6 +12,14 @@ afterAll(() => rmSync(dir, { recursive: true, force: true }));
 const vec = (...values: number[]) => new Float32Array(values);
 
 describe("normaliseIntent", () => {
+  it.each(["변경 사항 검토", "café résumé"])(
+    "uses one key for composed and decomposed Unicode: %s",
+    (intent) => {
+      expect(normaliseIntent(intent.normalize("NFD"))).toBe(
+        normaliseIntent(intent),
+      );
+    },
+  );
   it("folds case, punctuation and spacing into one key", () => {
     expect(normaliseIntent("How do I wire X?")).toBe(
       normaliseIntent("how  do i wire x"),
@@ -47,6 +55,22 @@ describe("openIntentCache", () => {
       dims: 3,
       ...over,
     }))!;
+
+  it("reuses a persisted query vector across equivalent Hangul forms", async () => {
+    const path = join(dir, "hangul.sqlite");
+    const intent = "변경 사항 검토";
+    const first = (await openIntentCache({ path, modelId: "m1", dims: 3 }))!;
+    first.put(intent.normalize("NFD"), vec(1, 2, 3));
+    first.close();
+    const reopened = (await openIntentCache({ path, modelId: "m1", dims: 3 }))!;
+    try {
+      expect(Array.from(reopened.get(intent)!)).toEqual([1, 2, 3]);
+      expect(reopened.stats().hits).toBe(1);
+      expect(reopened.stats().rows).toBe(1);
+    } finally {
+      reopened.close();
+    }
+  });
 
   it("misses on an empty cache", async () => {
     const cache = await open();

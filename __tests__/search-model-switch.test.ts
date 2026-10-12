@@ -7,6 +7,7 @@ import { resolveEncoder } from "../src/encoder.js";
 import { openIntentCache } from "../src/cache.js";
 import { find } from "../src/find.js";
 import { prepareSearch } from "../src/search.js";
+import { createSkillTools } from "../src/server.js";
 
 let directory: string;
 beforeEach(() => {
@@ -26,6 +27,27 @@ const embedder = {
   dims: 2,
   embed: async () => Float32Array.of(1, 0),
 };
+
+it("serves Korean requests from a complete persisted index with a stub embedder", async () => {
+  const indexPath = join(directory, "korean-index.sqlite");
+  const store = (await openEntryVectors(indexPath))!;
+  store.write(
+    DEFAULT_MODEL_ID,
+    entry.name,
+    entry.description,
+    Float32Array.of(1, 0),
+  );
+  store.close();
+  const prepared = await prepareSearch(
+    { roots: [] },
+    { indexPath, embedder, loadCatalog },
+  );
+  expect(prepared.ranking).toBe("semantic");
+  const tools = createSkillTools({ roots: [], ...prepared.options });
+  const result = await tools.find("변경 사항을 검토해서 커밋하자");
+  expect(result.ranking).toBe("semantic");
+  expect(result.matches[0]?.name).toBe(entry.name);
+});
 
 it("keeps query caches separate across equal-width profiles and reuses them after restoration", async () => {
   const cache = (await openIntentCache({

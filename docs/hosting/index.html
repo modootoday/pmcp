@@ -57,6 +57,17 @@ const skills = createSkillHttpHandler({
     verifyBearer(request.headers.get(&quot;authorization&quot;)),
 });
 export default { fetch: (request: Request) =&gt; skills.fetch(request) };</code></pre>
+<p>Import <code>readCatalog</code> and <code>verifiedRuntimesOf</code> from the same <code>/http</code> entry when
+the host also displays the catalog. <code>verifiedRuntimesOf(metadata)</code> accepts an
+array or a comma/whitespace-separated string, drops unknown names and removes
+duplicates while preserving declaration order. Hosts that need a fixed display
+order can sort the result themselves.</p>
+<p>Pass <code>onReject: ({ path, reason }) =&gt; reportRejectedCatalog(path, reason)</code> to
+observe rejected marketplace entries during startup and <code>reload()</code>. This callback
+is synchronous and reports only the path and reason. A custom <code>loadCatalog</code> must
+forward its options to <code>readCatalog</code> to retain rejection reporting. If the host
+loads a separate site catalog, pass the callback to that load as well. Deduplicate
+repeated warnings in the host and keep local paths out of public responses.</p>
 <p>The handler checks requests before they reach MCP:</p>
 <div class="scroll"><table><thead><tr><th>Option</th><th>Default</th><th>Effect</th></tr></thead><tbody><tr><td><code>allowedOrigins</code></td><td>none</td><td>A request with an <code>Origin</code> other than the server&#39;s own gets 403. Listed origins are served with CORS headers, and their preflight is answered. <code>&quot;*&quot;</code> admits any origin. Requests without <code>Origin</code> are not from a browser page and pass.</td></tr>
 <tr><td><code>publicOrigins</code></td><td>none</td><td>The server&#39;s own origins as browsers see them, when a proxy ends TLS and the request URL is <code>http://</code>. Without it, a same-site page behind such a proxy gets 403.</td></tr>

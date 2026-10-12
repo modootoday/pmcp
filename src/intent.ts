@@ -25,11 +25,11 @@ export interface IntentCache {
 }
 
 /**
- * Same question, differently typed. Case, punctuation and spacing only — the
- * key has to survive a caller writing "How do I wire X?" and "how do i wire x".
+ * Canonically equivalent Unicode must share the same query and cache key.
  */
 export function normaliseIntent(intent: string): string {
   return intent
+    .normalize("NFC")
     .toLowerCase()
     .replaceAll(/[^\p{L}\p{N}\s]/gu, " ")
     .split(/\s+/u)
