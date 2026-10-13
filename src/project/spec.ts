@@ -13,6 +13,7 @@ export const TOOLS = [
   "gemini",
   "grok",
   "antigravity",
+  "opencode",
 ] as const;
 export type Tool = (typeof TOOLS)[number];
 

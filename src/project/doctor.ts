@@ -14,6 +14,7 @@ import { ANTIGRAVITY_MCP_PLUGIN, serversForTool } from "./mcp.js";
 import { splitFrontmatter } from "./frontmatter.js";
 import { agentNames, skillNames } from "./plan.js";
 import type { ProjectSpec, Tool } from "./spec.js";
+import { opencodeDoctor } from "./adapters/opencode-doctor.js";
 
 export interface RunResult {
   /** The executable was not found. */
@@ -337,6 +338,8 @@ export function doctor(spec: ProjectSpec, options: DoctorOptions): Finding[] {
   if (wanted("codex")) findings.push(...codex(spec, options));
   if (wanted("gemini")) findings.push(...gemini(spec, options));
   if (wanted("grok")) findings.push(...grok(spec, options));
+  if (wanted("opencode"))
+    findings.push(...opencodeDoctor(spec, options, listed));
   if (wanted("antigravity")) {
     findings.push(...antigravity(spec, options));
   }

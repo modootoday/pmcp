@@ -183,7 +183,27 @@ function replaceable(
   owned: Set<string>,
 ): boolean {
   if (output.kind === "json") {
-    if (output.key[0] !== "mcpServers" || owned.has(output.path)) {
+    if (output.file === "opencode.json") {
+      let parent: unknown = readJson(join(root, output.file));
+      for (const part of output.key.slice(0, -1)) {
+        if (parent === undefined) break;
+        if (
+          parent === null ||
+          typeof parent !== "object" ||
+          Array.isArray(parent)
+        )
+          return false;
+        parent = (parent as Record<string, unknown>)[part];
+      }
+      if (
+        parent !== undefined &&
+        (parent === null || typeof parent !== "object" || Array.isArray(parent))
+      )
+        return false;
+    }
+    const guarded =
+      output.key[0] === "mcpServers" || output.file === "opencode.json";
+    if (!guarded || owned.has(output.path)) {
       return true;
     }
     const existing = getKey(readJson(join(root, output.file)), output.key);
@@ -353,6 +373,7 @@ export function project(
   }
 
   const mcpPaths = [
+    "opencode.json",
     ".mcp.json",
     ".gemini/settings.json",
     ".agents/mcp_config.json",

@@ -3,7 +3,8 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "pmcp",
+      "name": "@modootoday/pmcp",
+      "version": "0.17.0",
       "dependencies": {
         "@modelcontextprotocol/server": "^2.0.0",
         "semver": "7.8.5",

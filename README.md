@@ -111,7 +111,7 @@ Declare your tools and MCP servers in the same `pmcp.toml`:
 
 ```toml
 [targets]
-tools = ["claude", "codex", "gemini", "grok", "antigravity"]
+tools = ["claude", "codex", "gemini", "grok", "antigravity", "opencode"]
 
 [mcp.docs]
 url = "https://example.com/mcp"
@@ -129,6 +129,12 @@ npx @modootoday/pmcp doctor
 in `pmcp.lock`. It preserves unrelated settings and refuses conflicting unmanaged
 entries. `--check` reports drift without writing files. Each runtime retains its
 own OAuth session.
+
+OpenCode receives project MCP configuration in `opencode.json` and reads
+`.agents/skills` directly. User-only skills stay available through native
+slash commands while being hidden from automatic skill selection. Its provider
+and model choices stay in native user configuration. OpenCode mailbox, terminal
+control and hook enforcement are outside this projection's supported scope.
 
 The [configuration guide](docs/project-configuration.md) covers importing
 existing servers, environment references, shared skills and rules, shell guards

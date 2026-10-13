@@ -59,6 +59,12 @@ function metadata(
   const env = options.env ?? {};
   const directory = (name: string, fallback: string) =>
     resolve(spec.root, env[name] ?? join(options.home, fallback));
+  if (tool === "opencode") {
+    return {
+      state: "unsupported",
+      source: "OpenCode native memory metadata is not qualified",
+    };
+  }
   if (tool === "antigravity") {
     return {
       state: "unsupported",

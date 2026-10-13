@@ -59,7 +59,12 @@ try {
   for (const profile of profiles) {
     const state = join(directory, `${profile.manager}-${profile.runtime}`);
     mkdirSync(state, { mode: 0o700 });
-    const installed = installPackage(archive, state, profile.manager);
+    const installed = installPackage(
+      archive,
+      state,
+      profile.manager,
+      profile.runtime,
+    );
     results.push({
       ...profile,
       archiveSha256: installed.archiveSha256,

@@ -12,6 +12,7 @@ import { hookOutputs } from "./hooks.js";
 import { jsonOutput, MARK, type Output } from "./outputs.js";
 import { packageRuleOutputs, RULES_DIR } from "./package-rules.js";
 import type { ProjectSpec, Tool } from "./spec.js";
+import { opencodeSkillOutputs } from "./adapters/opencode-skills.js";
 
 /** Fields each tool keeps when an agent is copied; Gemini rejects the others. */
 const AGENT_FIELDS: Partial<Record<Tool, readonly string[]>> = {
@@ -47,8 +48,9 @@ export function agentNames(root: string): string[] {
 }
 
 function skillOutputs(spec: ProjectSpec): Output[] {
-  const outputs: Output[] = [];
-  for (const name of skillNames(spec.root)) {
+  const names = skillNames(spec.root);
+  const outputs: Output[] = opencodeSkillOutputs(spec, names);
+  for (const name of names) {
     const target = `../../.agents/skills/${name}`;
     if (spec.tools.has("claude")) {
       outputs.push({ kind: "link", path: `.claude/skills/${name}`, target });

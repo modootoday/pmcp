@@ -3,9 +3,11 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { bunExecutable } from "./bun-runtime.mjs";
 
-export function installPackage(archive, directory, manager) {
+export function installPackage(archive, directory, manager, runtime = "node") {
   assert.ok(["npm", "bun"].includes(manager));
+  assert.ok(["node", "bun"].includes(runtime));
   const stat = lstatSync(archive);
   assert.ok(stat.isFile() && stat.size < 16 * 1024 * 1024);
   const manifest = JSON.parse(
@@ -31,7 +33,9 @@ export function installPackage(archive, directory, manager) {
     npm_config_cache: join(directory, "npm-cache"),
     npm_config_registry: "https://registry.npmjs.org/",
     BUN_INSTALL_CACHE_DIR: join(directory, "bun-cache"),
-    ...(process.env.BUN_REAL ? { BUN_REAL: process.env.BUN_REAL } : {}),
+    ...(manager === "bun" || runtime === "bun" || process.env.BUN_REAL
+      ? { BUN_REAL: process.env.BUN_REAL ?? bunExecutable() }
+      : {}),
     NO_COLOR: "1",
   };
   writeFileSync(

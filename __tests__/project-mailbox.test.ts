@@ -1,11 +1,11 @@
 import { expect, it } from "vitest";
 import { mcpOutputs } from "../src/project/mcp.js";
-import { TOOLS, type ProjectSpec } from "../src/project/spec.js";
+import type { ProjectSpec, Tool } from "../src/project/spec.js";
 
 it("projects canonical launcher runtime metadata without embedding actor secrets", () => {
   const spec: ProjectSpec = {
     root: "/project",
-    tools: new Set(TOOLS),
+    tools: new Set<Tool>(["claude", "codex", "gemini", "grok", "antigravity"]),
     skills: {},
     agents: {},
     packageRules: null,

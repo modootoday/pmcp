@@ -54,6 +54,8 @@ of its kind. <code>--config &lt;file&gt;</code> names another file and <code>--n
 Antigravity read natively, from cross-tool sources under <code>.agents/</code>
 (<code>skills/&lt;name&gt;/SKILL.md</code>, <code>agents/&lt;name&gt;/agent.md</code>, <code>rules/*.md</code>) and the rest
 of <code>pmcp.toml</code>:</p>
+<p>OpenCode additionally supports project MCP and direct skill discovery, as
+described in <a href="#opencode-project-support">OpenCode project support</a>.</p>
 <pre><code>[targets]
 tools = [&quot;claude&quot;, &quot;codex&quot;, &quot;gemini&quot;, &quot;grok&quot;, &quot;antigravity&quot;]
 
@@ -148,6 +150,32 @@ restoring any file that another process may have edited.</p>
 <a href="https://code.claude.com/docs/en/mcp">Claude Code</a>,
 <a href="https://geminicli.com/docs/tools/mcp-server/">Gemini CLI</a>,
 and <a href="https://docs.x.ai/build/features/mcp-servers">Grok Build</a>.</p>
+<h2>OpenCode project support</h2>
+<p>Add opencode to targets.tools to project MCP entries into the project-root
+opencode.json. PMCP owns only its declared mcp entries and user-only skill
+permissions; existing provider, model, other servers and permission rules are
+preserved. An unmanaged conflicting entry is refused. JSONC projection is not
+supported; reconcile a project opencode.jsonc before projecting opencode.json.</p>
+<p>Local servers use type=local, a command array and environment. Remote servers
+use type=remote, url and native {env:NAME} header references. Optional
+mcp.&lt;name&gt;.native.opencode.timeout uses milliseconds. Per-server tool filtering,
+MCP configuration import and mailbox runtime binding are not qualified for
+OpenCode; explicitly limit those servers to other targets when needed.</p>
+<p>OpenCode discovers .agents/skills directly, so PMCP creates no skill copies or
+links. For invocation=user, projection sets permission.skill.&lt;name&gt; to deny:
+the model&#39;s skill list omits that name, while the native /&lt;name&gt; command still
+loads its original SKILL.md and accepts user arguments. This was qualified with
+OpenCode 1.18.33 using isolated native CLI calls and local scripted responses,
+without an external model call. It controls automatic skill selection, not
+arbitrary file access. Native global skill discovery remains a user preference.</p>
+<p>pmcp doctor checks opencode debug skill and opencode mcp list without calling
+a model. Discovery does not imply automatic visibility or native tool invocation.
+Memory reporting, shell-hook enforcement, canonical agent projection and
+terminal-harness support are not part of this target&#39;s current qualification.
+OpenCode does not run Claude project hooks automatically.</p>
+<p>See the <a href="https://opencode.ai/docs/mcp-servers/">OpenCode MCP configuration</a>,
+<a href="https://opencode.ai/docs/skills/">Agent Skills</a> and
+<a href="https://opencode.ai/docs/config/">configuration precedence</a>.</p>
 <h2>Operator shell guards</h2>
 <p>Declare a project-owned guard explicitly to project it into Codex, Gemini or
 Antigravity&#39;s native hooks. Without a declaration, pmcp generates no hooks.</p>

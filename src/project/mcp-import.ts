@@ -49,6 +49,11 @@ function sourceServers(
     );
   }
   const path = resolve(root, source.slice(split + 1));
+  if (tool === "opencode") {
+    throw new ProjectError(
+      "OpenCode MCP import is not qualified; define the server in pmcp.toml",
+    );
+  }
   if (statSync(path).size > 2 * 1024 * 1024) {
     throw new ProjectError("MCP source exceeds the 2 MiB limit");
   }

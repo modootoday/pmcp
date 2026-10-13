@@ -81,6 +81,7 @@ function nativeOptions(
     gemini: ["timeout"],
     grok: ["startup_timeout_sec", "tool_timeout_sec"],
     antigravity: [],
+    opencode: ["timeout"],
   };
   const result: Partial<Record<Tool, Record<string, number>>> = {};
   for (const [tool, raw] of Object.entries(

@@ -3,14 +3,29 @@ import { ProjectError } from "./package-rules.js";
 import type { McpServerSpec, ProjectSpec, Tool } from "./spec.js";
 import type { Runtime } from "../runtime.js";
 import { isAbsolute, relative } from "node:path";
+import {
+  OPENCODE_CONFIG,
+  checkOpenCodeConfig,
+  opencodeMcpEntry,
+} from "./adapters/opencode.js";
 
-const runtimeByTool: Readonly<Record<Tool, Runtime>> = {
+const runtimeByTool: Readonly<Partial<Record<Tool, Runtime>>> = {
   claude: "claude-code",
   codex: "codex-cli",
   gemini: "gemini-cli",
   grok: "grok-cli",
   antigravity: "antigravity",
 };
+
+function mailboxRuntime(tool: Tool): Runtime {
+  const runtime = runtimeByTool[tool];
+  if (!runtime) {
+    throw new ProjectError(
+      "OpenCode mailbox runtime binding is not qualified; limit this server's targets",
+    );
+  }
+  return runtime;
+}
 const ROOT_VAR = "${PROJECT_ROOT}";
 export const ANTIGRAVITY_MCP_PLUGIN = ".agents/plugins/pmcp-mcp";
 const VARIABLE = /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/gu;
@@ -167,18 +182,19 @@ function nativeEntry(
 ): Record<string, unknown> {
   let result: Record<string, unknown>;
   if (server.url !== undefined) {
+    if (tool === "opencode") return opencodeMcpEntry(server);
     result = httpEntry(server, tool);
   } else {
     const env = { ...server.env };
     if (server.mailbox) {
-      env["PMCP_MAILBOX_RUNTIME"] = runtimeByTool[tool];
+      env["PMCP_MAILBOX_RUNTIME"] = mailboxRuntime(tool);
     }
     let started: LaunchSpec;
     if (Object.keys(server.envFrom ?? {}).length > 0) {
       const entry = relative(spec.root, process.argv[1] ?? "");
       const driverEnv: Record<string, string> = {};
       if (server.mailbox) {
-        driverEnv["PMCP_MAILBOX_RUNTIME"] = runtimeByTool[tool];
+        driverEnv["PMCP_MAILBOX_RUNTIME"] = mailboxRuntime(tool);
       }
       if (!isAbsolute(entry) && !entry.startsWith("..")) {
         started = launch({
@@ -196,6 +212,7 @@ function nativeEntry(
     } else {
       started = launch({ ...server, env });
     }
+    if (tool === "opencode") return opencodeMcpEntry(server, started);
     result = { command: started.command, args: [...started.args] };
     if (Object.keys(started.env).length > 0) {
       result["env"] = { ...started.env };
@@ -264,8 +281,10 @@ export function mcpOutputs(spec: ProjectSpec): Output[] {
     claude: ".mcp.json",
     gemini: ".gemini/settings.json",
     antigravity: `${ANTIGRAVITY_MCP_PLUGIN}/mcp_config.json`,
+    opencode: OPENCODE_CONFIG,
   };
   for (const tool of spec.tools) {
+    if (tool === "opencode") checkOpenCodeConfig(spec.root);
     const servers = serversForTool(spec, tool);
     if (servers.length === 0) {
       continue;
@@ -283,7 +302,7 @@ export function mcpOutputs(spec: ProjectSpec): Output[] {
         outputs.push(
           jsonOutput(
             file,
-            ["mcpServers", alias],
+            [tool === "opencode" ? "mcp" : "mcpServers", alias],
             nativeEntry(spec, alias, server, tool),
           ),
         );
