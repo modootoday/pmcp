@@ -14,6 +14,18 @@ type ListingCheck = (
   present: (out: string, name: string) => boolean,
 ) => Finding;
 
+export function isOpenCodeInventory(
+  command: string,
+  args: readonly string[],
+): boolean {
+  return (
+    command === "opencode" &&
+    args.length === 2 &&
+    args[0] === "debug" &&
+    args[1] === "skill"
+  );
+}
+
 function connected(out: string, alias: string): boolean {
   const ansi = new RegExp(
     `${String.fromCharCode(27)}\\[[0-?]*[ -/]*[@-~]`,

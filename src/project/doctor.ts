@@ -14,7 +14,11 @@ import { ANTIGRAVITY_MCP_PLUGIN, serversForTool } from "./mcp.js";
 import { splitFrontmatter } from "./frontmatter.js";
 import { agentNames, skillNames } from "./plan.js";
 import type { ProjectSpec, Tool } from "./spec.js";
-import { opencodeDoctor } from "./adapters/opencode-doctor.js";
+import {
+  isOpenCodeInventory,
+  opencodeDoctor,
+} from "./adapters/opencode-doctor.js";
+import { nativeJsonRunner } from "./diagnostics/native-json.js";
 
 export interface RunResult {
   /** The executable was not found. */
@@ -31,6 +35,8 @@ export type Runner = (
 ) => RunResult;
 
 export const spawnRunner: Runner = (command, args, cwd, env) => {
+  if (isOpenCodeInventory(command, args))
+    return nativeJsonRunner(command, args, cwd, env);
   const result = spawnSync(command, [...args], {
     cwd,
     ...(env ? { env: { ...process.env, ...env } } : {}),
