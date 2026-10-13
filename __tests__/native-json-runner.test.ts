@@ -19,7 +19,7 @@ describe("native JSON inventory capture", () => {
     const state = fixture(`
 import { fstatSync, readlinkSync } from "node:fs";
 const path = process.platform === "linux" ? readlinkSync("/proc/self/fd/1") : undefined;
-const value = "한".repeat(200000);
+const value = String.fromCodePoint(0xd55c).repeat(200000);
 process.stdout.write(JSON.stringify({ value, path, mode: fstatSync(1).mode & 0o777 }));
 process.stderr.write("\\u001b[0m\\n");
 process.exit(0);
@@ -30,7 +30,7 @@ process.exit(0);
     const result = nativeJsonRunner(process.execPath, [state.file], state.root);
     expect(result.status).toBe(0);
     const payload = JSON.parse(result.stdout);
-    expect(payload.value).toBe("한".repeat(200000));
+    expect(payload.value).toBe(String.fromCodePoint(0xd55c).repeat(200000));
     if (process.platform !== "win32") expect(payload.mode).toBe(0o600);
     if (payload.path) {
       expect(existsSync(payload.path)).toBe(false);
