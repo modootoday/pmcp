@@ -9,7 +9,9 @@ Skills are discovered by filename, including `skills/`, `.agents/skills/`,
 `lib/skill/` layouts
 within the discovery depth. A skill needs a frontmatter `description` for search.
 
-`skill_find` accepts a problem description and returns matching skills.
+`skill_find` accepts a problem description and returns matching skills; a skill whose short
+name appears in the request as a whole word is listed first. The other tools take a skill's
+full name, or a short name that belongs to exactly one skill, and answer with the full name.
 `skill_call` opens the selected document and lists the reference, script and asset
 files it carries as a text list. It attaches no resource links, because some clients ask
 the user to create every linked file as an attachment. Local MCP reading requires no login.

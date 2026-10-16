@@ -17,7 +17,12 @@ import {
   type CatalogOptions,
   type SkillEntry,
 } from "./catalog.js";
-import { DEFAULT_FIND_LIMIT, find, type Embedder } from "./find.js";
+import {
+  DEFAULT_FIND_LIMIT,
+  find,
+  type Embedder,
+  type FindResult,
+} from "./find.js";
 import type { IntentCache } from "./intent.js";
 import {
   bundleSkill,
@@ -184,6 +189,38 @@ export interface CallResponse {
   readonly filesTruncated: boolean;
 }
 
+// A slug written whole in the request names that skill; ranking by meaning alone can miss
+// it because names are not part of what the descriptions say.
+function namedFirst(
+  result: FindResult,
+  entries: readonly SkillEntry[],
+  intent: string,
+): FindResult {
+  const text = intent.toLowerCase();
+  const named = entries.filter((entry) => {
+    const slug = entry.slug.toLowerCase();
+    if (slug.length < 4) return false;
+    const at = text.indexOf(slug);
+    if (at === -1) return false;
+    const before = text[at - 1] ?? " ";
+    const after = text[at + slug.length] ?? " ";
+    return !/[a-z0-9-]/.test(before) && !/[a-z0-9-]/.test(after);
+  });
+  if (named.length === 0) return result;
+  const top = result.matches[0]?.score ?? 1;
+  const names = new Set(named.map((entry) => entry.name));
+  const first = named.map((entry) => ({
+    name: entry.name,
+    package: entry.package,
+    description: entry.description,
+    score: result.matches.find((m) => m.name === entry.name)?.score ?? top,
+  }));
+  const rest = result.matches.filter((match) => !names.has(match.name));
+  // The count stays what the ranking returned; a named skill takes the last place.
+  const size = Math.max(result.matches.length, first.length);
+  return { ...result, matches: [...first, ...rest].slice(0, size) };
+}
+
 /**
  * The catalog, the search and the read, as plain functions.
  *
@@ -206,8 +243,16 @@ export function createSkillTools(options: SkillServerOptions) {
     });
     return entries;
   };
-  const byName = (name: string): SkillEntry | null =>
-    catalog().find((candidate) => candidate.name === name) ?? null;
+  // Clients often pass the short name the user typed; a short name that ends exactly one
+  // full name resolves to it, and the answers carry the full name from then on.
+  const byName = (name: string): SkillEntry | null => {
+    const all = catalog();
+    const exact = all.find((candidate) => candidate.name === name);
+    if (exact) return exact;
+    const suffix = `/${name.replace(/^\/+/, "")}`;
+    const short = all.filter((candidate) => candidate.name.endsWith(suffix));
+    return short.length === 1 ? short[0]! : null;
+  };
 
   return {
     /**
@@ -296,7 +341,8 @@ export function createSkillTools(options: SkillServerOptions) {
         embedder: options.embedder,
         cache: options.cache,
         vectors: options.vectors,
-      }).then((result) => {
+      }).then((ranked) => {
+        const result = namedFirst(ranked, scoped, intent);
         const marked = result.matches.map((match) => {
           const entry = byName(match.name) ?? undefined;
           return {
