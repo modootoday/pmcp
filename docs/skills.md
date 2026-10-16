@@ -11,7 +11,8 @@ within the discovery depth. A skill needs a frontmatter `description` for search
 
 `skill_find` accepts a problem description and returns matching skills.
 `skill_call` opens the selected document and lists the reference, script and asset
-files it carries, as text and as resource links. Local MCP reading requires no login.
+files it carries as a text list. It attaches no resource links, because some clients ask
+the user to create every linked file as an attachment. Local MCP reading requires no login.
 
 Files keep their type, as the Agent Skills layout (`references/`, `scripts/`, `assets/`)
 expects: `skill_read` returns text as text, images and audio as image and audio content,

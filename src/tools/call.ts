@@ -2,7 +2,6 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 
 import type { CallResponse, SkillTools } from "../server.js";
-import { resourceLink } from "./content.js";
 import { readOnlyTool, unknownSkill } from "./shared.js";
 
 /** The body names its references by relative path; this says they can be fetched. */
@@ -25,7 +24,7 @@ export function registerCallTool(server: McpServer, tools: SkillTools): void {
     {
       ...readOnlyTool("Read a skill"),
       description:
-        "The body of a single skill, by the name skill_find or skill_catalog returned, followed by the list of reference, script and asset files the skill carries, if any, as text and as resource links. This is the only call that costs a document.",
+        "The body of a single skill, by the name skill_find or skill_catalog returned, followed by the list of reference, script and asset files the skill carries, if any, as text; skill_read returns one of them and skill_bundle links them all. This is the only call that costs a document.",
       inputSchema: z.object({
         name: z
           .string()
@@ -38,12 +37,10 @@ export function registerCallTool(server: McpServer, tools: SkillTools): void {
       if (!found) return unknownSkill(name);
       const body = { type: "text" as const, text: found.body };
       if (found.files.length === 0) return { content: [body] };
+      // Links in a read result make ChatGPT ask the user to create them as file
+      // attachments; the text list is enough, and skill_bundle keeps the links.
       return {
-        content: [
-          body,
-          { type: "text" as const, text: manifest(found) },
-          ...found.files.map(resourceLink),
-        ],
+        content: [body, { type: "text" as const, text: manifest(found) }],
       };
     },
   );

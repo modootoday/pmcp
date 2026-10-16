@@ -63,8 +63,7 @@ describe("skill_call", () => {
     const result = (await skillCall()({ name: "@acme/kit/guided" })) as {
       content: { text: string }[];
     };
-    // Body, the text manifest, then one resource link per carried file.
-    expect(result.content).toHaveLength(4);
+    expect(result.content).toHaveLength(2);
     expect(result.content[0]!.text.trim()).toBe("Follow references/steps.md.");
     const manifest = result.content[1]!.text;
     expect(manifest).toContain(

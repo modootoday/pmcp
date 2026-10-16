@@ -147,14 +147,21 @@ describe("tools", () => {
     });
   });
 
-  it("follows a skill body with resource links to its other files", async () => {
+  it("follows a skill body with its other files as text only, never as attachable links", async () => {
     const result = await call(handler(), "skill_call", { name: KIT });
+    expect(result.content.every((c: any) => c.type === "text")).toBe(true);
+    const listed = result.content.map((c: any) => c.text).join("\n");
+    expect(listed).toContain("- scripts/run.py");
+    expect(listed).not.toContain("- SKILL.md");
+  });
+
+  it("keeps resource links in skill_bundle, for hosts that write the skill locally", async () => {
+    const result = await call(handler(), "skill_bundle", { name: KIT });
     const links = result.content.filter((c: any) => c.type === "resource_link");
     expect(links.map((l: any) => l.name)).toContain("scripts/run.py");
     expect(
       links.every((l: any) => l.uri.startsWith(`skill://pmcp/${KIT}/`)),
     ).toBe(true);
-    expect(links.map((l: any) => l.name)).not.toContain("SKILL.md");
   });
 });
 
