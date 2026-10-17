@@ -9,6 +9,7 @@ export interface ShellHookSpec {
   readonly command: readonly string[];
   readonly targets: readonly HookTool[];
   readonly timeoutMs: number;
+  readonly event?: "after_edit";
 }
 
 export function readHooks(
@@ -27,14 +28,22 @@ export function readHooks(
   }
   const table = raw as Record<string, unknown>;
   if (
-    Object.keys(table).some((key) => key !== "shell") ||
-    !Array.isArray(table["shell"])
+    Object.keys(table).some((key) => key !== "shell" && key !== "edit") ||
+    !["shell", "edit"].some((key) => table[key] !== undefined) ||
+    ["shell", "edit"].some(
+      (key) => table[key] !== undefined && !Array.isArray(table[key]),
+    )
   ) {
-    return fail("only [[hooks.shell]] declarations are supported");
+    return fail(
+      "only [[hooks.shell]] and [[hooks.edit]] declarations are supported",
+    );
   }
   const names = new Set<string>();
-  return table["shell"]
-    .map((value: unknown) => {
+  const entries = (["shell", "edit"] as const).flatMap((kind) =>
+    ((table[kind] ?? []) as unknown[]).map((value) => ({ kind, value })),
+  );
+  return entries
+    .map(({ kind, value }): ShellHookSpec => {
       if (value === null || typeof value !== "object" || Array.isArray(value)) {
         return fail("shell entry must be a table");
       }
@@ -77,6 +86,9 @@ export function readHooks(
       ) {
         return fail("targets must select unique supported shell adapters");
       }
+      if (kind === "edit" && targets.some((tool) => tool !== "codex")) {
+        return fail("edit hooks currently support codex only");
+      }
       if (
         typeof timeoutMs !== "number" ||
         !Number.isSafeInteger(timeoutMs) ||
@@ -98,6 +110,7 @@ export function readHooks(
         command: command as string[],
         targets: targets as HookTool[],
         timeoutMs,
+        ...(kind === "edit" ? { event: "after_edit" as const } : {}),
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name, "en"));

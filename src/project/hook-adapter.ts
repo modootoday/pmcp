@@ -93,13 +93,21 @@ export function evaluateShellHook(
     if (typeof name !== "string") {
       return denied();
     }
-    if (!shellNames[tool].includes(name)) {
+    const afterEdit = policy.event === "after_edit";
+    if (afterEdit && tool !== "codex") {
+      return denied();
+    }
+    const matches = afterEdit
+      ? name === "apply_patch"
+      : shellNames[tool].includes(name);
+    if (!matches) {
       return { decision: "allow" };
     }
     const command = scalar(
       input[tool === "antigravity" ? "CommandLine" : "command"],
     );
-    if (command === undefined || command.length > 65536) {
+    const limit = afterEdit ? 16 * 1024 * 1024 : 65536;
+    if (command === undefined || command.length > limit) {
       return denied();
     }
     const cwd = scalar(input["Cwd"]) ?? scalar(value["cwd"]) ?? root;
@@ -119,7 +127,7 @@ export function evaluateShellHook(
       env: { PATH: process.env["PATH"], LANG: "C.UTF-8" },
       input: JSON.stringify({
         runtime: tool,
-        event: "before_shell",
+        event: afterEdit ? "after_edit" : "before_shell",
         command,
         cwd,
       }),
@@ -153,7 +161,18 @@ export function evaluateShellHook(
   }
 }
 
-export function nativeHookDecision(tool: HookTool, decision: Decision): object {
+export function nativeHookDecision(
+  tool: HookTool,
+  decision: Decision,
+  event?: ShellHookSpec["event"],
+): object {
+  if (tool === "codex" && event === "after_edit") {
+    if (decision.decision === "allow") return {};
+    return {
+      decision: "block",
+      reason: decision.reason ?? "Edit guard failed validation or execution",
+    };
+  }
   if (tool === "codex") {
     return {
       hookSpecificOutput: {
@@ -169,7 +188,8 @@ export function nativeHookDecision(tool: HookTool, decision: Decision): object {
 }
 
 async function main(): Promise<void> {
-  const [, , , tool, file, integrity] = process.argv;
+  const [, , , tool, file, integrity, event] = process.argv;
+  const afterEdit = event === "after_edit";
   const supported =
     tool === "codex" || tool === "gemini" || tool === "antigravity";
   if (!supported) {
@@ -178,6 +198,9 @@ async function main(): Promise<void> {
   }
   let decision = denied();
   try {
+    if (event !== undefined && !afterEdit) {
+      throw new Error("Unknown hook event");
+    }
     if (!file) {
       throw new Error("Missing hook policy");
     }
@@ -194,7 +217,7 @@ async function main(): Promise<void> {
       contractVersion: number;
       guardSha256: string;
     };
-    if (!policy.targets.includes(tool)) {
+    if (!policy.targets.includes(tool) || policy.event !== event) {
       throw new Error("Hook target mismatch");
     }
     const chunks: Buffer[] = [];
@@ -202,7 +225,7 @@ async function main(): Promise<void> {
     for await (const chunk of process.stdin) {
       const bytes = Buffer.from(chunk);
       size += bytes.length;
-      if (size > 131072) {
+      if (size > (afterEdit ? 16 * 1024 * 1024 : 131072)) {
         throw new Error("Hook input too large");
       }
       chunks.push(bytes);
@@ -226,7 +249,7 @@ async function main(): Promise<void> {
     decision = denied();
   }
   process.stdout.write(
-    `${JSON.stringify(nativeHookDecision(tool, decision))}\n`,
+    `${JSON.stringify(nativeHookDecision(tool, decision, afterEdit ? "after_edit" : undefined))}\n`,
   );
 }
 

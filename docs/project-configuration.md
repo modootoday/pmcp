@@ -215,6 +215,29 @@ contain no trust bypass. Grok can load Claude project hooks, so this first scope
 does not generate a second Grok guard. Hooks do not force pmcp catalog use,
 inject reminders or replace the runtime's execution sandbox.
 
+## Operator edit guards
+
+Codex edit guards run after apply_patch through native PostToolUse hooks:
+
+```toml
+[[hooks.edit]]
+name = "edit-policy"
+command = ["node", ".agents/guards/edit-policy.mjs"]
+targets = ["codex"]
+timeout_ms = 15000
+```
+
+The guard receives runtime=codex, event=after_edit, the patch in command and cwd.
+It returns the same allow/deny response as a shell guard. A denial becomes
+native blocking feedback with the reason; the completed file edit remains on disk
+for correction. Other tools do not invoke this guard. Edit targets currently
+support Codex only, and names must be unique across shell and edit declarations.
+
+Run pmcp project after declaring or changing the guard, then review and trust
+the generated native definition in /hooks. Peer entries and shell guards are
+preserved. Fingerprints and failure handling follow the shell-guard contract.
+See the [native hooks documentation](https://learn.chatgpt.com/docs/hooks).
+
 ## Native memory metadata
 
 ```sh

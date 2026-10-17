@@ -27,6 +27,11 @@ const native = {
     matcher: "run_command",
   },
 } as const;
+const editNative = {
+  file: ".codex/hooks.json",
+  key: ["hooks", "PostToolUse"],
+  matcher: "^apply_patch$",
+} as const;
 
 function object(value: unknown): Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
@@ -117,10 +122,14 @@ export function hookOutputs(spec: ProjectSpec): Output[] {
         if (!spec.tools.has(tool)) {
           continue;
         }
-        const target = native[tool];
+        if (hook.event === "after_edit" && tool !== "codex") {
+          throw new ProjectError("Edit hooks currently support codex only");
+        }
+        const target = hook.event === "after_edit" ? editNative : native[tool];
+        const eventArgument = hook.event === "after_edit" ? " after_edit" : "";
         const command =
           'd="$PWD"; while [ ! -f "$d/pmcp.toml" ]; do [ "$d" = / ] && exit 1; d=$(dirname "$d"); done; ' +
-          `exec node "$d/${ADAPTER}" --pmcp-shell-hook ${tool} "$d/${policyFile}" ${integrity}`;
+          `exec node "$d/${ADAPTER}" --pmcp-shell-hook ${tool} "$d/${policyFile}" ${integrity}${eventArgument}`;
         const timeout =
           tool === "gemini"
             ? hook.timeoutMs + 2000
@@ -146,7 +155,7 @@ export function hookOutputs(spec: ProjectSpec): Output[] {
     const parts = splitKeyed(path);
     if (
       !parts ||
-      !Object.values(native).some(
+      ![...Object.values(native), editNative].some(
         (entry) =>
           entry.file === parts.file &&
           entry.key.join(".") === parts.key.join("."),

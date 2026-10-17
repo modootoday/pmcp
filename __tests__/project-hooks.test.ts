@@ -24,6 +24,8 @@ const targets =
   '[targets]\ntools = ["codex", "gemini", "antigravity", "grok"]\n';
 const declaration =
   '[[hooks.shell]]\nname = "shell-policy"\ncommand = ["node", ".agents/guards/policy.mjs"]\ntargets = ["codex", "gemini", "antigravity"]\ntimeout_ms = 500\n';
+const editDeclaration =
+  '[[hooks.edit]]\nname = "edit-policy"\ncommand = ["node", ".agents/guards/policy.mjs"]\ntargets = ["codex"]\ntimeout_ms = 500\n';
 const guard =
   'import { readFileSync } from "node:fs";\nconst input = JSON.parse(readFileSync(0, "utf8"));\nprocess.stdout.write(JSON.stringify({ decision: input.command.includes("DENY_FIXTURE") ? "deny" : "allow" }));\n';
 
@@ -255,4 +257,89 @@ describe("opt-in native shell hooks", () => {
       decision: "allow",
     });
   });
+});
+
+describe("opt-in native edit hooks", () => {
+  it("projects an apply_patch PostToolUse guard and preserves peer entries", (t) => {
+    const { root, config, apply } = fixture(t, declaration + editDeclaration);
+    const peer = {
+      matcher: "Bash",
+      hooks: [{ type: "command", command: "peer-post-guard" }],
+    };
+    mkdirSync(join(root, ".codex"));
+    writeFileSync(
+      join(root, ".codex/hooks.json"),
+      JSON.stringify({ hooks: { PostToolUse: [peer] } }),
+    );
+    expect(apply().code).toBe(0);
+    const native = json(root, ".codex/hooks.json");
+    expect(native.hooks.PreToolUse).toHaveLength(1);
+    expect(native.hooks.PostToolUse[0]).toEqual(peer);
+    expect(native.hooks.PostToolUse[1].matcher).toBe("^apply_patch$");
+    expect(project(readSpec(readConfig(config)), { check: true }).code).toBe(0);
+    writeFileSync(config, targets + declaration);
+    expect(apply().code).toBe(0);
+    expect(json(root, ".codex/hooks.json").hooks.PostToolUse).toEqual([peer]);
+    expect(json(root, ".codex/hooks.json").hooks.PreToolUse).toHaveLength(1);
+  });
+
+  it("executes generated edit adapters and reports post-edit blocking feedback", (t) => {
+    const { root, apply } = fixture(t, editDeclaration);
+    writeFileSync(
+      join(root, ".agents/guards/policy.mjs"),
+      'import { readFileSync } from "node:fs";\nconst input = JSON.parse(readFileSync(0, "utf8"));\nconst allowed = input.event === "after_edit" && input.command.startsWith("*** Begin Patch") && !input.command.includes("DENY_FIXTURE");\nprocess.stdout.write(JSON.stringify({ decision: allowed ? "allow" : "deny", reason: "edit policy fixture" }));\n',
+    );
+    expect(apply().code).toBe(0);
+    const command = json(root, ".codex/hooks.json").hooks.PostToolUse[0]
+      .hooks[0].command;
+    const invoke = (patch: string) =>
+      JSON.parse(
+        execFileSync("sh", ["-c", command], {
+          cwd: root,
+          input: JSON.stringify({
+            tool_name: "apply_patch",
+            tool_input: { command: patch },
+          }),
+          encoding: "utf8",
+        }),
+      );
+    expect(invoke("*** Begin Patch\n*** End Patch")).toEqual({});
+    expect(invoke("*** Begin Patch\nDENY_FIXTURE\n*** End Patch")).toEqual({
+      decision: "block",
+      reason: "edit policy fixture",
+    });
+    writeFileSync(join(root, ".agents/guards/policy.mjs"), guard);
+    expect(invoke("*** Begin Patch\n*** End Patch").decision).toBe("block");
+  });
+
+  it("allows unrelated tools and fails closed on malformed edit input", (t) => {
+    const { root, config } = fixture(t, editDeclaration);
+    const policy = readSpec(readConfig(config)).hooks![0]!;
+    expect(policy.event).toBe("after_edit");
+    expect(
+      evaluateShellHook(root, policy, "codex", { tool_name: "Bash" }),
+    ).toEqual({ decision: "allow" });
+    expect(
+      evaluateShellHook(root, policy, "codex", { tool_name: "apply_patch" })
+        .decision,
+    ).toBe("deny");
+    expect(
+      nativeHookDecision(
+        "codex",
+        { decision: "deny", reason: "line 3" },
+        "after_edit",
+      ),
+    ).toEqual({ decision: "block", reason: "line 3" });
+  });
+
+  for (const source of [
+    editDeclaration.replace('["codex"]', '["gemini"]'),
+    declaration + editDeclaration.replace('"edit-policy"', '"shell-policy"'),
+  ]) {
+    it("rejects unsupported edit targets and duplicate hook names", (t) => {
+      const { root, config } = fixture(t, source);
+      expect(() => readSpec(readConfig(config))).toThrow();
+      expect(existsSync(join(root, ".codex/hooks.json"))).toBe(false);
+    });
+  }
 });
