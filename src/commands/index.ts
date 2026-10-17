@@ -128,7 +128,7 @@ export function dispatch(
   return run(command, rest, { ui, env, cwd });
 }
 
-export const VERSION = "0.17.3";
+export const VERSION = "0.17.4";
 
 async function defaultEntry(
   options: DispatchOptions,
