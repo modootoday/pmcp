@@ -14,6 +14,13 @@
   Compatibility and Glossary, as Markdown in the npm package and on
   pmcp.build. (446fb90, 4f80203)
 
+- The configuration guide is split into task pages: Hooks, Git workflow,
+  Browser and desktop, and Library skills (which says how library skills are
+  matched and the evidence each carries); the pmcp.toml reference keeps
+  every table. Installation, Authoring and How it compares are Markdown too.
+  (d29f4de, 5280cfc)
+- The JSON schemas in `schema/` carry a title and a description. (1f83e4c)
+
 ### Fixes
 
 - Links to a section of a guide page on pmcp.build open at that section;
