@@ -207,12 +207,15 @@ impl Session {
         let profile = self.profile.clone();
         let _ = tokio::task::spawn_blocking(move || {
             crate::procs::sweep(&profile);
-            // A file written while the tree is removed fails the removal; try again briefly.
-            for _ in 0..20 {
-                if std::fs::remove_dir_all(&profile).is_ok() || !profile.exists() {
-                    break;
-                }
+            // A file written while the tree is removed fails the removal. Under host load the
+            // profile was seen left after a 2 s retry, so each retry sweeps again, up to 5 s.
+            let end = std::time::Instant::now() + std::time::Duration::from_secs(5);
+            while std::fs::remove_dir_all(&profile).is_err()
+                && profile.exists()
+                && std::time::Instant::now() < end
+            {
                 std::thread::sleep(std::time::Duration::from_millis(100));
+                crate::procs::sweep(&profile);
             }
         })
         .await;
