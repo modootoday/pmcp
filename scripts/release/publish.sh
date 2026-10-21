@@ -35,9 +35,31 @@ publish() {
   fi
 }
 
-for archive in "$dir"/modootoday-pmcp-linux-*.tgz "$dir"/modootoday-pmcp-darwin-*.tgz; do
+platforms=("$dir"/modootoday-pmcp-linux-*.tgz "$dir"/modootoday-pmcp-darwin-*.tgz)
+for archive in "${platforms[@]}"; do
   publish "$archive"
 done
+
+# npm answers for a new version only after processing it. Published first, the main package
+# would name platform versions an install cannot fetch yet, and that install would get no
+# native binaries without a word (0.18.4). So it waits until npm answers for every platform
+# package, and on timeout fails without publishing the main package; a rerun then finishes.
+if [ "$rehearse" = false ]; then
+  deadline=$(($(date +%s) + ${PLATFORM_WAIT_SECONDS:-3600}))
+  for archive in "${platforms[@]}"; do
+    manifest="$(tar -xzOf "$archive" package/package.json)"
+    name="$(node -p "JSON.parse(process.argv[1]).name" "$manifest")"
+    until [ "$(npm view "$name@$release" version 2>/dev/null)" = "$release" ]; do
+      if [ "$(date +%s)" -ge "$deadline" ]; then
+        echo "publish.sh: npm still does not answer for $name@$release; the main package was not published. Run again once it does." >&2
+        echo "published=$published" >> "${GITHUB_OUTPUT:-/dev/null}"
+        exit 1
+      fi
+      echo "waiting for npm to answer for $name@$release"
+      sleep "${PLATFORM_POLL_SECONDS:-30}"
+    done
+  done
+fi
 publish "$dir/modootoday-pmcp-$release.tgz"
 
 echo "published=$published" >> "${GITHUB_OUTPUT:-/dev/null}"

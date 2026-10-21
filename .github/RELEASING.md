@@ -30,6 +30,10 @@ While a run is in progress its draft is titled `<tag> (release run <id> in progr
 delete)`; the run publishes or deletes it. Deleting it by hand on the Releases page fails the
 run with "Release <id> is gone"; run the workflow again.
 
+- The main package is published only once npm answers for all four platform packages
+  (`scripts/release/publish.sh` waits up to 60 minutes, checking every 30 seconds). Until then
+  an install would get no native binaries. On timeout the job fails without the main package;
+  run it again once `npm view @modootoday/pmcp-linux-x64@<version> version` answers.
 - Transient failure (registry, OIDC, network): `gh run rerun <run id> --failed`, then approve
   the `npm` environment again. Versions already on npm are skipped, so the rerun publishes
   only what is missing.

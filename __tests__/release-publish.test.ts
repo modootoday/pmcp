@@ -51,7 +51,9 @@ function release(onNpm: string[]) {
   mkdirSync(join(dir, "bin"));
   writeFileSync(
     join(dir, "bin", "npm"),
-    `#!/bin/sh\necho "$*" >> "${join(dir, "calls")}"\nif [ "$1" = view ]; then\n  for n in ${onNpm.join(" ")}; do [ "$2" = "$n@${version}" ] && echo ${version}; done\nfi\nexit 0\n`,
+    // FAKE_LATE=visible: npm answers for a package from its second view on, as when a fresh
+    // publish has just been processed; FAKE_LATE=never: it never does.
+    `#!/bin/sh\necho "$*" >> "${join(dir, "calls")}"\nif [ "$1" = view ]; then\n  for n in ${onNpm.join(" ")}; do [ "$2" = "$n@${version}" ] && echo ${version} && exit 0; done\n  if [ -n "$FAKE_LATE" ]; then\n    seen="${dir}/seen-$(echo "$2" | tr "/@" "__")"\n    if [ -e "$seen" ]; then [ "$FAKE_LATE" = visible ] && echo ${version}; else touch "$seen"; fi\n  fi\nfi\nexit 0\n`,
   );
   chmodSync(join(dir, "bin", "npm"), 0o755);
   const run = (script: string, args: string[], env: Record<string, string>) =>
@@ -92,7 +94,11 @@ it("rehearses every package with npm publish --dry-run on ./ paths, platforms fi
 
 it("publishes with provenance and skips what is already on npm, so a rerun is safe", () => {
   const r = release(["@modootoday/pmcp-linux-x64"]);
-  const out = r.run("publish.sh", ["./packed"], { MODE: "publish" });
+  const out = r.run("publish.sh", ["./packed"], {
+    MODE: "publish",
+    FAKE_LATE: "visible",
+    PLATFORM_POLL_SECONDS: "0",
+  });
   expect(out.status, out.stderr).toBe(0);
   expect(out.stdout).toContain(
     `skip: @modootoday/pmcp-linux-x64@${version} is already on npm`,
@@ -102,6 +108,52 @@ it("publishes with provenance and skips what is already on npm, so a rerun is sa
   for (const call of calls)
     expect(call).toMatch(/ --access public --provenance$/u);
   expect(calls.at(-1)).toContain(`modootoday-pmcp-${version}.tgz`);
+  expect(r.read("output")).toContain("published=4");
+});
+
+// 0.18.4 was latest on npm before its platform packages were, and an install then got no
+// native binaries; the main package now waits until npm answers for every platform.
+it("publishes the main package only once npm answers for every platform package", () => {
+  const r = release([]);
+  const out = r.run("publish.sh", ["./packed"], {
+    MODE: "publish",
+    FAKE_LATE: "visible",
+    PLATFORM_POLL_SECONDS: "0",
+  });
+  expect(out.status, out.stderr).toBe(0);
+  const calls = r.read("calls").split("\n").filter(Boolean);
+  const main = calls.findIndex((line) =>
+    line.startsWith(`publish ./packed/modootoday-pmcp-${version}.tgz`),
+  );
+  for (const platform of platforms) {
+    const views = calls
+      .map((line, at) => ({ line, at }))
+      .filter(
+        ({ line }) =>
+          line === `view @modootoday/pmcp-${platform}@${version} version`,
+      );
+    expect(views.length, platform).toBe(2);
+    expect(views[1]!.at).toBeLessThan(main);
+  }
+  expect(r.read("output")).toContain("published=5");
+});
+
+it("fails without publishing the main package when a platform never appears", () => {
+  const r = release([]);
+  const out = r.run("publish.sh", ["./packed"], {
+    MODE: "publish",
+    FAKE_LATE: "never",
+    PLATFORM_WAIT_SECONDS: "0",
+    PLATFORM_POLL_SECONDS: "0",
+  });
+  expect(out.status).toBe(1);
+  expect(out.stderr).toContain("the main package was not published");
+  expect(r.publishes()).toHaveLength(4);
+  expect(
+    r
+      .publishes()
+      .some((line) => line.includes(`modootoday-pmcp-${version}.tgz`)),
+  ).toBe(false);
   expect(r.read("output")).toContain("published=4");
 });
 
