@@ -16,6 +16,7 @@ import {
   removeHolder,
   writeHolder,
 } from "./lock.js";
+import { pushPins } from "./pins.js";
 import { waitForLeases } from "./lease-wait.js";
 import { replay } from "./replay.js";
 import type { SessionGate } from "./store.js";
@@ -43,6 +44,8 @@ export interface DeliverOptions {
   readonly track?: Track;
   // The 1-minute load average and the poll interval; tests replace them.
   readonly loadavg?: () => number;
+  // Push submodule pins the delivered commits set before replaying them ([git.submodules] push).
+  readonly pushPins?: boolean;
   readonly loadPollMs?: number;
 }
 
@@ -186,6 +189,15 @@ function loadAllows(options: DeliverOptions): boolean {
   return false;
 }
 
+function pinsPushed(options: DeliverOptions): boolean {
+  const { ctx } = options;
+  const commits = undelivered(ctx.root, ctx.upstream, options.named);
+  const tip = commits.at(-1);
+  return (
+    tip === undefined || pushPins(ctx.root, ctx.upstream, tip, options.report)
+  );
+}
+
 function underLock(options: DeliverOptions): number {
   const { lock } = gateTree(options.tree);
   const wait = options.gate?.lockWaitSeconds ?? 5400;
@@ -217,6 +229,7 @@ function underLock(options: DeliverOptions): number {
   });
   try {
     if (!loadAllows(options)) return 1;
+    if (options.pushPins && !pinsPushed(options)) return 1;
     return attempts(options);
   } finally {
     held.release();

@@ -126,6 +126,12 @@ brand app, for example): those move to the new pin even with uncommitted edits, 
 long as no edited or untracked file is one the pin changes. When one is, the
 submodule stays on the old pin and sync names the files; pmcp never restores,
 stashes or discards them.</p>
+<p>With <code>push = &quot;pins&quot;</code>, <code>pmcp git deliver</code> first makes sure every submodule commit the
+delivered commits pin is on that submodule&#39;s origin. A pin already on a remote branch
+needs nothing. Otherwise exactly the pinned commit is pushed to the submodule&#39;s
+branch (<code>branch</code> in <code>.gitmodules</code>, else <code>main</code>) as a fast-forward, never a later
+commit; if that branch has moved past the pin&#39;s base, delivery stops before
+anything else moves.</p>
 </article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>

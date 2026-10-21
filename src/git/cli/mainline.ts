@@ -54,6 +54,7 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     duringPause: context.args.flags.has("during-pause"),
     afterDeliver,
     recordDelivery: deliveryEvents(setup),
+    pushPins: config.submodules?.push === "pins",
     ...(context.args.flags.has("json")
       ? {
           onReceipt: (receipt: DeliverReceipt) =>

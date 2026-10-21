@@ -118,10 +118,15 @@ export function mainlineSync(path: string, source: Table): MainlineSyncConfig {
 }
 
 export function submodules(path: string, source: Table): SubmodulesConfig {
-  const read = new Reader(path, "git.submodules", source, ["follow", "shared"]);
+  const read = new Reader(path, "git.submodules", source, [
+    "follow",
+    "shared",
+    "push",
+  ]);
   return {
     follow: read.oneOf("follow", ["clean_pins", "off"], "clean_pins"),
     shared: read.list("shared"),
+    push: read.oneOf("push", ["pins", "off"], "off"),
   };
 }
 

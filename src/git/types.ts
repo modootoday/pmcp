@@ -55,6 +55,8 @@ export interface SubmodulesConfig {
   readonly follow: "clean_pins" | "off";
   // Checkouts other sessions also work in: moved even with edits that do not conflict.
   readonly shared: readonly string[];
+  // "pins": deliver pushes each submodule pin its commits set to that submodule's origin first.
+  readonly push: "pins" | "off";
 }
 
 export interface LeaseSpec {
