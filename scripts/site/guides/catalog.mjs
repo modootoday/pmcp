@@ -9,8 +9,7 @@ export const guides = [
     source: "project-configuration.md",
     route: "/project-configuration/",
     title: "pmcp.toml reference",
-    description:
-      "Every table pmcp.toml accepts, with its keys and defaults.",
+    description: "Every table pmcp.toml accepts, with its keys and defaults.",
   },
   {
     source: "hooks.md",
@@ -105,5 +104,26 @@ export const guides = [
     route: "/glossary/",
     title: "Glossary",
     description: "The terms pmcp uses, each with the page that explains it.",
+  },
+  {
+    source: "install.md",
+    route: "/install/",
+    title: "Installation",
+    description:
+      "Runtime requirements, dependencies and native MCP installation.",
+  },
+  {
+    source: "authoring.md",
+    route: "/authoring/",
+    title: "Authoring skills",
+    description:
+      "Ship SKILL.md instructions in a package and make them discoverable.",
+  },
+  {
+    source: "compare.md",
+    route: "/compare/",
+    title: "Working model",
+    description:
+      "Understand on-demand discovery and local package instructions.",
   },
 ];

@@ -2,14 +2,14 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Installation — PMCP</title>
+  <title>Installation — pmcp</title>
   <meta name="description" content="Runtime requirements, dependencies and native MCP installation." />
   <link rel="canonical" href="https://pmcp.build/install/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
-  <meta property="og:title" content="Installation — PMCP" />
+  <meta property="og:title" content="Installation — pmcp" />
   <meta property="og:description" content="Runtime requirements, dependencies and native MCP installation." />
   <meta property="og:url" content="https://pmcp.build/install/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
@@ -42,153 +42,48 @@
 <a href="/glossary/">Glossary</a>
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
-    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Installation</p><h1>Install</h1>
-      <p class="lede">
-        Two of these write the configuration for you. The rest are a line of
-        JSON or a command, depending on where your agent keeps its servers.
-      </p>
-
-      <h2>One click</h2>
-      <p class="actions">
-        <a
-          href="cursor://anysphere.cursor-deeplink/mcp/install?name=pmcp&amp;config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBtb2Rvb3RvZGF5L3BtY3AiXX0="
-          ><img
-            src="https://img.shields.io/badge/Add_to_Cursor-black?style=for-the-badge&amp;logo=cursor&amp;logoColor=white"
-            alt="Add to Cursor"
-            height="28"
-        /></a>
-        <a
-          href="vscode://mcp/install?name=pmcp&amp;config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40modootoday%2Fpmcp%22%5D%7D"
-          ><img
-            src="https://img.shields.io/badge/Add_to_VS_Code-007ACC?style=for-the-badge&amp;logo=visualstudiocode&amp;logoColor=white"
-            alt="Add to VS Code"
-            height="28"
-        /></a>
-      </p>
-      <p>
-        Those two links carry the whole server definition in their payload, so
-        the editor opens with the form already filled in.
-      </p>
-
-      <h2>As a dev dependency</h2>
-      <pre><code>npm install --save-dev @modootoday/pmcp</code></pre>
-      <p>
-        Installing it is optional. Every configuration below runs it through
-        <code>npx -y @modootoday/pmcp</code>, which works with nothing
-        installed; adding it to the project pins the version your team gets.
-      </p>
-
-      <h2>Native marketplace</h2>
-      <p>
-        Install selected library instructions from the public repository without
-        a PMCP account. Each library major is a separate plugin; registering
-        the marketplace does not install every plugin.
-      </p>
-      <pre><code>claude plugin marketplace add modootoday/pmcp
-claude plugin install typescript-5@pmcp
-
-codex plugin marketplace add modootoday/pmcp
-codex plugin add typescript-5@pmcp
-
-grok plugin marketplace add modootoday/pmcp
-grok plugin install typescript-5@pmcp</code></pre>
-      <p>
-        Select the <code>pmcp</code> plugin to add the MCP bridge. Gemini can
-        install that bridge with
-        <code>gemini extensions install https://github.com/modootoday/pmcp</code>.
-        Provider authentication and installation confirmation stay native.
-      </p>
-      <p>
-        PMCP 0.14.0 includes the bundled free catalog and supports exporting one
-        plugin for Gemini or Antigravity with
-        <code>pmcp marketplace export</code>.
-        <a href="/skills-reference/">Native formats and selected exports</a>.
-      </p>
-
-      <h2>A host that spawns servers over stdio</h2>
-      <pre><code>{
-  "mcpServers": {
-    "pmcp": { "command": "npx", "args": ["-y", "@modootoday/pmcp"] }
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Installation</p><h1 id="installation">Installation</h1>
+<p><a href="/">Back to the overview</a></p>
+<p>Two of these write the configuration for you. The rest are a line of JSON or a command, depending on where your agent keeps its servers.</p>
+<h2 id="one-click">One click</h2>
+<p><a href="cursor://anysphere.cursor-deeplink/mcp/install?name=pmcp&amp;config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBtb2Rvb3RvZGF5L3BtY3AiXX0=">Add to Cursor</a> <a href="vscode://mcp/install?name=pmcp&amp;config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40modootoday%2Fpmcp%22%5D%7D">Add to VS Code</a></p>
+<p>Those two links carry the whole server definition in their payload, so the editor opens with the form already filled in.</p>
+<h2 id="as-a-dev-dependency">As a dev dependency</h2>
+<pre><code>npm install --save-dev @modootoday/pmcp</code></pre>
+<p>Installing it is optional. Every configuration below runs it through <code>npx -y @modootoday/pmcp</code>, which works with nothing installed; adding it to the project pins the version your team gets.</p>
+<h2 id="native-marketplace">Native marketplace</h2>
+<p>The <code>pmcp</code> plugin adds the MCP bridge to Claude Code, Codex and Grok, and Gemini installs it
+with <code>gemini extensions install https://github.com/modootoday/pmcp</code>. Library instructions
+install the same way, one plugin per library major: see <a href="/library-skills/">Library skills</a>.</p>
+<h2 id="a-host-that-spawns-servers-over-stdio">A host that spawns servers over stdio</h2>
+<pre><code>{
+  &quot;mcpServers&quot;: {
+    &quot;pmcp&quot;: { &quot;command&quot;: &quot;npx&quot;, &quot;args&quot;: [&quot;-y&quot;, &quot;@modootoday/pmcp&quot;] }
   }
 }</code></pre>
-      <p>
-        That is the shape most hosts read. The file it goes in differs by host,
-        and the two commands below write it for you.
-      </p>
-
-      <h2>Claude Code</h2>
-      <pre><code>claude mcp add pmcp -- npx -y @modootoday/pmcp</code></pre>
-
-      <h2>VS Code, from a script</h2>
-      <pre><code>code --add-mcp '{"name":"pmcp","command":"npx","args":["-y","@modootoday/pmcp"]}'</code></pre>
-      <p>
-        The same thing the badge does, for setting up a workstation rather than
-        clicking through one.
-      </p>
-
-      <h2>Options the server takes</h2>
-      <div class="scroll">
-        <table>
-          <tbody>
-            <tr>
-              <td><code>--root &lt;dir&gt;</code></td>
-              <td>
-                a <code>node_modules</code> directory to walk, instead of
-                discovering upwards from the working directory; repeatable
-              </td>
-            </tr>
-            <tr>
-              <td><code>--scope &lt;prefix&gt;</code></td>
-              <td>
-                only packages whose names start with this; repeatable, and takes
-                a comma-separated list
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p>
-        Both go in the <code>args</code> array beside <code>pmcp</code>. A host
-        that passes them with no command still gets the server, because a bare
-        spawn is what the protocol expects.
-      </p>
-
-      <h2>What arrives</h2>
-      <ul>
-        <li>Node 22 or later, or Bun 1.3 or later.</li>
-        <li>
-          Runtime dependencies: <code>@modelcontextprotocol/server</code>,
-          <code>zod</code>, <code>semver</code>, <code>smol-toml</code> and
-          <code>yaml</code>. Their MIT, ISC and BSD-3-Clause notices are listed
-          in the package's <code>NOTICE</code>.
-        </li>
-        <li>
-          No postinstall hook, and nothing downloaded at install time. Semantic
-          ranking needs an optional peer you install yourself.
-        </li>
-      </ul>
-
-      <h2>Optional native workspace</h2>
-      <p>
-        Share MCP settings through
-        <a href="/project-configuration/">project configuration</a>. The
-        <a href="/terminal-harness/">native harness</a> and
-        <a href="/terminal-workspace/">terminal workspace</a> run on Linux
-        (glibc 2.35 or later, with a working user systemd manager) or macOS,
-        with Node.js 22; npm installs pmcp-pty and pmcp-tui with pmcp. Run
-        <code>pmcp tui doctor</code> to check the host. Provider credentials
-        stay with the native tools.
-      </p>
-
-      <div class="note">
-        <p>
-          <strong>Check it before you trust it.</strong>
-          <code>npx -y @modootoday/pmcp list</code> prints what the server would
-          see from this directory. Repository main includes its free catalog;
-          <code>--no-builtin</code> restricts discovery to your own roots.
-          <a href="/guide/">The five-minute version</a>.
-        </p>
-      </div>
+<p>That is the shape most hosts read. The file it goes in differs by host, and the two commands below write it for you.</p>
+<h2 id="claude-code">Claude Code</h2>
+<pre><code>claude mcp add pmcp -- npx -y @modootoday/pmcp</code></pre>
+<h2 id="vs-code-from-a-script">VS Code, from a script</h2>
+<pre><code>code --add-mcp '{&quot;name&quot;:&quot;pmcp&quot;,&quot;command&quot;:&quot;npx&quot;,&quot;args&quot;:[&quot;-y&quot;,&quot;@modootoday/pmcp&quot;]}'</code></pre>
+<p>The same thing the badge does, for setting up a workstation rather than clicking through one.</p>
+<h2 id="options-the-server-takes">Options the server takes</h2>
+<ul>
+<li><code>--root &lt;dir&gt;</code>: a <code>node_modules</code> directory to walk, instead of discovering upwards from
+the working directory; repeatable.</li>
+<li><code>--scope &lt;prefix&gt;</code>: only packages whose names start with this; repeatable, and takes a
+comma-separated list.</li>
+</ul>
+<p>Both go in the <code>args</code> array beside <code>pmcp</code>. A host that passes them with no command still gets the server, because a bare spawn is what the protocol expects.</p>
+<h2 id="what-arrives">What arrives</h2>
+<ul>
+<li>Node 22 or later, or Bun 1.3 or later.</li>
+<li>Runtime dependencies: <code>@modelcontextprotocol/server</code>, <code>zod</code>, <code>semver</code>, <code>smol-toml</code> and <code>yaml</code>. Their MIT, ISC and BSD-3-Clause notices are listed in the package&#39;s <code>NOTICE</code>.</li>
+<li>No postinstall hook, and nothing downloaded at install time. Semantic ranking needs an optional peer you install yourself.</li>
+</ul>
+<h2 id="optional-native-workspace">Optional native workspace</h2>
+<p>Share MCP settings through the <a href="/project-configuration/">pmcp.toml reference</a>. The <a href="/terminal-harness/">native harness</a> and <a href="/terminal-workspace/">terminal workspace</a> run on Linux (glibc 2.35 or later, with a working user systemd manager) or macOS, with Node.js 22; npm installs pmcp-pty and pmcp-tui with pmcp. Run <code>pmcp tui doctor</code> to check the host. Provider credentials stay with the native tools.</p>
+<p><strong>Check it before you trust it.</strong> <code>npx -y @modootoday/pmcp list</code> prints what the server would see from this directory. The CLI includes the free catalog; <code>--no-builtin</code> restricts discovery to your own roots. <a href="/guide/">Getting started</a> is the five-minute version.</p>
 </article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>

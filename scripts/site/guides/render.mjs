@@ -11,7 +11,8 @@ const manualSources = new Set(
 
 function resolveLink(href) {
   if (href.startsWith("#")) return href;
-  if (/^https?:\/\//u.test(href)) return href;
+  // Web links and app deep links (the install page's Cursor and VS Code buttons) pass through.
+  if (/^[a-z][a-z0-9+.-]*:/iu.test(href)) return href;
   const [file, fragment] = href.split("#");
   if (manualSources.has(file)) return href;
   if (file === "../README.md") return fragment ? `/#${fragment}` : "/";
