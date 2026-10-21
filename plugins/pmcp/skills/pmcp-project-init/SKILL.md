@@ -12,9 +12,11 @@ metadata:
 
 # Starting a repository the pmcp way
 
-pmcp has no `init` command. You write the sources by hand; `pmcp project` writes every
-tool's native files from them, and `pmcp doctor` asks each installed tool what it loads.
-Never write the generated files yourself: pmcp refuses to overwrite a file it did not write.
+`pmcp init [--preset solo|multi-session]` writes a starting `pmcp.toml` from what it detects
+in the checkout; it refuses to replace an existing one without `--force`. You edit it and write
+the other sources by hand; `pmcp project` writes every tool's native files from them, and
+`pmcp doctor` asks each installed tool what it loads. Never write the generated files
+yourself: pmcp refuses to overwrite a file it did not write.
 
 Install the pmcp package as a dev dependency under the scoped name its documentation gives.
 Never run the bare unscoped name through npx: that name is not the package, and whoever

@@ -13,7 +13,7 @@ metadata:
 # Scaffolding one skill folder
 
 This is the shape, not the content. What the body should say, and how to word a description
-that triggers, is skill authoring (domain-skill-authoring covers it). Here the job is a
+that triggers, is skill authoring and out of scope here. Here the job is a
 folder that every loader accepts and that carries its own test cases.
 
 ## Layout
@@ -35,7 +35,7 @@ for code that is not there.
 
 ## Frontmatter limits
 
-These are the checks `pmcp validate` runs (pmcp 0.8):
+These are the Agent Skills checks `pmcp validate` always runs:
 
 | Field | Rule |
 | --- | --- |
@@ -47,7 +47,8 @@ These are the checks `pmcp validate` runs (pmcp 0.8):
 | `metadata` | optional map |
 
 A marketplace may add its own rules on top (a metadata schema, tiers, ASCII-only text).
-Check those separately; `pmcp validate` does not know them.
+`pmcp validate` checks them only when `pmcp.toml` names a profile in `[catalog.validation]`
+(`catalog-v1` or `library`); without one, a skill that breaks them still passes.
 
 ```markdown
 ---
