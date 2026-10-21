@@ -79,8 +79,8 @@ once no 0.17 checkpoint is left). Scripts that called the removed
   (`@modootoday/pmcp-<os>-<cpu>`) for Linux and macOS on x64 and arm64.
   `PMCP_PTY_BIN` and `PMCP_TUI_BIN` override it. The macOS binaries are
   unsigned.
-- `[host]` in pmcp.toml declares which tool dialogs an operator-approved host
-  may answer; login, authentication and trust prompts are never answered.
+- `[host]` in pmcp.toml declares which tool dialogs a host you approved may
+  answer; login, authentication and trust prompts are never answered.
 - `pmcp harness host up`, `down` and `unit` manage a host for the project.
 
 ### Browser and desktop

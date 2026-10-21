@@ -4,7 +4,7 @@ Use `pmcp tui` to view a main runtime and its workers in one terminal. The main
 conversation stays in its native interface. PMCP adds a worker dock, a
 coordination panel and explicit control switching. Provider login, folder trust
 and tool approvals stay in their native screens. Sessions that pmcp-pty hosts
-from an operator-approved `[host]` are the one place where listed tool dialogs
+from a `[host]` you approved are the one place where listed tool dialogs
 may be answered for you (see
 [Sessions pmcp-pty hosts](project-configuration.md#sessions-pmcp-pty-hosts)).
 

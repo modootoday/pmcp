@@ -39,8 +39,8 @@
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Native terminal control</p><h1>Native terminal control</h1>
 <p>Use <code>pmcp harness</code> to manage a main runtime and its workers through a local CLI.
 Each runtime keeps its own conversation interface, OAuth login, folder trust and
-tool permissions. The one exception is a session pmcp-pty hosts from an
-operator-approved <code>[host]</code>: pmcp-pty may choose the tool-dialog options its
+tool permissions. The one exception is a session pmcp-pty hosts from a
+<code>[host]</code> you approved: pmcp-pty may choose the tool-dialog options its
 <code>[[host.answers]]</code> list, and never login, auth, trust or hook-review dialogs
 (see <a href="#sessions-pmcp-pty-hosts">Sessions pmcp-pty hosts</a>). PMCP manages owned
 terminal processes, observations and explicit input delivery. These controls are available from version 0.12.0;
@@ -253,7 +253,7 @@ receipt handling and does not declare task completion or user acceptance.</p>
 into a native menu. Follow the <a href="/mailbox/">mailbox guide</a> for actor credentials
 and launcher-bound runtime attachments.
 There is no automatic delivery loop. Native readiness and approval stay with
-the operator and runtime; an input receipt does not establish prompt readiness.</p>
+you and the runtime; an input receipt does not establish prompt readiness.</p>
 <h3>Sessions pmcp-pty hosts</h3>
 <p><code>[host]</code> in pmcp.toml lists long-running sessions for one shared pmcp-pty host
 outside any group (see
@@ -282,7 +282,7 @@ its other sessions keep running.</li>
 newer projection waits for approval; the approved one keeps running),
 <code>unapproved</code> or <code>unprojected</code>.</li>
 <li><code>pmcp harness host unit</code> prints a systemd user unit that runs pmcp-pty with
-the approved copy. Installing and enabling it is the operator&#39;s step; pmcp
+the approved copy. Installing and enabling it is your step; pmcp
 never writes or enables a unit.</li>
 </ul>
 <p><code>up</code> and <code>down</code> use only the approved copy, so a session or answer an agent
@@ -290,8 +290,8 @@ adds to pmcp.toml runs only after you approve it.</p>
 <h3>A manual request and review workflow</h3>
 <p>Mailbox actor names and harness session roles are separate. Creating a main or
 worker terminal does not register a mailbox actor or give it credentials. Use
-the mailbox guide to initialize the project and register main, worker and
-operator actors. Keep their credential files private. The following workflow
+the mailbox guide to initialize the project and register <code>main</code>, <code>worker</code> and
+<code>operator</code> actors. Keep their credential files private. The following workflow
 uses CLI actor files for manual coordination; it does not attach a vendor child
 or automatically configure a runtime&#39;s MCP server.</p>
 <p>Save request.json with your actor name and a unique task/attempt pair:</p>
@@ -320,8 +320,8 @@ result. These body fields are a coordination convention, not a mailbox-enforced
 task state machine. A new attempt uses a new request and idempotency key; keep
 the previous result in its original thread. Exact send retries reuse their key
 and return the existing message; changed payloads are refused.</p>
-<p>The main can send its synthesis to operator as a reply to the reviewed result.
-After reading it, the operator may send a separate acceptance reply. ACK records
+<p>The main can send its synthesis to <code>operator</code> as a reply to the reviewed result.
+After reading it, you may send a separate acceptance reply as <code>operator</code>. ACK records
 receipt handling only. Neither result text, ACK nor acceptance automatically
 submits a terminal draft, transfers control or executes a command.</p>
 <h2>Pause, stop and recover</h2>

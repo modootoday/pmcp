@@ -103,7 +103,7 @@ select the appropriate major yourself. Non-npm library instructions remain manua
 ## Manually selected Python, Rust and Go library skills
 
 Public Pydantic, serde_json and Google UUID instructions are free to read and
-copy into a local collection. Register that collection explicitly; these pilots
+copy into a local collection. Register that collection explicitly; these libraries
 are not automatically matched from PyPI, Cargo or Go dependencies. Follow the
 [manual library skills guide](manual-library-skills.md) for download paths and
 the existing CLI configuration workflow.

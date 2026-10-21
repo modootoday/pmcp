@@ -56,9 +56,9 @@ sessions are fenced. Canonical runtimes are codex-cli, claude-code, gemini-cli,
 grok-cli, and antigravity; the Antigravity executable is agy.</p>
 <p>The mailbox CLI also supports send, inbox, read, ack, sessions, rotate, export,
 backup, and restore. Actor operations accept a private actor-file or existing
-binding-file and JSON input file. Administration requires explicit operator
-intent. Backups and exports are sensitive. Encrypted recovery bundles are
-available through the mailbox API; key custody belongs to the operator.</p>
+binding-file and JSON input file. Administration runs only when you ask for
+it explicitly. Backups and exports are sensitive. Encrypted recovery bundles are
+available through the mailbox API; you keep their keys.</p>
 <pre><code>import { MailboxService, MailboxStore } from &quot;@modootoday/pmcp/mailbox&quot;;
 
 const store = await MailboxStore.open({
@@ -79,8 +79,8 @@ parent expiry, and credential rotation revoke stale child authority.</p>
 terminal supervision and explicit input delivery are provided separately by the
 <a href="/terminal-harness/">local CLI harness</a>; MCP mailbox tools cannot reach those
 execution paths. Provider credentials and approvals remain with native runtimes.
-Organization identity, fleet policy and enterprise audit retention belong to a
-dedicated host. Existing arbitrary terminal sessions are not captured. Elastic
+Organization identity, organization-wide policy and enterprise audit retention
+belong to a dedicated host. Existing arbitrary terminal sessions are not captured. Elastic
 License 2.0 and NOTICE continue to apply.</p>
 </article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>

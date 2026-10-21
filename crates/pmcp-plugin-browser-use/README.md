@@ -6,7 +6,7 @@ around.
 
 ```sh
 pmcp-browser doctor            # read-only; pinned Chromium, sandbox, fonts, headed-mode policy
-pmcp-browser setup --plan      # root steps for the operator; the managed policy and its sha256
+pmcp-browser setup --plan      # root steps for you to run; the managed policy and its sha256
 pmcp-browser setup --apply     # user level only: adopt the matching Playwright build as a symlink
 pmcp-browser serve [--memory-max 2G] [--approved <dir>] [--display :N --xauthority <file>] [--no-scope]
 ```
@@ -23,13 +23,13 @@ pmcp-browser serve [--memory-max 2G] [--approved <dir>] [--display :N --xauthori
   proxy on 127.0.0.1. The proxy resolves each host once, refuses loopback, RFC 1918,
   link-local and metadata, CGNAT, reserved and IPv6 local or mapped-private addresses, opens only
   ports 80 and 443 to public hosts, and connects to the address it checked. Private
-  `host:port` entries come only from `browser.allow_private` in the operator-approved copy
+  `host:port` entries come only from `browser.allow_private` in the copy you approved
   (`--approved`). WebRTC is kept to the proxy and DNS prefetch is off.
 - **Local schemes.** `navigate` opens only http and https. Every page blocks `file:`,
   `chrome:`, `chrome-extension:`, `devtools:`, `view-source:`, `javascript:`, `blob:` and
   `ftp:` through CDP. Headed mode on pmcp-desktop's display is refused until the managed policy
   (`policy/pmcp-browser.json`, URLBlocklist and no sign-in, sync, passwords or extensions) is
-  installed by the operator, since a desktop can type into the address bar.
+  installed by you, since a desktop can type into the address bar.
 - **Downloads** go to a per-process directory; past 512 MiB the browser refuses more.
 
 | Tool | |

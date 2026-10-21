@@ -71,7 +71,7 @@ ignored.</p>
 <tr><td><code>[targets]</code>, <code>[skills.&lt;name&gt;]</code>, <code>[agents.&lt;name&gt;.&lt;tool&gt;]</code>, <code>[rules.packages]</code></td><td><a href="#native-files-for-each-agent-tool">Native files for each agent tool</a></td></tr>
 <tr><td><code>[mcp.&lt;alias&gt;]</code></td><td><a href="#unified-project-mcp-configuration">Unified project MCP configuration</a></td></tr>
 <tr><td><code>[hooks]</code>, <code>[hooks.guards.*]</code>, <code>[[hooks.guards.custom]]</code>, <code>[hooks.checks.*]</code></td><td><a href="#hooks">Hooks</a></td></tr>
-<tr><td><code>[[hooks.shell]]</code>, <code>[[hooks.edit]]</code></td><td><a href="#operator-shell-guards">Operator shell guards</a></td></tr>
+<tr><td><code>[[hooks.shell]]</code>, <code>[[hooks.edit]]</code></td><td><a href="#deprecated-shell-guards">Deprecated shell guards</a></td></tr>
 <tr><td><code>[sessions]</code>, <code>[sessions.registry]</code>, <code>[sessions.pause]</code>, <code>[sessions.broadcast]</code>, <code>[sessions.mailbox]</code>, <code>[sessions.leases.&lt;name&gt;]</code>, <code>[sessions.roles.&lt;name&gt;]</code></td><td><a href="#sessions">Sessions</a></td></tr>
 <tr><td><code>[git]</code>, <code>[git.shared_checkout]</code>, <code>[git.worktrees]</code>, <code>[git.worktrees.sync]</code>, <code>[git.mainline]</code>, <code>[git.mainline.gate]</code>, <code>[git.mainline.deliver]</code>, <code>[git.mainline.sync]</code>, <code>[git.submodules]</code></td><td><a href="#git-workflow">Git workflow</a></td></tr>
 <tr><td><code>[logging]</code>, <code>[logging.components]</code></td><td><a href="#logging">Logging</a></td></tr>
@@ -142,12 +142,12 @@ overwritten. <code>doctor</code> calls no model: it reads <code>claude mcp list<
 <code>grok inspect --json</code>, and skips a tool that is not installed.</p>
 <h2>Sessions pmcp-pty hosts</h2>
 <p><code>[host]</code> names the sessions pmcp-pty runs for this project and the few dialog
-answers the operator allows it to give. <code>pmcp project</code> writes them to
+answers you allow it to give. <code>pmcp project</code> writes them to
 <code>.agents/pmcp-pty/host.json</code> (the sessions) and <code>.agents/pmcp-pty/policy.json</code>
 (answers, <code>mcp_write</code>, roots), pinned in <code>pmcp.lock</code> like every output, and
 <code>pmcp doctor</code> reports whether they match. pmcp.toml is writable by agents, so
-neither file takes effect by being projected: pmcp-pty loads only a copy the
-operator approved. Running the host (<code>pmcp harness host up</code>) needs Linux with a
+neither file takes effect by being projected: pmcp-pty loads only a copy you
+approved. Running the host (<code>pmcp harness host up</code>) needs Linux with a
 user systemd manager; on macOS it refuses, and <code>pmcp tui</code> or a harness group is
 the way to run sessions there.</p>
 <pre><code>[host]
@@ -236,7 +236,7 @@ optional: without it the browser is public-only and the desktop launches
 nothing. <code>[host.browser] allow_private</code> and <code>[[host.desktop.launch]]</code> come
 into force only through <code>pmcp harness host approve</code>. Running the browser
 headed on the desktop&#39;s display also needs the managed Chromium policy that
-<code>pmcp-browser setup --plan</code> prints for the operator to install.</p>
+<code>pmcp-browser setup --plan</code> prints for you to install.</p>
 <h2>Claude permission rules</h2>
 <p><code>[permissions.claude]</code> declares Claude Code permission rules. <code>pmcp project</code>
 adds them to <code>permissions.allow</code>, <code>permissions.ask</code> and <code>permissions.deny</code> in
@@ -475,7 +475,7 @@ command the parser cannot read is judged by a conservative pattern instead.</p>
 <tr><td><code>timeout_ms</code></td><td>integer</td><td><code>15000</code></td><td>100 to 60000.</td></tr>
 <tr><td><code>on</code></td><td>string</td><td><code>&quot;before_shell&quot;</code></td><td><code>before_shell</code> or <code>after_edit</code>.</td></tr></tbody></table></div>
 <p>The script receives the JSON contract described under
-<a href="#operator-shell-guards">Operator shell guards</a>. Custom guards have no <code>mode</code>.</p>
+<a href="#deprecated-shell-guards">Deprecated shell guards</a>. Custom guards have no <code>mode</code>.</p>
 <h3><code>[hooks.checks.after_edit]</code> and <code>[hooks.checks.on_stop]</code></h3>
 <p>Checks report through context and never block; a check that cannot run is
 logged and stays quiet.</p>
@@ -561,17 +561,17 @@ runtime above.</p>
 <p>Sessions coordinate agents working in one repository and its worktrees. State
 lives in one directory shared by every checkout of the repository.</p>
 <div class="scroll"><table><thead><tr><th><code>[sessions]</code> key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>store</code></td><td>string</td><td><code>&quot;files&quot;</code></td><td>The only store.</td></tr>
-<tr><td><code>state_dir</code></td><td>path</td><td><code>$XDG_STATE_HOME/pmcp/projects/&lt;id&gt;</code> (<code>~/.local/state/...</code>)</td><td><code>&lt;id&gt;</code> is the first 16 hex digits of the sha256 of the git common directory. <code>~</code>, <code>~/</code> and <code>$HOME/</code> expand to the home directory and a relative path is relative to the main checkout: the directory holding <code>pmcp.toml</code>, taken in the worktree of the git common directory, so the main checkout and every linked desk share one state. Outside git it is relative to the directory holding <code>pmcp.toml</code>. The hooks, the mod and the git commands resolve it the same way; so does <code>[git.mainline.gate] tree</code>.</td></tr></tbody></table></div>
+<tr><td><code>state_dir</code></td><td>path</td><td><code>$XDG_STATE_HOME/pmcp/projects/&lt;id&gt;</code> (<code>~/.local/state/...</code>)</td><td><code>&lt;id&gt;</code> is the first 16 hex digits of the sha256 of the git common directory. <code>~</code>, <code>~/</code> and <code>$HOME/</code> expand to the home directory and a relative path is relative to the main checkout: the directory holding <code>pmcp.toml</code>, taken in the worktree of the git common directory, so the main checkout and every linked worktree share one state. Outside git it is relative to the directory holding <code>pmcp.toml</code>. The hooks, the Claude Code session panes and the git commands resolve it the same way; so does <code>[git.mainline.gate] tree</code>.</td></tr></tbody></table></div>
 <p><code>store</code> and <code>state_dir</code> alone enable nothing; each feature has its own table:</p>
 <div class="scroll"><table><thead><tr><th>Table</th><th>Keys</th><th>Effect</th></tr></thead><tbody><tr><td><code>[sessions.registry]</code></td><td><code>liveness</code> (<code>&quot;pid_heartbeat&quot;</code>, the only value), <code>stale_minutes</code> (default <code>30</code>)</td><td>Records each session with its process and heartbeat; <code>pmcp sessions status</code> lists them.</td></tr>
-<tr><td><code>[sessions.pause]</code></td><td><code>mode</code> (<code>deny</code> default, <code>ask</code>, <code>warn</code>, <code>off</code>), <code>refuses</code> (<code>&quot;mutating&quot;</code>), <code>scripts</code> (regular expressions, default <code>[]</code>: a <code>node</code> script matching one also counts as mutating, e.g. your own land or sync script)</td><td>While <code>pmcp sessions pause</code> is in effect, edits and mutating commands are refused for every session but the one that paused; reading continues.</td></tr>
+<tr><td><code>[sessions.pause]</code></td><td><code>mode</code> (<code>deny</code> default, <code>ask</code>, <code>warn</code>, <code>off</code>), <code>refuses</code> (<code>&quot;mutating&quot;</code>), <code>scripts</code> (regular expressions, default <code>[]</code>: a <code>node</code> script matching one also counts as mutating, e.g. your own delivery or sync script)</td><td>While <code>pmcp sessions pause</code> is in effect, edits and mutating commands are refused for every session but the one that paused; reading continues.</td></tr>
 <tr><td><code>[sessions.broadcast]</code></td><td><code>keep</code> (default <code>10</code>), <code>deliver_on</code> (default <code>[&quot;session_start&quot;, &quot;prompt&quot;, &quot;before_tool&quot;]</code>; also <code>after_tool</code>, <code>stop</code>)</td><td>Delivers <code>pmcp sessions broadcast</code> text once to each session, as context on the listed events.</td></tr>
-<tr><td><code>[sessions.leases.&lt;name&gt;]</code></td><td><code>path</code> (string, shown in the message and used by git delivery), <code>blocks</code> (required list of argv prefixes)</td><td>While another session holds lease <code>&lt;name&gt;</code>, commands starting with a listed prefix are denied until it lands.</td></tr>
+<tr><td><code>[sessions.leases.&lt;name&gt;]</code></td><td><code>path</code> (string, shown in the message and used by git delivery), <code>blocks</code> (required list of argv prefixes)</td><td>While another session holds lease <code>&lt;name&gt;</code>, commands starting with a listed prefix are denied until its delivery finishes.</td></tr>
 <tr><td><code>[sessions.roles.&lt;name&gt;]</code></td><td><code>agent_type</code> (default <code>&lt;name&gt;</code>, also matches <code>plugin:&lt;name&gt;</code>), <code>allow_edits</code> (default <code>false</code>), <code>allow_commands</code> (list of argv prefixes, default <code>[]</code>)</td><td>A subagent of that type may edit only if allowed and run only the listed commands. Claude only.</td></tr></tbody></table></div>
 <p>These tables have no <code>mode</code>, except pause. Without <code>[sessions.registry]</code> no
 session is recorded, and <code>[ui.claude]</code> refuses to project.</p>
 <h3><code>[sessions.mailbox]</code></h3>
-<p>Addressed messages between sessions and the operator. A missing table leaves
+<p>Addressed messages between sessions, and between you and them. A missing table leaves
 the mailbox off; a declared one, even empty, turns it on.</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>enabled</code></td><td>bool</td><td><code>true</code></td><td><code>false</code> keeps the table but turns the mailbox off.</td></tr>
 <tr><td><code>ttl_minutes</code></td><td>number</td><td><code>1440</code></td><td>Default lifetime of a message; <code>--ttl</code> overrides it per message.</td></tr>
@@ -583,7 +583,8 @@ never rewritten: <code>id</code>, <code>from</code> (session and alias), <code>t
 <code>createdAt</code>, <code>expiresAt</code>, <code>replyTo</code>, <code>once</code>. <code>to</code> lists selectors: <code>all</code>,
 <code>session:&lt;id&gt;</code> (a prefix of at least eight characters works), <code>alias:&lt;name&gt;</code>,
 <code>role:&lt;name&gt;</code> (a <code>[sessions.roles]</code> name or the agent type), or <code>desk:&lt;path&gt;</code>
-(the desk&#39;s path, or its directory name). A message to <code>all</code> reaches the
+(a linked worktree&#39;s path, or its directory name: <code>desk</code> is the selector
+name for a linked worktree). A message to <code>all</code> reaches the
 sessions that were running when it was sent; a session the registry records
 later does not get earlier broadcasts. Delivery and acknowledgement are
 empty markers under <code>&lt;state&gt;/inbox/&lt;session&gt;/</code>, so a message is never edited
@@ -595,7 +596,7 @@ events notice only messages that arrived since, with a count of earlier
 unacknowledged ones. Delivery is recorded and never counts as an
 acknowledgement. A message sent with <code>--once</code> says it is a one-time request,
 so the recipient does not keep its instructions as standing rules.</p>
-<pre><code>pmcp sessions send --to alias:reviewer --to role:lander --subject deploy --once &quot;Hold the deploy until 14:00&quot;
+<pre><code>pmcp sessions send --to alias:reviewer --to role:delivery --subject deploy --once &quot;Hold the deploy until 14:00&quot;
 echo &quot;longer body&quot; | pmcp sessions send --to all -
 pmcp sessions inbox [--session &lt;id&gt;] [--all] [--json]
 pmcp sessions ack &lt;id&gt;... [--session &lt;id&gt;]
@@ -658,27 +659,27 @@ hook file only when a session starts.</p>
 <p>With the mailbox on, <code>pmcp sessions broadcast</code> also sends its text as a
 message to <code>all</code>, and the mailbox delivers it instead of
 <code>[sessions.broadcast]</code>; <code>broadcast.json</code> and each session&#39;s <code>seenBroadcast</code>
-are still written, so <code>pmcp sessions status</code>, the fleet snapshot and the
-Claude status band read broadcasts as before. <code>unbroadcast</code> withdraws those
+are still written, so <code>pmcp sessions status</code>, the session list and the
+Claude Code session panes read broadcasts as before. <code>unbroadcast</code> withdraws those
 messages too.</p>
 <h2>Git workflow</h2>
 <div class="scroll"><table><thead><tr><th><code>[git]</code> key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>enabled</code></td><td><code>&quot;auto&quot;</code>, true, false</td><td><code>&quot;auto&quot;</code></td><td><code>auto</code> turns the git features on when the project is a git checkout; <code>false</code> turns all of them off.</td></tr>
 <tr><td><code>remote</code></td><td>string</td><td><code>origin</code> if present, else the first remote</td><td></td></tr>
 <tr><td><code>mainline</code></td><td>string or table</td><td>the remote&#39;s HEAD branch, else <code>main</code></td><td>A string names the branch; a table (<code>[git.mainline]</code> with <code>branch</code>) also holds gate, deliver and sync.</td></tr></tbody></table></div>
 <p><code>[git.shared_checkout]</code> warns a session working in the main checkout of a
-repository that also has worktrees (desks), tracks the files it edits there,
-and names unlanded leftovers, because they block syncing the shared main for
+repository that also has linked worktrees, tracks the files it edits there,
+and names leftovers not yet delivered, because they block syncing the shared main for
 everyone. Keys: <code>enabled</code> (<code>&quot;auto&quot;</code> default, following <code>[git] enabled</code>, or a
 boolean), <code>warn_on_session</code>, <code>track_edits</code>, <code>warn_claimants</code> (booleans, default
 <code>true</code>). It is on in any git checkout without a table, once something else
 enables the hook bundle.</p>
-<p><code>[git.worktrees]</code> configures desks for <code>pmcp git worktree</code>:</p>
+<p><code>[git.worktrees]</code> configures the linked worktrees <code>pmcp git worktree</code> creates:</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th></tr></thead><tbody><tr><td><code>root</code></td><td>string</td><td><code>&quot;.claude/worktrees&quot;</code></td></tr>
 <tr><td><code>branch_prefix</code></td><td>string</td><td><code>&quot;worktree-&quot;</code></td></tr>
 <tr><td><code>alias_pattern</code></td><td>regex</td><td><code>&quot;^[a-z][a-z0-9-]{1,30}$&quot;</code></td></tr>
 <tr><td><code>bootstrap</code></td><td>argv list</td><td>none</td></tr>
 <tr><td><code>link_from_main</code></td><td>list</td><td><code>[]</code></td></tr></tbody></table></div>
-<p><code>[git.worktrees.sync]</code> (opt-in) keeps each desk on the mainline when moving it
+<p><code>[git.worktrees.sync]</code> (opt-in) keeps each linked worktree on the mainline when moving it
 loses nothing: <code>on_session_start</code> (<code>&quot;fetch_and_move&quot;</code> default, <code>&quot;move&quot;</code>,
 <code>&quot;off&quot;</code>), <code>between_prompts</code> (<code>&quot;move_if_light&quot;</code> default, <code>&quot;off&quot;</code>: move only when
 no install is needed), <code>install_after_move</code> (<code>&quot;off&quot;</code> default, <code>&quot;background&quot;</code>,
@@ -718,7 +719,7 @@ switches hook logging on or off. Read the logs with <code>pmcp logs</code>.</p>
 edited. It needs <code>[sessions.registry]</code>, and is written only when <code>claude</code> is
 in <code>[targets] tools</code>. Without the table nothing is installed. <code>pmcp doctor</code>
 shows the projected switches, or a failure until <code>pmcp project</code> writes them; it
-cannot tell whether a running Claude Code loaded the mod.</p>
+cannot tell whether a running Claude Code loaded the session panes.</p>
 <h2>A complete example</h2>
 <p>A project with two runtimes, the full guard set, sessions, the git workflow and
 a team marketplace:</p>
@@ -801,7 +802,7 @@ max_delivered = 5
 path = &quot;package-lock.json&quot;
 blocks = [[&quot;npm&quot;, &quot;install&quot;], [&quot;npm&quot;, &quot;ci&quot;], [&quot;pmcp&quot;, &quot;git&quot;, &quot;deliver&quot;]]
 
-[sessions.roles.lander]
+[sessions.roles.delivery]
 allow_commands = [[&quot;pmcp&quot;, &quot;git&quot;, &quot;deliver&quot;], [&quot;git&quot;, &quot;log&quot;], [&quot;git&quot;, &quot;status&quot;]]
 
 [git]
@@ -842,7 +843,7 @@ source = { github = &quot;example/team-marketplace&quot; }
 
 [marketplaces.team.plugins]
 review = { targets = [&quot;claude&quot;, &quot;codex&quot;] }</code></pre>
-<h2>Operator shell guards</h2>
+<h2>Deprecated shell guards</h2>
 <p>Deprecated: <code>[[hooks.shell]]</code> and <code>[[hooks.edit]]</code> still work, and <code>pmcp project</code>
 warns. Declare <code>[[hooks.guards.custom]]</code> instead, with <code>on = &quot;before_shell&quot;</code> or
 <code>on = &quot;after_edit&quot;</code>, and list its runtimes in <code>[hooks] targets</code>: every runtime
@@ -873,7 +874,7 @@ guard code requires reprojection and native Codex hook review. Generated files
 contain no trust bypass. Grok can load Claude project hooks, so this first scope
 does not generate a second Grok guard. Hooks do not force pmcp catalog use,
 inject reminders or replace the runtime&#39;s execution sandbox.</p>
-<h2>Operator edit guards</h2>
+<h2>Deprecated edit guards</h2>
 <p>Codex edit guards run after apply_patch through native PostToolUse hooks:</p>
 <pre><code>[[hooks.edit]]
 name = &quot;edit-policy&quot;

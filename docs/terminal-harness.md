@@ -2,8 +2,8 @@
 
 Use `pmcp harness` to manage a main runtime and its workers through a local CLI.
 Each runtime keeps its own conversation interface, OAuth login, folder trust and
-tool permissions. The one exception is a session pmcp-pty hosts from an
-operator-approved `[host]`: pmcp-pty may choose the tool-dialog options its
+tool permissions. The one exception is a session pmcp-pty hosts from a
+`[host]` you approved: pmcp-pty may choose the tool-dialog options its
 `[[host.answers]]` list, and never login, auth, trust or hook-review dialogs
 (see [Sessions pmcp-pty hosts](#sessions-pmcp-pty-hosts)). PMCP manages owned
 terminal processes, observations and explicit input delivery. These controls are available from version 0.12.0;
@@ -300,7 +300,7 @@ PMCP does not create another message engine or automatically type a wake prompt
 into a native menu. Follow the [mailbox guide](mailbox.md) for actor credentials
 and launcher-bound runtime attachments.
 There is no automatic delivery loop. Native readiness and approval stay with
-the operator and runtime; an input receipt does not establish prompt readiness.
+you and the runtime; an input receipt does not establish prompt readiness.
 
 ### Sessions pmcp-pty hosts
 
@@ -332,7 +332,7 @@ stop with `platform_unsupported`; use `pmcp tui` or a harness group there.
   newer projection waits for approval; the approved one keeps running),
   `unapproved` or `unprojected`.
 - `pmcp harness host unit` prints a systemd user unit that runs pmcp-pty with
-  the approved copy. Installing and enabling it is the operator's step; pmcp
+  the approved copy. Installing and enabling it is your step; pmcp
   never writes or enables a unit.
 
 `up` and `down` use only the approved copy, so a session or answer an agent
@@ -342,8 +342,8 @@ adds to pmcp.toml runs only after you approve it.
 
 Mailbox actor names and harness session roles are separate. Creating a main or
 worker terminal does not register a mailbox actor or give it credentials. Use
-the mailbox guide to initialize the project and register main, worker and
-operator actors. Keep their credential files private. The following workflow
+the mailbox guide to initialize the project and register `main`, `worker` and
+`operator` actors. Keep their credential files private. The following workflow
 uses CLI actor files for manual coordination; it does not attach a vendor child
 or automatically configure a runtime's MCP server.
 
@@ -387,8 +387,8 @@ task state machine. A new attempt uses a new request and idempotency key; keep
 the previous result in its original thread. Exact send retries reuse their key
 and return the existing message; changed payloads are refused.
 
-The main can send its synthesis to operator as a reply to the reviewed result.
-After reading it, the operator may send a separate acceptance reply. ACK records
+The main can send its synthesis to `operator` as a reply to the reviewed result.
+After reading it, you may send a separate acceptance reply as `operator`. ACK records
 receipt handling only. Neither result text, ACK nor acceptance automatically
 submits a terminal draft, transfers control or executes a command.
 

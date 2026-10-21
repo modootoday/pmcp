@@ -26,9 +26,9 @@ grok-cli, and antigravity; the Antigravity executable is agy.
 
 The mailbox CLI also supports send, inbox, read, ack, sessions, rotate, export,
 backup, and restore. Actor operations accept a private actor-file or existing
-binding-file and JSON input file. Administration requires explicit operator
-intent. Backups and exports are sensitive. Encrypted recovery bundles are
-available through the mailbox API; key custody belongs to the operator.
+binding-file and JSON input file. Administration runs only when you ask for
+it explicitly. Backups and exports are sensitive. Encrypted recovery bundles are
+available through the mailbox API; you keep their keys.
 
 ```ts
 import { MailboxService, MailboxStore } from "@modootoday/pmcp/mailbox";
@@ -54,6 +54,6 @@ The public package contains one reusable local mailbox domain. Optional owned
 terminal supervision and explicit input delivery are provided separately by the
 [local CLI harness](terminal-harness.md); MCP mailbox tools cannot reach those
 execution paths. Provider credentials and approvals remain with native runtimes.
-Organization identity, fleet policy and enterprise audit retention belong to a
-dedicated host. Existing arbitrary terminal sessions are not captured. Elastic
+Organization identity, organization-wide policy and enterprise audit retention
+belong to a dedicated host. Existing arbitrary terminal sessions are not captured. Elastic
 License 2.0 and NOTICE continue to apply.

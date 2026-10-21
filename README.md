@@ -149,7 +149,7 @@ pmcp-pty (`crates/pmcp-pty`), a PTY host, and draw it with pmcp-tui
 need Linux (glibc 2.35 or later) or macOS, Node.js 22 or later, and on Linux a
 working user systemd manager; npm installs pmcp-pty and pmcp-tui with PMCP.
 Windows is not supported yet. Provider login, folder trust and tool approvals
-remain native; an operator-approved `[host]` may answer the tool dialogs it
+remain native; a `[host]` you approved may answer the tool dialogs it
 lists, and never login, auth or trust prompts (see
 [Sessions pmcp-pty hosts](docs/project-configuration.md#sessions-pmcp-pty-hosts)).
 

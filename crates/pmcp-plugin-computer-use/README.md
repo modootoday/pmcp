@@ -6,7 +6,7 @@ computer use needs a macOS or Windows desktop app.
 
 ```sh
 pmcp-desktop doctor            # read-only; exact fix per missing piece; exit 0 ready, 1 missing, 2 unsupported
-pmcp-desktop setup --plan      # root steps for the operator, user steps for --apply (none here)
+pmcp-desktop setup --plan      # root steps for you to run, user steps for --apply (none here)
 pmcp-desktop serve [--geometry 1440x900x24] [--memory-max 512M] [--approved <dir>] [--no-scope]
 ```
 
@@ -24,7 +24,7 @@ resets on HUP) and then the shared HUP-then-KILL reap, and launched apps go the 
 | `type` | text up to 2000 characters; characters missing from the keymap (Hangul, say) are bound to a spare keycode |
 | `key` | a key or chord: `Return`, `ctrl+l`, `shift+Tab`, `F5` |
 | `cursor_position`, `viewer_info` | read only |
-| `launch` | an app by name from `desktop.launch` in the operator-approved copy (`--approved`, the directory `pmcp harness host approve` writes), read at each call and used only while it matches its approval; browsers are never launched, even when listed |
+| `launch` | an app by name from `desktop.launch` in the copy you approved (`--approved`, the directory `pmcp harness host approve` writes), read at each call and used only while it matches its approval; browsers are never launched, even when listed |
 
-No VNC viewer is started; the operator watches through screenshots. Tests run a real Xvfb with a
+No VNC viewer is started; you watch through screenshots. Tests run a real Xvfb with a
 fake X client written in Rust: `cargo test -j 2`.

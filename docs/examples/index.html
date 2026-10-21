@@ -40,8 +40,8 @@
 <a class="result" href="#pmcp-project-init" data-example-result data-search="pmcp-project-init set up a repository so every coding agent reads the same instructions, skills, subagents, rules and mcp servers - one agents.md with claude.md and gemini.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared mcp authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent cli needs. use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.">
     <strong>pmcp-project-init</strong><span>Set up a repository so every coding agent reads the same instructions, skills, subagents, rules and MCP servers - one AGENTS.md with CLAUDE.md and GEMINI.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared MCP authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent CLI needs. Use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. Not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.</span><small>@modootoday/pmcp / skills/pmcp-project-init/SKILL.md</small>
   </a>
-<a class="result" href="#pmcp-sessions-and-git" data-example-result data-search="pmcp-sessions-and-git work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, pause, resume and broadcast as the operator, wait out a lease, work in a desk (a linked worktree) instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and desks, and read pmcp logs to explain a hook refusal. use when a pmcp hook refused or warned, when several agents share one repository, when asked to land or deliver work, or when a session reports a pause, lease or leftover edits. not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.">
-    <strong>pmcp-sessions-and-git</strong><span>Work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, pause, resume and broadcast as the operator, wait out a lease, work in a desk (a linked worktree) instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and desks, and read pmcp logs to explain a hook refusal. Use when a pmcp hook refused or warned, when several agents share one repository, when asked to land or deliver work, or when a session reports a pause, lease or leftover edits. Not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.</span><small>@modootoday/pmcp / skills/pmcp-sessions-and-git/SKILL.md</small>
+<a class="result" href="#pmcp-sessions-and-git" data-example-result data-search="pmcp-sessions-and-git work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, pause, resume and broadcast when the user asks, wait out a lease, work in a linked worktree instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and linked worktrees, and read pmcp logs to explain a hook refusal. use when a pmcp hook refused or warned, when several agents share one repository, when asked to deliver work, or when a session reports a pause, lease or leftover edits. not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.">
+    <strong>pmcp-sessions-and-git</strong><span>Work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, pause, resume and broadcast when the user asks, wait out a lease, work in a linked worktree instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and linked worktrees, and read pmcp logs to explain a hook refusal. Use when a pmcp hook refused or warned, when several agents share one repository, when asked to deliver work, or when a session reports a pause, lease or leftover edits. Not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.</span><small>@modootoday/pmcp / skills/pmcp-sessions-and-git/SKILL.md</small>
   </a>
 <a class="result" href="#skill-package-scaffold" data-example-result data-search="skill-package-scaffold lay out one new skill folder that passes the agent skills specification - skill.md frontmatter within the limits pmcp validate enforces, references/, scripts/ and assets/ only where needed, and evals/ with a normal, an exception and a missing-information case - then gate it with pmcp validate. use when creating the folder for a new skill, when pmcp validate rejects a skill, or when a skill needs its first eval cases. not for deciding what the skill should teach or for packaging several skills as a plugin.">
     <strong>skill-package-scaffold</strong><span>Lay out one new skill folder that passes the Agent Skills specification - SKILL.md frontmatter within the limits pmcp validate enforces, references/, scripts/ and assets/ only where needed, and evals/ with a normal, an exception and a missing-information case - then gate it with pmcp validate. Use when creating the folder for a new skill, when pmcp validate rejects a skill, or when a skill needs its first eval cases. Not for deciding what the skill should teach or for packaging several skills as a plugin.</span><small>@modootoday/pmcp / skills/skill-package-scaffold/SKILL.md</small>
@@ -475,7 +475,7 @@ model is not offered it.</li>
 <h3>4. Choose the optional layers from what the repository is</h3>
 <p>Every layer is a table; a missing table is off. Look before adding:</p>
 <pre><code class="language-sh">git rev-parse --git-common-dir   # a git checkout? then the git layer applies
-git worktree list                # more than one line: desks already exist
+git worktree list                # more than one line: linked worktrees already exist
 git remote -v                    # the remote deliveries push to
 </code></pre>
 <table>
@@ -504,7 +504,7 @@ git remote -v                    # the remote deliveries push to
 <tr>
 <td>More than one agent at a time</td>
 <td><code>[sessions.registry]</code>, <code>[sessions.pause]</code>, <code>[sessions.broadcast]</code></td>
-<td>The operator can see, pause and message every session.</td>
+<td>The user can see, pause and message every session.</td>
 </tr>
 <tr>
 <td>A lockfile or other file two sessions must not change at once</td>
@@ -514,12 +514,12 @@ git remote -v                    # the remote deliveries push to
 <tr>
 <td>A git checkout</td>
 <td>nothing: <code>[git] enabled</code> is <code>&quot;auto&quot;</code>, and <code>[git.shared_checkout]</code> warns once the hooks exist</td>
-<td>A session in the main checkout is warned while desks exist.</td>
+<td>A session in the main checkout is warned while worktrees exist.</td>
 </tr>
 <tr>
 <td>Parallel agents in worktrees</td>
 <td><code>[git.worktrees]</code>, <code>[git.worktrees.sync]</code></td>
-<td><code>pmcp git worktree create &lt;alias&gt;</code>; desks follow the mainline when that loses nothing.</td>
+<td><code>pmcp git worktree create &lt;alias&gt;</code>; worktrees follow the mainline when that loses nothing.</td>
 </tr>
 <tr>
 <td>A protected mainline with a test gate</td>
@@ -618,35 +618,36 @@ refusal with another spelling of the same command.</p>
 <pre><code class="language-sh">pmcp sessions status
 </code></pre>
 <p>It prints each live session (its id, runtime, checkout and current tool), the pause, current
-broadcasts, held leases, and files edited but not landed in a shared checkout. Read it
-before landing anything, and whenever a hook mentions another session.</p>
-<h3>Pause and broadcast (operator)</h3>
+broadcasts, held leases, and files edited but not delivered in a shared checkout. Read it
+before delivering anything, and whenever a hook mentions another session.</p>
+<h3>Pause and broadcast (only when the user asks)</h3>
 <pre><code class="language-sh">pmcp sessions pause &quot;release freeze&quot; --by operator
 pmcp sessions resume
-pmcp sessions broadcast &quot;main moved; sync your desk before delivering&quot;
+pmcp sessions broadcast &quot;main moved; sync your worktree before delivering&quot;
 pmcp sessions unbroadcast
 pmcp sessions sweep   # drop records whose process is gone
 </code></pre>
 <p>While paused, every other session&#39;s edits and mutating commands are refused; reading and
 planning continue. A broadcast reaches each session once, as context. An agent does not
-pause, resume or broadcast on its own initiative; it reports the need to the operator.</p>
+pause, resume or broadcast on its own initiative; it reports the need to the user.</p>
 <h3>Leases</h3>
 <p>A lease protects a file two sessions must not change at once, such as a lockfile. While a
-delivery that touches it is landing, the commands listed for that lease are refused with
-<code>... is landing ... retry when it has landed</code>. Wait and retry; do not run the command another
-way.</p>
-<h3>Desks, not the shared checkout</h3>
+delivery that touches it is in progress, the commands listed for that lease are refused with
+<code>... is landing ... retry when it has landed</code> (&quot;landing&quot; means being delivered). Wait and
+retry; do not run the command another way.</p>
+<h3>Linked worktrees, not the shared checkout</h3>
 <p>When the repository has worktrees, the main checkout is shared: an edit left there blocks
-syncing the mainline for every session, and the hook says so. Work in a desk:</p>
-<pre><code class="language-sh">pmcp git worktree create &lt;alias&gt;     # prints the desk path; work there
+syncing the mainline for every session, and the hook says so. Work in a linked worktree
+(hook messages call it a desk):</p>
+<pre><code class="language-sh">pmcp git worktree create &lt;alias&gt;     # prints the worktree path; work there
 pmcp git worktree list               # alias, branch, behind/ahead, path
-pmcp git worktree sync               # move this desk onto the mainline when nothing is lost
+pmcp git worktree sync               # move this worktree onto the mainline when nothing is lost
 </code></pre>
-<p>If you already edited the main checkout, land those files within the task or move them to a
-desk. <code>pmcp sessions status</code> lists them under the shared checkout.</p>
+<p>If you already edited the main checkout, deliver those files within the task or move them
+to a linked worktree. <code>pmcp sessions status</code> lists them under the shared checkout.</p>
 <h3>Deliver, do not push</h3>
 <p>With <code>[git.mainline.deliver]</code>, a direct <code>git push</code> from any checkout of the repository is
-refused. Commit in the desk, then:</p>
+refused. Commit in the linked worktree, then:</p>
 <pre><code class="language-sh">pmcp git deliver                 # every commit the upstream lacks
 pmcp git deliver &lt;commit&gt;...     # only these
 </code></pre>
@@ -656,7 +657,7 @@ deliver; 1 refused (pause, lease, gate failure, attempts exhausted) with the rea
 stderr; 2 the fetch failed. Fix what the gate reports; never bypass it with
 <code>--no-verify</code> or a gate-bypass variable, which the guards refuse.</p>
 <p><code>pmcp git sync</code> moves the main checkout to the mainline afterwards; it refuses (exit 2)
-while unlanded edits sit there.</p>
+while undelivered edits sit there.</p>
 <h3>Explain a refusal with pmcp logs</h3>
 <pre><code class="language-sh">pmcp logs --since 15m --level warn --pretty
 pmcp logs --session &lt;id-prefix&gt; --pretty
@@ -673,7 +674,7 @@ duration. Secret values, prompt text and environment values are redacted.</p>
 <h3>Report</h3>
 <p>What <code>pmcp sessions status</code> showed, which refusal or warning occurred and what it asked
 for, the commands run instead (delivery or sync and their exit codes), and anything left for
-the operator (a pause to lift, a lease still held, leftovers in the shared checkout).</p>
+the user (a pause to lift, a lease still held, leftovers in the shared checkout).</p>
 
   </article>
 <article id="skill-package-scaffold" class="example-body docs-body">

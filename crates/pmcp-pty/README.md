@@ -38,15 +38,15 @@ prefer `$XDG_RUNTIME_DIR` over deep scratch directories.
   `expect.lease`; the harness grants it, pmcp-pty only holds it. A person typing through a
   writable attach wins: program input fails with `conflict` and `retry_after_ms` for five
   seconds after their last keystroke.
-- `answer` chooses a dialog option only when the operator's policy lists it; without one every
+- `answer` chooses a dialog option only when your policy lists it; without one every
   answer fails with `guard`. Login, auth (`auth-*`) and trust dialogs and `hooks-review` are
   never answered, whatever the policy says. The policy is read on every request from:
   - `daemon --host <dir>`: the copy `pmcp harness host approve` wrote (`host.json`,
     `policy.json`, `approval.json`; the directory owner-only). It loads only while the files
     match `approval.json`'s sha256 over `host.json\n<manifest>\0policy.json\n<policy>`.
-    These checks run as the operator's own user: they stop accidents and instructed agents,
+    These checks run as your own user: they stop accidents and instructed agents,
     not a process determined to write that directory.
-  - `daemon --answers <file.toml>`: an operator-written file, owned by the daemon's user and
+  - `daemon --answers <file.toml>`: a file you write, owned by the daemon's user and
     not group or world writable, in the same fields:
   ```toml
   [[allow]]
@@ -126,7 +126,7 @@ session. `observe` also reports `leased` and `humans` (writable attachers).
 | `shutdown` | | kills every session, removes the socket, exits |
 
 A request with `"via": "mcp"` comes from `pmcp harness mcp`, and the daemon limits it itself:
-`describe list observe wait read` pass; `turn` and `lease` only when the operator policy file
+`describe list observe wait read` pass; `turn` and `lease` only when your policy file
 sets `mcp_write = true`; everything else, `answer` included, fails with `guard`. Over MCP even
 reads are audited, marked `via: mcp`. The tag is the server's own declaration, not an identity:
 the caller's pid and executable in the audit are.

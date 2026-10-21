@@ -2,7 +2,7 @@
 
 [Back to the overview](../README.md)
 
-These three library-major pilots provide free public instructions for Python,
+These three library-major skills provide free public instructions for Python,
 Rust and Go libraries. Select them yourself and copy them into a local collection
 you choose. No PMCP login, subscription or registry account is required to read
 the files or load that collection.
@@ -13,7 +13,7 @@ the files or load that collection.
 | crates.io  | `serde_json` 1             | `1.0.149`, with Serde `1.0.228` | [serde_json SKILL.md](/skills/serde-json/1/SKILL.md)   |
 | Go modules | `github.com/google/uuid` 1 | `v1.6.0`                        | [Google UUID SKILL.md](/skills/google-uuid/1/SKILL.md) |
 
-Selected versions identify each pilot's scope. They are not a statement that
+Selected versions identify each skill's scope. They are not a statement that
 every project, feature or AI runtime has been verified. Each SKILL.md contains
 its own supported task boundaries and links to primary documentation and
 licenses. Keep those sources when copying or adapting the instructions.
@@ -62,7 +62,7 @@ to the native AI runtime.
 
 ## Understand the manual boundary
 
-PMCP does not automatically detect these pilots from PyPI, Cargo or Go
+PMCP does not automatically detect these libraries from PyPI, Cargo or Go
 dependencies. They are separate from the managed npm skill catalog and are
 not installed through `pmcp available` or `pmcp install`. Serving a local
 collection does not install a library, download a compiler or run its examples.

@@ -53,7 +53,7 @@ ignored.
 | `[targets]`, `[skills.<name>]`, `[agents.<name>.<tool>]`, `[rules.packages]`                                                                                                              | [Native files for each agent tool](#native-files-for-each-agent-tool)   |
 | `[mcp.<alias>]`                                                                                                                                                                           | [Unified project MCP configuration](#unified-project-mcp-configuration) |
 | `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[hooks.checks.*]`                                                                                                              | [Hooks](#hooks)                                                         |
-| `[[hooks.shell]]`, `[[hooks.edit]]`                                                                                                                                                       | [Operator shell guards](#operator-shell-guards)                         |
+| `[[hooks.shell]]`, `[[hooks.edit]]`                                                                                                                                                       | [Deprecated shell guards](#deprecated-shell-guards)                     |
 | `[sessions]`, `[sessions.registry]`, `[sessions.pause]`, `[sessions.broadcast]`, `[sessions.mailbox]`, `[sessions.leases.<name>]`, `[sessions.roles.<name>]`                              | [Sessions](#sessions)                                                   |
 | `[git]`, `[git.shared_checkout]`, `[git.worktrees]`, `[git.worktrees.sync]`, `[git.mainline]`, `[git.mainline.gate]`, `[git.mainline.deliver]`, `[git.mainline.sync]`, `[git.submodules]` | [Git workflow](#git-workflow)                                           |
 | `[logging]`, `[logging.components]`                                                                                                                                                       | [Logging](#logging)                                                     |
@@ -146,12 +146,12 @@ overwritten. `doctor` calls no model: it reads `claude mcp list`,
 ## Sessions pmcp-pty hosts
 
 `[host]` names the sessions pmcp-pty runs for this project and the few dialog
-answers the operator allows it to give. `pmcp project` writes them to
+answers you allow it to give. `pmcp project` writes them to
 `.agents/pmcp-pty/host.json` (the sessions) and `.agents/pmcp-pty/policy.json`
 (answers, `mcp_write`, roots), pinned in `pmcp.lock` like every output, and
 `pmcp doctor` reports whether they match. pmcp.toml is writable by agents, so
-neither file takes effect by being projected: pmcp-pty loads only a copy the
-operator approved. Running the host (`pmcp harness host up`) needs Linux with a
+neither file takes effect by being projected: pmcp-pty loads only a copy you
+approved. Running the host (`pmcp harness host up`) needs Linux with a
 user systemd manager; on macOS it refuses, and `pmcp tui` or a harness group is
 the way to run sessions there.
 
@@ -255,7 +255,7 @@ optional: without it the browser is public-only and the desktop launches
 nothing. `[host.browser] allow_private` and `[[host.desktop.launch]]` come
 into force only through `pmcp harness host approve`. Running the browser
 headed on the desktop's display also needs the managed Chromium policy that
-`pmcp-browser setup --plan` prints for the operator to install.
+`pmcp-browser setup --plan` prints for you to install.
 
 ## Claude permission rules
 
@@ -561,7 +561,7 @@ A project script under `.agents/guards/` that decides like a built-in guard.
 | `on`         | string    | `"before_shell"` | `before_shell` or `after_edit`.                                                                                                                                                                      |
 
 The script receives the JSON contract described under
-[Operator shell guards](#operator-shell-guards). Custom guards have no `mode`.
+[Deprecated shell guards](#deprecated-shell-guards). Custom guards have no `mode`.
 
 ### `[hooks.checks.after_edit]` and `[hooks.checks.on_stop]`
 
@@ -665,27 +665,27 @@ runtime above.
 Sessions coordinate agents working in one repository and its worktrees. State
 lives in one directory shared by every checkout of the repository.
 
-| `[sessions]` key | Type   | Default                                                     | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ---------------- | ------ | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `store`          | string | `"files"`                                                   | The only store.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `state_dir`      | path   | `$XDG_STATE_HOME/pmcp/projects/<id>` (`~/.local/state/...`) | `<id>` is the first 16 hex digits of the sha256 of the git common directory. `~`, `~/` and `$HOME/` expand to the home directory and a relative path is relative to the main checkout: the directory holding `pmcp.toml`, taken in the worktree of the git common directory, so the main checkout and every linked desk share one state. Outside git it is relative to the directory holding `pmcp.toml`. The hooks, the mod and the git commands resolve it the same way; so does `[git.mainline.gate] tree`. |
+| `[sessions]` key | Type   | Default                                                     | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------- | ------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `store`          | string | `"files"`                                                   | The only store.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `state_dir`      | path   | `$XDG_STATE_HOME/pmcp/projects/<id>` (`~/.local/state/...`) | `<id>` is the first 16 hex digits of the sha256 of the git common directory. `~`, `~/` and `$HOME/` expand to the home directory and a relative path is relative to the main checkout: the directory holding `pmcp.toml`, taken in the worktree of the git common directory, so the main checkout and every linked worktree share one state. Outside git it is relative to the directory holding `pmcp.toml`. The hooks, the Claude Code session panes and the git commands resolve it the same way; so does `[git.mainline.gate] tree`. |
 
 `store` and `state_dir` alone enable nothing; each feature has its own table:
 
-| Table                      | Keys                                                                                                                                                                                                            | Effect                                                                                                                                          |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `[sessions.registry]`      | `liveness` (`"pid_heartbeat"`, the only value), `stale_minutes` (default `30`)                                                                                                                                  | Records each session with its process and heartbeat; `pmcp sessions status` lists them.                                                         |
-| `[sessions.pause]`         | `mode` (`deny` default, `ask`, `warn`, `off`), `refuses` (`"mutating"`), `scripts` (regular expressions, default `[]`: a `node` script matching one also counts as mutating, e.g. your own land or sync script) | While `pmcp sessions pause` is in effect, edits and mutating commands are refused for every session but the one that paused; reading continues. |
-| `[sessions.broadcast]`     | `keep` (default `10`), `deliver_on` (default `["session_start", "prompt", "before_tool"]`; also `after_tool`, `stop`)                                                                                           | Delivers `pmcp sessions broadcast` text once to each session, as context on the listed events.                                                  |
-| `[sessions.leases.<name>]` | `path` (string, shown in the message and used by git delivery), `blocks` (required list of argv prefixes)                                                                                                       | While another session holds lease `<name>`, commands starting with a listed prefix are denied until it lands.                                   |
-| `[sessions.roles.<name>]`  | `agent_type` (default `<name>`, also matches `plugin:<name>`), `allow_edits` (default `false`), `allow_commands` (list of argv prefixes, default `[]`)                                                          | A subagent of that type may edit only if allowed and run only the listed commands. Claude only.                                                 |
+| Table                      | Keys                                                                                                                                                                                                                | Effect                                                                                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[sessions.registry]`      | `liveness` (`"pid_heartbeat"`, the only value), `stale_minutes` (default `30`)                                                                                                                                      | Records each session with its process and heartbeat; `pmcp sessions status` lists them.                                                         |
+| `[sessions.pause]`         | `mode` (`deny` default, `ask`, `warn`, `off`), `refuses` (`"mutating"`), `scripts` (regular expressions, default `[]`: a `node` script matching one also counts as mutating, e.g. your own delivery or sync script) | While `pmcp sessions pause` is in effect, edits and mutating commands are refused for every session but the one that paused; reading continues. |
+| `[sessions.broadcast]`     | `keep` (default `10`), `deliver_on` (default `["session_start", "prompt", "before_tool"]`; also `after_tool`, `stop`)                                                                                               | Delivers `pmcp sessions broadcast` text once to each session, as context on the listed events.                                                  |
+| `[sessions.leases.<name>]` | `path` (string, shown in the message and used by git delivery), `blocks` (required list of argv prefixes)                                                                                                           | While another session holds lease `<name>`, commands starting with a listed prefix are denied until its delivery finishes.                      |
+| `[sessions.roles.<name>]`  | `agent_type` (default `<name>`, also matches `plugin:<name>`), `allow_edits` (default `false`), `allow_commands` (list of argv prefixes, default `[]`)                                                              | A subagent of that type may edit only if allowed and run only the listed commands. Claude only.                                                 |
 
 These tables have no `mode`, except pause. Without `[sessions.registry]` no
 session is recorded, and `[ui.claude]` refuses to project.
 
 ### `[sessions.mailbox]`
 
-Addressed messages between sessions and the operator. A missing table leaves
+Addressed messages between sessions, and between you and them. A missing table leaves
 the mailbox off; a declared one, even empty, turns it on.
 
 | Key             | Type   | Default | Meaning                                                                     |
@@ -701,7 +701,8 @@ never rewritten: `id`, `from` (session and alias), `to`, `subject`, `body`,
 `createdAt`, `expiresAt`, `replyTo`, `once`. `to` lists selectors: `all`,
 `session:<id>` (a prefix of at least eight characters works), `alias:<name>`,
 `role:<name>` (a `[sessions.roles]` name or the agent type), or `desk:<path>`
-(the desk's path, or its directory name). A message to `all` reaches the
+(a linked worktree's path, or its directory name: `desk` is the selector
+name for a linked worktree). A message to `all` reaches the
 sessions that were running when it was sent; a session the registry records
 later does not get earlier broadcasts. Delivery and acknowledgement are
 empty markers under `<state>/inbox/<session>/`, so a message is never edited
@@ -716,7 +717,7 @@ acknowledgement. A message sent with `--once` says it is a one-time request,
 so the recipient does not keep its instructions as standing rules.
 
 ```sh
-pmcp sessions send --to alias:reviewer --to role:lander --subject deploy --once "Hold the deploy until 14:00"
+pmcp sessions send --to alias:reviewer --to role:delivery --subject deploy --once "Hold the deploy until 14:00"
 echo "longer body" | pmcp sessions send --to all -
 pmcp sessions inbox [--session <id>] [--all] [--json]
 pmcp sessions ack <id>... [--session <id>]
@@ -783,8 +784,8 @@ hook file only when a session starts.
 With the mailbox on, `pmcp sessions broadcast` also sends its text as a
 message to `all`, and the mailbox delivers it instead of
 `[sessions.broadcast]`; `broadcast.json` and each session's `seenBroadcast`
-are still written, so `pmcp sessions status`, the fleet snapshot and the
-Claude status band read broadcasts as before. `unbroadcast` withdraws those
+are still written, so `pmcp sessions status`, the session list and the
+Claude Code session panes read broadcasts as before. `unbroadcast` withdraws those
 messages too.
 
 ## Git workflow
@@ -796,14 +797,14 @@ messages too.
 | `mainline`  | string or table       | the remote's HEAD branch, else `main`      | A string names the branch; a table (`[git.mainline]` with `branch`) also holds gate, deliver and sync. |
 
 `[git.shared_checkout]` warns a session working in the main checkout of a
-repository that also has worktrees (desks), tracks the files it edits there,
-and names unlanded leftovers, because they block syncing the shared main for
+repository that also has linked worktrees, tracks the files it edits there,
+and names leftovers not yet delivered, because they block syncing the shared main for
 everyone. Keys: `enabled` (`"auto"` default, following `[git] enabled`, or a
 boolean), `warn_on_session`, `track_edits`, `warn_claimants` (booleans, default
 `true`). It is on in any git checkout without a table, once something else
 enables the hook bundle.
 
-`[git.worktrees]` configures desks for `pmcp git worktree`:
+`[git.worktrees]` configures the linked worktrees `pmcp git worktree` creates:
 
 | Key              | Type      | Default                    |
 | ---------------- | --------- | -------------------------- |
@@ -813,7 +814,7 @@ enables the hook bundle.
 | `bootstrap`      | argv list | none                       |
 | `link_from_main` | list      | `[]`                       |
 
-`[git.worktrees.sync]` (opt-in) keeps each desk on the mainline when moving it
+`[git.worktrees.sync]` (opt-in) keeps each linked worktree on the mainline when moving it
 loses nothing: `on_session_start` (`"fetch_and_move"` default, `"move"`,
 `"off"`), `between_prompts` (`"move_if_light"` default, `"off"`: move only when
 no install is needed), `install_after_move` (`"off"` default, `"background"`,
@@ -864,7 +865,7 @@ switches hook logging on or off. Read the logs with `pmcp logs`.
 edited. It needs `[sessions.registry]`, and is written only when `claude` is
 in `[targets] tools`. Without the table nothing is installed. `pmcp doctor`
 shows the projected switches, or a failure until `pmcp project` writes them; it
-cannot tell whether a running Claude Code loaded the mod.
+cannot tell whether a running Claude Code loaded the session panes.
 
 ## A complete example
 
@@ -951,7 +952,7 @@ max_delivered = 5
 path = "package-lock.json"
 blocks = [["npm", "install"], ["npm", "ci"], ["pmcp", "git", "deliver"]]
 
-[sessions.roles.lander]
+[sessions.roles.delivery]
 allow_commands = [["pmcp", "git", "deliver"], ["git", "log"], ["git", "status"]]
 
 [git]
@@ -994,7 +995,7 @@ source = { github = "example/team-marketplace" }
 review = { targets = ["claude", "codex"] }
 ```
 
-## Operator shell guards
+## Deprecated shell guards
 
 Deprecated: `[[hooks.shell]]` and `[[hooks.edit]]` still work, and `pmcp project`
 warns. Declare `[[hooks.guards.custom]]` instead, with `on = "before_shell"` or
@@ -1034,7 +1035,7 @@ contain no trust bypass. Grok can load Claude project hooks, so this first scope
 does not generate a second Grok guard. Hooks do not force pmcp catalog use,
 inject reminders or replace the runtime's execution sandbox.
 
-## Operator edit guards
+## Deprecated edit guards
 
 Codex edit guards run after apply_patch through native PostToolUse hooks:
 
