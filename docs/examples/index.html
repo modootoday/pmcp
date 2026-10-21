@@ -399,9 +399,11 @@ and approval remain native.</p>
     <h2>pmcp-project-init</h2>
     <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/pmcp-project-init/SKILL.md">Read the source file</a></p>
     <h2>Starting a repository the pmcp way</h2>
-<p>pmcp has no <code>init</code> command. You write the sources by hand; <code>pmcp project</code> writes every
-tool&#39;s native files from them, and <code>pmcp doctor</code> asks each installed tool what it loads.
-Never write the generated files yourself: pmcp refuses to overwrite a file it did not write.</p>
+<p><code>pmcp init [--preset solo|multi-session]</code> writes a starting <code>pmcp.toml</code> from what it detects
+in the checkout; it refuses to replace an existing one without <code>--force</code>. You edit it and write
+the other sources by hand; <code>pmcp project</code> writes every tool&#39;s native files from them, and
+<code>pmcp doctor</code> asks each installed tool what it loads. Never write the generated files
+yourself: pmcp refuses to overwrite a file it did not write.</p>
 <p>Install the pmcp package as a dev dependency under the scoped name its documentation gives.
 Never run the bare unscoped name through npx: that name is not the package, and whoever
 publishes it later would run in your repository.</p>
@@ -680,7 +682,7 @@ the operator (a pause to lift, a lease still held, leftovers in the shared check
     <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/skill-package-scaffold/SKILL.md">Read the source file</a></p>
     <h2>Scaffolding one skill folder</h2>
 <p>This is the shape, not the content. What the body should say, and how to word a description
-that triggers, is skill authoring (domain-skill-authoring covers it). Here the job is a
+that triggers, is skill authoring and out of scope here. Here the job is a
 folder that every loader accepts and that carries its own test cases.</p>
 <h3>Layout</h3>
 <pre><code>&lt;name&gt;/
@@ -696,7 +698,7 @@ folder that every loader accepts and that carries its own test cases.</p>
 <p>Create a directory only when something goes in it. An empty <code>scripts/</code> makes reviewers look
 for code that is not there.</p>
 <h3>Frontmatter limits</h3>
-<p>These are the checks <code>pmcp validate</code> runs (pmcp 0.8):</p>
+<p>These are the Agent Skills checks <code>pmcp validate</code> always runs:</p>
 <table>
 <thead>
 <tr>
@@ -730,7 +732,8 @@ for code that is not there.</p>
 </tr>
 </tbody></table>
 <p>A marketplace may add its own rules on top (a metadata schema, tiers, ASCII-only text).
-Check those separately; <code>pmcp validate</code> does not know them.</p>
+<code>pmcp validate</code> checks them only when <code>pmcp.toml</code> names a profile in <code>[catalog.validation]</code>
+(<code>catalog-v1</code> or <code>library</code>); without one, a skill that breaks them still passes.</p>
 <pre><code class="language-markdown">---
 name: invoice-dispute-reply
 description: Draft a reply to a customer disputing an invoice ... Use when ... Not for ...
@@ -788,5 +791,5 @@ statements.</p>
 <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
 <a href="/licence/">Licence</a></div>
     <p class="copyright">© 2026 modootoday.</p>
-  </footer></div></div><script type="module" src="/assets/landing/index-H4QUHJSG.js"></script>
+  </footer></div></div><script type="module" src="/assets/landing/index-IM2SUDLL.js"></script>
 </body></html>

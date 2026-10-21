@@ -475,14 +475,28 @@ pmcp doctor --memory</code></pre>
       <h2 id="harness">harness</h2>
       <pre><code>pmcp harness doctor inspect
 pmcp harness group inspect --group-file "$GROUP_FILE"
-pmcp harness recovery inspect --group-file "$GROUP_FILE"</code></pre>
+pmcp harness recovery inspect --group-file "$GROUP_FILE"
+pmcp harness host approve | status | up | down | unit
+pmcp harness mcp</code></pre>
       <p>
-        Optional local supervision of owned native main and worker sessions.
-        Linux, tmux, util-linux flock, Node.js 22 and a working user systemd
-        manager are required. Start, input, stop and recovery actions are
+        Optional local supervision of owned native main and worker sessions on
+        pmcp-pty. Groups run on Linux (glibc 2.35 or later, with a working user
+        systemd manager) or macOS, with Node.js 22. Start, input, stop and recovery actions are
         explicit CLI operations. Provider OAuth, trust and approvals remain
         native; MCP tools cannot invoke this execution path.
         <a href="/terminal-harness/">Group creation, control and recovery</a>.
+      </p>
+      <p>
+        <code>harness host</code> runs the long-running sessions listed in
+        <code>[host]</code> of <code>pmcp.toml</code>: <code>approve</code>
+        records your approval of the projected policy, <code>status</code>
+        reports it, <code>up</code> starts pmcp-pty and the approved sessions,
+        <code>down</code> stops them and <code>unit</code> prints a systemd user
+        unit. <code>up</code> and <code>unit</code> need Linux.
+        <code>harness mcp</code> is a stdio MCP server for one pmcp-pty socket
+        (<code>PMCP_PTY_SOCKET</code>); its write tools exist only when the
+        approved policy sets <code>mcp_write</code>.
+        <a href="/project-configuration/#sessions-pmcp-pty-hosts">The [host] table</a>.
       </p>
 
       <h2 id="tui">tui</h2>
@@ -495,9 +509,9 @@ pmcp tui doctor</code></pre>
         defaults or an optional <code>[tui]</code> table in
         <code>pmcp.toml</code>. The first launch confirms the selected runtime;
         later launches reconnect to this project's owned workspace.
-        Views begin read only; control acquisition and stopping a runtime
+        The workspace starts read only; taking control and stopping a runtime
         require explicit actions. Opening requires an interactive terminal and
-        the same Linux host prerequisites as the harness.
+        the same host as the harness.
         <a href="/terminal-workspace/">Keys, mailbox observation and cleanup</a
         >.
       </p>

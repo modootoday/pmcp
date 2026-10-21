@@ -129,10 +129,11 @@ grok plugin install typescript-5@pmcp</code></pre>
         Share MCP settings through
         <a href="/project-configuration/">project configuration</a>. The
         <a href="/terminal-harness/">native harness</a> and
-        <a href="/terminal-workspace/">terminal workspace</a> require Linux,
-        tmux, util-linux flock, Node.js 22 and a working user systemd manager.
-        The TUI requires PMCP 0.13.0 or later. Run <code>pmcp tui doctor</code>
-        before creating a view. Provider credentials stay with the native tools.
+        <a href="/terminal-workspace/">terminal workspace</a> run on Linux
+        (glibc 2.35 or later, with a working user systemd manager) or macOS,
+        with Node.js 22; npm installs pmcp-pty and pmcp-tui with pmcp. Run
+        <code>pmcp tui doctor</code> to check the host. Provider credentials
+        stay with the native tools.
       </p>
 
       <div class="note">

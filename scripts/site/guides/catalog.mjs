@@ -45,7 +45,7 @@ export const guides = [
     route: "/terminal-harness/",
     title: "Native terminal control",
     description:
-      "Manage owned native CLI sessions with tmux, explicit input and recovery.",
+      "Manage owned native CLI sessions on pmcp-pty, with explicit input and recovery.",
   },
   {
     source: "terminal-workspace.md",

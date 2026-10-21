@@ -3,14 +3,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Native terminal control — pmcp</title>
-  <meta name="description" content="Manage owned native CLI sessions with tmux, explicit input and recovery." />
+  <meta name="description" content="Manage owned native CLI sessions on pmcp-pty, with explicit input and recovery." />
   <link rel="canonical" href="https://pmcp.build/terminal-harness/" />
   <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
   <meta property="og:title" content="Native terminal control — pmcp" />
-  <meta property="og:description" content="Manage owned native CLI sessions with tmux, explicit input and recovery." />
+  <meta property="og:description" content="Manage owned native CLI sessions on pmcp-pty, with explicit input and recovery." />
   <meta property="og:url" content="https://pmcp.build/terminal-harness/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -70,11 +70,12 @@ unreachable manager returns native_user_manager_unavailable.
 The doctor report lists prerequisites and does not certify cgroup delegation.
 An ordinary isolated Docker container usually lacks this user manager and a
 writable delegated cgroup subtree. Container resource limits alone do not
-qualify the native session controls; the current profile requires its Linux host.</p>
+qualify the native session controls; they need the Linux or macOS host itself.</p>
 <h2>Choose native or Docker execution</h2>
-<p>The default native profile starts executables on the Linux host. The optional
-Docker profile keeps the same host-side pmcp-pty and user-systemd controller, while
-each native executable runs in its own bounded container. Docker does not
+<p>The default native profile starts executables on the host, Linux or macOS. The
+optional Docker profile needs Linux: it keeps the same host-side pmcp-pty and
+user-systemd controller, while each native executable runs in its own bounded
+container. Docker does not
 replace the host prerequisites above. Only a local Docker Engine is supported.</p>
 <p>Prepare an image locally with your runtime installed. PMCP requires its exact
 image ID, refuses a missing image and never builds or pulls one. The image must
@@ -258,6 +259,8 @@ the operator and runtime; an input receipt does not establish prompt readiness.<
 outside any group (see
 <a href="/project-configuration/#sessions-pmcp-pty-hosts">Sessions pmcp-pty hosts</a>).
 After <code>pmcp project</code> and your own <code>pmcp harness host approve</code>:</p>
+<p><code>host up</code> and <code>host unit</code> need Linux with a user systemd manager. On macOS they
+stop with <code>platform_unsupported</code>; use <code>pmcp tui</code> or a harness group there.</p>
 <ul>
 <li><code>pmcp harness host up</code> starts pmcp-pty if its socket (<code>PMCP_PTY_SOCKET</code>, else
 <code>$XDG_RUNTIME_DIR/pmcp-pty.sock</code>) does not answer, in a transient
@@ -334,8 +337,8 @@ unregistered owned sessions. recovery reconcile removes a writer lock only
 after its controller has exited and never resends input. Use recovery
 stop-orphan for a named unregistered session, or recovery replace-main with a
 new main specification after the previous main has stopped. Replacement changes
-the generation and invalidates old control credentials. Unknown server or pane
-identity fails closed; no session is silently adopted.</p>
+the generation and invalidates old control credentials. An unknown host instance
+or session identity fails closed; no session is silently adopted.</p>
 <p>Include pending starts explicitly when inspecting a failed launch:</p>
 <pre><code>pmcp harness recovery inspect --group-file &quot;$GROUP_FILE&quot; --include-starts
 pmcp harness recovery abort-start --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --session &quot;$SESSION&quot;</code></pre>
@@ -343,7 +346,7 @@ pmcp harness recovery abort-start --group-file &quot;$GROUP_FILE&quot; --generat
 as stopped. It neither adopts the session nor restarts it. A committed session
 uses session stop instead. If the start gate died before recording ownership,
 automatic cleanup is refused and admission remains blocked for administrative
-repair. Keep the private state directory as evidence; do not guess a pane target
+repair. Keep the private state directory as evidence; do not guess a session id
 or resend an uncertain request.</p>
 <h2>Layout planning</h2>
 <pre><code>pmcp harness layout --columns 120 --rows 40</code></pre>

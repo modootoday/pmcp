@@ -147,7 +147,9 @@ answers the operator allows it to give. <code>pmcp project</code> writes them to
 (answers, <code>mcp_write</code>, roots), pinned in <code>pmcp.lock</code> like every output, and
 <code>pmcp doctor</code> reports whether they match. pmcp.toml is writable by agents, so
 neither file takes effect by being projected: pmcp-pty loads only a copy the
-operator approved.</p>
+operator approved. Running the host (<code>pmcp harness host up</code>) needs Linux with a
+user systemd manager; on macOS it refuses, and <code>pmcp tui</code> or a harness group is
+the way to run sessions there.</p>
 <pre><code>[host]
 roots = [&quot;.&quot;]        # every session cwd must be under one of these
 mcp_write = false    # pty_turn and pty_lease over pmcp harness mcp

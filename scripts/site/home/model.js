@@ -40,11 +40,11 @@ export const features = [
   {
     id: "harness",
     label: "Session harness + TUI",
-    scope: "Optional / Linux",
+    scope: "Optional / Linux, macOS",
     title: "A shared view of native sessions.",
     description:
       "Use the optional CLI host for owned session management, then a TUI for visibility and explicit control. Native trust and approval prompts remain with the runtime.",
-    code: "Native runtime → owned tmux session\nCLI host → session management\nTUI → shared view\n\nRequires documented Linux setup",
+    code: "Native runtime → pmcp-pty session\nCLI host → session management\nTUI → shared workspace\n\nLinux or macOS",
     guide: "terminal-harness/",
   },
   {
