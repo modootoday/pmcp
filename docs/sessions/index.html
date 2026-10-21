@@ -24,10 +24,13 @@
   </header>
 <main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
 <a href="/install/">Installation</a>
-<a href="/project-configuration/">Project configuration</a>
+<a href="/project-configuration/">pmcp.toml reference</a>
+<a href="/hooks/">Hooks</a>
 <a href="/sessions/" aria-current="page">Run several agents</a>
+<a href="/git-workflow/">Git workflow</a>
+<a href="/browser-and-desktop/">Browser and desktop</a>
 <a href="/skills-reference/">Skills and MCP reference</a>
-<a href="/manual-library-skills/">Manual library skills</a>
+<a href="/library-skills/">Library skills</a>
 <a href="/embeddings/">Embedding models</a>
 <a href="/mailbox/">Local mailbox</a>
 <a href="/hosting/">HTTP hosting</a>
@@ -46,7 +49,7 @@ dependencies under each other&#39;s feet. pmcp lets every agent session in a rep
 others, and gives you the controls to coordinate them: a session list, a pause, broadcasts,
 addressed messages, leases on shared files, linked worktrees and one delivery path to the
 mainline. Every part is opt-in through <code>pmcp.toml</code>; the keys are in the
-<a href="/project-configuration/#sessions">configuration guide</a>.</p>
+<a href="/project-configuration/#sessions">pmcp.toml reference</a>.</p>
 <h2 id="see-who-is-working">See who is working</h2>
 <pre><code>pmcp sessions status</code></pre>
 <p>It lists each live session (id, runtime, checkout and current tool), the pause, current
@@ -81,7 +84,7 @@ an edit left in the shared main checkout blocks syncing it for everyone.</li>
 <li><strong>One delivery path.</strong> With <code>[git.mainline.deliver]</code>, <code>pmcp git deliver</code> replays, tests and
 pushes one delivery at a time, and a direct <code>git push</code> is refused.</li>
 </ul>
-<p>The <a href="/project-configuration/#git-workflow">git workflow section</a> covers worktrees, delivery
+<p>The <a href="/git-workflow/">Git workflow</a> page covers worktrees, delivery
 and sync. Agents learn the same rules from the pmcp-sessions-and-git skill in the pmcp plugin.</p>
 </article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>

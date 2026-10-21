@@ -56,7 +56,7 @@ function fixtureRoot(installed = true) {
   mkdirSync(join(root, "docs/skills"), { recursive: true });
   writeFileSync(join(root, "docs/catalog.json"), JSON.stringify(catalog));
   if (!installed) return root;
-  writeFileSync(join(root, "docs/manual-library-skills.md"), "Manual pilots\n");
+  writeFileSync(join(root, "docs/library-skills.md"), "Library skills\n");
   for (const descriptor of manualLibraryDescriptors) {
     const path = join(root, descriptor.path);
     const name = descriptor.path.split("/")[2];

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Git workflow — pmcp</title>
+  <meta name="description" content="Linked worktrees, one delivery path to the mainline and main checkout sync." />
+  <link rel="canonical" href="https://pmcp.build/git-workflow/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Git workflow — pmcp" />
+  <meta property="og:description" content="Linked worktrees, one delivery path to the mainline and main checkout sync." />
+  <meta property="og:url" content="https://pmcp.build/git-workflow/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">pmcp.toml reference</a>
+<a href="/hooks/">Hooks</a>
+<a href="/sessions/">Run several agents</a>
+<a href="/git-workflow/" aria-current="page">Git workflow</a>
+<a href="/browser-and-desktop/">Browser and desktop</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/library-skills/">Library skills</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Git workflow</p><h1 id="git-workflow">Git workflow</h1>
+<p><a href="/">Back to the overview</a></p>
+<p>Linked worktrees, one delivery path to the mainline and main checkout sync, configured by
+<code>[git]</code>. <a href="/sessions/">Run several agents</a> shows how it fits with sessions; the other tables
+are in the <a href="/project-configuration/">pmcp.toml reference</a>.</p>
+<div class="scroll"><table><thead><tr><th><code>[git]</code> key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>enabled</code></td><td><code>&quot;auto&quot;</code>, true, false</td><td><code>&quot;auto&quot;</code></td><td><code>auto</code> turns the git features on when the project is a git checkout; <code>false</code> turns all of them off.</td></tr>
+<tr><td><code>remote</code></td><td>string</td><td><code>origin</code> if present, else the first remote</td><td></td></tr>
+<tr><td><code>mainline</code></td><td>string or table</td><td>the remote&#39;s HEAD branch, else <code>main</code></td><td>A string names the branch; a table (<code>[git.mainline]</code> with <code>branch</code>) also holds gate, deliver and sync.</td></tr></tbody></table></div>
+<p><code>[git.shared_checkout]</code> warns a session working in the main checkout of a
+repository that also has linked worktrees, tracks the files it edits there,
+and names leftovers not yet delivered, because they block syncing the shared main for
+everyone. Keys: <code>enabled</code> (<code>&quot;auto&quot;</code> default, following <code>[git] enabled</code>, or a
+boolean), <code>warn_on_session</code>, <code>track_edits</code>, <code>warn_claimants</code> (booleans, default
+<code>true</code>). It is on in any git checkout without a table, once something else
+enables the hook bundle.</p>
+<p><code>[git.worktrees]</code> configures the linked worktrees <code>pmcp git worktree</code> creates:</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th></tr></thead><tbody><tr><td><code>root</code></td><td>string</td><td><code>&quot;.claude/worktrees&quot;</code></td></tr>
+<tr><td><code>branch_prefix</code></td><td>string</td><td><code>&quot;worktree-&quot;</code></td></tr>
+<tr><td><code>alias_pattern</code></td><td>regex</td><td><code>&quot;^[a-z][a-z0-9-]{1,30}$&quot;</code></td></tr>
+<tr><td><code>bootstrap</code></td><td>argv list</td><td>none</td></tr>
+<tr><td><code>link_from_main</code></td><td>list</td><td><code>[]</code></td></tr></tbody></table></div>
+<p><code>[git.worktrees.sync]</code> (opt-in) keeps each linked worktree on the mainline when moving it
+loses nothing: <code>on_session_start</code> (<code>&quot;fetch_and_move&quot;</code> default, <code>&quot;move&quot;</code>,
+<code>&quot;off&quot;</code>), <code>between_prompts</code> (<code>&quot;move_if_light&quot;</code> default, <code>&quot;off&quot;</code>: move only when
+no install is needed), <code>install_after_move</code> (<code>&quot;off&quot;</code> default, <code>&quot;background&quot;</code>,
+<code>&quot;foreground&quot;</code>) and <code>notice_paths</code> (paths whose change is announced to the
+session). Installs never block a session.</p>
+<p><code>[git.mainline.gate]</code>: <code>command</code> (argv; no gate when missing), <code>tree</code> (the
+gate&#39;s worktree, default <code>&lt;state dir&gt;/gate/tree</code>; a relative path is relative to
+the main checkout, like <code>state_dir</code>), <code>lock_wait_seconds</code>
+(default <code>5400</code>).</p>
+<p><code>[git.mainline.deliver]</code> enables <code>pmcp git deliver</code>, which replays commits onto
+the fetched mainline, runs the gate, and pushes one delivery at a time:
+<code>attempts</code> (default <code>3</code>), <code>refuse_direct_push</code> (default <code>true</code>: a hook refuses
+<code>git push</code> from any checkout of this repository, so the mainline moves only
+through delivery), <code>during_pause</code> (<code>&quot;refuse&quot;</code> default or <code>&quot;allow&quot;</code>),
+<code>lease_wait_seconds</code> (default <code>3600</code>) and <code>notify</code> (argv run after a
+delivery).</p>
+<p><code>[git.mainline.sync]</code> enables <code>pmcp git sync</code>, which moves the main checkout to
+the mainline: <code>install</code> (argv), <code>install_when_changed</code> (paths; when no
+<code>[sessions.leases]</code> are declared, these become an implicit <code>lockfile</code> lease),
+<code>keep_identical_files</code> and <code>refuse_with_unlanded</code> (booleans, default <code>true</code>).</p>
+<p><code>[git.submodules]</code>: <code>follow = &quot;clean_pins&quot;</code> (the default when the table is
+present) moves submodules to the pinned commit when they are clean; <code>&quot;off&quot;</code>
+leaves them. Without the table submodules are not followed.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

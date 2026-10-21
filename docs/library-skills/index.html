@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Library skills — pmcp</title>
+  <meta name="description" content="Free instructions for public libraries as native plugins, npm skill packages or a local collection." />
+  <link rel="canonical" href="https://pmcp.build/library-skills/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Library skills — pmcp" />
+  <meta property="og:description" content="Free instructions for public libraries as native plugins, npm skill packages or a local collection." />
+  <meta property="og:url" content="https://pmcp.build/library-skills/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">pmcp.toml reference</a>
+<a href="/hooks/">Hooks</a>
+<a href="/sessions/">Run several agents</a>
+<a href="/git-workflow/">Git workflow</a>
+<a href="/browser-and-desktop/">Browser and desktop</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/library-skills/" aria-current="page">Library skills</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Library skills</p><h1 id="library-skills">Library skills</h1>
+<p><a href="/">Back to the overview</a></p>
+<p>Free instructions for public libraries, one plugin per library major line. Install them as
+native plugins from the public marketplace, as npm skill packages with <code>pmcp install</code>, or, for
+Python, Rust and Go, copy them into a local collection. How pmcp finds and serves skills in
+general is in the <a href="/skills-reference/">skills reference</a>.</p>
+<h2 id="how-they-are-matched-and-verified">How they are matched and verified</h2>
+<p>Each npm library skill is for one package and major line, not for a kind of task: its
+description names the package and major (most read &quot;Use &lt;package&gt; &lt;major&gt; to ...&quot;). In <code>docs/catalog.json</code>, every entry&#39;s
+<code>targets</code> name the <code>packageName</code> and the version <code>range</code> it applies to, and
+<code>pmcp available</code> and <code>pmcp install</code> match that against the version your project has
+installed. Every entry also carries the evidence it was checked against: <code>evidence.examplesExecuted</code>
+(the examples that ran), <code>evidence.verifiedOn</code> (the date) and, per target,
+<code>verifiedVersions</code> (the exact versions they ran on). A native plugin install does not match
+versions for you, so choose the major you use.</p>
+<h2 id="native-plugins-from-the-public-marketplace">Native plugins from the public marketplace</h2>
+<p>The public repository&#39;s canonical sources are standard Agent Skills folders:
+<code>plugins/&lt;product-major&gt;/skills/&lt;skill-name&gt;/SKILL.md</code>. Each supported library
+major is a separate selectable plugin. The PMCP bridge has its own <code>pmcp</code> plugin.
+The website&#39;s <code>docs/skills/</code> files are generated downloads from those sources,
+with immutable archives.</p>
+<div class="scroll"><table><thead><tr><th>Tool</th><th>Native distribution</th></tr></thead><tbody><tr><td>Claude Code</td><td><code>.claude-plugin/marketplace.json</code> and plugin manifests</td></tr>
+<tr><td>Codex</td><td><code>.agents/plugins/marketplace.json</code> and portable <code>plugin.json</code></td></tr>
+<tr><td>Grok Build</td><td>Claude-compatible marketplace and plugin manifests</td></tr>
+<tr><td>Gemini CLI</td><td><code>gemini-extension.json</code>; selected CLI exports are extensions</td></tr>
+<tr><td>Antigravity CLI</td><td>Selected CLI export with its own <code>plugin.json</code> and <code>mcp_config.json</code></td></tr></tbody></table></div>
+<p>The native marketplace commands are in the <a href="/#free-library-skills-as-native-plugins">README</a>.
+Gemini and Antigravity need their own package formats for selected library plugins;
+do not assume that identically named manifest files accept the same schema.
+<code>pmcp marketplace export &lt;plugin&gt; --runtime &lt;tool&gt; --output &lt;new-directory&gt;</code>
+materializes a selected package without altering native
+settings or installing it. Use the native manager to review and install that folder.
+Existing export destinations are preserved.</p>
+<p>The built-in catalog is available without remote fetching.
+<code>--no-builtin</code> or <code>[catalog] builtin = false</code> opts out; library APIs continue to
+read explicitly supplied catalog roots. <code>--marketplace &lt;directory&gt;</code> reads installed
+Claude, Codex and Grok local descriptors, rejects path escapes and does not fetch
+remote plugin sources. Add a remote marketplace with its native manager first.</p>
+<h2 id="npm-skill-packages">npm skill packages</h2>
+<p>Public npm skill installation uses the bundled catalog, a matching installed
+dependency version and immutable free archive URLs. It verifies archive integrity,
+content-only metadata, instruction digests and installed file bytes. npm, Bun or pnpm
+changes the project and lockfile only after confirmation, with scripts disabled.
+<code>--provider hosted</code> remains a separate service path with its own access policy.
+Native plugin installation does not automatically version-match dependencies:
+select the appropriate major yourself. Non-npm library instructions remain manual.</p>
+<h2 id="python-rust-and-go-libraries">Python, Rust and Go libraries</h2>
+<p>These three library-major skills provide free public instructions for Python,
+Rust and Go libraries. Select them yourself and copy them into a local collection
+you choose. No PMCP login, subscription or registry account is required to read
+the files or load that collection.</p>
+<div class="scroll"><table><thead><tr><th>Ecosystem</th><th>Library</th><th>Selected version</th><th>Instructions</th></tr></thead><tbody><tr><td>PyPI</td><td><code>pydantic</code> 2</td><td><code>2.13.4</code></td><td><a href="https://pmcp.build/skills/pydantic/2/SKILL.md">Pydantic SKILL.md</a></td></tr>
+<tr><td>crates.io</td><td><code>serde_json</code> 1</td><td><code>1.0.149</code>, with Serde <code>1.0.228</code></td><td><a href="https://pmcp.build/skills/serde-json/1/SKILL.md">serde_json SKILL.md</a></td></tr>
+<tr><td>Go modules</td><td><code>github.com/google/uuid</code> 1</td><td><code>v1.6.0</code></td><td><a href="https://pmcp.build/skills/google-uuid/1/SKILL.md">Google UUID SKILL.md</a></td></tr></tbody></table></div>
+<p>Selected versions identify each skill&#39;s scope. They are not a statement that
+every project, feature or AI runtime has been verified. Each SKILL.md contains
+its own supported task boundaries and links to primary documentation and
+licenses. Keep those sources when copying or adapting the instructions.</p>
+<h3 id="choose-a-collection-and-copy-only-the-skills-you-need">Choose a collection and copy only the skills you need</h3>
+<p>Place each downloaded file under its frontmatter name:</p>
+<pre><code>chosen-collection/
+  skills/
+    pydantic/
+      SKILL.md
+    serde-json/
+      SKILL.md
+    google-uuid/
+      SKILL.md</code></pre>
+<p>Include only your selected files; all three are not required locally. The
+collection may be a plain directory without a package.json. Keep SKILL.md
+frontmatter, source links and any accompanying reference files intact. The
+collection&#39;s directory name is a local discovery label, not a registry package
+identity.</p>
+<h3 id="register-the-collection-explicitly">Register the collection explicitly</h3>
+<p>For a direct CLI invocation:</p>
+<pre><code>pmcp serve --package /absolute/path/to/chosen-collection</code></pre>
+<p>Or merge the chosen path into the existing project&#39;s pmcp.toml:</p>
+<pre><code>[catalog]
+packages = [&quot;./chosen-collection&quot;]</code></pre>
+<p>Preserve other catalog entries rather than replacing them with this example.
+Project-relative paths resolve from the configuration&#39;s directory. The
+existing <code>skill_catalog</code>, <code>skill_find</code> and <code>skill_call</code> tools can then discover
+and read the selected local instructions. Leave folder trust and tool approval
+to the native AI runtime.</p>
+<h3 id="understand-the-manual-boundary">Understand the manual boundary</h3>
+<p>PMCP does not automatically detect these libraries from PyPI, Cargo or Go
+dependencies. They are separate from the managed npm skill catalog and are
+not installed through <code>pmcp available</code> or <code>pmcp install</code>. Serving a local
+collection does not install a library, download a compiler or run its examples.</p>
+<p>Loading an instruction file also does not establish model execution evidence.
+Check the project&#39;s installed library major, lockfile and environment before
+applying guidance, and run the appropriate project checks after code changes.
+This explicit workflow supplements the package skill discovery described in
+the <a href="/skills-reference/">skills reference</a>.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

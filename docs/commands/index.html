@@ -24,10 +24,13 @@
   </header>
 <main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
 <a href="/install/">Installation</a>
-<a href="/project-configuration/">Project configuration</a>
+<a href="/project-configuration/">pmcp.toml reference</a>
+<a href="/hooks/">Hooks</a>
 <a href="/sessions/">Run several agents</a>
+<a href="/git-workflow/">Git workflow</a>
+<a href="/browser-and-desktop/">Browser and desktop</a>
 <a href="/skills-reference/">Skills and MCP reference</a>
-<a href="/manual-library-skills/">Manual library skills</a>
+<a href="/library-skills/">Library skills</a>
 <a href="/embeddings/">Embedding models</a>
 <a href="/mailbox/">Local mailbox</a>
 <a href="/hosting/">HTTP hosting</a>
@@ -132,7 +135,7 @@ pmcp git worktree list
 pmcp git worktree sync
 pmcp git deliver [&lt;commit&gt;...] [--during-pause]
 pmcp git sync</code></pre>
-<p>The git workflow configured by <a href="/project-configuration/#git-workflow"><code>[git]</code></a>. Each subcommand needs its table; without it the command exits 1 and names the missing table.</p>
+<p>The git workflow configured by <a href="/git-workflow/"><code>[git]</code></a>. Each subcommand needs its table; without it the command exits 1 and names the missing table.</p>
 <ul>
 <li><code>worktree create &lt;alias&gt;</code> makes a linked worktree under <code>[git.worktrees] root</code> on a new branch from the upstream (or <code>--base</code>), links the configured files from the main checkout, runs <code>bootstrap</code>, and prints the path.</li>
 <li><code>worktree list</code> prints alias, branch, behind/ahead and path for the main checkout and each linked worktree.</li>

@@ -24,10 +24,13 @@
   </header>
 <main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
 <a href="/install/">Installation</a>
-<a href="/project-configuration/">Project configuration</a>
+<a href="/project-configuration/">pmcp.toml reference</a>
+<a href="/hooks/">Hooks</a>
 <a href="/sessions/">Run several agents</a>
+<a href="/git-workflow/">Git workflow</a>
+<a href="/browser-and-desktop/">Browser and desktop</a>
 <a href="/skills-reference/">Skills and MCP reference</a>
-<a href="/manual-library-skills/">Manual library skills</a>
+<a href="/library-skills/">Library skills</a>
 <a href="/embeddings/">Embedding models</a>
 <a href="/mailbox/">Local mailbox</a>
 <a href="/hosting/">HTTP hosting</a>
@@ -45,11 +48,11 @@
 <div class="scroll"><table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody><tr><td>skill</td><td>A <code>SKILL.md</code> an agent loads when its task matches: a description that decides when, and a body with the instructions. <a href="/skills-reference/">Skills reference</a></td></tr>
 <tr><td>catalog</td><td>The skills pmcp finds in installed packages, workspace packages and marketplaces; <code>skill_find</code> searches it. <a href="/guide/">Getting started</a></td></tr>
 <tr><td>marketplace</td><td>A collection of plugins that native runtimes install; pmcp ships a free public one. <a href="/skills-reference/">Skills reference</a></td></tr>
-<tr><td>projection</td><td>The native files <code>pmcp project</code> writes for each tool from <code>pmcp.toml</code> and <code>.agents/</code>; <code>pmcp.lock</code> records what it owns. <a href="/project-configuration/">Project configuration</a></td></tr>
-<tr><td>hook bundle</td><td>The guards, checks and session bookkeeping <code>[hooks]</code> compiles and every targeted runtime runs on its tool calls. <a href="/project-configuration/#hooks">Hooks</a></td></tr>
+<tr><td>projection</td><td>The native files <code>pmcp project</code> writes for each tool from <code>pmcp.toml</code> and <code>.agents/</code>; <code>pmcp.lock</code> records what it owns. <a href="/project-configuration/">pmcp.toml reference</a></td></tr>
+<tr><td>hook bundle</td><td>The guards, checks and session bookkeeping <code>[hooks]</code> compiles and every targeted runtime runs on its tool calls. <a href="/hooks/">Hooks</a></td></tr>
 <tr><td>session</td><td>One running agent conversation in the repository, as the hooks record it. <a href="/sessions/">Run several agents</a></td></tr>
 <tr><td>shared checkout</td><td>The repository&#39;s main checkout when linked worktrees exist; an edit left there blocks syncing it for every session.</td></tr>
-<tr><td>linked worktree</td><td>A separate checkout <code>pmcp git worktree create</code> makes for one agent. Messages address it as <code>worktree:&lt;path&gt;</code>; <code>desk:&lt;path&gt;</code> is an older spelling that still works. <a href="/project-configuration/#git-workflow">Git workflow</a></td></tr>
+<tr><td>linked worktree</td><td>A separate checkout <code>pmcp git worktree create</code> makes for one agent. Messages address it as <code>worktree:&lt;path&gt;</code>; <code>desk:&lt;path&gt;</code> is an older spelling that still works. <a href="/git-workflow/">Git workflow</a></td></tr>
 <tr><td>mainline</td><td>The branch deliveries go to: <code>[git] mainline</code>, else the remote&#39;s HEAD branch, else <code>main</code>.</td></tr>
 <tr><td>delivery</td><td><code>pmcp git deliver</code>: replay commits onto the mainline, run the gate, push. &quot;Being delivered&quot; in a message means one is in progress.</td></tr>
 <tr><td>gate</td><td>The test command a delivery must pass, <code>[git.mainline.gate]</code>.</td></tr>

@@ -31,7 +31,7 @@ unsigned; installed through npm they run as they are, since npm sets no quaranti
 | OpenCode          | `opencode`        | not available             | `opencode`                  |
 
 Which hook features each runtime supports, as measured, is in
-[Runtime support](project-configuration.md#runtime-support). Provider login, folder trust and
+[Runtime support](hooks.md#runtime-support). Provider login, folder trust and
 tool approvals stay in each runtime; pmcp never answers login, auth, trust or hook-review
 prompts.
 

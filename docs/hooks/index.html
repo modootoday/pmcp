@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hooks — pmcp</title>
+  <meta name="description" content="Guards, checks and session bookkeeping every targeted runtime runs on its tool calls." />
+  <link rel="canonical" href="https://pmcp.build/hooks/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Hooks — pmcp" />
+  <meta property="og:description" content="Guards, checks and session bookkeeping every targeted runtime runs on its tool calls." />
+  <meta property="og:url" content="https://pmcp.build/hooks/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">pmcp.toml reference</a>
+<a href="/hooks/" aria-current="page">Hooks</a>
+<a href="/sessions/">Run several agents</a>
+<a href="/git-workflow/">Git workflow</a>
+<a href="/browser-and-desktop/">Browser and desktop</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/library-skills/">Library skills</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Hooks</p><h1 id="hooks">Hooks</h1>
+<p><a href="/">Back to the overview</a></p>
+<p><code>[hooks]</code> in <code>pmcp.toml</code> compiles guards, checks and session bookkeeping into one hook bundle that
+every targeted runtime runs on its tool calls. The other tables are in the
+<a href="/project-configuration/">pmcp.toml reference</a>.</p>
+<p><code>pmcp project</code> compiles <code>[hooks]</code>, <code>[sessions]</code>, <code>[git]</code> and <code>[logging]</code> into
+<code>.agents/pmcp-hooks/policy.json</code>, copies the hook beside it as <code>hook.mjs</code> (a
+small loader) and <code>hook-body.mjs</code>, and registers <code>hook.mjs</code> in
+<code>.claude/settings.json</code> and <code>.codex/hooks.json</code> for the events the declared
+features use. Gemini, Antigravity, Grok and OpenCode are opt-in: name them in
+<code>[hooks] targets</code> and pmcp registers the same hook in their files (see
+<a href="#runtime-support">Runtime support</a>). <code>pmcp.lock</code> pins the hash of <code>policy.json</code>; the hook refuses to
+act on a policy that does not match it, so every policy change is a reviewed
+projection. Codex shows changed entries under <code>/hooks</code> as needing review;
+untrusted hooks do not run. Each Codex, Claude and Grok entry carries a
+<code>statusMessage</code> such as <code>pmcp session start</code> or <code>pmcp before tool</code>: Codex
+lists hooks under that name, and Claude and Grok show it while the hook runs.
+Gemini entries keep their <code>name</code> (<code>pmcp-&lt;event&gt;</code>), which is part of the
+identity Gemini trusts.</p>
+<p>The hook keeps two per-user caches under <code>$XDG_CACHE_HOME/pmcp</code> (default
+<code>~/.cache/pmcp</code>), never in the project: Node&#39;s compile cache for the body
+(<code>hook-compile/</code>) and the last integrity verdict per <code>policy.json</code>
+(<code>hook-verified.json</code>). A verdict is reused only while neither <code>policy.json</code>
+nor <code>pmcp.lock</code> has been written since. Either cache can be missing or
+unwritable without changing a decision; <code>PMCP_HOOK_COMPILE_CACHE=off</code> turns the
+compile cache off.</p>
+<p>Every feature is opt-in: a table that is missing turns its feature off, and a
+declared table, even an empty one, turns it on. The exceptions are documented
+where they apply: <code>[git]</code> features detect git (<code>enabled = &quot;auto&quot;</code>),
+<code>[git.shared_checkout]</code> is on in any git checkout once the bundle exists, and
+logging falls back to its defaults rather than to no logging. The bundle is
+projected only when <code>[hooks]</code> declares guards or checks, a <code>[sessions.*]</code>
+feature table is declared, <code>[git.shared_checkout]</code> or <code>[git.worktrees.sync]</code> is
+declared, or <code>[git.mainline.deliver]</code> keeps <code>refuse_direct_push</code>.</p>
+<h2 id="hooks-1"><code>[hooks]</code></h2>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>targets</code></td><td>list</td><td><code>[targets] tools</code> limited to <code>claude</code>, <code>codex</code></td><td>Runtimes that receive the hook bundle: <code>claude</code>, <code>codex</code>, <code>gemini</code>, <code>antigravity</code>, <code>grok</code>, <code>opencode</code>. The last four are used only when listed here.</td></tr>
+<tr><td><code>ask_fallback</code></td><td>string</td><td><code>&quot;deny&quot;</code></td><td>What an ask becomes on a runtime without ask (Codex, Gemini, Antigravity, Grok, OpenCode): <code>deny</code>, <code>warn</code>, or <code>refuse</code> to make projection fail while any guard may ask.</td></tr>
+<tr><td><code>error_log</code></td><td>bool or path</td><td><code>true</code></td><td><code>true</code> writes JSONL logs under the state directory&#39;s <code>logs/</code>; a project-relative path writes one file there instead; <code>false</code> turns hook logging off.</td></tr>
+<tr><td><code>emergency_off_file</code></td><td>path</td><td>none</td><td>While this file exists every guard passes. <code>~</code>, <code>$HOME/</code> and absolute paths are allowed; other paths are relative to the project.</td></tr></tbody></table></div>
+<h2 id="hooksguardsgroupname"><code>[hooks.guards.&lt;group&gt;.&lt;name&gt;]</code></h2>
+<p>Each built-in guard is one table. <code>mode</code> is the only key the option-less
+guards take; an unknown option is an error. Modes: <code>deny</code> and <code>ask</code> replace
+the guard&#39;s verdict with that mode, <code>warn</code> turns the reason into context the
+agent reads, <code>off</code> drops the guard, and <code>graded</code> keeps the guard&#39;s own split
+between ask and deny.</p>
+<div class="scroll"><table><thead><tr><th>Table</th><th>Default mode</th><th>Modes</th><th>Refuses</th></tr></thead><tbody><tr><td><code>[hooks.guards.shell.in_place_edit]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>sed -i</code>, <code>perl -i</code>, <code>awk -i inplace</code>: edits without a diff.</td></tr>
+<tr><td><code>[hooks.guards.shell.heredoc]</code></td><td>deny</td><td>deny, ask, warn, off</td><td>Heredocs and here-strings, whose body the shell expands silently.</td></tr>
+<tr><td><code>[hooks.guards.shell.stdin_interpreter]</code></td><td>ask</td><td>deny, ask, warn, off</td><td>An interpreter reading its program from stdin (<code>python3 -</code>, <code>cat x.py | python3</code>).</td></tr>
+<tr><td><code>[hooks.guards.shell.compose_teardown]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>docker compose down</code>, and <code>stop</code>, <code>rm</code> or <code>kill</code> with no service named: they hit every service.</td></tr>
+<tr><td><code>[hooks.guards.shell.secret_exfiltration]</code></td><td>graded</td><td>deny, ask, warn, off, graded</td><td>Reading a credential asks; sending one over the network, or changing a live one, denies.</td></tr>
+<tr><td><code>[hooks.guards.shell.host_approval]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>host approve</code>, and commands or edits touching the host approvals directory. On by itself when <code>[host]</code> is declared.</td></tr>
+<tr><td><code>[hooks.guards.git.push_without_verify]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>git push --no-verify</code>.</td></tr>
+<tr><td><code>[hooks.guards.git.forced_branch_move]</code></td><td>deny</td><td>deny, ask, warn, off</td><td>Forcing a branch that is checked out in another working tree.</td></tr>
+<tr><td><code>[hooks.guards.git.gate_bypass_env]</code></td><td>deny</td><td>deny, ask, warn, off</td><td>Setting a named gate-bypass variable where it takes effect, and optionally <code>--no-verify</code> on any git command.</td></tr>
+<tr><td><code>[hooks.guards.git.stage_all]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>git add -A</code>, <code>git add .</code>, <code>git commit -a</code> and similar; stage explicit paths.</td></tr></tbody></table></div>
+<p>Options:</p>
+<ul>
+<li><code>[hooks.guards.shell.secret_exfiltration]</code>: <code>extra_secret_paths</code> (list of
+case-insensitive regular expressions, default <code>[]</code>), and
+<code>[[hooks.guards.shell.secret_exfiltration.value_commands]]</code> entries for a
+CLI that prints or publishes secret values: <code>binary</code> (required), <code>read</code>
+(verbs that print a value, so reading asks) and <code>publish</code> (verbs that change
+a live value, so they deny). Built in are <code>.env</code> files, <code>.dev.vars</code>, private
+keys, <code>.npmrc</code>, <code>.netrc</code>, <code>auth.json</code> and service-account files; a file whose
+name merely contains &quot;secret&quot; or &quot;credential&quot; is not one, so list such files
+in <code>extra_secret_paths</code>. Only a file a command reads counts: a search
+pattern, a sed or awk script, a jq filter or <code>-e</code> code that mentions <code>.env</code>
+does not.</li>
+<li><code>[hooks.guards.git.gate_bypass_env]</code>: <code>names</code> (variable names, default <code>[]</code>)
+and <code>no_verify</code> (boolean, default <code>true</code>).</li>
+</ul>
+<p>A mention is not a match: commands are parsed into steps, so
+<code>git commit -m &quot;never git push --no-verify&quot;</code> and <code>echo &#39;cat &lt;&lt;EOF&#39;</code> pass. A
+command the parser cannot read is judged by a conservative pattern instead.</p>
+<h2 id="hooksguardscustom"><code>[[hooks.guards.custom]]</code></h2>
+<p>A project script under <code>.agents/guards/</code> that decides like a built-in guard.</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>name</code></td><td>string</td><td>required</td><td><code>^[a-z0-9][a-z0-9-]*$</code>, unique across custom, shell and edit entries.</td></tr>
+<tr><td><code>command</code></td><td>argv list</td><td>required</td><td>The first or second element is the script, which must exist inside <code>.agents/guards/</code>; its sha256 is pinned in <code>policy.json</code>.</td></tr>
+<tr><td><code>targets</code></td><td>list</td><td>required</td><td>Any <code>[hooks] targets</code> runtime. A runtime in <code>[hooks] targets</code> runs it in the hook bundle; otherwise Codex, Gemini and Antigravity use the shell adapter, and Claude, Grok and OpenCode are an error.</td></tr>
+<tr><td><code>timeout_ms</code></td><td>integer</td><td><code>15000</code></td><td>100 to 60000.</td></tr>
+<tr><td><code>on</code></td><td>string</td><td><code>&quot;before_shell&quot;</code></td><td><code>before_shell</code> or <code>after_edit</code>.</td></tr></tbody></table></div>
+<p>The script receives the JSON contract described under
+<a href="#deprecated-shell-guards">Deprecated shell guards</a>. Custom guards have no <code>mode</code>.</p>
+<h2 id="hookschecksafter_edit-and-hookscheckson_stop"><code>[hooks.checks.after_edit]</code> and <code>[hooks.checks.on_stop]</code></h2>
+<p>Checks report through context and never block; a check that cannot run is
+logged and stays quiet.</p>
+<div class="scroll"><table><thead><tr><th>Table</th><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>[hooks.checks.after_edit]</code></td><td><code>validator_glob</code></td><td>glob</td><td>required</td><td>Validator scripts inside the project; after an edit, only the validators whose directory owns an edited path run.</td></tr>
+<tr><td></td><td><code>command</code></td><td>argv list</td><td>required</td><td>Must contain <code>{validator}</code>, replaced by the validator&#39;s path. Runs directly, never through a shell.</td></tr>
+<tr><td></td><td><code>debounce_seconds</code></td><td>number</td><td><code>60</code></td><td>One run per validator per window.</td></tr>
+<tr><td></td><td><code>report</code></td><td>string</td><td><code>&quot;context&quot;</code></td><td>The only value.</td></tr>
+<tr><td><code>[hooks.checks.on_stop]</code></td><td><code>project_check</code></td><td>boolean</td><td><code>true</code></td><td>After a turn that edited files, run <code>pmcp project --check</code> and report drift.</td></tr>
+<tr><td></td><td><code>report</code></td><td>string</td><td><code>&quot;context&quot;</code></td><td>The only value.</td></tr></tbody></table></div>
+<p>The stop check runs the checkout&#39;s own pmcp (<code>node_modules</code>), else the CLI that
+last projected this checkout on this machine (recorded in the state directory
+as <code>projector.json</code>), and only at the version <code>pmcp.lock</code> records. A pmcp on
+<code>PATH</code> is never used. When none matches, the session hears
+<code>projecting pmcp not available</code> once instead of a drift report.</p>
+<h2 id="runtime-support">Runtime support</h2>
+<p>From the measured capability files in <code>docs/hooks/capabilities/</code> (Claude Code
+2.1.303, Codex 0.163.0, including live sessions). <code>pmcp doctor</code> prints the same
+table for your project, with Codex trust.</p>
+<div class="scroll"><table><thead><tr><th>Feature</th><th>Claude Code</th><th>Codex</th></tr></thead><tbody><tr><td>sessions registry, pause, leases, broadcast</td><td>measured</td><td>measured</td></tr>
+<tr><td><code>[sessions.roles.&lt;name&gt;]</code></td><td>works; not live-measured</td><td>unsupported: Codex sends no <code>agent_type</code></td></tr>
+<tr><td><code>[git.shared_checkout]</code>, <code>[git.worktrees.sync]</code>, <code>[git.mainline.deliver]</code></td><td>measured</td><td>measured</td></tr>
+<tr><td>heredoc, compose_teardown, push_without_verify, forced_branch_move, gate_bypass_env, stage_all</td><td>measured</td><td>measured</td></tr>
+<tr><td>in_place_edit, stdin_interpreter, secret_exfiltration (ask)</td><td>ask not measured</td><td>ask lowered by <code>ask_fallback</code></td></tr>
+<tr><td>host_approval</td><td>works; not live-measured</td><td>works; not live-measured</td></tr>
+<tr><td><code>[hooks.checks.after_edit]</code></td><td>measured</td><td>measured</td></tr>
+<tr><td><code>[hooks.checks.on_stop]</code></td><td>measured, in the same turn</td><td>at the next prompt</td></tr>
+<tr><td><code>[[hooks.guards.custom]]</code></td><td>not measured</td><td>not measured</td></tr>
+<tr><td><code>[ui.claude]</code></td><td>Claude only</td><td>not applicable</td></tr></tbody></table></div>
+<p>Codex limits that shape the projection:</p>
+<ul>
+<li>Codex has no ask. An ask becomes <code>ask_fallback</code> (<code>deny</code> by default).</li>
+<li>Codex sends no <code>agent_type</code>, so roles cannot apply there.</li>
+<li>Codex rejects context on Stop, so Stop notices are delivered at the next
+prompt.</li>
+<li>Codex clamps a SessionEnd hook to 3 s; pmcp projects at most 3 s for it.</li>
+<li>Codex has no Notification event.</li>
+<li>Codex&#39;s own command filter rejects a fully quoted executable before any hook
+runs; use the ordinary unquoted form.</li>
+</ul>
+<p>Gemini CLI 0.63.0, Antigravity (<code>agy</code>) 1.4.2, Grok 1.0.62 and OpenCode 1.18.33
+are opt-in <code>[hooks] targets</code>. The pmcp bundle ran live on each in the same
+thirteen scenarios as Claude Code and Codex, judged from each runtime&#39;s own
+transcript; the <code>live</code> block of each capability file names the runs. A context
+a runtime does not deliver at an event is held and delivered at the next event
+that does, and that was measured live too. On OpenCode, prompt context goes
+into the system prompt, which OpenCode does not store, so its delivery is shown
+by a probe rather than by the prompt scenario. agy runs prompt policies on
+every turn: its counter resets per turn.</p>
+<div class="scroll"><table><thead><tr><th>Feature</th><th>Gemini</th><th>Antigravity</th><th>Grok</th><th>OpenCode</th></tr></thead><tbody><tr><td>refusing a tool call (guards, pause, git)</td><td>measured deny</td><td>measured deny</td><td>measured deny</td><td>measured (thrown error)</td></tr>
+<tr><td>context (broadcast, warnings)</td><td>start, prompt, after tool</td><td>first model call, Stop</td><td>tool events, Stop</td><td>start, prompt, after tool</td></tr>
+<tr><td><code>[sessions.registry]</code></td><td>every event</td><td>tool events, first call, Stop</td><td>every event</td><td>every event</td></tr>
+<tr><td><code>[sessions.roles.&lt;name&gt;]</code></td><td>unsupported: no <code>agent_type</code></td><td>unsupported: no <code>agent_type</code></td><td>unsupported: no <code>agent_type</code></td><td>unsupported: no <code>agent_type</code></td></tr>
+<tr><td>ask (in_place_edit, stdin_interpreter, ...)</td><td>lowered by <code>ask_fallback</code></td><td>lowered by <code>ask_fallback</code></td><td>lowered by <code>ask_fallback</code></td><td>lowered by <code>ask_fallback</code></td></tr>
+<tr><td><code>[hooks.checks.on_stop]</code></td><td>at the next delivering event</td><td>Stop continues once</td><td>in the same turn</td><td>at the next prompt</td></tr>
+<tr><td><code>[[hooks.guards.custom]]</code></td><td>not measured</td><td>not measured</td><td>not measured</td><td>not measured</td></tr></tbody></table></div>
+<p>Where each runtime&#39;s projection goes, and what it needs:</p>
+<ul>
+<li>Gemini: <code>.gemini/settings.json</code> <code>hooks</code>, timeouts in milliseconds. Gemini
+ignores project settings in a folder the user has not trusted, and records
+each new hook in <code>~/.gemini/trusted_hooks.json</code>; <code>pmcp doctor</code> reads both
+and reports them, and never writes them. Trusting the folder is the user&#39;s
+step in an interactive <code>gemini</code> session.</li>
+<li>Antigravity: one named set <code>pmcp</code> in <code>.agents/hooks.json</code>, beside the shell
+adapter&#39;s <code>pmcp-shell</code>. agy denies a tool call whose hook names no decision,
+so pmcp always writes one. agy has no session or prompt event: the first
+model call of a conversation is the session start, the first of a later
+turn the prompt. Whether that counter resets for a later prompt in an
+interactive session is not measured. No trust step.</li>
+<li>Grok: grok also runs <code>.claude/settings.json</code> hooks, so with <code>claude</code> in
+<code>[hooks] targets</code> pmcp writes only the Claude file and the hook recognises a
+grok call by its payload; with Grok alone it writes <code>.grok/hooks/pmcp.json</code>.
+Never both, or every check would run twice. Project hooks run only after
+the user runs <code>/hooks-trust</code>; <code>pmcp doctor</code> reads
+<code>~/.grok/trusted_folders.toml</code> without writing it.</li>
+<li>OpenCode: there are no shell hooks, so pmcp writes <code>.opencode/plugins/pmcp.js</code>,
+a small plugin pinned in <code>pmcp.lock</code> that passes each call to the hook. A
+refusal is thrown as an error; Stop (<code>session.idle</code>) only updates the
+registry. No trust step.</li>
+</ul>
+<p><code>auth = &quot;pmcp&quot;</code> MCP servers project through <code>pmcp project exec-mcp</code> for every
+runtime above.</p>
+<h2 id="deprecated-shell-guards">Deprecated shell guards</h2>
+<p>Deprecated: <code>[[hooks.shell]]</code> and <code>[[hooks.edit]]</code> still work, and <code>pmcp project</code>
+warns. Declare <code>[[hooks.guards.custom]]</code> instead, with <code>on = &quot;before_shell&quot;</code> or
+<code>on = &quot;after_edit&quot;</code>, and list its runtimes in <code>[hooks] targets</code>: every runtime
+now has a hook bundle adapter, and this separate shell adapter will be removed
+in a later major release.</p>
+<p>Declare a project-owned guard explicitly to project it into Codex, Gemini or
+Antigravity&#39;s native hooks. Without a declaration, pmcp generates no hooks.</p>
+<pre><code>[[hooks.shell]]
+name = &quot;shell-command-policy&quot;
+command = [&quot;node&quot;, &quot;.agents/guards/shell-command-policy.mjs&quot;]
+targets = [&quot;codex&quot;, &quot;gemini&quot;, &quot;antigravity&quot;]
+timeout_ms = 15000</code></pre>
+<p>The guard script must exist under .agents/guards/ and cannot resolve outside
+that directory. It receives one JSON object on stdin containing runtime,
+event=before_shell, command and cwd. It returns a JSON object with
+decision=allow or decision=deny and an optional reason. Malformed responses,
+nonzero exits and timeouts deny the shell call. The guard receives PATH and
+LANG rather than the native CLI&#39;s credential environment. Non-shell tools are
+outside this contract.</p>
+<p>Run pmcp project to write lock-owned adapter and policy artifacts under
+.agents/pmcp-hooks/, plus the native entries in .codex/hooks.json,
+.gemini/settings.json and .agents/hooks.json. Peer entries are retained.
+Edited owned hook entries refuse projection for review. Removing a declaration
+removes its generated entries and artifacts while preserving peer settings.
+Writes retain private backups; pmcp project --check only reports drift.</p>
+<p>Guard, policy and adapter fingerprints bind the generated command. Changing
+guard code requires reprojection and native Codex hook review. Generated files
+contain no trust bypass. Grok can load Claude project hooks, so this first scope
+does not generate a second Grok guard. Hooks do not force pmcp catalog use,
+inject reminders or replace the runtime&#39;s execution sandbox.</p>
+<h2 id="deprecated-edit-guards">Deprecated edit guards</h2>
+<p>Codex edit guards run after apply_patch through native PostToolUse hooks:</p>
+<pre><code>[[hooks.edit]]
+name = &quot;edit-policy&quot;
+command = [&quot;node&quot;, &quot;.agents/guards/edit-policy.mjs&quot;]
+targets = [&quot;codex&quot;]
+timeout_ms = 15000</code></pre>
+<p>The guard receives runtime=codex, event=after_edit, the patch in command and cwd.
+It returns the same allow/deny response as a shell guard. A denial becomes
+native blocking feedback with the reason; the completed file edit remains on disk
+for correction. Other tools do not invoke this guard. Edit targets currently
+support Codex only, and names must be unique across shell and edit declarations.</p>
+<p>Run pmcp project after declaring or changing the guard, then review and trust
+the generated native definition in /hooks. Peer entries and shell guards are
+preserved. Fingerprints and failure handling follow the shell-guard contract.
+See the <a href="https://learn.chatgpt.com/docs/hooks">native hooks documentation</a>.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

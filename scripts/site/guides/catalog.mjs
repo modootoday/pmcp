@@ -8,9 +8,16 @@ export const guides = [
   {
     source: "project-configuration.md",
     route: "/project-configuration/",
-    title: "Project configuration",
+    title: "pmcp.toml reference",
     description:
-      "Keep native runtime configuration, MCP servers and explicit guards in one project source.",
+      "Every table pmcp.toml accepts, with its keys and defaults.",
+  },
+  {
+    source: "hooks.md",
+    route: "/hooks/",
+    title: "Hooks",
+    description:
+      "Guards, checks and session bookkeeping every targeted runtime runs on its tool calls.",
   },
   {
     source: "sessions.md",
@@ -20,6 +27,20 @@ export const guides = [
       "See and coordinate several agent sessions in one repository: pause, messages, leases and one delivery path.",
   },
   {
+    source: "git-workflow.md",
+    route: "/git-workflow/",
+    title: "Git workflow",
+    description:
+      "Linked worktrees, one delivery path to the mainline and main checkout sync.",
+  },
+  {
+    source: "browser-and-desktop.md",
+    route: "/browser-and-desktop/",
+    title: "Browser and desktop",
+    description:
+      "pmcp-browser and pmcp-desktop: a browser and a desktop for agents on a Linux server.",
+  },
+  {
     source: "skills.md",
     route: "/skills-reference/",
     title: "Skills and MCP reference",
@@ -27,11 +48,11 @@ export const guides = [
       "Discover installed skills and use PMCP tools, resources and prompts.",
   },
   {
-    source: "manual-library-skills.md",
-    route: "/manual-library-skills/",
-    title: "Manual library skills",
+    source: "library-skills.md",
+    route: "/library-skills/",
+    title: "Library skills",
     description:
-      "Choose Python, Rust or Go library instructions and load a local collection explicitly.",
+      "Free instructions for public libraries as native plugins, npm skill packages or a local collection.",
   },
   {
     source: "embeddings.md",

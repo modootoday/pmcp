@@ -177,7 +177,7 @@ pmcp git deliver [<commit>...] [--during-pause]
 pmcp git sync
 ```
 
-The git workflow configured by [`[git]`](project-configuration.md#git-workflow). Each subcommand needs its table; without it the command exits 1 and names the missing table.
+The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs its table; without it the command exits 1 and names the missing table.
 
 - `worktree create <alias>` makes a linked worktree under `[git.worktrees] root` on a new branch from the upstream (or `--base`), links the configured files from the main checkout, runs `bootstrap`, and prints the path.
 - `worktree list` prints alias, branch, behind/ahead and path for the main checkout and each linked worktree.

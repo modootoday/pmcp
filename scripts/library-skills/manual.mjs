@@ -35,9 +35,9 @@ function validateDirectories(root, relativePath) {
 }
 
 function isInstalled(root) {
-  const path = join(root, "docs/manual-library-skills.md");
+  const path = join(root, "docs/library-skills.md");
   if (!existsSync(path)) return false;
-  validateDirectories(root, "docs/manual-library-skills.md");
+  validateDirectories(root, "docs/library-skills.md");
   const stats = lstatSync(path);
   if (!stats.isFile() || stats.isSymbolicLink())
     throw new Error("Manual library guide must be a regular file");

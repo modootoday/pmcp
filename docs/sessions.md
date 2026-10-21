@@ -7,7 +7,7 @@ dependencies under each other's feet. pmcp lets every agent session in a reposit
 others, and gives you the controls to coordinate them: a session list, a pause, broadcasts,
 addressed messages, leases on shared files, linked worktrees and one delivery path to the
 mainline. Every part is opt-in through `pmcp.toml`; the keys are in the
-[configuration guide](project-configuration.md#sessions).
+[pmcp.toml reference](project-configuration.md#sessions).
 
 ## See who is working
 
@@ -60,5 +60,5 @@ serves actors with their own credentials.
 - **One delivery path.** With `[git.mainline.deliver]`, `pmcp git deliver` replays, tests and
   pushes one delivery at a time, and a direct `git push` is refused.
 
-The [git workflow section](project-configuration.md#git-workflow) covers worktrees, delivery
+The [Git workflow](git-workflow.md) page covers worktrees, delivery
 and sync. Agents learn the same rules from the pmcp-sessions-and-git skill in the pmcp plugin.

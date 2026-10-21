@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Browser and desktop — pmcp</title>
+  <meta name="description" content="pmcp-browser and pmcp-desktop: a browser and a desktop for agents on a Linux server." />
+  <link rel="canonical" href="https://pmcp.build/browser-and-desktop/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Browser and desktop — pmcp" />
+  <meta property="og:description" content="pmcp-browser and pmcp-desktop: a browser and a desktop for agents on a Linux server." />
+  <meta property="og:url" content="https://pmcp.build/browser-and-desktop/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">pmcp.toml reference</a>
+<a href="/hooks/">Hooks</a>
+<a href="/sessions/">Run several agents</a>
+<a href="/git-workflow/">Git workflow</a>
+<a href="/browser-and-desktop/" aria-current="page">Browser and desktop</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/library-skills/">Library skills</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Browser and desktop</p><h1 id="browser-and-desktop-for-agents">Browser and desktop for agents</h1>
+<p><a href="/">Back to the overview</a></p>
+<p>pmcp-browser and pmcp-desktop give agents a browser and a desktop on a Linux server, as MCP
+servers. What they may reach is set in <code>[host]</code> of the <a href="/project-configuration/#sessions-pmcp-pty-hosts">pmcp.toml reference</a>.</p>
+<p>Claude Code and Codex offer browser and computer use only through their
+desktop apps, not on a Linux server. Two MCP servers built from this
+repository cover that ground for every runtime pmcp projects to:</p>
+<ul>
+<li><code>pmcp-browser</code> (<code>crates/pmcp-plugin-browser-use</code>): an isolated Chromium,
+headless, with a fresh profile per launch. It reaches public http(s) sites
+only: every request goes through its own proxy, which refuses loopback,
+private, link-local, metadata and CGNAT addresses and every port but 80 and 443. Local schemes such as <code>file:</code> are blocked in the page.</li>
+<li><code>pmcp-desktop</code> (<code>crates/pmcp-plugin-computer-use</code>): an Xvfb desktop driven
+through screenshots and XTEST input, for any X11 app.</li>
+</ul>
+<p>Each runs in its own memory-capped systemd scope (2G and 512M by default),
+and <code>pmcp-browser</code> allows two at a time on the host. Both have <code>doctor</code>
+(read-only, with the exact fix) and <code>setup --plan</code>; root steps are printed,
+never run. Both ship in the Linux platform package npm installs with PMCP
+(glibc 2.35 or later), which does not put them on PATH. Declare them like
+any MCP server with the bare name as <code>command</code>; <code>pmcp project</code> resolves it to
+the installed binary, so pmcp.toml names no host path:</p>
+<pre><code>[mcp.pmcp-browser]
+command = &quot;pmcp-browser&quot;
+args = [&quot;serve&quot;, &quot;--approved&quot;, &quot;&lt;the directory pmcp harness host status reports&gt;&quot;]
+
+[mcp.pmcp-desktop]
+command = &quot;pmcp-desktop&quot;
+args = [&quot;serve&quot;, &quot;--geometry&quot;, &quot;1440x900x24&quot;]</code></pre>
+<p><code>pmcp doctor</code> reports where each resolved, or why not (no platform
+package for this host, as on macOS); an unresolved name runs from PATH. An
+absolute <code>command</code>, such as your own build, is kept as written.</p>
+<p>The names avoid Claude Code&#39;s built-in <code>computer-use</code>. <code>--approved</code> is
+optional: without it the browser is public-only and the desktop launches
+nothing. <code>[host.browser] allow_private</code> and <code>[[host.desktop.launch]]</code> come
+into force only through <code>pmcp harness host approve</code>. Running the browser
+headed on the desktop&#39;s display also needs the managed Chromium policy that
+<code>pmcp-browser setup --plan</code> prints for you to install.</p>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

@@ -20,6 +20,11 @@ import { readSpec } from "../src/project/spec.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const doc = readFileSync(join(root, "docs/project-configuration.md"), "utf8");
+// The reference and the task pages split from it document the tables between them.
+const pages = ["hooks.md", "git-workflow.md", "browser-and-desktop.md"]
+  .map((page) => readFileSync(join(root, "docs", page), "utf8"))
+  .join("\n");
+const documented = `${doc}\n${pages}`;
 
 // The idioms every reader uses to name its table in an error; a new table written the same way is found.
 const NAMING = [
@@ -76,7 +81,9 @@ describe("docs/project-configuration.md", () => {
     const tables = acceptedTables();
     expect(tables.length).toBeGreaterThan(40);
     const missing = tables.filter(
-      (table) => !doc.includes(`[${table}]`) && !doc.includes(`[${table}.`),
+      (table) =>
+        !documented.includes(`[${table}]`) &&
+        !documented.includes(`[${table}.`),
     );
     expect(missing).toEqual([]);
   });
@@ -101,7 +108,10 @@ describe("docs/project-configuration.md", () => {
   });
 
   it("names no absolute home path", () => {
-    const text = [doc, readFileSync(join(root, "README.md"), "utf8")].join();
+    const text = [
+      documented,
+      readFileSync(join(root, "README.md"), "utf8"),
+    ].join();
     expect(text).not.toMatch(/\/home\/\w|\/Users\/\w/u);
   });
 });
