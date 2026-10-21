@@ -2,7 +2,22 @@
 
 ## Unreleased
 
+### New
+
+- `pmcp sessions send --to worktree:<path>` addresses the session in a linked
+  worktree; `desk:<path>` keeps working. Hook messages say "linked worktree"
+  and "being delivered". (152e489)
+- The pmcp plugin ships the pmcp-browser and pmcp-desktop skills, so agents
+  learn the two MCP servers where they are installed. (cde23e7)
+- The skill tools say when to call them and what to call next. (6b71a00)
+- New pages: Getting started, Run several agents, Command reference,
+  Compatibility and Glossary, as Markdown in the npm package and on
+  pmcp.build. (446fb90, 4f80203)
+
 ### Fixes
+
+- Links to a section of a guide page on pmcp.build open at that section;
+  guide headings had no anchors. (446fb90)
 
 - The pmcp plugin for Claude Code and Codex and the Gemini extension start
   the pmcp release they ship in; in 0.18.0 they still started 0.13.1.
