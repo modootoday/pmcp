@@ -50,6 +50,10 @@
       "additionalProperties": {}
     }
   },
-  "required": ["name"],
-  "additionalProperties": {}
+  "required": [
+    "name"
+  ],
+  "additionalProperties": {},
+  "title": "Plugin manifest",
+  "description": "A native plugin manifest as pmcp reads it from a marketplace."
 }

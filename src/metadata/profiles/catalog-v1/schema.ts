@@ -21,8 +21,14 @@ export const catalogMetadata = z.strictObject({
   requires: requires.strict().optional(),
   "server-tools": z.array(z.enum(SERVER_TOOLS)).optional(),
 });
-export const catalogV1 = skillFrontmatter.extend({
-  name: kebab,
-  description: z.string().min(40),
-  metadata: catalogMetadata,
-});
+export const catalogV1 = skillFrontmatter
+  .extend({
+    name: kebab,
+    description: z.string().min(40),
+    metadata: catalogMetadata,
+  })
+  .meta({
+    title: "Catalog skill frontmatter",
+    description:
+      'The SKILL.md frontmatter of a marketplace catalog skill: [catalog.validation] profile = "catalog-v1".',
+  });

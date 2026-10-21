@@ -51,7 +51,13 @@
         },
         "level": {
           "type": "string",
-          "enum": ["L1", "L2", "L3", "L4", "L5"]
+          "enum": [
+            "L1",
+            "L2",
+            "L3",
+            "L4",
+            "L5"
+          ]
         },
         "domain": {
           "type": "string",
@@ -59,7 +65,11 @@
         },
         "install": {
           "type": "string",
-          "enum": ["default", "optional", "catalog-only"]
+          "enum": [
+            "default",
+            "optional",
+            "catalog-only"
+          ]
         },
         "requires": {
           "type": "object",
@@ -102,7 +112,11 @@
         },
         "approval": {
           "type": "string",
-          "enum": ["none", "scripts", "hooks"]
+          "enum": [
+            "none",
+            "scripts",
+            "hooks"
+          ]
         },
         "output-license": {
           "type": "string"
@@ -131,14 +145,26 @@
         },
         "tier": {
           "type": "string",
-          "enum": ["open", "free", "paid", "internal"],
+          "enum": [
+            "open",
+            "free",
+            "paid",
+            "internal"
+          ],
           "deprecated": true,
           "description": "Inherited from marketplace metadata.tier; repeated skill tiers warn."
         }
       },
-      "additionalProperties": {}
+      "additionalProperties": {},
+      "title": "Skill metadata",
+      "description": "The metadata map of a SKILL.md frontmatter: catalog fields pmcp reads (level, domain, install, keywords and the rest)."
     }
   },
-  "required": ["name", "description"],
-  "additionalProperties": {}
+  "required": [
+    "name",
+    "description"
+  ],
+  "additionalProperties": {},
+  "title": "SKILL.md frontmatter",
+  "description": "The Agent Skills frontmatter pmcp validate checks: name, description and the optional fields."
 }

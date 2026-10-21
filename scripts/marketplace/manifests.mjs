@@ -12,7 +12,10 @@ export function pluginManifests(descriptor, { withMod = false } = {}) {
     author: { name: "modootoday" },
     license: "Elastic-2.0",
     repository,
-    homepage: "https://pmcp.build/skills/",
+    // The bridge is pmcp itself; a library plugin belongs to the free-skill catalog.
+    homepage: descriptor.bridge
+      ? "https://pmcp.build/"
+      : "https://pmcp.build/skills/",
   };
   // The bridge runs the release it ships in (package.json), so it cannot fall behind the CLI.
   const mcpServers = descriptor.bridge

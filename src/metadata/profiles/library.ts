@@ -8,9 +8,13 @@ export const libraryMetadata = skillMetadataCore.extend({
   "selected-version": z.string().min(1).optional(),
   loading: z.enum(["manual", "automatic"]).optional(),
 });
-export const libraryProfile = skillFrontmatter.extend({
-  metadata: libraryMetadata.optional(),
-});
+export const libraryProfile = skillFrontmatter
+  .extend({ metadata: libraryMetadata.optional() })
+  .meta({
+    title: "Library skill frontmatter",
+    description:
+      'The SKILL.md frontmatter of a library skill: [catalog.validation] profile = "library".',
+  });
 export function validateManualLibraryIdentity(
   front: unknown,
   descriptor: {

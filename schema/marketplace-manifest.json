@@ -54,7 +54,12 @@
       "properties": {
         "tier": {
           "type": "string",
-          "enum": ["open", "free", "paid", "internal"]
+          "enum": [
+            "open",
+            "free",
+            "paid",
+            "internal"
+          ]
         },
         "description": {
           "type": "string",
@@ -120,11 +125,20 @@
             "additionalProperties": {}
           }
         },
-        "required": ["name"],
-        "additionalProperties": {}
+        "required": [
+          "name"
+        ],
+        "additionalProperties": {},
+        "title": "Plugin manifest",
+        "description": "A native plugin manifest as pmcp reads it from a marketplace."
       }
     }
   },
-  "required": ["name", "plugins"],
-  "additionalProperties": {}
+  "required": [
+    "name",
+    "plugins"
+  ],
+  "additionalProperties": {},
+  "title": "Marketplace manifest",
+  "description": "A native plugin marketplace manifest and the plugins it lists."
 }
