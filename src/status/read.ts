@@ -1,9 +1,7 @@
 import type { ProjectConfig } from "../config.js";
 import { checkProject } from "../project/apply/check-project.js";
 import { readSpec } from "../project/spec.js";
-import { createFilesStore } from "../sessions/files-store.js";
-import { readStoreSettings } from "../sessions/settings.js";
-import { projectStateDir } from "../sessions/state-dir.js";
+import { openStore, readStoreSettings } from "../sessions/settings.js";
 import { sessionSnapshot } from "../sessions/snapshot.js";
 import { authPresence } from "./auth.js";
 import { recentErrors } from "./errors.js";
@@ -27,11 +25,8 @@ export async function readStatus(
       ],
     };
   }
-  const settings = readStoreSettings(config.raw.sessions);
-  const store = createFilesStore(
-    projectStateDir(config.dir, settings.stateDir, env),
-    settings,
-  );
+  const settings = readStoreSettings(config.raw.sessions, config.raw["git"]);
+  const store = openStore(config.dir, settings, env);
   const sessions = (config.raw.sessions ?? {}) as Record<string, unknown>;
   const leases = Object.keys((sessions.leases ?? {}) as object);
   const worktrees = desks(config);

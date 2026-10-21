@@ -7,11 +7,14 @@ import { filesPause } from "./files/pause.js";
 import { filesRegistry } from "./files/registry.js";
 import { STALE_MS } from "./liveness.js";
 import type { MailboxSettings, SessionStore } from "./types.js";
+import type { LeaseFiles } from "./lease-files.js";
 
 export interface FilesStoreOptions {
   readonly staleMs?: number;
   readonly keepBroadcasts?: number;
   readonly mailbox?: MailboxSettings;
+  // Resolved lease paths by lease name; the others stay <name>-lease.json in dir.
+  readonly leaseFiles?: Readonly<Record<string, LeaseFiles>>;
 }
 
 const OFF: MailboxSettings = {
@@ -32,7 +35,7 @@ export function createFilesStore(
     dir,
     registry,
     pause: filesPause(dir),
-    leases: filesLeases(dir),
+    leases: filesLeases(dir, options.leaseFiles),
     // With the mailbox on, a broadcast is also a message to all, which the mailbox delivers;
     // broadcast.json stays the record status, snapshot and the Claude band read.
     broadcast: !mailbox.settings.enabled

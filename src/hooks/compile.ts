@@ -47,7 +47,7 @@ export function compileHooks(
   const table = readHooksTable(hooks, options.tools);
   const guardsTable = asTable(hooks["guards"], "[hooks.guards]");
   const entries = readCustom(options.root, hooks, guardsTable);
-  const sessions = readSessions(tables.sessions);
+  const sessions = readSessions(tables.sessions, tables.git);
   const workspace = readWorkspace(tables.git, options.root);
   const deskSync = readWorktreeSync(tables, options.root);
   const directPush = readMainlineDeliver(tables, options.root);
@@ -95,6 +95,9 @@ export function compileHooks(
       keepBroadcasts: sessions.keepBroadcasts,
       // Only when on, so projects without a mailbox keep the same policy.json and hash.
       ...(sessions.mailbox?.enabled ? { mailbox: sessions.mailbox } : {}),
+      // Only when declared, like the mailbox, so other projects keep the same policy.json.
+      ...(sessions.leaseFiles ? { leaseFiles: sessions.leaseFiles } : {}),
+      ...(sessions.gate ? { gate: sessions.gate } : {}),
     },
     guards,
     custom: pinnedEntries(options.root, entries, table.targets),

@@ -15,7 +15,10 @@ export function storeFrom(context: CommandContext): {
   const sessions = (config.raw["sessions"] ?? {}) as Record<string, unknown>;
   const leases = Object.keys((sessions["leases"] ?? {}) as object);
   return {
-    store: openStore(config.dir, readStoreSettings(sessions)),
+    store: openStore(
+      config.dir,
+      readStoreSettings(sessions, config.raw["git"]),
+    ),
     leases,
     root: config.dir,
   };

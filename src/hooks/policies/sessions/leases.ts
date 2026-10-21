@@ -53,7 +53,8 @@ export const leases: Policy<readonly LeaseRule[]> = {
   options(raw) {
     return Object.entries(raw).map(([name, value]) => {
       const table = (value ?? {}) as Record<string, unknown>;
-      onlyKeys(table, ["path", "blocks"]);
+      // file and events place the lease for other tools; the store reads them, not this guard.
+      onlyKeys(table, ["path", "blocks", "file", "events"]);
       if (table["path"] !== undefined && typeof table["path"] !== "string")
         throw new Error(`${name}.path must be a string`);
       return {

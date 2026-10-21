@@ -27,6 +27,8 @@ export interface GateConfig {
   // Set to 1 for the gate command and its children; a deliver started with it set does not
   // take the lock again, so another tool sharing the lock can nest pmcp or be nested.
   readonly lockEnv?: string;
+  // A variable that, when set, names the gate tree instead of tree (and so the lock beside it).
+  readonly treeEnv?: string;
 }
 
 export interface DeliverConfig {

@@ -1,4 +1,5 @@
 import { deliver } from "../mainline/deliver.js";
+import { deliveryEvents } from "../mainline/delivery-events.js";
 import { filesSessionGate } from "../mainline/store.js";
 import { syncMainline } from "../mainline/sync.js";
 import { gateTreePath, leaseSpecs } from "../setup.js";
@@ -31,9 +32,10 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     tree: gateTreePath(setup),
     links: config.worktrees?.linkFromMain ?? [],
     leases: leaseSpecs(config),
-    store: filesSessionGate(setup.stateDir),
+    store: filesSessionGate(setup.stateDir, setup.leaseFiles),
     duringPause: context.args.flags.has("during-pause"),
     afterDeliver,
+    recordDelivery: deliveryEvents(setup),
     report,
   });
 };

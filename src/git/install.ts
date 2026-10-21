@@ -37,7 +37,7 @@ export function stampFile(root: string, spec: InstallSpec): string {
   return join(spec.stateDir, "installed", key);
 }
 
-function readStamp(path: string): string | null {
+export function readStamp(path: string): string | null {
   if (!existsSync(path)) return null;
   return readFileSync(path, "utf8").trim() || null;
 }

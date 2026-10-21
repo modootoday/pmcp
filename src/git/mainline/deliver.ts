@@ -32,7 +32,15 @@ export interface DeliverOptions {
   readonly leasePollMs?: number;
   // Hold leases through follow-up installation so peers cannot observe a partially installed lockfile change.
   readonly afterDeliver?: () => void;
+  // Called once delivered and after afterDeliver, with the leases this delivery took.
+  readonly recordDelivery?: (delivery: Delivery) => void;
   readonly report: Reporter;
+}
+
+export interface Delivery {
+  readonly leases: readonly string[];
+  readonly subject: string;
+  readonly commit: string;
 }
 
 function subject(cwd: string, sha: string): string {
@@ -135,6 +143,13 @@ function underLock(options: DeliverOptions): number {
     options.report.warn(`the gate lock stayed held for ${wait}s`);
     return 1;
   }
+  // Named from the moment the lock is held, so a queued tool sharing the lock can say whose
+  // gate it waits for; each attempt then names the replayed tip.
+  writeHolder(lock, {
+    tip: gitText(options.ctx.root, ["rev-parse", "HEAD"]),
+    subject: subject(options.ctx.root, "HEAD"),
+    checkout: options.ctx.root,
+  });
   try {
     return attempts(options);
   } finally {
@@ -195,6 +210,12 @@ export function deliver(options: DeliverOptions): number {
     const code = underLock(options);
     if (code !== 0) return code;
     options.afterDeliver?.();
+    if (taken.length > 0)
+      options.recordDelivery?.({
+        leases: taken,
+        subject: lease.subject,
+        commit: gitText(ctx.root, ["rev-parse", "--short=10", ctx.upstream]),
+      });
     if (options.deliver.notify !== undefined && commits.length > 0)
       runCommand(options.deliver.notify, ctx.root, {
         PMCP_DELIVERED: gitText(ctx.root, ["rev-parse", ctx.upstream]),

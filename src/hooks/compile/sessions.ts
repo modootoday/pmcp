@@ -54,11 +54,11 @@ function registryCheck(raw: unknown): void {
 }
 
 // Compile the registry first so later policies can observe the current session.
-export function readSessions(raw: unknown): SessionsTable {
+export function readSessions(raw: unknown, git?: unknown): SessionsTable {
   const table = asTable(raw, "[sessions]");
   const unknown = Object.keys(table).find((key) => !KEYS.includes(key));
   if (unknown) throw new Error(`[sessions] unknown key ${unknown}`);
-  const settings = readStoreSettings(raw);
+  const settings = readStoreSettings(raw, git);
   registryCheck(table["registry"]);
   const guards: CompiledGuard[] = [];
   if (table["registry"] !== undefined)

@@ -12,6 +12,7 @@ import { readStdin, writeStdout } from "./entry/stdin.js";
 import { gitProbe } from "./policies/git-probe.js";
 import { guestFor, runtime } from "./runtimes/index.js";
 import { createFilesStore } from "../sessions/files-store.js";
+import { leaseFilesFor } from "../sessions/lease-files.js";
 import { projectStateDir } from "../sessions/state-dir.js";
 import type { Logger } from "../logging/logger.js";
 
@@ -50,10 +51,17 @@ export async function main(
     const input = native ? adapter.normalize(native, payload, root) : null;
     if (!input) return pass();
     const run = log.child({ session: input.session.id });
-    const store = createFilesStore(
-      projectStateDir(root, compiled.stateDir),
-      compiled.sessions,
-    );
+    const stateDir = projectStateDir(root, compiled.stateDir);
+    const store = createFilesStore(stateDir, {
+      ...compiled.sessions,
+      leaseFiles: leaseFilesFor(
+        root,
+        stateDir,
+        compiled.sessions.leaseFiles,
+        compiled.sessions.gate,
+        process.env,
+      ),
+    });
     const decision = await dispatch(input, compiled, {
       log: run,
       git: gitProbe,

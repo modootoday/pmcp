@@ -1,12 +1,22 @@
 import { projectStateDir } from "./state-dir.js";
 import { createFilesStore } from "./files-store.js";
 import type { MailboxSettings, SessionStore } from "./types.js";
+import {
+  leaseFilesFor,
+  readGateLocation,
+  readLeaseFiles,
+  type GateLocation,
+  type LeaseFiles,
+} from "./lease-files.js";
 
 export interface StoreSettings {
   readonly stateDir?: string;
   readonly staleMs: number;
   readonly keepBroadcasts: number;
   readonly mailbox?: MailboxSettings;
+  // Lease files outside the state dir, and the gate tree their ${gate_dir} paths follow.
+  readonly leaseFiles?: Readonly<Record<string, LeaseFiles>>;
+  readonly gate?: GateLocation;
 }
 
 const MAILBOX_KEYS = [
@@ -75,7 +85,7 @@ function positiveInteger(
   return value;
 }
 
-export function readStoreSettings(raw: unknown): StoreSettings {
+export function readStoreSettings(raw: unknown, git?: unknown): StoreSettings {
   const sessions = table(raw, "[sessions]");
   if ((sessions["store"] ?? "files") !== "files")
     throw new Error('[sessions] store must be "files"');
@@ -102,9 +112,31 @@ export function readStoreSettings(raw: unknown): StoreSettings {
       10,
     ),
     mailbox: readMailbox(sessions["mailbox"]),
+    ...leaseSettings(sessions["leases"], git),
   };
 }
 
-export function openStore(root: string, settings: StoreSettings): SessionStore {
-  return createFilesStore(projectStateDir(root, settings.stateDir), settings);
+function leaseSettings(leases: unknown, git: unknown) {
+  const leaseFiles = readLeaseFiles(leases);
+  if (Object.keys(leaseFiles).length === 0) return {};
+  const gate = readGateLocation(git);
+  return { leaseFiles, ...(Object.keys(gate).length > 0 ? { gate } : {}) };
+}
+
+export function openStore(
+  root: string,
+  settings: StoreSettings,
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): SessionStore {
+  const dir = projectStateDir(root, settings.stateDir, env);
+  return createFilesStore(dir, {
+    ...settings,
+    leaseFiles: leaseFilesFor(
+      root,
+      dir,
+      settings.leaseFiles,
+      settings.gate,
+      env,
+    ),
+  });
 }

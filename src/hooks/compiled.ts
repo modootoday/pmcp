@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type { MailboxSettings } from "../sessions/types.js";
+import type { GateLocation, LeaseFiles } from "../sessions/lease-files.js";
 import type { Mode, RuntimeId } from "./contract.js";
 import {
   rememberVerified,
@@ -53,6 +54,8 @@ export interface CompiledPolicy {
     readonly keepBroadcasts: number;
     // Absent in policies compiled before the mailbox; the store then keeps it off.
     readonly mailbox?: MailboxSettings;
+    readonly leaseFiles?: Readonly<Record<string, LeaseFiles>>;
+    readonly gate?: GateLocation;
   };
   readonly guards: readonly CompiledGuard[];
   readonly custom: readonly CompiledCustom[];

@@ -47,7 +47,20 @@ beside the gate tree (`<dir of tree>/lock`), so another tool that takes the same
 file with `flock` (a workspace land script) and pmcp never gate together. With
 `lock_env` set, pmcp sets that variable to `1` for the gate command and its
 children, and a `pmcp git deliver` started with it already `1` runs under its
-caller's lock instead of waiting for it.
+caller's lock instead of waiting for it. `tree_env` names a variable that, when
+set, gives the gate tree instead of `tree`, and so moves the lock and every
+`${gate_dir}/` path with it (a temporary gate for tests or a bootstrap).
+While a delivery holds the lock it keeps `holder.json` beside it,
+`{tip, subject, checkout, pid, startedAt}`, so a tool waiting on the same lock
+can say whose gate it waits for; the file is removed on release.
+
+A lease is `<state dir>/<name>-lease.json` unless `[sessions.leases.<name>] file`
+places it elsewhere, for another tool that coordinates the same lockfile; both
+read and write `{pid, subject, cwd, since}`, and a record whose process is gone
+counts as free. With `events` set, each delivery that changed the leased paths
+appends one line there: `{at, subject, commit, hash, installed, lease}`, where
+`commit` is the delivered upstream, `hash` the leased files' hash in the main
+checkout after sync, and `installed` whether sync's install ran for that hash.
 
 `[git.mainline.deliver]` enables `pmcp git deliver`, which replays commits onto
 the fetched mainline, runs the gate, and pushes one delivery at a time:

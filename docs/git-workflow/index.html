@@ -80,7 +80,19 @@ beside the gate tree (<code>&lt;dir of tree&gt;/lock</code>), so another tool th
 file with <code>flock</code> (a workspace land script) and pmcp never gate together. With
 <code>lock_env</code> set, pmcp sets that variable to <code>1</code> for the gate command and its
 children, and a <code>pmcp git deliver</code> started with it already <code>1</code> runs under its
-caller&#39;s lock instead of waiting for it.</p>
+caller&#39;s lock instead of waiting for it. <code>tree_env</code> names a variable that, when
+set, gives the gate tree instead of <code>tree</code>, and so moves the lock and every
+<code>${gate_dir}/</code> path with it (a temporary gate for tests or a bootstrap).
+While a delivery holds the lock it keeps <code>holder.json</code> beside it,
+<code>{tip, subject, checkout, pid, startedAt}</code>, so a tool waiting on the same lock
+can say whose gate it waits for; the file is removed on release.</p>
+<p>A lease is <code>&lt;state dir&gt;/&lt;name&gt;-lease.json</code> unless <code>[sessions.leases.&lt;name&gt;] file</code>
+places it elsewhere, for another tool that coordinates the same lockfile; both
+read and write <code>{pid, subject, cwd, since}</code>, and a record whose process is gone
+counts as free. With <code>events</code> set, each delivery that changed the leased paths
+appends one line there: <code>{at, subject, commit, hash, installed, lease}</code>, where
+<code>commit</code> is the delivered upstream, <code>hash</code> the leased files&#39; hash in the main
+checkout after sync, and <code>installed</code> whether sync&#39;s install ran for that hash.</p>
 <p><code>[git.mainline.deliver]</code> enables <code>pmcp git deliver</code>, which replays commits onto
 the fetched mainline, runs the gate, and pushes one delivery at a time:
 <code>attempts</code> (default <code>3</code>), <code>refuse_direct_push</code> (default <code>true</code>: a hook refuses
