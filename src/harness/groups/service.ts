@@ -14,6 +14,16 @@ import { privateJson } from "./store.js";
 import { runtimeExecutables } from "../runtimes/registry.js";
 import { assertNativeHost } from "../adapters/systemd/admission.js";
 import { loadDockerPolicy } from "../adapters/docker/profile.js";
+import { envNames } from "../../native/env-names.js";
+
+// Declared names only; a value never enters group.json or a launch journal.
+export function groupEnv(value: unknown): string[] {
+  try {
+    return envNames(value, "env");
+  } catch {
+    throw new Error("invalid_env_names");
+  }
+}
 
 export async function createGroup(
   input: Record<string, unknown>,
@@ -30,6 +40,9 @@ export async function createGroup(
   const supported = Object.keys(runtimeExecutables);
   if (allowedRuntimes.some((runtime) => !supported.includes(runtime)))
     throw new Error("unsupported_runtime");
+  const env = groupEnv(input.env);
+  if (profile === "docker" && env.length > 0)
+    throw new Error("env_requires_native_profile");
   const memoryMb = integer(input.memoryMb ?? 2048, "memory_budget", 128, 4096);
   const maxActive = integer(input.maxActive ?? 1, "max_active", 1, 5);
   const dockerPolicy =
@@ -51,6 +64,7 @@ export async function createGroup(
     maxActive,
     sessions: [],
     ...(dockerPolicy ? { dockerPolicy } : {}),
+    ...(env.length > 0 ? { env } : {}),
   };
   const groupFile = join(backend.runDirectory, "group.json");
   privateJson(groupFile, { group, leases: [], deliveries: [] });

@@ -1,6 +1,7 @@
 import type { State } from "../contracts.js";
 import { id, integer, object, strings, text } from "../validation.js";
 import { dockerPolicy } from "../runtimes/docker-policy.js";
+import { envNames } from "../../native/env-names.js";
 
 function member(value: unknown, allowed: readonly unknown[]): void {
   if (!allowed.includes(value)) throw new Error("invalid_state_value");
@@ -31,6 +32,13 @@ export function validateState(value: unknown): State {
   member(group.state, ["ready", "paused", "stopped"]);
   integer(group.memoryMb, "memory_budget", 128, 4096);
   integer(group.maxActive, "max_active", 1, 5);
+  if (group.env !== undefined) {
+    try {
+      envNames(group.env, "env");
+    } catch {
+      throw new Error("invalid_env_names");
+    }
+  }
   const sessions = records(group.sessions);
   for (const session of sessions) {
     id(session.id, "session_id");

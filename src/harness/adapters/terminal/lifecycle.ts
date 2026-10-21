@@ -13,6 +13,7 @@ import { assertProof } from "./launch-identity.js";
 import { budgetSlice, runtimeUnit } from "./records.js";
 import { LaunchJournal, pendingLaunches } from "../../launch/journal.js";
 import { abortLaunch } from "../../launch/recovery.js";
+import { pickEnv } from "../../../native/env-names.js";
 import { stopResource } from "../docker/lifecycle.js";
 import {
   creationPlan,
@@ -31,6 +32,8 @@ export interface LaunchSpec {
   role: "main" | "worker";
   resource?: DockerResource;
   dockerPreparation?: DockerPreparation;
+  // Names only; their values are read from this process when the session is spawned.
+  envNames?: string[];
 }
 
 export async function start(
@@ -107,7 +110,15 @@ export async function start(
       : gate;
   connection.ensure();
   connection.must(
-    spawnRequest(connection, id, nonce, argv, spec.cwd, spec.runtime),
+    spawnRequest(
+      connection,
+      id,
+      nonce,
+      argv,
+      spec.cwd,
+      spec.runtime,
+      pickEnv(spec.envNames ?? [], process.env).values,
+    ),
   );
   const deadline = Date.now() + 5000;
   while (!existsSync(journal.path("proof"))) {
@@ -129,6 +140,7 @@ export function spawnRequest(
   argv: string[],
   cwd: string,
   runtime: string,
+  env: Readonly<Record<string, string>> = {},
 ) {
   return {
     op: "spawn",
@@ -138,7 +150,7 @@ export function spawnRequest(
     cols: 160,
     rows: 42,
     profile: profileOf(runtime),
-    env: { PMCP_PTY_BIN: connection.binary() },
+    env: { ...env, PMCP_PTY_BIN: connection.binary() },
     labels: {
       "pmcp.owner": connection.records.owner,
       "pmcp.session": id,

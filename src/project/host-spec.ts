@@ -1,6 +1,7 @@
 import { isAbsolute, normalize } from "node:path";
 
 import { ConfigError } from "../config.js";
+import { envNames } from "../native/env-names.js";
 import {
   readHostBrowser,
   readHostDesktop,
@@ -29,6 +30,8 @@ export interface HostSession {
   readonly labels: Readonly<Record<string, string>>;
   readonly restart: "no" | "on-exit";
   readonly maxRestarts: number;
+  // Names whose values host up passes from its own environment; never a value.
+  readonly env: readonly string[];
 }
 
 export interface HostAnswer {
@@ -160,6 +163,7 @@ function session(
     "labels",
     "restart",
     "max_restarts",
+    "env",
   ]);
   const name = text(path, `${where} name`, t["name"]);
   if (!NAME.test(name))
@@ -186,7 +190,16 @@ function session(
     labels: labels(path, `${where} labels`, t["labels"]),
     restart,
     maxRestarts: max,
+    env: names(path, `${where} env`, t["env"]),
   };
+}
+
+function names(path: string, where: string, value: unknown): string[] {
+  try {
+    return envNames(value, where);
+  } catch (error) {
+    return fail(path, (error as Error).message);
+  }
 }
 
 export function readHost(path: string, raw: unknown): HostSpec | undefined {

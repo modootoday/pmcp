@@ -38,6 +38,7 @@ function approvedRun(spec: ProjectSpec, context: CommandContext): HostRun {
       "host-runs.jsonl",
     ),
     call: (request, limitMs) => ptyRequest(socket, request, limitMs),
+    env: context.env,
   };
 }
 

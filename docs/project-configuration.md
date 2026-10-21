@@ -171,6 +171,7 @@ cwd = "."                # inside the project
 argv = ["claude"]        # default: the runtime's name
 labels = { task = "review" }
 restart = "on-exit"      # or "no" (default); max_restarts defaults to 3
+env = ["GOOGLE_CLOUD_PROJECT"] # names host up passes from its own environment
 
 [[host.answers]]
 runtime = "gemini"
@@ -184,6 +185,12 @@ allow_private = ["localhost:5173"] # host:port or host:*; pmcp-browser is public
 name = "terminal"        # what pmcp-desktop's launch tool takes
 argv = ["xterm"]         # never a browser
 ```
+
+`env` lists variable names, never values: `pmcp harness host up` reads each from
+its own environment and passes it in that session's spawn request, so the session
+gets it whether the pmcp-pty daemon started from this shell or from an installed
+unit. A name that is unset or empty refuses that session (`host up` reports which),
+and `pmcp doctor` shows each session's names as set or not set where it runs.
 
 Login and authentication (`auth-*`), folder and workspace trust and hook
 review dialogs are never answered: a `[[host.answers]]` entry naming one is a

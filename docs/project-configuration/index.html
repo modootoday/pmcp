@@ -172,6 +172,7 @@ cwd = &quot;.&quot;                # inside the project
 argv = [&quot;claude&quot;]        # default: the runtime's name
 labels = { task = &quot;review&quot; }
 restart = &quot;on-exit&quot;      # or &quot;no&quot; (default); max_restarts defaults to 3
+env = [&quot;GOOGLE_CLOUD_PROJECT&quot;] # names host up passes from its own environment
 
 [[host.answers]]
 runtime = &quot;gemini&quot;
@@ -184,6 +185,11 @@ allow_private = [&quot;localhost:5173&quot;] # host:port or host:*; pmcp-browser
 [[host.desktop.launch]]
 name = &quot;terminal&quot;        # what pmcp-desktop's launch tool takes
 argv = [&quot;xterm&quot;]         # never a browser</code></pre>
+<p><code>env</code> lists variable names, never values: <code>pmcp harness host up</code> reads each from
+its own environment and passes it in that session&#39;s spawn request, so the session
+gets it whether the pmcp-pty daemon started from this shell or from an installed
+unit. A name that is unset or empty refuses that session (<code>host up</code> reports which),
+and <code>pmcp doctor</code> shows each session&#39;s names as set or not set where it runs.</p>
 <p>Login and authentication (<code>auth-*</code>), folder and workspace trust and hook
 review dialogs are never answered: a <code>[[host.answers]]</code> entry naming one is a
 configuration error, and pmcp-pty refuses them whatever a policy says. Paths

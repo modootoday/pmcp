@@ -14,7 +14,7 @@ import { gemini } from "./gemini.js";
 import { grok } from "./grok.js";
 import { antigravity } from "./antigravity.js";
 import { sessionsDoctor } from "./sessions.js";
-import { hostDoctor, ptyBinaryDoctor } from "../host.js";
+import { hostDoctor, hostEnvDoctor, ptyBinaryDoctor } from "../host.js";
 import { hostApprovalDoctor } from "../host-approval.js";
 import { pluginBinaryDoctor } from "../mcp-spec/plugin-binary.js";
 export function doctor(spec: ProjectSpec, options: DoctorOptions): Finding[] {
@@ -33,6 +33,7 @@ export function doctor(spec: ProjectSpec, options: DoctorOptions): Finding[] {
   findings.push(...hostDoctor(spec));
   if (spec.host) findings.push(hostApprovalDoctor(spec.root));
   if (spec.host) findings.push(ptyBinaryDoctor(process.env));
+  findings.push(...hostEnvDoctor(spec, process.env));
   findings.push(...pluginBinaryDoctor(spec.mcp));
   const wanted = (tool: Tool) =>
     spec.tools.has(tool) &&

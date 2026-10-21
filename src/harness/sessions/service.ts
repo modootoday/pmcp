@@ -11,6 +11,7 @@ import { locateExecutable } from "../adapters/process/executable.js";
 import { admitResource } from "../adapters/docker/admission.js";
 import { profileName, selectedProfile } from "../runtimes/private-profiles.js";
 import { assertProfileAvailable } from "../adapters/docker/private-profile.js";
+import { pickEnv } from "../../native/env-names.js";
 
 export async function startSession(
   context: GroupContext,
@@ -130,6 +131,11 @@ export async function startSession(
     cwd,
   );
   if (!executablePath) throw new Error("runtime_executable_unavailable");
+  // The group's declared env must be set where the session starts; a runtime started without
+  // it waits for a login nobody gives (gemini on Vertex, live check 2026-10-21).
+  const envNames = group.env ?? [];
+  const unset = pickEnv(envNames, process.env).missing;
+  if (unset.length > 0) throw new Error(`env_not_set:${unset.join(",")}`);
   const argv = resource
     ? [executablePath, "start", "--attach", "--interactive", resource.id]
     : [executablePath, ...args];
@@ -145,6 +151,7 @@ export async function startSession(
       role,
       ...(resource ? { resource } : {}),
       ...(dockerPreparation ? { dockerPreparation } : {}),
+      ...(envNames.length > 0 ? { envNames } : {}),
     },
   });
   const session = result.session as SessionRecord;

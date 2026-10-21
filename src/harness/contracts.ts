@@ -72,6 +72,8 @@ export interface Group {
   memoryMb: number;
   maxActive: number;
   sessions: SessionReference[];
+  // Environment names each session start passes from its own environment; never a value.
+  env?: string[];
 }
 
 export interface Lease {

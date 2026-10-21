@@ -2,6 +2,7 @@ import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import type { PtyReply } from "../adapters/pty/client.js";
+import { pickEnv } from "../../native/env-names.js";
 
 // pmcp harness host up | down: start what the operator approved, through pmcp-pty, once.
 // Idempotent: a running session is left alone, an exited one restarts only by its policy.
@@ -20,6 +21,7 @@ export interface ApprovedSession {
   readonly restart: "no" | "on-exit";
   readonly max_restarts: number;
   readonly delivery_setup: boolean;
+  readonly env?: readonly string[];
 }
 
 export interface HostRun {
@@ -28,6 +30,8 @@ export interface HostRun {
   readonly journal: string;
   readonly call: Call;
   readonly now?: () => Date;
+  // Where declared env names are read from: host up's own environment.
+  readonly env?: Readonly<Record<string, string | undefined>>;
 }
 
 export interface Step {
@@ -88,7 +92,13 @@ async function listed(run: HostRun, name: string): Promise<Listed[]> {
   return (reply["sessions"] ?? []) as Listed[];
 }
 
-async function spawn(run: HostRun, s: ApprovedSession): Promise<PtyReply> {
+// Declared env goes in the spawn request, so a session gets it whatever environment the daemon
+// started with (a scope from an earlier up, or the operator's installed unit).
+async function spawn(
+  run: HostRun,
+  s: ApprovedSession,
+  env: Record<string, string>,
+): Promise<PtyReply> {
   return run.call(
     {
       op: "spawn",
@@ -98,6 +108,7 @@ async function spawn(run: HostRun, s: ApprovedSession): Promise<PtyReply> {
       profile: s.profile,
       labels: s.labels,
       delivery_setup: s.delivery_setup,
+      ...(Object.keys(env).length > 0 ? { env } : {}),
     },
     30_000,
   );
@@ -127,10 +138,18 @@ async function upOne(
         action: "exited",
         detail: `restart ${s.restart}, ${used} of ${s.max_restarts} used`,
       };
+  }
+  const picked = pickEnv(s.env ?? [], run.env ?? {});
+  if (picked.missing.length > 0)
+    return {
+      name: s.name,
+      action: "refused",
+      detail: `env ${picked.missing.join(", ")} not set in the environment of host up`,
+    };
+  if (exited)
     for (const old of found)
       await run.call({ op: "remove", id: old.id }, 10_000);
-  }
-  const reply = await spawn(run, s);
+  const reply = await spawn(run, s, picked.values);
   if (reply["ok"] !== true)
     return {
       name: s.name,

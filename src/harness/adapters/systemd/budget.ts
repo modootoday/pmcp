@@ -119,6 +119,9 @@ export async function budgetOperation(
     role: spec.role as "main" | "worker",
     ...(resource ? { resource } : {}),
     ...(dockerPreparation ? { dockerPreparation } : {}),
+    ...(Array.isArray(spec.envNames)
+      ? { envNames: spec.envNames as string[] }
+      : {}),
   });
   return { ok: true, session };
 }

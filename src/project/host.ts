@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { nativeBinary } from "../native/binary.js";
+import { pickEnv } from "../native/env-names.js";
 import { readLock } from "./apply/lock.js";
 import type { Finding } from "./doctor/types.js";
 import type { HostSpec } from "./host-spec.js";
@@ -47,6 +48,8 @@ export function hostManifest(host: HostSpec): unknown {
       restart: s.restart,
       max_restarts: s.maxRestarts,
       delivery_setup: true,
+      // Only when declared, so an approval made before env existed stays valid.
+      ...(s.env.length > 0 ? { env: s.env } : {}),
     })),
   };
 }
@@ -84,6 +87,32 @@ export function ptyBinaryDoctor(
         status: "warn",
         detail: "pmcp-pty not found; set PMCP_PTY_BIN or put it on PATH",
       };
+}
+
+// Each host session's declared env, set or not where doctor runs (run it as host up would be):
+// names only, never a value.
+export function hostEnvDoctor(
+  spec: ProjectSpec,
+  env: Readonly<Record<string, string | undefined>>,
+): Finding[] {
+  return (spec.host?.sessions ?? [])
+    .filter((s) => s.env.length > 0)
+    .map((s) => {
+      const { missing } = pickEnv(s.env, env);
+      return missing.length === 0
+        ? {
+            tool: "project",
+            check: `host env (${s.name})`,
+            status: "ok",
+            detail: `set: ${s.env.join(", ")}`,
+          }
+        : {
+            tool: "project",
+            check: `host env (${s.name})`,
+            status: "warn",
+            detail: `not set: ${missing.join(", ")}; host up refuses ${s.name} until they are`,
+          };
+    });
 }
 
 const sha256 = (text: string) =>
