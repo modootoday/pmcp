@@ -9,7 +9,15 @@ export const mainlineSync: Action = (setup, _context, report) => {
   const sync = setup.config.sync ?? off("git.mainline.sync");
   const followSubmodules = setup.config.submodules?.follow === "clean_pins";
   const { ctx, stateDir } = setup;
-  return syncMainline({ ctx, sync, followSubmodules, stateDir, report });
+  const sharedSubmodules = setup.config.submodules?.shared ?? [];
+  return syncMainline({
+    ctx,
+    sync,
+    followSubmodules,
+    sharedSubmodules,
+    stateDir,
+    report,
+  });
 };
 
 export const mainlineDeliver: Action = (setup, context, report) => {
@@ -19,7 +27,17 @@ export const mainlineDeliver: Action = (setup, context, report) => {
   const afterDeliver = () => {
     if (sync === undefined || ctx.linked) return;
     const followSubmodules = config.submodules?.follow === "clean_pins";
-    if (syncMainline({ ctx, sync, followSubmodules, stateDir, report }) !== 0)
+    const sharedSubmodules = config.submodules?.shared ?? [];
+    if (
+      syncMainline({
+        ctx,
+        sync,
+        followSubmodules,
+        sharedSubmodules,
+        stateDir,
+        report,
+      }) !== 0
+    )
       report.warn(
         "delivered; only the main checkout did not catch up, run pmcp git sync after the refusal above is cleared",
       );

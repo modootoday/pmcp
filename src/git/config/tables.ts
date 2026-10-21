@@ -118,8 +118,11 @@ export function mainlineSync(path: string, source: Table): MainlineSyncConfig {
 }
 
 export function submodules(path: string, source: Table): SubmodulesConfig {
-  const read = new Reader(path, "git.submodules", source, ["follow"]);
-  return { follow: read.oneOf("follow", ["clean_pins", "off"], "clean_pins") };
+  const read = new Reader(path, "git.submodules", source, ["follow", "shared"]);
+  return {
+    follow: read.oneOf("follow", ["clean_pins", "off"], "clean_pins"),
+    shared: read.list("shared"),
+  };
 }
 
 export function leases(path: string, sessions: Table | undefined): LeaseSpec[] {

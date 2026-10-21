@@ -12,6 +12,7 @@ export interface MainlineSyncOptions {
   readonly ctx: GitContext;
   readonly sync: MainlineSyncConfig;
   readonly followSubmodules: boolean;
+  readonly sharedSubmodules?: readonly string[];
 
   readonly stateDir: string;
   readonly report: Reporter;
@@ -93,7 +94,13 @@ export function syncMainline(options: MainlineSyncOptions): number {
     `${ctx.mainline} ${head.slice(0, 10)} -> ${target.slice(0, 10)}; dropped ${carried.length} landed duplicate(s), uncommitted edits kept`,
   );
   if (options.followSubmodules) {
-    for (const line of followPins(ctx.root, head, target)) report.info(line);
+    for (const line of followPins(
+      ctx.root,
+      head,
+      target,
+      options.sharedSubmodules,
+    ))
+      report.info(line);
   }
   return install(options);
 }

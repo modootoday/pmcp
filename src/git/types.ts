@@ -53,6 +53,8 @@ export interface MainlineSyncConfig {
 
 export interface SubmodulesConfig {
   readonly follow: "clean_pins" | "off";
+  // Checkouts other sessions also work in: moved even with edits that do not conflict.
+  readonly shared: readonly string[];
 }
 
 export interface LeaseSpec {

@@ -120,7 +120,12 @@ the mainline: <code>install</code> (argv), <code>install_when_changed</code> (pa
 <code>keep_identical_files</code> and <code>refuse_with_unlanded</code> (booleans, default <code>true</code>).</p>
 <p><code>[git.submodules]</code>: <code>follow = &quot;clean_pins&quot;</code> (the default when the table is
 present) moves submodules to the pinned commit when they are clean; <code>&quot;off&quot;</code>
-leaves them. Without the table submodules are not followed.</p>
+leaves them. Without the table submodules are not followed.
+<code>shared</code> lists submodules other sessions also edit in the main checkout (a
+brand app, for example): those move to the new pin even with uncommitted edits, as
+long as no edited or untracked file is one the pin changes. When one is, the
+submodule stays on the old pin and sync names the files; pmcp never restores,
+stashes or discards them.</p>
 </article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>

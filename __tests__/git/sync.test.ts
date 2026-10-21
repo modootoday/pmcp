@@ -170,3 +170,59 @@ it("leaves submodules on the old pin when following is off", () => {
   expect(sync(origin, origin.main, marking(marker), false)).toBe(0);
   expect(pin()).toBe(before);
 });
+
+// A shared checkout (other sessions edit it too) left on an old pin broke a frozen install;
+// it now moves when its edits do not conflict, and otherwise names the files, never
+// restoring or discarding one.
+function syncShared(origin: Remote, shared: string[], report: Reporter) {
+  return syncMainline({
+    ctx: detect(origin.main)!,
+    sync: marking(join(origin.base, "installed")),
+    followSubmodules: true,
+    sharedSubmodules: shared,
+    stateDir: join(origin.base, "state"),
+    report,
+  });
+}
+
+it("moves a shared submodule with an unrelated local edit, keeping the edit", () => {
+  const { origin, pin } = withSubmodule();
+  const next = bumpSubmodule(origin);
+  const lib = join(origin.main, "lib");
+  writeFileSync(join(lib, "README.md"), "local note\n");
+  const report = recorder();
+  expect(syncShared(origin, ["lib"], report)).toBe(0);
+  expect(pin()).toBe(next);
+  expect(readFileSync(join(lib, "README.md"), "utf8")).toBe("local note\n");
+  expect(report.lines).toContain(
+    `lib: moved to ${next.slice(0, 10)}, keeping its local edits`,
+  );
+});
+
+it("leaves a shared submodule whose local file conflicts with the pin, and names it untouched", () => {
+  const { origin, pin } = withSubmodule();
+  const before = pin();
+  const next = bumpSubmodule(origin);
+  const lib = join(origin.main, "lib");
+  writeFileSync(join(lib, "lib.txt"), "my draft\n");
+  const report = recorder();
+  expect(syncShared(origin, ["lib"], report)).toBe(0);
+  expect(pin()).toBe(before);
+  expect(readFileSync(join(lib, "lib.txt"), "utf8")).toBe("my draft\n");
+  expect(report.lines).toContain(
+    `lib: left at the old pin: local edits to lib.txt conflict with ${next.slice(0, 10)}; commit or move them, then sync again`,
+  );
+});
+
+it("still leaves a submodule that is not shared when it has edits", () => {
+  const { origin, pin } = withSubmodule();
+  const before = pin();
+  bumpSubmodule(origin);
+  writeFileSync(join(origin.main, "lib", "README.md"), "local note\n");
+  const report = recorder();
+  expect(syncShared(origin, [], report)).toBe(0);
+  expect(pin()).toBe(before);
+  expect(report.lines).toContain(
+    "lib: left at the old pin: it has uncommitted changes",
+  );
+});

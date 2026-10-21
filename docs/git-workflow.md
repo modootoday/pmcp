@@ -94,3 +94,8 @@ the mainline: `install` (argv), `install_when_changed` (paths; when no
 `[git.submodules]`: `follow = "clean_pins"` (the default when the table is
 present) moves submodules to the pinned commit when they are clean; `"off"`
 leaves them. Without the table submodules are not followed.
+`shared` lists submodules other sessions also edit in the main checkout (a
+brand app, for example): those move to the new pin even with uncommitted edits, as
+long as no edited or untracked file is one the pin changes. When one is, the
+submodule stays on the old pin and sync names the files; pmcp never restores,
+stashes or discards them.
