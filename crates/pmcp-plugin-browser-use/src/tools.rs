@@ -181,6 +181,14 @@ impl Tools for Browse {
             }
             return Out::Error(GONE.into());
         }
+        // Close is not raced against the browser's exit: Chromium exits during it, and the race
+        // dropped the cleanup midway, replying "went away" with the profile still on disk.
+        if name == "close" {
+            return self
+                .run(name, &args, &mut st)
+                .await
+                .unwrap_or_else(Out::Error);
+        }
         let pid = st.session.as_ref().map_or(0, |s| s.pid);
         let limit = Duration::from_secs(60);
         let work = tokio::time::timeout(limit, self.run(name, &args, &mut st));

@@ -153,3 +153,45 @@ async fn browses_an_approved_site_blocks_the_rest_and_leaves_nothing_behind() {
     assert!(left.is_empty(), "a profile stayed behind");
     let _ = std::fs::remove_dir_all(&root);
 }
+
+// Chromium exits during close, and every call races that exit; close was raced too, so its
+// reply could come before the profile was deleted, or end the cleanup before it began. Each
+// round lost that race about half the time on a loaded host.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn close_replies_only_once_the_profile_is_gone() {
+    let site = server(vec![("/", PAGE)]);
+    let root = std::env::temp_dir().join(format!("pmcp-browser-close-{}", std::process::id()));
+    let policy = Arc::new(Policy::parse(&[format!("127.0.0.1:{site}")]).unwrap());
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let proxy_port = listener.local_addr().unwrap().port();
+    let blocked: Blocked = Default::default();
+    tokio::spawn(proxy::serve(listener, policy, blocked.clone()));
+    let launch = Launch {
+        chromium: Some(chromium().expect("pinned Chromium (see pmcp-browser doctor)")),
+        profile: root.join("profiles"),
+        downloads: root.join("downloads"),
+        proxy_port,
+        display: None,
+    };
+    let b = Browse::new(launch, blocked);
+    let profiles = root.join("profiles");
+    for round in 0..5 {
+        let opened = text(
+            &b,
+            "navigate",
+            json!({ "url": format!("http://127.0.0.1:{site}/") }),
+        )
+        .await;
+        assert!(opened.starts_with("Form\n"), "round {round}: {opened}");
+        let closed = text(&b, "close", json!({})).await;
+        let left: Vec<_> = std::fs::read_dir(&profiles)
+            .map(|d| d.flatten().map(|e| e.file_name()).collect())
+            .unwrap_or_default();
+        assert!(closed.starts_with("closed;"), "round {round}: {closed}");
+        assert!(
+            left.is_empty(),
+            "round {round}: profile left at the reply: {left:?}"
+        );
+    }
+    let _ = std::fs::remove_dir_all(&root);
+}

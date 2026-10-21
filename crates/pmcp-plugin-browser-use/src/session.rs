@@ -207,8 +207,8 @@ impl Session {
         let profile = self.profile.clone();
         let _ = tokio::task::spawn_blocking(move || {
             crate::procs::sweep(&profile);
-            // A file written while the tree is removed fails the removal. Under host load the
-            // profile was seen left after a 2 s retry, so each retry sweeps again, up to 5 s.
+            // A file written while the tree is removed fails the removal, so each retry sweeps
+            // again, up to 5 s. The caller must not cancel this: see close in tools.rs.
             let end = std::time::Instant::now() + std::time::Duration::from_secs(5);
             while std::fs::remove_dir_all(&profile).is_err()
                 && profile.exists()
