@@ -36,9 +36,11 @@ jobs:
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
     steps:
+      # The whole history and its tags: the release notes start at the previous release.
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false
+          fetch-depth: 0
       - id: tag
         run: |
           version="v$(node -p 'require("./package.json").version')"
@@ -47,13 +49,32 @@ jobs:
       - name: Check the tag matches package.json
         if: github.event_name == 'push'
         run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
-      # After a bootstrap the release already exists (published by hand); reuse it.
+      # The notes come from the commit subjects since the previous published release
+      # (scripts/release/notes.mjs). A rehearsal also shows them, with any subject that is not
+      # conventional, in the job summary before anything is tagged.
+      - name: Release notes
+        run: |
+          published="$(gh release list --limit 100 --json tagName,isDraft --jq '[.[] | select(.isDraft | not) | .tagName] | join(",")')"
+          to="$GITHUB_SHA"
+          if [ "$MODE" = publish ]; then to="$GITHUB_REF_NAME"; fi
+          node scripts/release/notes.mjs --to "$to" --published "$published" > notes.md
+          if [ "$MODE" != publish ]; then
+            node scripts/release/notes.mjs --to "$to" --published "$published" --summary >> "$GITHUB_STEP_SUMMARY"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+      # After a bootstrap the release already exists (published by hand); reuse it, and give a
+      # draft the current notes.
       - run: |
           tag="${{ steps.tag.outputs.tag }}"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "release $tag exists; reusing it"
+            if [ "$(gh release view "$tag" --json isDraft --jq .isDraft)" = true ]; then
+              gh release edit "$tag" --notes-file notes.md
+            fi
           else
-            gh release create "$tag" --draft --title "$tag" --notes "Building" --target "$GITHUB_SHA"
+            gh release create "$tag" --draft --title "$tag" --notes-file notes.md --target "$GITHUB_SHA"
           fi
         env:
           GH_TOKEN: ${{ github.token }}
@@ -177,7 +198,7 @@ jobs:
           bash scripts/release/publish.sh ./packed
       - name: Mark the release published
         if: env.MODE == 'publish' && steps.publish.outputs.published != '0'
-        run: gh release edit "$RELEASE_TAG" --draft=false --notes "Published to npm"
+        run: gh release edit "$RELEASE_TAG" --draft=false
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}

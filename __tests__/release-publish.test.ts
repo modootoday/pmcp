@@ -146,3 +146,34 @@ it("removes a rehearsal draft without asking for a tag that never existed", () =
   expect(step?.run).toContain("gh release delete");
   expect(step?.run).not.toContain("--cleanup-tag");
 });
+
+// The draft carries the generated notes from the start; publishing must not replace them, and a
+// rehearsal shows them (with non-conventional subjects) before anything is tagged.
+it("writes the generated notes into the draft and the rehearsal summary", () => {
+  const workflow = parse(
+    readFileSync(join(root, ".github/workflows/release.yml"), "utf8"),
+  ) as {
+    jobs: Record<
+      string,
+      {
+        steps: {
+          name?: string;
+          run?: string;
+          with?: Record<string, unknown>;
+        }[];
+      }
+    >;
+  };
+  const draft = workflow.jobs.draft!.steps;
+  expect(draft[0]!.with?.["fetch-depth"]).toBe(0);
+  const notes = draft.find((step) => step.name === "Release notes")?.run ?? "";
+  expect(notes).toContain("scripts/release/notes.mjs");
+  expect(notes).toContain('--summary >> "$GITHUB_STEP_SUMMARY"');
+  expect(draft.map((step) => step.run ?? "").join("\n")).toContain(
+    "--notes-file notes.md",
+  );
+  const mark = workflow.jobs.publish!.steps.find(
+    (step) => step.name === "Mark the release published",
+  );
+  expect(mark?.run).not.toContain("--notes");
+});
