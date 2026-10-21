@@ -73,49 +73,49 @@ once no 0.17 checkpoint is left). Scripts that called the removed
 - tmux is no longer used or required. Native sessions run in pmcp-pty, a PTY
   host with one daemon per harness group, and `pmcp tui` draws the workspace
   with pmcp-tui. Groups and workspaces created by 0.17 and earlier are not
-  migrated: stop them as in Upgrading from 0.17, then start a new one.
+  migrated: stop them as in Upgrading from 0.17, then start a new one. (29bad53: `src/harness/adapters/terminal/`)
 - The `pmcp tui` view operations (`create`, `open`, `close`, `stop` and the
   others taking `--view`) and their options are removed. `pmcp tui`,
-  `plan`, `recovery`, `doctor` and `start-worker` remain.
+  `plan`, `recovery`, `doctor` and `start-worker` remain. (29bad53: `src/commands/tui/invocation.ts`)
 - Harness session records hold the pmcp-pty session, host instance and
-  process id instead of tmux pane identities.
+  process id instead of tmux pane identities. (29bad53: `src/harness/contracts.ts`)
 - The terminal workspace and harness need Linux (glibc 2.35 or later) or
   macOS. On Linux a user systemd manager caps each session's memory; macOS
-  runs sessions uncapped. Windows is not supported yet.
+  runs sessions uncapped. Windows is not supported yet. (29bad53: `src/harness/platform.ts`)
 
 ### Terminal host and workspace
 
 - pmcp-pty hosts native runtimes with guarded writes, per-runtime screen
   profiles, turn detection from hook events, and a lease that refuses any
-  other writer while someone holds control.
+  other writer while someone holds control. (29bad53: `crates/pmcp-pty/`)
 - pmcp-tui shows main, a worker dock and a coordination panel, with explicit
-  control, history and mailbox views, read only until you take control.
+  control, history and mailbox views, read only until you take control. (29bad53: `crates/pmcp-tui/`)
 - npm installs pmcp-pty and pmcp-tui through a platform package
   (`@modootoday/pmcp-<os>-<cpu>`) for Linux and macOS on x64 and arm64.
   `PMCP_PTY_BIN` and `PMCP_TUI_BIN` override it. The macOS binaries are
-  unsigned.
+  unsigned. (29bad53: `scripts/platform-packages.mjs`)
 - `[host]` in pmcp.toml declares which tool dialogs a host you approved may
-  answer; login, authentication and trust prompts are never answered.
-- `pmcp harness host up`, `down` and `unit` manage a host for the project.
+  answer; login, authentication and trust prompts are never answered. (29bad53: `src/project/host-spec.ts`)
+- `pmcp harness host up`, `down` and `unit` manage a host for the project. (29bad53: `src/commands/harness/host.ts`)
 
 ### Browser and desktop
 
 - pmcp-browser runs an isolated, headless Chromium over MCP that reaches
   public sites only. pmcp-desktop drives an Xvfb desktop through screenshots
   and input. Both ship in the Linux platform package; name them bare in
-  `[mcp.<alias>] command` and `pmcp project` resolves the installed binary.
+  `[mcp.<alias>] command` and `pmcp project` resolves the installed binary. (29bad53: `crates/pmcp-plugin-browser-use/`, `crates/pmcp-plugin-computer-use/`)
 
 ### Hooks, sessions and project configuration
 
 - `[hooks]` compiles to one hook bundle projected for Claude Code, Codex,
   Gemini CLI, Grok, Antigravity and opencode, with guards for secrets,
-  staging, pushes and worktrees.
-- Sessions: a files-based session store, `pmcp sessions`, an addressed
-  mailbox, and waking idle recipients.
+  staging, pushes and worktrees. (29bad53: `src/hooks/`)
+- Sessions: see who else works in the repository (`pmcp sessions status`),
+  pause them, send addressed messages and wake idle sessions. (29bad53: `src/sessions/`)
 - `pmcp logs` reads the project's JSONL logs, with rotation and retention set
-  by `[logging]`.
-- `pmcp git` creates and syncs worktrees and delivers commits to the mainline.
-- `pmcp mcp` shares remote MCP authentication across runtimes.
+  by `[logging]`. (29bad53: `src/logging/`)
+- `pmcp git` creates and syncs worktrees and delivers commits to the mainline. (29bad53: `src/git/`)
+- `pmcp mcp` shares remote MCP authentication across runtimes. (29bad53: `src/mcp-auth/`)
 - `pmcp status`, `pmcp init`, `pmcp hooks` and `pmcp completion` are new;
   `[permissions.claude]`, `[catalog.validation]` and declared marketplaces
-  are projected from pmcp.toml.
+  are projected from pmcp.toml. (29bad53: `src/commands/specs/inspection.ts`, `src/project/permissions.ts`)
