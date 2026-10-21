@@ -44,6 +44,7 @@ function history() {
     "fix(api): rename a field\n\nBREAKING CHANGE: clients read `id` instead of `key`.",
   );
   commit("Update things");
+  commit("chore: release tool 1.0.2");
   git("tag", "v1.0.2");
   return cwd;
 }
@@ -87,6 +88,7 @@ it("groups by type in a fixed order, breaking changes first with their footer", 
   );
   expect(text.slice(order[4])).toContain("tidy the scripts");
   expect(text.slice(order[4])).toContain("Update things");
+  expect(text).not.toContain("release tool 1.0.2");
   expect(text).toMatch(
     /\(\[[0-9a-f]{7}\]\(https:\/\/github\.com\/acme\/tool\/commit\/[0-9a-f]{40}\)\)/u,
   );

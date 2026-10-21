@@ -12,6 +12,8 @@ const GROUPS = [
 ];
 const SUBJECT = /^(\w+)(?:\(([^)]*)\))?(!)?: (.+)$/u;
 const FOOTER = /^BREAKING[ -]CHANGE: ([\s\S]+?)(?:\n\n|$)/mu;
+// The version bump the release is tagged on says nothing a reader needs.
+const BUMP = /^chore: release \S+ \d+\.\d+\.\d+/u;
 
 const git = (args, cwd) => execFileSync("git", args, { cwd, encoding: "utf8" });
 
@@ -64,7 +66,9 @@ function group(commit) {
 
 export function notes({ to, published, repo, cwd, summary = false }) {
   const from = previousTag(to, published, cwd);
-  const list = commits(from, to, cwd);
+  const list = commits(from, to, cwd).filter(
+    (commit) => !BUMP.test(commit.subject),
+  );
   const url = `https://github.com/${repo}`;
   const line = (commit) => {
     const label = commit.scope
