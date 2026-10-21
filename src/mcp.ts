@@ -24,7 +24,7 @@ import type { MailboxService } from "./mailbox/service.js";
 
 export const SERVER_NAME = "pmcp";
 
-export const SERVER_VERSION = "0.18.0";
+export const SERVER_VERSION = "0.18.1";
 
 // Export registration separately so existing MCP hosts need not start another server process.
 export function registerSkillTools(

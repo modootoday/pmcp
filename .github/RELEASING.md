@@ -9,9 +9,10 @@ keeps the draft release `v<version>` with one binary archive per target.
 
 ## Release checklist
 
-1. Version: set it in `package.json` (then `bun install` updates `bun.lock`),
-   `src/commands/version.ts`, `src/mcp.ts`, `release-manifest.json` and each
-   `crates/*/Cargo.toml` (then `cargo update -w` in each crate). Run
+1. Version: set it in `package.json`, `src/commands/version.ts`, `src/mcp.ts`,
+   `release-manifest.json` and each `crates/*/Cargo.toml`. Then run
+   `cargo update -w` in each crate, and `cargo update -p pmcp-plugin-support` in
+   the two plugin crates, whose lockfiles also record that path dependency. Run
    `bun run marketplace:build`: the plugin and extension manifests, including the
    bridge's `npx @modootoday/pmcp@<version>`, follow `package.json`.
 2. `CHANGELOG.md`: turn Unreleased into the version, each line with its commit or
@@ -22,7 +23,9 @@ keeps the draft release `v<version>` with one binary archive per target.
    in [CONTRIBUTING.md](../CONTRIBUTING.md) for every crate.
 5. Publish as below, then confirm npm serves it:
    `npm view @modootoday/pmcp@<version> version` for the main package and each
-   platform package.
+   platform package. For a few minutes after a publish, npm can show the new
+   release as a `0.0.0`-stage version before the real one appears; wait and look
+   again before treating it as a failed publish.
 
 ## Packages
 

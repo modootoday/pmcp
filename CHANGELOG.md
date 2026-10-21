@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.18.1 - 2026-10-21
 
 ### New
 
@@ -23,6 +23,9 @@
 
 ### Fixes
 
+- smol-toml 1.9.0 fixes a quadratic-time `parse()` on documents with many key
+  lines (GHSA-r4xh-jqrq-34v2, moderate), which `npm audit` reported for 0.18.0.
+  (dea8fc1)
 - The release and cross-OS workflows build the Intel macOS binaries on
   `macos-15-intel`; GitHub retired the macOS 13 image, so the job never started.
 - The arm64 macOS binaries and tests run on `macos-15`; GitHub marks the macOS
