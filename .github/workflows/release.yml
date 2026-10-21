@@ -162,8 +162,8 @@ jobs:
       - name: Pack
         run: |
           mkdir -p packed
-          for dir in platform/*/; do npm pack "$dir" --pack-destination packed; done
-          npm pack --pack-destination packed
+          for dir in ./platform/*/; do npm pack "$dir" --pack-destination ./packed; done
+          npm pack --pack-destination ./packed
           ls -l packed
       # npm Trusted Publishing: npm exchanges this job's OIDC token (id-token: write) for a
       # short-lived publish credential, so no npm token is stored. It needs npm 11.5.1 or later,
@@ -185,8 +185,8 @@ jobs:
               published=$((published + 1))
             fi
           }
-          for archive in packed/modootoday-pmcp-linux-*.tgz packed/modootoday-pmcp-darwin-*.tgz; do publish "$archive"; done
-          publish "packed/modootoday-pmcp-$(node -p 'require("./package.json").version').tgz"
+          for archive in ./packed/modootoday-pmcp-linux-*.tgz ./packed/modootoday-pmcp-darwin-*.tgz; do publish "$archive"; done
+          publish "./packed/modootoday-pmcp-$(node -p 'require("./package.json").version').tgz"
           if [ "$published" -gt 0 ]; then
             gh release edit "$RELEASE_TAG" --draft=false --notes "Published to npm"
           else

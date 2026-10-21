@@ -7,6 +7,11 @@ environment. By hand (workflow_dispatch) it never publishes: mode `dry-run`
 builds and packs everything and deletes its draft release; mode `bootstrap`
 keeps the draft release `v<version>` with one binary archive per target.
 
+Neither mode runs `npm publish`, so a dry run does not test the publish step. Every path
+handed to `npm publish` or `npm pack` starts with `./` or `/`: npm reads `packed/<name>.tgz`
+as a GitHub `owner/repo` shorthand, which is how the first 0.18.1 tag run failed.
+`__tests__/release-paths.test.ts` checks the workflow and this page for it.
+
 ## Release checklist
 
 1. Version: set it in `package.json`, `src/commands/version.ts`, `src/mcp.ts`,
@@ -60,7 +65,7 @@ a host logged in to npm, without provenance:
      mkdir -p "bins/$target" && tar -C "bins/$target" -xzf "$archive"
      node scripts/platform-packages.mjs --target "$target" --bin-dir "bins/$target" --out platform
    done
-   for dir in platform/*/; do npm publish "$dir" --access public; done
+   for dir in ./platform/*/; do npm publish "$dir" --access public; done
    node scripts/platform-packages.mjs --optional-dependencies > optional.json
    node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("package.json"));p.optionalDependencies={...p.optionalDependencies,...JSON.parse(fs.readFileSync("optional.json"))};fs.writeFileSync("package.json",JSON.stringify(p,null,2)+"\n")'
    npm publish --access public
