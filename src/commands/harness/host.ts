@@ -4,6 +4,10 @@ import { ArgumentError, type CommandContext } from "../../cli/command.js";
 import { approvalDir, approvalState } from "../../project/host-approval.js";
 import { approveHost } from "../../harness/host/approve.js";
 import { hostDoctor } from "../../project/host.js";
+import {
+  hostVerbUnsupported,
+  unsupportedReceipt,
+} from "../../harness/platform.js";
 import { specFrom } from "../project/spec-from.js";
 
 async function ask(question: string): Promise<string> {
@@ -28,6 +32,11 @@ export async function runHost(context: CommandContext): Promise<number> {
     throw new ArgumentError(`Provide host ${VERBS.join(" | ")}`);
   const spec = specFrom(context);
   if (!spec.host) throw new ArgumentError("pmcp.toml has no [host] table");
+  const refused = hostVerbUnsupported(verb);
+  if (refused) {
+    context.ui.data(`${JSON.stringify(unsupportedReceipt(refused))}\n`);
+    return 1;
+  }
   if (verb === "up" || verb === "down" || verb === "unit") {
     const { runHostVerb } = await import("./host-run.js");
     return runHostVerb(verb, spec, context);

@@ -6,7 +6,10 @@ import { join } from "node:path";
 import { describe, expect, it, type TestContext } from "vitest";
 
 import { defaultPtySocket } from "../src/harness/adapters/pty/client.js";
-import { unsupportedHost } from "../src/harness/platform.js";
+import {
+  hostVerbUnsupported,
+  unsupportedHost,
+} from "../src/harness/platform.js";
 import {
   flockAvailable,
   lockFile,
@@ -83,5 +86,17 @@ describe("one socket default on every supported system", () => {
     expect(unsupportedHost("darwin")).toBeUndefined();
     expect(unsupportedHost("win32")).toMatch(/^Windows is not supported yet/u);
     expect(unsupportedHost("freebsd")).toMatch(/not supported yet/u);
+  });
+
+  // host up starts pmcp-pty in a systemd scope; on macOS it used to fail inside systemd-run.
+  it("keeps host up and host unit to Linux and says what to use instead", () => {
+    for (const verb of ["up", "unit"]) {
+      expect(hostVerbUnsupported(verb, "linux")).toBeUndefined();
+      expect(hostVerbUnsupported(verb, "darwin")).toMatch(
+        new RegExp(`^pmcp harness host ${verb} needs Linux.*pmcp tui`, "u"),
+      );
+    }
+    for (const verb of ["approve", "status", "down"])
+      expect(hostVerbUnsupported(verb, "darwin")).toBeUndefined();
   });
 });

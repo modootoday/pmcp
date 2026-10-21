@@ -41,13 +41,14 @@ unreachable manager returns native_user_manager_unavailable.
 The doctor report lists prerequisites and does not certify cgroup delegation.
 An ordinary isolated Docker container usually lacks this user manager and a
 writable delegated cgroup subtree. Container resource limits alone do not
-qualify the native session controls; the current profile requires its Linux host.
+qualify the native session controls; they need the Linux or macOS host itself.
 
 ## Choose native or Docker execution
 
-The default native profile starts executables on the Linux host. The optional
-Docker profile keeps the same host-side pmcp-pty and user-systemd controller, while
-each native executable runs in its own bounded container. Docker does not
+The default native profile starts executables on the host, Linux or macOS. The
+optional Docker profile needs Linux: it keeps the same host-side pmcp-pty and
+user-systemd controller, while each native executable runs in its own bounded
+container. Docker does not
 replace the host prerequisites above. Only a local Docker Engine is supported.
 
 Prepare an image locally with your runtime installed. PMCP requires its exact
@@ -308,6 +309,9 @@ outside any group (see
 [Sessions pmcp-pty hosts](project-configuration.md#sessions-pmcp-pty-hosts)).
 After `pmcp project` and your own `pmcp harness host approve`:
 
+`host up` and `host unit` need Linux with a user systemd manager. On macOS they
+stop with `platform_unsupported`; use `pmcp tui` or a harness group there.
+
 - `pmcp harness host up` starts pmcp-pty if its socket (`PMCP_PTY_SOCKET`, else
   `$XDG_RUNTIME_DIR/pmcp-pty.sock`) does not answer, in a transient
   `systemd-run --user --scope` capped at 4G and loading the approved copy with
@@ -404,8 +408,8 @@ unregistered owned sessions. recovery reconcile removes a writer lock only
 after its controller has exited and never resends input. Use recovery
 stop-orphan for a named unregistered session, or recovery replace-main with a
 new main specification after the previous main has stopped. Replacement changes
-the generation and invalidates old control credentials. Unknown server or pane
-identity fails closed; no session is silently adopted.
+the generation and invalidates old control credentials. An unknown host instance
+or session identity fails closed; no session is silently adopted.
 
 Include pending starts explicitly when inspecting a failed launch:
 
@@ -418,7 +422,7 @@ abort-start stops a named incomplete launch and marks any saved group reference
 as stopped. It neither adopts the session nor restarts it. A committed session
 uses session stop instead. If the start gate died before recording ownership,
 automatic cleanup is refused and admission remains blocked for administrative
-repair. Keep the private state directory as evidence; do not guess a pane target
+repair. Keep the private state directory as evidence; do not guess a session id
 or resend an uncertain request.
 
 ## Layout planning
