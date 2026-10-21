@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.18.1 - 2026-10-21
+## 0.18.2 - 2026-10-21
+
+The first release after 0.18.0. v0.18.1 was tagged but never published to npm: its
+publish step failed on a path npm read as a GitHub shorthand, before any package was
+uploaded. Everything below ships in 0.18.2.
 
 ### New
 
@@ -23,6 +27,15 @@
 
 ### Fixes
 
+- The release workflow hands npm explicit `./` paths; 0.18.1's publish failed
+  because npm read `packed/<name>.tgz` as a GitHub `owner/repo` shorthand.
+  (33d9383)
+- Every release mode runs the same publish script: dry-run and bootstrap
+  rehearse it with `npm publish --dry-run`, a failed publish reports which
+  packages reached npm with the recovery steps, and a rerun skips what is
+  already published. (e963375)
+- pmcp-browser's `close` leaves no browser process behind even when Chromium
+  starts a helper while shutting down. (164cfb5)
 - smol-toml 1.9.0 fixes a quadratic-time `parse()` on documents with many key
   lines (GHSA-r4xh-jqrq-34v2, moderate), which `npm audit` reported for 0.18.0.
   (dea8fc1)
@@ -42,6 +55,10 @@
   `pmcp init` and `[catalog.validation]` correctly. (44cd959)
 - The pmcp.build pages no longer say the harness needs tmux, and the commands
   page lists `pmcp harness host` and `pmcp harness mcp`. (7315b23)
+
+## 0.18.1 - 2026-10-21
+
+Tagged, never published to npm; its changes ship in 0.18.2.
 
 ## 0.18.0
 
