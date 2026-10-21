@@ -92,7 +92,7 @@ describe("built-in public marketplace", () => {
       readCatalog({ roots: [], marketplaces: [publicRoot] }).filter(
         (entry) => entry.kind === undefined || entry.kind === "skill",
       ),
-    ).toHaveLength(142);
+    ).toHaveLength(144);
   });
   it("opts out through either flags or canonical configuration", () => {
     const root = temporary();

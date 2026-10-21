@@ -75,7 +75,7 @@ describe("pmcp plugin manifests", () => {
 describe("canonical pmcp skills", () => {
   it("generates plugins/pmcp/skills from every root skill and ships no evals", () => {
     const canonical = readdirSync(join(root, "skills")).sort();
-    expect(canonical).toHaveLength(7);
+    expect(canonical).toHaveLength(9);
     expect(canonical).not.toContain("skill-catalog-navigator");
     expect(readdirSync(join(root, "plugins/pmcp/skills")).sort()).toEqual(
       canonical,
