@@ -44,7 +44,10 @@ the main checkout, like `state_dir`), `lock_wait_seconds`
 environment variable name) and `log_dir` (default `<dir of tree>/logs`). Each
 gate's full output goes to `<log_dir>/<UTC time>-<tip>.log` as well as the
 terminal; pmcp names the file when the gate starts and again if it fails, and
-keeps the newest 20.
+keeps the newest 20. With `max_load` (the 1-minute load average, e.g. `6`) a
+delivery that holds the lock waits until the load is below it before the gate starts,
+checking every 15 seconds for up to `load_wait_seconds` (default `1800`), and then
+fails without running the gate; once started, a gate is never retried.
 
 One delivery gates at a time: pmcp takes an exclusive `flock` on the file `lock`
 beside the gate tree (`<dir of tree>/lock`), so another tool that takes the same

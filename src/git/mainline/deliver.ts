@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { loadavg } from "node:os";
 import { git, gitText, runCommand } from "../exec.js";
 import { isAncestor, touchedPaths, undelivered } from "../landed.js";
 import type {
@@ -39,6 +41,9 @@ export interface DeliverOptions {
   readonly report: Reporter;
   // Filled in as the delivery runs; set by deliver itself.
   readonly track?: Track;
+  // The 1-minute load average and the poll interval; tests replace them.
+  readonly loadavg?: () => number;
+  readonly loadPollMs?: number;
 }
 
 export interface DeliverReceipt {
@@ -148,6 +153,39 @@ function attempts(options: DeliverOptions): number {
   return 1;
 }
 
+// Under the lock, so no other gate starts meanwhile and adds to the load; nothing is retried
+// once the gate runs. Linux /proc/loadavg; os.loadavg() elsewhere.
+function hostLoad(): number {
+  try {
+    return Number(readFileSync("/proc/loadavg", "utf8").split(" ")[0]);
+  } catch {
+    return loadavg()[0] ?? 0;
+  }
+}
+
+function loadAllows(options: DeliverOptions): boolean {
+  const max = options.gate?.maxLoad;
+  if (max === undefined) return true;
+  const read = options.loadavg ?? hostLoad;
+  const wait = options.gate?.loadWaitSeconds ?? 1800;
+  const poll = options.loadPollMs ?? 15_000;
+  const deadline = Date.now() + wait * 1000;
+  let load = read();
+  if (load < max) return true;
+  options.report.info(
+    `waiting for load ${load.toFixed(2)} to fall below ${max}`,
+  );
+  while (Date.now() < deadline) {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, poll);
+    load = read();
+    if (load < max) return true;
+  }
+  options.report.warn(
+    `load stayed at or above ${max} for ${wait}s (now ${load.toFixed(2)}); nothing ran`,
+  );
+  return false;
+}
+
 function underLock(options: DeliverOptions): number {
   const { lock } = gateTree(options.tree);
   const wait = options.gate?.lockWaitSeconds ?? 5400;
@@ -178,6 +216,7 @@ function underLock(options: DeliverOptions): number {
     checkout: options.ctx.root,
   });
   try {
+    if (!loadAllows(options)) return 1;
     return attempts(options);
   } finally {
     held.release();

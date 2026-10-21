@@ -58,6 +58,14 @@ export class Reader {
     return value as number;
   }
 
+  positive(key: string): number | undefined {
+    const value = this.table[key];
+    if (value === undefined) return undefined;
+    if (typeof value !== "number" || !(value > 0))
+      this.fail(key, "a positive number");
+    return value;
+  }
+
   list(key: string): readonly string[] {
     const value = this.table[key] ?? [];
     if (!Array.isArray(value) || !value.every((v) => typeof v === "string"))

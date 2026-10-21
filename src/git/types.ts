@@ -31,6 +31,9 @@ export interface GateConfig {
   readonly treeEnv?: string;
   // Where each gate's full output is kept; default <dir of the gate tree>/logs.
   readonly logDir?: string;
+  // Wait, holding the lock, until the 1-minute load average is below this before the gate.
+  readonly maxLoad?: number;
+  readonly loadWaitSeconds?: number;
 }
 
 export interface DeliverConfig {
