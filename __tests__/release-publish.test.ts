@@ -10,6 +10,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, it } from "vitest";
+import { parse } from "yaml";
 
 const root = join(import.meta.dirname, "..");
 const version = JSON.parse(readFileSync(join(root, "package.json"), "utf8"))
@@ -131,4 +132,17 @@ it("reports which packages reached npm and how to recover", () => {
   expect(summary).toContain(`| \`@modootoday/pmcp@${version}\` | no |`);
   expect(summary).toContain("gh run rerun 123 --failed");
   expect(summary).toContain("never move or reuse the tag");
+});
+
+// The 0.18.2 rehearsal deleted its draft and then failed: a draft has no tag ref, so
+// gh release delete --cleanup-tag answered 422. The cleanup deletes the draft only.
+it("removes a rehearsal draft without asking for a tag that never existed", () => {
+  const workflow = parse(
+    readFileSync(join(root, ".github/workflows/release.yml"), "utf8"),
+  ) as { jobs: Record<string, { steps: { name?: string; run?: string }[] }> };
+  const step = workflow.jobs.publish!.steps.find(
+    (entry) => entry.name === "Remove the dry-run draft",
+  );
+  expect(step?.run).toContain("gh release delete");
+  expect(step?.run).not.toContain("--cleanup-tag");
 });

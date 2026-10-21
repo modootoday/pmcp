@@ -185,9 +185,10 @@ jobs:
       - name: Report what reached npm
         if: failure()
         run: bash scripts/release/report.sh
+      # A draft release has no tag ref, so there is no tag to clean up (--cleanup-tag fails with 422).
       - name: Remove the dry-run draft
         if: always() && env.MODE == 'dry-run'
-        run: gh release delete "$RELEASE_TAG" --yes --cleanup-tag
+        run: gh release delete "$RELEASE_TAG" --yes
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
