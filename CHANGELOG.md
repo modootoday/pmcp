@@ -1,18 +1,64 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- The pmcp plugin for Claude Code and Codex and the Gemini extension start
+  the pmcp release they ship in; in 0.18.0 they still started 0.13.1.
+  (0840cdc)
+- `pmcp harness host up` and `host unit` stop with `platform_unsupported` on
+  macOS instead of failing inside `systemd-run`. (b2d1e8d)
+- The pmcp-project-init and skill-package-scaffold skills describe
+  `pmcp init` and `[catalog.validation]` correctly. (44cd959)
+- The pmcp.build pages no longer say the harness needs tmux, and the commands
+  page lists `pmcp harness host` and `pmcp harness mcp`. (7315b23)
+
 ## 0.18.0
 
 This release replaces tmux with pmcp's own terminal host and adds project
 hooks, sessions and two MCP servers for browser and desktop use. As a 0.x minor
-release it contains breaking changes.
+release it contains breaking changes. (29bad53)
+
+### Upgrading from 0.17
+
+Stop what 0.17 started before you upgrade; 0.18 does not read tmux groups or
+views. With the 0.17 release that created them:
+
+```sh
+npx @modootoday/pmcp@0.17.4 tui recovery          # a workspace from bare pmcp: prints groupFile and generation
+npx @modootoday/pmcp@0.17.4 tui close --view "$VIEW_FILE"
+npx @modootoday/pmcp@0.17.4 harness group inspect --group-file "$GROUP_FILE"   # any other group: prints the generation
+npx @modootoday/pmcp@0.17.4 harness group stop --group-file "$GROUP_FILE" --generation "$GENERATION"
+```
+
+Then upgrade and start a new workspace with `pmcp tui --new` (plain `pmcp`
+once no 0.17 checkpoint is left). Scripts that called the removed
+`pmcp tui` view operations now get a usage error (exit 2).
+
+### Known issues
+
+- macOS binaries are unsigned. They run when installed through npm.
+  (`scripts/platform-packages.mjs`)
+- Windows is not supported: the harness, `pmcp tui` and pmcp-pty stop with
+  `platform_unsupported`. (`src/harness/platform.ts`)
+- `pmcp harness host up` and `host unit` need Linux with a user systemd
+  manager. In 0.18.0 they fail inside `systemd-run` on macOS; see Unreleased.
+  (`src/harness/host/daemon.ts`)
+- pmcp-browser and pmcp-desktop ship for Linux only.
+  (`scripts/platform-packages.mjs`)
+- The plugin for Claude Code and Codex and the Gemini extension start pmcp
+  0.13.1 for skill search; install the CLI for 0.18 features. Fixed in
+  Unreleased. (`scripts/marketplace/manifests.mjs`)
+- `[sessions.roles]` applies to Claude Code only; Codex sends no agent type.
+  (`docs/project-configuration.md`)
 
 ### Breaking
 
 - tmux is no longer used or required. Native sessions run in pmcp-pty, a PTY
   host with one daemon per harness group, and `pmcp tui` draws the workspace
   with pmcp-tui. Groups and workspaces created by 0.17 and earlier are not
-  migrated: close them with the release that created them, then start a new
-  one.
+  migrated: stop them as in Upgrading from 0.17, then start a new one.
 - The `pmcp tui` view operations (`create`, `open`, `close`, `stop` and the
   others taking `--view`) and their options are removed. `pmcp tui`,
   `plan`, `recovery`, `doctor` and `start-worker` remain.
