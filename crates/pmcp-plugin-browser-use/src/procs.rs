@@ -22,10 +22,16 @@ pub fn on_profile(profile: &Path) -> Vec<u32> {
         .collect()
 }
 
-/// HUP, then KILL, to whatever still runs on the profile.
+/// HUP, then KILL, to whatever still runs on the profile, until nothing does.
+/// A browser that is shutting down can start a helper after a look at /proc, so one pass may
+/// leave a process behind; the loop ends when a look finds none, or after a few seconds.
 pub fn sweep(profile: &Path) {
-    let left = on_profile(profile);
-    if !left.is_empty() {
+    let end = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    loop {
+        let left = on_profile(profile);
+        if left.is_empty() || std::time::Instant::now() >= end {
+            return;
+        }
         pmcp_plugin_support::reap::terminate(&left, pmcp_plugin_support::reap::GRACE);
     }
 }
