@@ -23,6 +23,8 @@
 
 ### Fixes
 
+- The release and cross-OS workflows build the Intel macOS binaries on
+  `macos-15-intel`; GitHub retired the macOS 13 image, so the job never started.
 - Links to a section of a guide page on pmcp.build open at that section;
   guide headings had no anchors. (446fb90)
 
