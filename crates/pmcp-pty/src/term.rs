@@ -32,11 +32,20 @@ pub struct Term {
 
 // A dim box border or prompt mark is the box itself, not a suggestion: blanking it would hide
 // the borders the empty-box patterns anchor on, and an empty box would read as a draft.
-fn is_frame(text: &str) -> bool {
+fn is_border(text: &str) -> bool {
     !text.is_empty()
-        && text.chars().all(|c| {
-            ('\u{2500}'..='\u{257F}').contains(&c) || matches!(c, '❯' | '>' | '›' | '\u{00A0}')
-        })
+        && text
+            .chars()
+            .all(|c| ('\u{2500}'..='\u{257F}').contains(&c) || c == '\u{00A0}')
+}
+
+// A mark glyph is the prompt only where a prompt sits, before any text on the row: the closing
+// > of a dim placeholder such as Try "how does <filepath> work?" is the suggestion, not the box.
+fn is_mark(text: &str, before: &str) -> bool {
+    matches!(text, "❯" | ">" | "›")
+        && before
+            .chars()
+            .all(|c| c.is_whitespace() || is_border(&c.to_string()))
 }
 
 impl Term {
@@ -64,7 +73,10 @@ impl Term {
             for c in 0..cols.get() {
                 match screen.cell(r, c) {
                     Some(cell) if cell.is_wide_continuation() => {}
-                    Some(cell) if cell.dim() && is_frame(cell.contents()) => {
+                    Some(cell)
+                        if cell.dim()
+                            && (is_border(cell.contents()) || is_mark(cell.contents(), &line)) =>
+                    {
                         line.push_str(cell.contents())
                     }
                     Some(cell) if cell.dim() || !cell.has_contents() => line.push(' '),
@@ -101,5 +113,33 @@ mod tests {
         };
         // The row is trimmed like every row, NBSP included, so profiles must not need it.
         assert_eq!(t.typed_text().trim_end(), "──────\n❯\n──────");
+    }
+
+    // Claude 2.1.305 drew the tip Try "how does <filepath> work?" dim, cell by cell; its closing
+    // > was kept as a prompt mark, the box read as neither empty nor a draft, and a fresh
+    // session stayed "starting" (pilot live check, 2026-10-21).
+    #[test]
+    fn a_dim_mark_glyph_inside_the_placeholder_is_not_the_prompt() {
+        let size = |n: u16| std::num::NonZeroU16::new(n).unwrap();
+        let mut parser =
+            vt100::Parser::new_with_callbacks(size(3), size(40), 0, TitleCb::default());
+        let row = "\x1b[38;5;244m──────\x1b[39m\r\n❯\u{00A0}\x1b[2mTry\x1b[7G\"how\x1b[12Gdoes\x1b[17G<filepath>\x1b[28Gwork?\"\x1b[22m\r\n\x1b[38;5;244m──────\x1b[39m";
+        parser.process(row.as_bytes());
+        let t = Term {
+            parser,
+            ring: Ring::new(64),
+            transcript: Transcript::new(),
+            last_output: Instant::now(),
+            last_output_wall: SystemTime::now(),
+            exit: None,
+            ever_idle: false,
+            version: None,
+        };
+        assert_eq!(t.typed_text().trim_end(), "──────\n❯\n──────");
+        let set = crate::profile::ProfileSet::parse(crate::profile::BUILTIN).unwrap();
+        let claude = set.get("claude").unwrap();
+        let m = claude.observe_typed(&t.screen_text(), &t.typed_text());
+        assert_eq!(m.input_empty, Some(true));
+        assert!(!claude.composer_missing(&m));
     }
 }
