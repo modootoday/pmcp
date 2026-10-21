@@ -19,18 +19,23 @@ order to do it in and the mistakes that cost a release before.
 1. Version: `package.json`, `src/commands/version.ts`, `src/mcp.ts`, `release-manifest.json`
    and each `crates/*/Cargo.toml`. Then `cargo update -w` in each crate and
    `cargo update -p pmcp-plugin-support` in the two plugin crates (their lockfiles record that
-   path dependency; a `--locked` build fails without it). Run `bun run marketplace:build`.
+   path dependency; a `--locked` build fails without it). Run `bun run marketplace:build`,
+   then `npm run build` and `node dist/cli.js project`: `pmcp.lock` records the pmcp version
+   that projected it, and `pmcp project --check` reports drift until it matches.
    Matching `0.x.y` strings in Cargo files can belong to other crates; check before changing.
 2. Release notes are generated from commit subjects since the previous published release.
    Commits follow `type(scope)!: summary` (CONTRIBUTING.md); mark a breaking change with `!`
    and a `BREAKING CHANGE:` footer, and update `docs/upgrading.md` and
-   `docs/known-issues.md`. Read the notes in the dry-run summary before tagging.
+   `docs/known-issues.md`. Preview them before pushing:
+   `node scripts/release/notes.mjs --to HEAD --published <published v* tags, comma-separated> --summary`,
+   and read them again in the dry-run summary.
 3. Checks, once: `bun run site:build`, `npm run build`, `npm run typecheck`, `npm test`,
-   `npm run docs:check`, and in each crate `cargo fmt --check`,
-   `cargo clippy --locked --all-targets` and `cargo test --locked -j 2`.
+   `npm run docs:check`, `npm run format:check` (no workflow runs it), and in each crate
+   `cargo fmt --check`, `cargo clippy --locked --all-targets` and `cargo test --locked -j 2`.
 4. Review what becomes public on a `git archive` of the commit: no home paths, account names,
    hosts, tokens or private repository names in files or commit messages.
-5. Push main.
+5. Commit as `chore: release pmcp <version>`, the last commit before the tag; the notes leave
+   it out. Push main.
 
 ## 2. Rehearse
 

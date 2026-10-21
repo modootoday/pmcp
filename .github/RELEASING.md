@@ -39,16 +39,18 @@ run with "Release <id> is gone"; run the workflow again.
    `cargo update -w` in each crate, and `cargo update -p pmcp-plugin-support` in
    the two plugin crates, whose lockfiles also record that path dependency. Run
    `bun run marketplace:build`: the plugin and extension manifests, including the
-   bridge's `npx @modootoday/pmcp@<version>`, follow `package.json`.
+   bridge's `npx @modootoday/pmcp@<version>`, follow `package.json`. Then
+   `npm run build` and `node dist/cli.js project`, so `pmcp.lock` records the new version.
 2. Release notes: the workflow writes them from the commit subjects since the previous
-   published release (`scripts/release/notes.mjs`). Read them in the dry-run summary; a
-   wrong or missing line means a commit subject to fix before tagging. Update
-   `docs/upgrading.md` for a breaking change and `docs/known-issues.md` for what is still
-   open or now fixed.
+   published release (`scripts/release/notes.mjs`); preview them locally with
+   `node scripts/release/notes.mjs --to HEAD --published <published tags> --summary`, and
+   read them in the dry-run summary; a wrong or missing line means a commit subject to fix
+   before tagging. Update `docs/upgrading.md` for a breaking change and
+   `docs/known-issues.md` for what is still open or now fixed.
 3. Docs and site: `bun run site:build`, then `npm run docs:check`. Pushing to
    main deploys pmcp.build (`pages.yml`); `bun run site:deployed` checks it.
-4. Checks: `npm run build`, `npm run typecheck`, `npm test`, and the Rust checks
-   in [CONTRIBUTING.md](../CONTRIBUTING.md) for every crate.
+4. Checks: `npm run build`, `npm run typecheck`, `npm test`, `npm run format:check`, and the
+   Rust checks in [CONTRIBUTING.md](../CONTRIBUTING.md) for every crate.
 5. Publish as below, then confirm npm serves it:
    `npm view @modootoday/pmcp@<version> version` for the main package and each
    platform package. For a few minutes after a publish, npm can show the new
