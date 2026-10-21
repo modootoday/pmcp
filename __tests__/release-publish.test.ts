@@ -143,7 +143,7 @@ it("removes a rehearsal draft without asking for a tag that never existed", () =
   const step = workflow.jobs.publish!.steps.find(
     (entry) => entry.name === "Remove the dry-run draft",
   );
-  expect(step?.run).toContain("gh release delete");
+  expect(step?.run).toContain("draft.sh delete");
   expect(step?.run).not.toContain("--cleanup-tag");
 });
 
@@ -169,8 +169,8 @@ it("writes the generated notes into the draft and the rehearsal summary", () => 
   const notes = draft.find((step) => step.name === "Release notes")?.run ?? "";
   expect(notes).toContain("scripts/release/notes.mjs");
   expect(notes).toContain('--summary >> "$GITHUB_STEP_SUMMARY"');
-  expect(draft.map((step) => step.run ?? "").join("\n")).toContain(
-    "--notes-file notes.md",
+  expect(draft.map((step) => step.run ?? "").join("\n")).toMatch(
+    /draft\.sh create .* notes\.md/u,
   );
   const mark = workflow.jobs.publish!.steps.find(
     (step) => step.name === "Mark the release published",

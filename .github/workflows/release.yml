@@ -35,6 +35,7 @@ jobs:
       contents: write
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
+      id: ${{ steps.release.outputs.id }}
     steps:
       # The whole history and its tags: the release notes start at the previous release.
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -64,18 +65,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-      # After a bootstrap the release already exists (published by hand); reuse it, and give a
-      # draft the current notes.
-      - run: |
-          tag="${{ steps.tag.outputs.tag }}"
-          if gh release view "$tag" >/dev/null 2>&1; then
-            echo "release $tag exists; reusing it"
-            if [ "$(gh release view "$tag" --json isDraft --jq .isDraft)" = true ]; then
-              gh release edit "$tag" --notes-file notes.md
-            fi
-          else
-            gh release create "$tag" --draft --title "$tag" --notes-file notes.md --target "$GITHUB_SHA"
-          fi
+      # Later jobs address the release by the id this step outputs, never by tag name
+      # (scripts/release/draft.sh).
+      - id: release
+        run: bash scripts/release/draft.sh create "${{ steps.tag.outputs.tag }}" notes.md
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -83,7 +76,7 @@ jobs:
   binaries:
     needs: draft
     env:
-      RELEASE_TAG: ${{ needs.draft.outputs.tag }}
+      RELEASE_ID: ${{ needs.draft.outputs.id }}
     strategy:
       fail-fast: true
       matrix:
@@ -126,15 +119,8 @@ jobs:
           done
           ls -l out
           tar -C out -czf "${{ matrix.target }}.tar.gz" .
-      # An archive already on the release (from the bootstrap) is the one that was published.
       - shell: bash
-        run: |
-          asset="${{ matrix.target }}.tar.gz"
-          if gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | grep -qx "$asset"; then
-            echo "skip: $asset is already on $RELEASE_TAG"
-          else
-            gh release upload "$RELEASE_TAG" "$asset"
-          fi
+        run: bash scripts/release/draft.sh upload "${{ matrix.target }}.tar.gz"
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -143,6 +129,7 @@ jobs:
     needs: [draft, binaries]
     env:
       RELEASE_TAG: ${{ needs.draft.outputs.tag }}
+      RELEASE_ID: ${{ needs.draft.outputs.id }}
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     environment: ${{ github.event_name == 'push' && 'npm' || '' }}
@@ -164,7 +151,7 @@ jobs:
       - run: npm run build
       - name: Platform packages
         run: |
-          gh release download "$RELEASE_TAG" --pattern "*.tar.gz" --dir bins
+          bash scripts/release/draft.sh download bins
           for archive in bins/*.tar.gz; do
             target="$(basename "$archive" .tar.gz)"
             mkdir -p "bins/$target"
@@ -198,7 +185,7 @@ jobs:
           bash scripts/release/publish.sh ./packed
       - name: Mark the release published
         if: env.MODE == 'publish' && steps.publish.outputs.published != '0'
-        run: gh release edit "$RELEASE_TAG" --draft=false
+        run: bash scripts/release/draft.sh publish
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -209,7 +196,7 @@ jobs:
       # A draft release has no tag ref, so there is no tag to clean up (--cleanup-tag fails with 422).
       - name: Remove the dry-run draft
         if: always() && env.MODE == 'dry-run'
-        run: gh release delete "$RELEASE_TAG" --yes
+        run: bash scripts/release/draft.sh delete
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
