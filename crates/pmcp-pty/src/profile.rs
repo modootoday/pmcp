@@ -25,6 +25,8 @@ struct ProfileSpec {
     #[serde(default)]
     busy: Vec<PatternSpec>,
     #[serde(default)]
+    authenticating: Vec<PatternSpec>,
+    #[serde(default)]
     input_empty: Vec<PatternSpec>,
     #[serde(default)]
     spinner: Vec<PatternSpec>,
@@ -73,6 +75,9 @@ pub struct Profile {
     pub delivery: Option<String>,
     dialogs: Vec<Pattern>,
     busy: Vec<Pattern>,
+    // A runtime signing in with nothing to choose (gemini's auth spinner): a state to wait out,
+    // not a question for a person.
+    authenticating: Vec<Pattern>,
     input_empty: Vec<Pattern>,
     spinner: Vec<Pattern>,
     input: Option<Pattern>,
@@ -83,6 +88,7 @@ pub struct ScreenMatch {
     pub dialog: Option<String>,
     pub dialog_source: Option<String>,
     pub busy: Option<String>,
+    pub authenticating: Option<String>,
     pub input_empty: Option<bool>,
 }
 
@@ -102,6 +108,7 @@ impl Profile {
             delivery: None,
             dialogs: Vec::new(),
             busy: Vec::new(),
+            authenticating: Vec::new(),
             input_empty: Vec::new(),
             spinner: Vec::new(),
             input: None,
@@ -111,6 +118,7 @@ impl Profile {
     pub fn observe(&self, screen_text: &str) -> ScreenMatch {
         let dialog = first_match(&self.dialogs, screen_text);
         let busy = first_match(&self.busy, screen_text);
+        let authenticating = first_match(&self.authenticating, screen_text);
         let input_empty = match self.input_empty.is_empty() {
             true => None,
             false => Some(first_match(&self.input_empty, screen_text).is_some()),
@@ -119,6 +127,7 @@ impl Profile {
             dialog: dialog.map(|p| p.name.clone()),
             dialog_source: dialog.and_then(|p| p.source.clone()),
             busy: busy.map(|p| p.name.clone()),
+            authenticating: authenticating.map(|p| p.name.clone()),
             input_empty,
         }
     }
@@ -130,6 +139,7 @@ impl Profile {
         input
             || first_match(&self.spinner, row).is_some()
             || first_match(&self.busy, row).is_some()
+            || first_match(&self.authenticating, row).is_some()
             || first_match(&self.input_empty, row).is_some()
     }
 
@@ -171,6 +181,7 @@ impl ProfileSet {
             profiles.push(Arc::new(Profile {
                 dialogs: compile(p.dialogs, &name)?,
                 busy: compile(p.busy, &name)?,
+                authenticating: compile(p.authenticating, &name)?,
                 input_empty: compile(p.input_empty, &name)?,
                 spinner: compile(p.spinner, &name)?,
                 input,

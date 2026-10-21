@@ -62,10 +62,12 @@ name = "selection-list"
 regex = '\(Use Enter to select, Esc to close\)'
 source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:6219"
 
-[[profiles.gemini.dialogs]]
+# The AuthInProgress spinner while gemini signs in: no options, it ends by itself (signed in, or
+# "Authentication timed out" after 180 s). A state to wait out, not a question (live, 2026-10-21).
+[[profiles.gemini.authenticating]]
 name = "auth-wait"
 regex = 'Waiting for (authentication|verification)\.\.\.'
-source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:14449,15691"
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:14449,15691; 0.65.0 interactiveCli AuthInProgress"
 
 [[profiles.gemini.busy]]
 name = "responding"

@@ -8,7 +8,14 @@ use std::time::{Duration, Instant};
 
 const WAIT_DEFAULT_MS: u64 = 30_000;
 const MAX_MS: u64 = 600_000;
-const NAMES: [&str; 5] = ["idle", "turn_end", "dialog", "exit", "output"];
+const NAMES: [&str; 6] = [
+    "idle",
+    "turn_end",
+    "dialog",
+    "authenticating",
+    "exit",
+    "output",
+];
 
 struct Seen {
     output: bool,
@@ -84,6 +91,7 @@ fn fires(name: &str, status: &str, seen: &Seen) -> bool {
         "idle" => status == "idle",
         "turn_end" => status == "idle" && (seen.output || seen.busy),
         "dialog" => status == "dialog",
+        "authenticating" => status == "authenticating",
         "exit" => status == "exited",
         _ => seen.output,
     }

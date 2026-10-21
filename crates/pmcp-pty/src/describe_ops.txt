@@ -1,7 +1,7 @@
 describe|read||This contract: ops, codes, profiles and policy state.
 list|read|labels:object|Sessions, filtered by labels.
 observe|read|id:string!,lines:integer|Status, dialog, input box and clean tail of one session.
-wait|read|id:string!,until:array!,timeout_ms:integer|Block until idle, turn_end, dialog, exit, output or a text match.
+wait|read|id:string!,until:array!,timeout_ms:integer|Block until idle, turn_end, dialog, authenticating, exit, output or a text match.
 read|read|id:string!,since:integer,max_chars:integer|Clean transcript from a cursor.
 screen|read|id:string!|Raw screen rows.
 tail|read|id:string!,bytes:integer,strip:boolean|Last raw output bytes.

@@ -196,3 +196,23 @@ fn opencode_reads_its_box_and_is_not_ready_before_it() {
         (None, true, None)
     );
 }
+
+// gemini's sign-in spinner has nothing to choose and ends by itself; reading it as a dialog made
+// callers stop for a person who could not help (pilot live checks, 2026-10-21).
+#[test]
+fn gemini_signing_in_is_authenticating_not_a_dialog() {
+    let set = builtin();
+    let gemini = set.get("gemini").unwrap();
+    let spinner =
+        "╭──────╮\n│ ⠋ Waiting for authentication... (Press Esc or Ctrl+C to cancel) │\n╰──────╯";
+    let m = gemini.observe(spinner);
+    assert_eq!(m.authenticating.as_deref(), Some("auth-wait"));
+    assert_eq!(m.dialog, None);
+    assert!(gemini.is_chrome("⠋ Waiting for authentication... (Press Esc or Ctrl+C to cancel)"));
+
+    // A sign-in a person must finish is still a question.
+    let opencode = set.get("opencode").unwrap();
+    let oauth = opencode.observe("Waiting for authorization…");
+    assert_eq!(oauth.dialog.as_deref(), Some("auth-connect"));
+    assert_eq!(oauth.authenticating, None);
+}

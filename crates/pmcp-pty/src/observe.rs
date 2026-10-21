@@ -23,6 +23,7 @@ pub fn snapshot(s: &Session, t: &mut Term) -> Snapshot {
     let quiet = idle_ms >= s.profile.idle_ms && matched.busy.is_none() && ready;
     let status = match () {
         _ if t.exit.is_some() => "exited",
+        _ if matched.authenticating.is_some() => "authenticating",
         _ if matched.dialog.is_some() => "dialog",
         _ if quiet => "idle",
         _ if !t.ever_idle => "starting",
@@ -71,7 +72,7 @@ pub fn observe(s: &Session, instance: &str, lines: Option<usize>) -> Value {
         "labels": s.labels,
         "pid": s.pid, "instance": instance, "alive": exit.is_none(),
         "exit_code": exit.as_ref().map(|e| e.code), "signal": exit.and_then(|e| e.signal),
-        "busy": snap.matched.busy, "idle_ms": snap.idle_ms,
+        "busy": snap.matched.busy, "authenticating": snap.matched.authenticating, "idle_ms": snap.idle_ms,
         "size": { "cols": cols_n.get(), "rows": rows_n.get() }, "next": t.transcript.next(),
     })
 }
