@@ -1,6 +1,6 @@
 ---
 name: pmcp-release
-description: Release a new pmcp version end to end - bump every version file, run the checks and the public-surface review, rehearse the release workflow in dry-run mode, confirm the npm trusted publishers, push the v<version> tag alone, have the maintainer approve the npm environment, then verify a fresh install - and recover from a failed run without moving the tag. Use when asked to release, publish, tag or bump pmcp, or when a release run is queued, failed or waiting for approval. Not for publishing a skill package or a library skill, and not for changing what pmcp does.
+description: Release a new pmcp version end to end - bump every version file, run the checks and the public-surface review, preview the generated release notes, rehearse the release workflow in dry-run mode when the release tooling changed, confirm the npm trusted publishers, push the v<version> tag alone, have the maintainer approve the npm environment, then verify a fresh install - and recover from a failed run without moving the tag. Use when asked to release, publish, tag or bump pmcp, or when a release run is queued, failed or waiting for approval. Not for publishing a skill package or a library skill, and not for changing what pmcp does.
 metadata:
   tier: open
   level: L3
@@ -26,9 +26,10 @@ order to do it in and the mistakes that cost a release before.
 2. Release notes are generated from commit subjects since the previous published release.
    Commits follow `type(scope)!: summary` (CONTRIBUTING.md); mark a breaking change with `!`
    and a `BREAKING CHANGE:` footer, and update `docs/upgrading.md` and
-   `docs/known-issues.md`. Preview them before pushing:
-   `node scripts/release/notes.mjs --to HEAD --published <published v* tags, comma-separated> --summary`,
-   and read them again in the dry-run summary.
+   `docs/known-issues.md`. Read them before tagging with the local preview, the same text the
+   tag run writes into the GitHub release:
+   `node scripts/release/notes.mjs --to HEAD --published <published v* tags, comma-separated> --summary`.
+   A wrong or missing line means a commit subject to fix before tagging.
 3. Checks, once: `bun run site:build`, `npm run build`, `npm run typecheck`, `npm test`,
    `npm run docs:check`, `npm run format:check` (no workflow runs it), and in each crate
    `cargo fmt --check`, `cargo clippy --locked --all-targets` and `cargo test --locked -j 2`.
@@ -37,9 +38,13 @@ order to do it in and the mistakes that cost a release before.
 5. Commit as `chore: release pmcp <version>`, the last commit before the tag; the notes leave
    it out. Push main.
 
-## 2. Rehearse
+## 2. Rehearse when the release tooling changed
 
-Run the release workflow by hand in mode `dry-run` on main and wait for it to pass. It builds
+A dry run is required only when `.github/workflows/release.yml` or anything under
+`scripts/release/` changed since the last published tag:
+`git diff --quiet v<last published>..HEAD -- .github/workflows/release.yml scripts/release`
+exits 1. Otherwise it is optional. Run the release workflow by hand in mode `dry-run` on main
+and wait for it to pass. It builds
 every target and runs the same publish script with `npm publish --dry-run` on the same paths,
 so a publish that would fail does so here. A job that stays queued for many minutes usually
 names a runner image GitHub has retired: check the runner-images list and move the label.
@@ -52,6 +57,8 @@ A draft titled `(release run <id> in progress, do not delete)` belongs to that r
    and publish permission. Confirm them right before tagging; RELEASING.md lists the fields.
 2. Tag the release commit and push that tag only: `git tag v<version> <commit>` and
    `git push origin refs/tags/v<version>`. Never `git push --tags`, which pushes every local tag.
+   The tag run builds every target, writes the generated notes into the release and waits for
+   the `npm` environment; there is no release text to write by hand.
 3. The publish job waits for the `npm` environment. Show the maintainer the five
    `name@version`, the commit and the run id, and approve only after they say yes in the
    conversation:

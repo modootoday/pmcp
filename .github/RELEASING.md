@@ -7,6 +7,10 @@ environment. By hand (workflow_dispatch) it never publishes: mode `dry-run`
 builds and packs everything and deletes its draft release; mode `bootstrap`
 keeps the draft release `v<version>` with one binary archive per target.
 
+The normal path is a version-bump commit, a push of main, and a push of the tag. The tag run
+writes the release notes, generated from the commit subjects, into the GitHub release; the
+`npm` environment approval is the one human step.
+
 Every mode runs the same publish script, `scripts/release/publish.sh`. A tag push
 publishes; `dry-run` and `bootstrap` rehearse with `npm publish --dry-run` on the same
 `./packed` paths, so a publish that would fail does so before any tag. Before 0.18.2 the
@@ -41,17 +45,23 @@ run with "Release <id> is gone"; run the workflow again.
    `bun run marketplace:build`: the plugin and extension manifests, including the
    bridge's `npx @modootoday/pmcp@<version>`, follow `package.json`. Then
    `npm run build` and `node dist/cli.js project`, so `pmcp.lock` records the new version.
-2. Release notes: the workflow writes them from the commit subjects since the previous
-   published release (`scripts/release/notes.mjs`); preview them locally with
-   `node scripts/release/notes.mjs --to HEAD --published <published tags> --summary`, and
-   read them in the dry-run summary; a wrong or missing line means a commit subject to fix
-   before tagging. Update `docs/upgrading.md` for a breaking change and
-   `docs/known-issues.md` for what is still open or now fixed.
+2. Release notes: the tag run writes them from the commit subjects since the previous
+   published release (`scripts/release/notes.mjs`). Read them before tagging with the local
+   preview, `node scripts/release/notes.mjs --to HEAD --published <published tags> --summary`;
+   a wrong or missing line means a commit subject to fix before tagging. Update
+   `docs/upgrading.md` for a breaking change and `docs/known-issues.md` for what is still
+   open or now fixed.
 3. Docs and site: `bun run site:build`, then `npm run docs:check`. Pushing to
    main deploys pmcp.build (`pages.yml`); `bun run site:deployed` checks it.
 4. Checks: `npm run build`, `npm run typecheck`, `npm test`, `npm run format:check`, and the
    Rust checks in [CONTRIBUTING.md](../CONTRIBUTING.md) for every crate.
-5. Publish as below, then confirm npm serves it:
+5. Dry run: required only when `.github/workflows/release.yml` or anything under
+   `scripts/release/` changed since the last published tag
+   (`git diff --quiet v<last published>..HEAD -- .github/workflows/release.yml scripts/release`
+   exits 1); otherwise optional. Run the workflow by hand in mode `dry-run` on main.
+6. Commit the bump as `chore: release pmcp <version>`, push main, then push the tag alone:
+   `git push origin refs/tags/v<version>`. Approve the `npm` environment when the run asks,
+   then confirm npm serves it:
    `npm view @modootoday/pmcp@<version> version` for the main package and each
    platform package. For a few minutes after a publish, npm can show the new
    release as a `0.0.0`-stage version before the real one appears; wait and look
