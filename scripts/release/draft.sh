@@ -2,16 +2,19 @@
 # The release that carries the binaries between jobs, addressed by its id from creation on.
 # A draft has no tag ref, so a lookup by tag name goes through a listing; the id names one release.
 # Usage: draft.sh create <tag> <notes-file> | upload <file> | download <dir> | publish | delete
-# Every command but create reads RELEASE_ID; all use GH_REPO and the gh CLI.
+# Every command but create reads RELEASE_ID (publish also RELEASE_TAG); all use GH_REPO and gh.
 set -euo pipefail
 
 releases="repos/$GH_REPO/releases"
+run="${GITHUB_SERVER_URL:-https://github.com}/$GH_REPO/actions/runs/${GITHUB_RUN_ID:-}"
+# A person browsing Releases sees a draft in use; the title and first line say whose it is.
+marker="> In use by release run"
 
 # The draft job read the release back by id, so a release missing later was deleted outside
 # this run; no step of this workflow deletes one before the publish job ends.
 present() {
   if ! gh api "$releases/$RELEASE_ID" --jq .id >/dev/null; then
-    echo "::error::Release $RELEASE_ID is gone: it was deleted outside this run after the draft job created it. Check the organization audit log (action:release) for who deleted it, then run the workflow again." >&2
+    echo "::error::Release $RELEASE_ID is gone: it was deleted outside this run after the draft job created it, for example by hand on the Releases page. The organization audit log (action:release) shows who deleted it; run the workflow again." >&2
     exit 1
   fi
 }
@@ -19,7 +22,13 @@ present() {
 case "${1:-}" in
   create)
     tag="$2"
-    notes="$3"
+    title="$tag (release run ${GITHUB_RUN_ID:-} in progress, do not delete)"
+    body="$(mktemp)"
+    {
+      echo "$marker $run, which publishes or deletes this draft. Do not edit or delete it by hand."
+      echo
+      cat "$3"
+    } >"$body"
     # After a bootstrap the release already exists (published by hand); reuse it, and give a
     # draft the current notes. sed reads the whole listing, so gh is never cut off mid-page.
     found="$(gh api "$releases" --paginate --jq ".[] | select(.tag_name == \"$tag\") | \"\(.id) \(.draft)\"" | sed -n 1p)"
@@ -27,11 +36,11 @@ case "${1:-}" in
       id="${found% *}"
       echo "release $tag exists ($id); reusing it"
       if [ "${found#* }" = true ]; then
-        gh api --method PATCH "$releases/$id" -F "body=@$notes" --jq .id >/dev/null
+        gh api --method PATCH "$releases/$id" -f "name=$title" -F "body=@$body" --jq .id >/dev/null
       fi
     else
       id="$(gh api --method POST "$releases" -f "tag_name=$tag" -f "target_commitish=$GITHUB_SHA" \
-        -f "name=$tag" -F draft=true -F "body=@$notes" --jq .id)"
+        -f "name=$title" -F draft=true -F "body=@$body" --jq .id)"
       echo "created draft $tag ($id)"
     fi
     # Read it back by id, so a release that cannot be addressed fails here, before any build.
@@ -68,7 +77,12 @@ case "${1:-}" in
     ;;
   publish)
     present
-    gh api --method PATCH "$releases/$RELEASE_ID" -F draft=false --jq .html_url
+    # The published release keeps the notes under its plain tag, without the in-use line.
+    body="$(mktemp)"
+    gh api "$releases/$RELEASE_ID" --jq .body | awk -v marker="$marker" \
+      'NR == 1 && index($0, marker) == 1 { skip = 1; next } skip && NR == 2 && $0 == "" { next } { print }' >"$body"
+    gh api --method PATCH "$releases/$RELEASE_ID" -f "name=$RELEASE_TAG" -F draft=false \
+      -F "body=@$body" --jq .html_url
     ;;
   delete)
     present

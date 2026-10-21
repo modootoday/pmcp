@@ -22,6 +22,10 @@ and which are not, keeps the draft release, and prints the recovery command. A p
 publish is safe: platform packages go first and the main package last, so no published
 main package names a platform package that is missing.
 
+While a run is in progress its draft is titled `<tag> (release run <id> in progress, do not
+delete)`; the run publishes or deletes it. Deleting it by hand on the Releases page fails the
+run with "Release <id> is gone"; run the workflow again.
+
 - Transient failure (registry, OIDC, network): `gh run rerun <run id> --failed`, then approve
   the `npm` environment again. Versions already on npm are skipped, so the rerun publishes
   only what is missing.

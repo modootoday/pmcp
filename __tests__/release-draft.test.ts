@@ -24,12 +24,14 @@ afterEach(() => {
 // ("<id> <draft>"), ASSETS the names already on release 42, GONE makes every read by id fail.
 const fakeGh = (dir: string) => `#!/bin/sh
 echo "$*" >> "${join(dir, "calls")}"
+for arg in "$@"; do case "$arg" in body=@*) cat "\${arg#body=@}" > "${join(dir, "body")}" ;; esac; done
 case "$*" in
   *"--jq .id")
     [ -n "$GONE" ] && { echo "HTTP 404: Not Found" >&2; exit 1; }
     echo 42 ;;
   "api repos/acme/tool/releases --paginate"*) [ -n "$FOUND" ] && echo "$FOUND" ;;
   "api --method POST repos/acme/tool/releases "*) echo 42 ;;
+  *"--jq .body") printf "%s\\n\\n%s\\n" "> In use by release run https://github.com/acme/tool/actions/runs/7, which publishes or deletes this draft." "### Fixes" ;;
   *"--jq .upload_url") echo 'https://uploads.github.com/repos/acme/tool/releases/42/assets{?name,label}' ;;
   *endswith*) printf '7 x86_64-apple-darwin.tar.gz\\n8 aarch64-apple-darwin.tar.gz\\n' ;;
   *"/assets --paginate"*) for name in $ASSETS; do echo "$name"; done ;;
@@ -57,6 +59,9 @@ function draft(env: Record<string, string> = {}) {
         GITHUB_SHA: "abc123",
         GITHUB_OUTPUT: join(dir, "output"),
         RELEASE_ID: "42",
+        RELEASE_TAG: "v1.2.3",
+        GITHUB_RUN_ID: "7",
+        GITHUB_SERVER_URL: "https://github.com",
         FOUND: "",
         ASSETS: "",
         GONE: "",
@@ -81,7 +86,12 @@ it("creates the draft with the notes and outputs its id after reading it back", 
   expect(post).toContain("tag_name=dry-run-1");
   expect(post).toContain("target_commitish=abc123");
   expect(post).toContain("draft=true");
-  expect(post).toContain("body=@notes.md");
+  expect(post).toContain(
+    "name=dry-run-1 (release run 7 in progress, do not delete)",
+  );
+  expect(d.read("body")).toBe(
+    "> In use by release run https://github.com/acme/tool/actions/runs/7, which publishes or deletes this draft. Do not edit or delete it by hand.\n\n### Fixes\n",
+  );
   expect(d.calls()).toContain("api repos/acme/tool/releases/42 --jq .id");
   expect(d.read("output")).toBe("id=42\n");
 });
@@ -92,8 +102,10 @@ it("reuses an existing release: a draft gets the current notes, a published one 
   expect(drafted.calls().some((call) => call.includes("--method POST"))).toBe(
     false,
   );
-  expect(drafted.calls()).toContain(
-    "api --method PATCH repos/acme/tool/releases/17 -F body=@notes.md --jq .id",
+  expect(drafted.calls()).toContainEqual(
+    expect.stringMatching(
+      /^api --method PATCH repos\/acme\/tool\/releases\/17 -f name=v1\.2\.3 \(release run 7 in progress, do not delete\) -F body=@\S+ --jq \.id$/u,
+    ),
   );
   expect(drafted.read("output")).toBe("id=17\n");
 
@@ -134,9 +146,13 @@ it("downloads, publishes and deletes the release by id", () => {
   expect(d.read("bins/aarch64-apple-darwin.tar.gz")).toBe("archive\n");
   expect(d.read("bins/x86_64-apple-darwin.tar.gz")).toBe("archive\n");
   expect(d.run("publish").status).toBe(0);
+  // The published release keeps the notes under its plain tag, without the in-use line.
+  expect(d.read("body")).toBe("### Fixes\n");
   expect(d.run("delete").status).toBe(0);
   expect(d.calls().filter((call) => call.includes("--method"))).toEqual([
-    "api --method PATCH repos/acme/tool/releases/42 -F draft=false --jq .html_url",
+    expect.stringMatching(
+      /^api --method PATCH repos\/acme\/tool\/releases\/42 -f name=v1\.2\.3 -F draft=false -F body=@\S+ --jq \.html_url$/u,
+    ),
     "api --method DELETE repos/acme/tool/releases/42",
   ]);
   for (const call of d.calls()) expect(call).not.toMatch(/^release /u);
@@ -155,6 +171,7 @@ it("says the release was deleted outside the run when a later job cannot find it
     expect(out.stderr).toContain(
       "Release 42 is gone: it was deleted outside this run",
     );
+    expect(out.stderr).toContain("by hand on the Releases page");
     expect(out.stderr).toContain("audit log");
     expect(d.calls()).toEqual(["api repos/acme/tool/releases/42 --jq .id"]);
   }

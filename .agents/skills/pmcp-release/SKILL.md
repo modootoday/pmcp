@@ -38,6 +38,7 @@ Run the release workflow by hand in mode `dry-run` on main and wait for it to pa
 every target and runs the same publish script with `npm publish --dry-run` on the same paths,
 so a publish that would fail does so here. A job that stays queued for many minutes usually
 names a runner image GitHub has retired: check the runner-images list and move the label.
+A draft titled `(release run <id> in progress, do not delete)` belongs to that run; leave it.
 
 ## 3. Publish
 
