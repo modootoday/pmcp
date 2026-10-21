@@ -18,21 +18,22 @@ allowance differently. Several fail quietly: the model announces the call and th
 with exit 0. So a CI job needs the right setting per tool and an assertion that the call
 happened.
 
-The settings below were measured with one headless MCP call per tool (Claude Code 2.1.289,
-Gemini CLI 0.38.2, Codex 0.131.0, Grok Build 1.0.46, Antigravity 1.2.16). Re-check after an
-upgrade; these flags move.
+The settings below were last measured with one headless MCP call per tool (Claude Code
+2.1.289, Gemini CLI 0.38.2, Codex 0.131.0, Grok Build 1.0.46, Antigravity 1.2.16); OpenCode,
+also a pmcp target, was not measured, so check its own permission settings before relying on
+a headless run. Re-check after an upgrade; these flags move.
 
 ## Permission per tool
 
 `<server>` is the MCP alias (the `[mcp.<alias>]` name), `<tool>` the tool name.
 
-| Tool | Command | What lets the call through |
-| --- | --- | --- |
-| Claude Code | `claude -p "<prompt>" --permission-mode default --allowedTools mcp__<server>__<tool>` | the `--allowedTools` rule; without it the call is blocked under `default` |
-| Gemini CLI | `gemini -p "<prompt>" --allowed-mcp-server-names <server> --allowed-tools mcp_<server>_<tool>` | one `--allowed-tools` flag per tool (a bare tool name does not match; the array form swallowed the prompt); the folder must be trusted; the flag is deprecated in favour of the Policy Engine |
-| Codex | `codex exec "<prompt>"` | nothing; `exec` allowed the call without a flag |
-| Grok Build | `grok -p "<prompt>" --permission-mode default --allow <server>__<tool>` | `--allow <server>__<tool>`; the Claude-style `mcp__<server>__<tool>` matches nothing |
-| Antigravity | `agy -p "<prompt>"` | a `permissions.allow` entry `mcp(<server>/<tool>)` in `~/.gemini/antigravity-cli/settings.json`; `mcp(<server>)` alone does not match, and an unlisted tool is auto-denied |
+| Tool        | Command                                                                                        | What lets the call through                                                                                                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Code | `claude -p "<prompt>" --permission-mode default --allowedTools mcp__<server>__<tool>`          | the `--allowedTools` rule; without it the call is blocked under `default`                                                                                                                     |
+| Gemini CLI  | `gemini -p "<prompt>" --allowed-mcp-server-names <server> --allowed-tools mcp_<server>_<tool>` | one `--allowed-tools` flag per tool (a bare tool name does not match; the array form swallowed the prompt); the folder must be trusted; the flag is deprecated in favour of the Policy Engine |
+| Codex       | `codex exec "<prompt>"`                                                                        | nothing; `exec` allowed the call without a flag                                                                                                                                               |
+| Grok Build  | `grok -p "<prompt>" --permission-mode default --allow <server>__<tool>`                        | `--allow <server>__<tool>`; the Claude-style `mcp__<server>__<tool>` matches nothing                                                                                                          |
+| Antigravity | `agy -p "<prompt>"`                                                                            | a `permissions.allow` entry `mcp(<server>/<tool>)` in `~/.gemini/antigravity-cli/settings.json`; `mcp(<server>)` alone does not match, and an unlisted tool is auto-denied                    |
 
 ### Grok precedence traps
 
@@ -40,7 +41,7 @@ upgrade; these flags move.
   MCP calls over Grok's own `--permission-mode default` and `--disallowed-tools`. Run Grok on
   a runner whose home has no such setting.
 - `--permission-mode default` on the command line beats a config `permission_mode =
-  "always-approve"`, but `--disallowed-tools` does not. Do not rely on a deny rule to keep a
+"always-approve"`, but `--disallowed-tools` does not. Do not rely on a deny rule to keep a
   tool from running; pin the mode by flag and allow only what the job needs.
 - A blocked call in `-p` is silent: no error line, exit 0.
 

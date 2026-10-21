@@ -60,6 +60,7 @@
     "!dist/**/*.map",
     "!dist/.tsbuildinfo",
     "skills",
+    "!skills/*/evals/**",
     "plugins",
     "!plugins/*/tsconfig.json",
     "!plugins/*/.claude-plugin/types",

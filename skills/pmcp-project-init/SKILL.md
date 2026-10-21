@@ -18,9 +18,9 @@ the other sources by hand; `pmcp project` writes every tool's native files from 
 `pmcp doctor` asks each installed tool what it loads. Never write the generated files
 yourself: pmcp refuses to overwrite a file it did not write.
 
-Install the pmcp package as a dev dependency under the scoped name its documentation gives.
-Never run the bare unscoped name through npx: that name is not the package, and whoever
-publishes it later would run in your repository.
+Install `@modootoday/pmcp` as a dev dependency. Never run the bare unscoped name `pmcp`
+through npx: that name is not the package, and whoever publishes it later would run in your
+repository.
 
 ## 1. Instructions: one file, two links
 
@@ -48,13 +48,17 @@ an agent whose `tools` names another tool's tools. Those fields go in `pmcp.toml
 
 ## 3. The base pmcp.toml
 
+Start with `pmcp init`: it writes `[targets]`, the stage-all and heredoc guards and the git
+settings it detects (`--preset multi-session` adds the session registry, pause and broadcast).
+Then add what it does not invent, such as the MCP servers:
+
 ```toml
 [targets]
 tools = ["claude", "codex", "gemini", "grok", "antigravity"]
 
 [mcp.skills]
 command = "node"
-args = ["${PROJECT_ROOT}/node_modules/<pmcp package>/dist/cli.js", "serve"]
+args = ["${PROJECT_ROOT}/node_modules/@modootoday/pmcp/dist/cli.js", "serve"]
 
 [skills.release]
 invocation = "user"
@@ -101,6 +105,8 @@ git remote -v                    # the remote deliveries push to
 | Submodules                                                    | `[git.submodules]`                                                                                                    | Sync follows clean submodule pins.                                                                                                |
 | You will debug hooks                                          | `[logging]` with `level`                                                                                              | `pmcp logs` reads the JSONL; redaction is on by default.                                                                          |
 | A remote MCP server both Claude and Codex use                 | `auth = "pmcp"` on that `[mcp.<alias>]`, then `pmcp mcp login <alias>`                                                | One login shared by both tools; tokens never enter the project.                                                                   |
+| Agents on Gemini CLI, Grok, Antigravity or opencode too       | the runtime ids in `[hooks] targets`                                                                                  | The same guards run there; `pmcp doctor` shows what each runtime supports.                                                        |
+| Long-running sessions pmcp-pty should host (Linux)            | `[host]` with `[[host.sessions]]` and any `[[host.answers]]`                                                          | Nothing runs until the user approves it with `pmcp harness host approve` in their own terminal.                                   |
 | A team plugin marketplace                                     | `[marketplaces.<name>]` with `source` and `plugins`                                                                   | Claude and Codex both enable the same plugins.                                                                                    |
 | Claude Code with several sessions                             | `[ui.claude]` (needs `[sessions.registry]`)                                                                           | Session panes and a hold before editing another session's file.                                                                   |
 | Claude should ask before reading secrets or running risky git | `[permissions.claude]` with `allow`, `ask`, `deny` lists of native rules such as `Read(.env)` or `Bash(git push:*)`   | pmcp owns only the entries it adds to `.claude/settings.json`; rules already there stay. Claude only.                             |
