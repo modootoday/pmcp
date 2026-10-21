@@ -64,16 +64,19 @@ export function gate(path: string, dir: string, source: Table): GateConfig {
     "lock_wait_seconds",
     "lock_env",
     "tree_env",
+    "log_dir",
   ]);
   const tree = read.string("tree");
   const lockEnv = read.envName("lock_env");
   const treeEnv = read.envName("tree_env");
+  const logDir = read.string("log_dir");
   return {
     command: read.argv("command"),
     tree: tree === undefined ? undefined : expandPath(dir, tree),
     lockWaitSeconds: read.int("lock_wait_seconds", 5400),
     ...(lockEnv ? { lockEnv } : {}),
     ...(treeEnv ? { treeEnv } : {}),
+    ...(logDir ? { logDir: expandPath(dir, logDir) } : {}),
   };
 }
 

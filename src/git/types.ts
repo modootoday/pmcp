@@ -29,6 +29,8 @@ export interface GateConfig {
   readonly lockEnv?: string;
   // A variable that, when set, names the gate tree instead of tree (and so the lock beside it).
   readonly treeEnv?: string;
+  // Where each gate's full output is kept; default <dir of the gate tree>/logs.
+  readonly logDir?: string;
 }
 
 export interface DeliverConfig {

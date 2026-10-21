@@ -173,7 +173,7 @@ Read this project's JSONL logs from the state directory, or the file `[hooks] er
 pmcp git worktree create review [--base <ref>]
 pmcp git worktree list
 pmcp git worktree sync
-pmcp git deliver [<commit>...] [--during-pause]
+pmcp git deliver [<commit>...] [--during-pause] [--json]
 pmcp git sync
 ```
 

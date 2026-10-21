@@ -26,14 +26,13 @@ async function action(positional: readonly string[]): Promise<Action> {
 }
 
 async function run(context: CommandContext): Promise<number> {
+  const [verb, sub] = context.args.positional;
   if (
     context.args.flags.has("json") &&
-    !(
-      context.args.positional[0] === "worktree" &&
-      context.args.positional[1] === "list"
-    )
+    !(verb === "worktree" && sub === "list") &&
+    verb !== "deliver"
   )
-    throw new ArgumentError("--json requires git worktree list");
+    throw new ArgumentError("--json requires git worktree list or git deliver");
   const act = await action(context.args.positional);
   const { loadGit } = await import("./setup.js");
   const setup = loadGit(context.cwd, one(context.args, "config"), context.env);

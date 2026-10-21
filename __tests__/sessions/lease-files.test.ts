@@ -70,7 +70,6 @@ describe("lease files outside the state dir", () => {
         pid: process.pid,
         subject: "bump",
         cwd: "/w",
-        since: "",
       }),
     ).toBe(true);
     const record = JSON.parse(readFileSync(file, "utf8"));
@@ -86,18 +85,18 @@ describe("lease files outside the state dir", () => {
       file,
       JSON.stringify({ pid: process.ppid, subject: "theirs", since: "x" }),
     );
-    expect(
-      leases.take("lockfile", { pid: process.pid, subject: "mine", since: "" }),
-    ).toBe(false);
+    expect(leases.take("lockfile", { pid: process.pid, subject: "mine" })).toBe(
+      false,
+    );
 
     // A holder whose process is gone is replaced.
     writeFileSync(
       file,
       JSON.stringify({ pid: 2 ** 22 + 7, subject: "gone", since: "x" }),
     );
-    expect(
-      leases.take("lockfile", { pid: process.pid, subject: "mine", since: "" }),
-    ).toBe(true);
+    expect(leases.take("lockfile", { pid: process.pid, subject: "mine" })).toBe(
+      true,
+    );
     expect(JSON.parse(readFileSync(file, "utf8")).subject).toBe("mine");
 
     leases.release("lockfile");

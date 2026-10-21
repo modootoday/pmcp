@@ -74,7 +74,11 @@ session). Installs never block a session.</p>
 <p><code>[git.mainline.gate]</code>: <code>command</code> (argv; no gate when missing), <code>tree</code> (the
 gate&#39;s worktree, default <code>&lt;state dir&gt;/gate/tree</code>; a relative path is relative to
 the main checkout, like <code>state_dir</code>), <code>lock_wait_seconds</code>
-(default <code>5400</code>) and <code>lock_env</code> (an environment variable name).</p>
+(default <code>5400</code>), <code>lock_env</code> (an environment variable name), <code>tree_env</code> (an
+environment variable name) and <code>log_dir</code> (default <code>&lt;dir of tree&gt;/logs</code>). Each
+gate&#39;s full output goes to <code>&lt;log_dir&gt;/&lt;UTC time&gt;-&lt;tip&gt;.log</code> as well as the
+terminal; pmcp names the file when the gate starts and again if it fails, and
+keeps the newest 20.</p>
 <p>One delivery gates at a time: pmcp takes an exclusive <code>flock</code> on the file <code>lock</code>
 beside the gate tree (<code>&lt;dir of tree&gt;/lock</code>), so another tool that takes the same
 file with <code>flock</code> (a workspace land script) and pmcp never gate together. With
@@ -100,6 +104,13 @@ the fetched mainline, runs the gate, and pushes one delivery at a time:
 through delivery), <code>during_pause</code> (<code>&quot;refuse&quot;</code> default or <code>&quot;allow&quot;</code>),
 <code>lease_wait_seconds</code> (default <code>3600</code>) and <code>notify</code> (argv run after a
 delivery).</p>
+<p><code>pmcp git deliver --json</code> prints one receipt on stdout when it ends, progress
+staying on stderr: <code>{ok, code, delivered, upstream, attempts, gate, leases, reason?}</code>, where <code>delivered</code> is the upstream commit it pushed (or <code>null</code>), <code>gate</code>
+is <code>{exit, log}</code> for the last gate run (or <code>null</code>), <code>leases</code> the leases it took
+and <code>reason</code> the last refusal or failure. Exit codes: <code>0</code> delivered or nothing
+to deliver; <code>1</code> refused, a lease or the gate lock held too long, a replay
+conflict, the gate failed, the push failed or it gave up after <code>attempts</code>; <code>2</code>
+fetch failed or no configuration.</p>
 <p><code>[git.mainline.sync]</code> enables <code>pmcp git sync</code>, which moves the main checkout to
 the mainline: <code>install</code> (argv), <code>install_when_changed</code> (paths; when no
 <code>[sessions.leases]</code> are declared, these become an implicit <code>lockfile</code> lease),

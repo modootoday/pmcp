@@ -1,4 +1,4 @@
-import { deliver } from "../mainline/deliver.js";
+import { deliver, type DeliverReceipt } from "../mainline/deliver.js";
 import { deliveryEvents } from "../mainline/delivery-events.js";
 import { filesSessionGate } from "../mainline/store.js";
 import { syncMainline } from "../mainline/sync.js";
@@ -36,6 +36,12 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     duringPause: context.args.flags.has("during-pause"),
     afterDeliver,
     recordDelivery: deliveryEvents(setup),
+    ...(context.args.flags.has("json")
+      ? {
+          onReceipt: (receipt: DeliverReceipt) =>
+            context.ui.data(`${JSON.stringify(receipt)}\n`),
+        }
+      : {}),
     report,
   });
 };

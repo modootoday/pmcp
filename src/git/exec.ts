@@ -52,6 +52,42 @@ export function gitOk(cwd: string, args: Argv): boolean {
   return git(cwd, args).status === 0;
 }
 
+// Streams the command's output to our stderr as it comes and appends it to log, so a long
+// gate stays visible and its full output is kept. Exits with the command's status.
+const TEE = `
+const fs = require("node:fs");
+const { spawn } = require("node:child_process");
+const [log, bin, ...args] = process.argv.slice(1);
+const out = fs.openSync(log, "a");
+const child = spawn(bin, args, { stdio: ["ignore", "pipe", "pipe"] });
+for (const stream of [child.stdout, child.stderr])
+  stream.on("data", (chunk) => {
+    process.stderr.write(chunk);
+    fs.writeSync(out, chunk);
+  });
+child.on("error", (error) => {
+  fs.writeSync(out, String(error) + "\\n");
+  process.stderr.write(String(error) + "\\n");
+  process.exit(127);
+});
+child.on("close", (code) => process.exit(code ?? 1));
+`;
+
+export function runCommandLogged(
+  argv: Argv,
+  cwd: string,
+  log: string,
+  extra?: Readonly<Record<string, string>>,
+): number {
+  if (argv[0] === undefined) return 0;
+  const run = spawnSync(process.execPath, ["-e", TEE, log, ...argv], {
+    cwd,
+    stdio: ["ignore", 2, 2],
+    env: cleanEnv(extra),
+  });
+  return run.status ?? 1;
+}
+
 export function runCommand(
   argv: Argv,
   cwd: string,

@@ -1,7 +1,13 @@
-import { existsSync, mkdirSync, symlinkSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 
-import { git, gitOk, gitText, runCommand } from "../exec.js";
+import { git, gitOk, gitText, runCommandLogged } from "../exec.js";
 import type { Argv, Reporter } from "../types.js";
 
 export interface GateTree {
@@ -75,6 +81,26 @@ export function prepareGateTree(
   return null;
 }
 
+const KEEP_LOGS = 20;
+
+// <UTC>-<tip>.log, so the names sort by time; only the newest KEEP_LOGS stay.
+function gateLog(dir: string, tip: string): string {
+  mkdirSync(dir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/gu, "-");
+  const logs = readdirSync(dir)
+    .filter((name) => name.endsWith(".log"))
+    .sort();
+  for (const old of logs.slice(0, Math.max(0, logs.length - KEEP_LOGS + 1)))
+    rmSync(join(dir, old), { force: true });
+  return join(dir, `${stamp}-${tip.slice(0, 10)}.log`);
+}
+
+export interface GateRun {
+  readonly code: number;
+  // The full output, or null when the gate did not start.
+  readonly log: string | null;
+}
+
 export function runGate(
   mainRoot: string,
   tree: string,
@@ -83,16 +109,21 @@ export function runGate(
   links: readonly string[],
   report: Reporter,
   lockEnv?: string,
-): number {
+  logDir: string = join(dirname(tree), "logs"),
+): GateRun {
   const problem = prepareGateTree(mainRoot, tree, tip, links);
   if (problem !== null) {
     report.warn(`the gate did not run: ${problem}`);
-    return 1;
+    return { code: 1, log: null };
   }
-  report.info(`gate on ${tip.slice(0, 10)} in ${tree}`);
-  return runCommand(command, tree, {
+  const log = gateLog(logDir, tip);
+  report.info(`gate on ${tip.slice(0, 10)} in ${tree}; gate log: ${log}`);
+  const code = runCommandLogged(command, tree, log, {
     PMCP_GATE_TIP: tip,
     PMCP_GATE_MAIN: mainRoot,
     ...(lockEnv ? { [lockEnv]: "1" } : {}),
   });
+  if (code !== 0)
+    report.warn(`the gate failed (exit ${code}); full gate log: ${log}`);
+  return { code, log };
 }

@@ -40,7 +40,11 @@ session). Installs never block a session.
 `[git.mainline.gate]`: `command` (argv; no gate when missing), `tree` (the
 gate's worktree, default `<state dir>/gate/tree`; a relative path is relative to
 the main checkout, like `state_dir`), `lock_wait_seconds`
-(default `5400`) and `lock_env` (an environment variable name).
+(default `5400`), `lock_env` (an environment variable name), `tree_env` (an
+environment variable name) and `log_dir` (default `<dir of tree>/logs`). Each
+gate's full output goes to `<log_dir>/<UTC time>-<tip>.log` as well as the
+terminal; pmcp names the file when the gate starts and again if it fails, and
+keeps the newest 20.
 
 One delivery gates at a time: pmcp takes an exclusive `flock` on the file `lock`
 beside the gate tree (`<dir of tree>/lock`), so another tool that takes the same
@@ -69,6 +73,15 @@ the fetched mainline, runs the gate, and pushes one delivery at a time:
 through delivery), `during_pause` (`"refuse"` default or `"allow"`),
 `lease_wait_seconds` (default `3600`) and `notify` (argv run after a
 delivery).
+
+`pmcp git deliver --json` prints one receipt on stdout when it ends, progress
+staying on stderr: `{ok, code, delivered, upstream, attempts, gate, leases,
+reason?}`, where `delivered` is the upstream commit it pushed (or `null`), `gate`
+is `{exit, log}` for the last gate run (or `null`), `leases` the leases it took
+and `reason` the last refusal or failure. Exit codes: `0` delivered or nothing
+to deliver; `1` refused, a lease or the gate lock held too long, a replay
+conflict, the gate failed, the push failed or it gave up after `attempts`; `2`
+fetch failed or no configuration.
 
 `[git.mainline.sync]` enables `pmcp git sync`, which moves the main checkout to
 the mainline: `install` (argv), `install_when_changed` (paths; when no

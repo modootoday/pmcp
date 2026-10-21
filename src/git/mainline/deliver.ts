@@ -34,7 +34,30 @@ export interface DeliverOptions {
   readonly afterDeliver?: () => void;
   // Called once delivered and after afterDeliver, with the leases this delivery took.
   readonly recordDelivery?: (delivery: Delivery) => void;
+  // The outcome as data, once deliver returns (pmcp git deliver --json prints it).
+  readonly onReceipt?: (receipt: DeliverReceipt) => void;
   readonly report: Reporter;
+  // Filled in as the delivery runs; set by deliver itself.
+  readonly track?: Track;
+}
+
+export interface DeliverReceipt {
+  readonly ok: boolean;
+  readonly code: number;
+  // The upstream commit this delivery made, or null when nothing was pushed.
+  readonly delivered: string | null;
+  readonly upstream: string;
+  readonly attempts: number;
+  readonly gate: { readonly exit: number; readonly log: string | null } | null;
+  readonly leases: readonly string[];
+  readonly reason?: string;
+}
+
+interface Track {
+  attempts: number;
+  gate: DeliverReceipt["gate"];
+  delivered: string | null;
+  leases: string[];
 }
 
 export interface Delivery {
@@ -56,6 +79,7 @@ function attempts(options: DeliverOptions): number {
   const { ctx, report } = options;
   const { lock, tree } = gateTree(options.tree);
   for (let attempt = 1; attempt <= options.deliver.attempts; attempt += 1) {
+    if (options.track) options.track.attempts = attempt;
     if (!fetch(ctx)) {
       report.warn(`fetch from ${ctx.remote} failed`);
       return 2;
@@ -80,9 +104,8 @@ function attempts(options: DeliverOptions): number {
       return 1;
     }
     const command = options.gate?.command;
-    if (
-      command !== undefined &&
-      runGate(
+    if (command !== undefined) {
+      const run = runGate(
         ctx.mainRoot,
         tree,
         replayed.tip,
@@ -90,10 +113,13 @@ function attempts(options: DeliverOptions): number {
         options.links,
         report,
         options.gate?.lockEnv,
-      ) !== 0
-    ) {
-      report.warn("the gate failed; nothing was pushed");
-      return 1;
+        options.gate?.logDir,
+      );
+      if (options.track) options.track.gate = { exit: run.code, log: run.log };
+      if (run.code !== 0) {
+        report.warn("the gate failed; nothing was pushed");
+        return 1;
+      }
     }
     const pushed = git(
       ctx.root,
@@ -103,6 +129,7 @@ function attempts(options: DeliverOptions): number {
       },
     );
     if (pushed.status === 0) {
+      if (options.track) options.track.delivered = replayed.tip;
       report.info(`delivered ${replayed.tip.slice(0, 10)} to ${ctx.upstream}`);
       return 0;
     }
@@ -173,8 +200,32 @@ function blocked(options: DeliverOptions): string | null {
   );
 }
 
-// Keep leased paths protected through the push and follow-up installation.
 export function deliver(options: DeliverOptions): number {
+  const track: Track = { attempts: 0, gate: null, delivered: null, leases: [] };
+  let reason: string | undefined;
+  const report: Reporter = {
+    info: (line) => options.report.info(line),
+    warn: (line) => {
+      reason = line;
+      options.report.warn(line);
+    },
+  };
+  const code = deliverOnce({ ...options, report, track });
+  options.onReceipt?.({
+    ok: code === 0,
+    code,
+    delivered: track.delivered,
+    upstream: options.ctx.upstream,
+    attempts: track.attempts,
+    gate: track.gate,
+    leases: track.leases,
+    ...(code !== 0 && reason ? { reason } : {}),
+  });
+  return code;
+}
+
+// Keep leased paths protected through the push and follow-up installation.
+function deliverOnce(options: DeliverOptions): number {
   const { ctx, report } = options;
   const refusal = blocked(options);
   if (refusal !== null) {
@@ -205,6 +256,7 @@ export function deliver(options: DeliverOptions): number {
         return 1;
       }
       taken.push(spec.name);
+      options.track?.leases.push(spec.name);
       report.info(`took lease ${spec.name}`);
     }
     const code = underLock(options);
