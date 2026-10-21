@@ -5,8 +5,7 @@ import { parse } from "yaml";
 export type MetadataLeaf = string | readonly string[];
 
 export type MetadataValue =
-  | MetadataLeaf
-  | { readonly [key: string]: MetadataLeaf };
+  MetadataLeaf | { readonly [key: string]: MetadataLeaf };
 
 export function frontmatterText(source: string): string | null {
   const text = source.replace(/^﻿/u, "").replace(/\r\n/gu, "\n");

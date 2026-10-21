@@ -7,8 +7,7 @@ export function readState(
   ctx: PolicyContext<unknown>,
 ): CheckState {
   const raw = ctx.store.registry.get(input.session.id)?.["checks"] as
-    | Partial<CheckState>
-    | undefined;
+    Partial<CheckState> | undefined;
   return {
     validators: raw?.validators ?? {},
     edited: raw?.edited === true,

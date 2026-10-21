@@ -37,7 +37,9 @@ reason, not served.
 {
   "name": "acme",
   "metadata": { "tier": "open" },
-  "plugins": [{ "name": "billing-skills", "source": "./plugins/billing-skills" }]
+  "plugins": [
+    { "name": "billing-skills", "source": "./plugins/billing-skills" }
+  ]
 }
 ```
 
@@ -55,13 +57,13 @@ name a different hooks file (a string path); otherwise `hooks/hooks.json` is rea
 
 ## What each place becomes
 
-| Place | Catalog entry | Name in the catalog |
-| --- | --- | --- |
-| `skills/<name>/SKILL.md` | a skill; its folder is what describe and read may open | `<marketplace>/<plugin>/<name>` |
-| `commands/<name>.md` | a one-file skill; only that file is readable | `<marketplace>/<plugin>/<name>` |
-| `agents/<name>.md`, `agents/<name>/agent.md` | kind `agent` | `<marketplace>/<plugin>/agents/<name>` |
-| `hooks/hooks.json` | one kind `hook` entry for the plugin; needs a `description` in the file or in plugin.json | `<marketplace>/<plugin>/hooks` |
-| `.mcp.json` | one kind `mcp` entry per key of `mcpServers` | `<marketplace>/<plugin>/mcp/<server>` |
+| Place                                        | Catalog entry                                                                             | Name in the catalog                    |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------- |
+| `skills/<name>/SKILL.md`                     | a skill; its folder is what describe and read may open                                    | `<marketplace>/<plugin>/<name>`        |
+| `commands/<name>.md`                         | a one-file skill; only that file is readable                                              | `<marketplace>/<plugin>/<name>`        |
+| `agents/<name>.md`, `agents/<name>/agent.md` | kind `agent`                                                                              | `<marketplace>/<plugin>/agents/<name>` |
+| `hooks/hooks.json`                           | one kind `hook` entry for the plugin; needs a `description` in the file or in plugin.json | `<marketplace>/<plugin>/hooks`         |
+| `.mcp.json`                                  | one kind `mcp` entry per key of `mcpServers`                                              | `<marketplace>/<plugin>/mcp/<server>`  |
 
 Skills and commands appear in `skill_catalog` and `skill_find`. Agents, hooks and MCP
 servers are left out unless the caller asks for that `kind` (`agent`, `hook`, `mcp` or

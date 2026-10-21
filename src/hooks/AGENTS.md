@@ -5,7 +5,7 @@ Rules for the hook core. Package rules: ../../AGENTS.md. User-facing behaviour:
 
 - contract.ts imports nothing. Dependencies point one way: runtimes -> contract <- policies.
 - Runtime strings (native event names, tool names, output field names) appear only under
-  runtimes/<id>/. __tests__/hooks/structure.test.ts enforces it.
+  runtimes/<id>/. **tests**/hooks/structure.test.ts enforces it.
 - The bundle (entry.ts -> dist/hook-body.js -> .agents/pmcp-hooks/hook-body.mjs) loads contract,
   runtimes, policies, dispatch, the logger, the files store and node builtins only. Never zod,
   smol-toml, yaml, the MCP server, compile, or any CLI module. loader.ts -> hook.mjs only enables

@@ -1,10 +1,5 @@
 export type RuntimeId =
-  | "claude"
-  | "codex"
-  | "gemini"
-  | "antigravity"
-  | "grok"
-  | "opencode";
+  "claude" | "codex" | "gemini" | "antigravity" | "grok" | "opencode";
 export const RUNTIME_IDS: readonly RuntimeId[] = [
   "claude",
   "codex",

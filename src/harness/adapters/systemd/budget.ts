@@ -85,8 +85,7 @@ export async function budgetOperation(
       ? undefined
       : resourceClaim(spec.resource, backend.owner);
   const dockerPreparation = spec.dockerPreparation as
-    | DockerPreparation
-    | undefined;
+    DockerPreparation | undefined;
   const cpuQuota = resource?.cpuQuota ?? dockerPreparation?.cpuQuota;
   if (cpuQuota !== undefined) {
     const reservedCpu = backend

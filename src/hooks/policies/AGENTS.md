@@ -15,4 +15,4 @@ Rules for policies. Hook core rules: ../AGENTS.md.
   whose default mode is graded may return both ask and deny.
 - options() validates toml options at compile time and again in the hook; unknown keys throw.
 - Every policy has allow and deny cases replayed through recorded Claude and Codex payloads in
-  __tests__/hooks/policies/<group>/.
+  **tests**/hooks/policies/<group>/.

@@ -58,12 +58,14 @@ export async function openEntryVectors(
       return out;
     },
     write(modelId, name, description, vector) {
-      db.prepare(`INSERT INTO entry_vector (name, model_id, dims, description_hash, vector)
+      db.prepare(
+        `INSERT INTO entry_vector (name, model_id, dims, description_hash, vector)
          VALUES (?, ?, ?, ?, ?)
          ON CONFLICT(name, model_id) DO UPDATE SET
            dims = excluded.dims,
            description_hash = excluded.description_hash,
-           vector = excluded.vector`).run(
+           vector = excluded.vector`,
+      ).run(
         name,
         modelId,
         vector.length,

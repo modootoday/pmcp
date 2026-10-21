@@ -1,6 +1,10 @@
 {
   "options": {
-    "names": ["ACME_ALLOW_DIRECT_PUSH", "ACME_GATE_LOCK_HELD", "ACME_GATE_IN_PLACE"]
+    "names": [
+      "ACME_ALLOW_DIRECT_PUSH",
+      "ACME_GATE_LOCK_HELD",
+      "ACME_GATE_IN_PLACE"
+    ]
   },
   "blocked": [
     "git commit --no-verify -m x",

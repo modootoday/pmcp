@@ -70,13 +70,13 @@ The ops a client drives a session with. One request does one whole thing; the da
 not the caller. An agent gets the same contract from the `describe` op, or as tools from
 `pmcp harness mcp`; this section is the reference for writing a client.
 
-| op | request fields | reply |
-| --- | --- | --- |
-| `observe` | `id`, `lines?` (20) | `status` (`starting idle busy dialog exited`), `dialog` (`{name, prompt, options[{key,label}], selected}` or null), `input` (box text when the profile can read it), `tail_lines` (clean), `runtime`, `version`, `labels`, `pid`, `instance`, `busy`, `idle_ms`, `size`, `next` |
-| `wait` | `id`, `until[]` (`idle`, `turn_end`, `dialog`, `exit`, `output`, or `{text: regex}`), `timeout_ms?` (30000) | `fired` (the condition, `timeout` or `exited`), `after_ms`, `observe` |
-| `read` | `id`, `since?` (0), `max_chars?` (16000) | `text` (clean transcript lines), `next` (cursor for the next read), `gap`, `more` |
-| `turn` | `id`, `text`, `timeout_ms?` (120000, counted from delivery), `wait_idle_ms?`, `expect?`, `target?` | `outcome` (`completed dialog timeout refused exited`), `completed_by` (`hook channel screen`), `stop_reason`, `receipt` (with `channel`, `fallback`), `reply`, `dialog`, `hooks_live`, `duration_ms`, `next` |
-| `event` | `id`, `kind` (`session_start turn_start turn_end permission`), `message?`, `session?`, `expect?` | `seq`; sent by pmcp's hooks inside the hosted runtime |
+| op        | request fields                                                                                              | reply                                                                                                                                                                                                                                                                           |
+| --------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `observe` | `id`, `lines?` (20)                                                                                         | `status` (`starting idle busy dialog exited`), `dialog` (`{name, prompt, options[{key,label}], selected}` or null), `input` (box text when the profile can read it), `tail_lines` (clean), `runtime`, `version`, `labels`, `pid`, `instance`, `busy`, `idle_ms`, `size`, `next` |
+| `wait`    | `id`, `until[]` (`idle`, `turn_end`, `dialog`, `exit`, `output`, or `{text: regex}`), `timeout_ms?` (30000) | `fired` (the condition, `timeout` or `exited`), `after_ms`, `observe`                                                                                                                                                                                                           |
+| `read`    | `id`, `since?` (0), `max_chars?` (16000)                                                                    | `text` (clean transcript lines), `next` (cursor for the next read), `gap`, `more`                                                                                                                                                                                               |
+| `turn`    | `id`, `text`, `timeout_ms?` (120000, counted from delivery), `wait_idle_ms?`, `expect?`, `target?`          | `outcome` (`completed dialog timeout refused exited`), `completed_by` (`hook channel screen`), `stop_reason`, `receipt` (with `channel`, `fallback`), `reply`, `dialog`, `hooks_live`, `duration_ms`, `next`                                                                    |
+| `event`   | `id`, `kind` (`session_start turn_start turn_end permission`), `message?`, `session?`, `expect?`            | `seq`; sent by pmcp's hooks inside the hosted runtime                                                                                                                                                                                                                           |
 
 The clean transcript is built from the rendered screen: a row is committed when it scrolls off
 or stays unchanged for the profile's `settle_ms`. Spinner, busy and input-box rows, and
@@ -106,27 +106,27 @@ session. `observe` also reports `leased` and `humans` (writable attachers).
 
 ### All ops
 
-| op | request fields | reply |
-| --- | --- | --- |
-| `spawn` | `argv`, `name?`, `cwd?`, `env?` (map), `cols?` (120), `rows?` (40), `profile?`, `ring_kb?` (256), `labels?` | `id`, `profile`, `pid`, `instance` |
-| `list` | `labels?` (all must match) | `instance`, `sessions[]`: `id name argv profile pid alive labels` |
-| `screen` | `id` | `rows[]` (plain text, right-trimmed), `cursor{row,col}`, `title`, `size{cols,rows}`, `alternate_screen`, `bracketed_paste` |
-| `tail` | `id`, `bytes?` (65536), `strip?` (drop ANSI) | `text`: last bytes of the transcript ring |
-| `state` | `id` | `alive exit_code signal pid idle_ms idle last_output_at input_box_empty dialog dialog_source busy profile` |
-| `write` | `id`, `text`, `submit?` (false), `guard?` (`"idle"` default, or `"none"`), `wait_ms?` (1000) | receipt, see below |
-| `key` | `id`, `key` | `ok` |
-| `resize` | `id`, `cols`, `rows` | `ok` |
-| `kill` | `id`, `signal?` (`HUP INT TERM KILL`; default is portable-pty's killer, SIGHUP on Unix) | `ok` |
-| `remove` | `id` (exited sessions only) | `ok` |
-| `subscribe` | `id` | `{"ok":true,"subscribed":id}` then events until exit |
-| `attach` | `id`, `cols?`, `rows?`, `read_only?`, `resize?` | `{"ok":true,"attached":id,"read_only"}`, a repaint, then raw output; raw input bytes go to the PTY unless read-only |
-| `attachers` | `id` | `attachers[]`: `pid` (peer credentials, Linux), `read_only`, `size`, `since` |
-| `detach` | `id` | closes every attach connection; `detached` (count) |
-| `record` | `id`, `label` (a-z, 0-9, -), `redact?` (true) | saves the screen, raw tail and what the profile reads into `<--fixtures dir>/<profile>/<label>/`, redacted |
-| `lease` | `id`, `token?`, `ttl_ms?` (60000, at most 3600000), `current?`, `release?` | `leased`; replacing or releasing a live lease needs `current` (or the same token) |
-| `answer` | `id`, `dialog` (the name on screen), `option` (key or label), `expect?` | `allowed`, `option`; `guard` unless the policy allows it |
-| `describe` | | `ops[]` (`op`, `about`, `read_only`, `mcp` read/write/never, `request` as JSON Schema, from `src/describe_ops.txt`), `codes`, `profiles[]` (`name version delivery`), `policy` (`loaded`, `mcp_write`) |
-| `shutdown` | | kills every session, removes the socket, exits |
+| op          | request fields                                                                                              | reply                                                                                                                                                                                                  |
+| ----------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `spawn`     | `argv`, `name?`, `cwd?`, `env?` (map), `cols?` (120), `rows?` (40), `profile?`, `ring_kb?` (256), `labels?` | `id`, `profile`, `pid`, `instance`                                                                                                                                                                     |
+| `list`      | `labels?` (all must match)                                                                                  | `instance`, `sessions[]`: `id name argv profile pid alive labels`                                                                                                                                      |
+| `screen`    | `id`                                                                                                        | `rows[]` (plain text, right-trimmed), `cursor{row,col}`, `title`, `size{cols,rows}`, `alternate_screen`, `bracketed_paste`                                                                             |
+| `tail`      | `id`, `bytes?` (65536), `strip?` (drop ANSI)                                                                | `text`: last bytes of the transcript ring                                                                                                                                                              |
+| `state`     | `id`                                                                                                        | `alive exit_code signal pid idle_ms idle last_output_at input_box_empty dialog dialog_source busy profile`                                                                                             |
+| `write`     | `id`, `text`, `submit?` (false), `guard?` (`"idle"` default, or `"none"`), `wait_ms?` (1000)                | receipt, see below                                                                                                                                                                                     |
+| `key`       | `id`, `key`                                                                                                 | `ok`                                                                                                                                                                                                   |
+| `resize`    | `id`, `cols`, `rows`                                                                                        | `ok`                                                                                                                                                                                                   |
+| `kill`      | `id`, `signal?` (`HUP INT TERM KILL`; default is portable-pty's killer, SIGHUP on Unix)                     | `ok`                                                                                                                                                                                                   |
+| `remove`    | `id` (exited sessions only)                                                                                 | `ok`                                                                                                                                                                                                   |
+| `subscribe` | `id`                                                                                                        | `{"ok":true,"subscribed":id}` then events until exit                                                                                                                                                   |
+| `attach`    | `id`, `cols?`, `rows?`, `read_only?`, `resize?`                                                             | `{"ok":true,"attached":id,"read_only"}`, a repaint, then raw output; raw input bytes go to the PTY unless read-only                                                                                    |
+| `attachers` | `id`                                                                                                        | `attachers[]`: `pid` (peer credentials, Linux), `read_only`, `size`, `since`                                                                                                                           |
+| `detach`    | `id`                                                                                                        | closes every attach connection; `detached` (count)                                                                                                                                                     |
+| `record`    | `id`, `label` (a-z, 0-9, -), `redact?` (true)                                                               | saves the screen, raw tail and what the profile reads into `<--fixtures dir>/<profile>/<label>/`, redacted                                                                                             |
+| `lease`     | `id`, `token?`, `ttl_ms?` (60000, at most 3600000), `current?`, `release?`                                  | `leased`; replacing or releasing a live lease needs `current` (or the same token)                                                                                                                      |
+| `answer`    | `id`, `dialog` (the name on screen), `option` (key or label), `expect?`                                     | `allowed`, `option`; `guard` unless the policy allows it                                                                                                                                               |
+| `describe`  |                                                                                                             | `ops[]` (`op`, `about`, `read_only`, `mcp` read/write/never, `request` as JSON Schema, from `src/describe_ops.txt`), `codes`, `profiles[]` (`name version delivery`), `policy` (`loaded`, `mcp_write`) |
+| `shutdown`  |                                                                                                             | kills every session, removes the socket, exits                                                                                                                                                         |
 
 A request with `"via": "mcp"` comes from `pmcp harness mcp`, and the daemon limits it itself:
 `describe list observe wait read` pass; `turn` and `lease` only when your policy file
@@ -163,13 +163,13 @@ receipt names the `channel` and every `fallback` reason. A structured channel is
 a dialog is on screen. The caller passes what only it knows as `target: {session, remote, url}`
 (the runtime's own session or thread id, from pmcp's registry).
 
-| delivery | how | needs |
-| --- | --- | --- |
-| `claude-inbox` | one NDJSON user line to `messagingSocketPath` from `~/.claude/sessions/<pid>.json` of the spawned pid (read only) | nothing; a bypassPermissions target holds it for approval |
-| `http-prompt-async` | `POST /session/<id>/prompt_async` on loopback, basic auth from the spawn env's `OPENCODE_SERVER_PASSWORD` | spawn with `delivery_setup` (pins `--port`); the session the TUI shows (`target.session`, or the one its hooks reported) |
-| `codex-queue` | `codex queue --remote <addr> --thread <id> --message <text>` | spawn with `delivery_setup`, or an explicit `target.remote`; `target.session` (the thread id), else the hook-reported one, else, only on the session's own private app-server, its one loaded thread from `thread/loaded/list` (receipt `thread_from`; none or several declines to the screen) |
-| `grok-leader-acp` | an ACP client on the session's leader: `initialize`, `session/prompt`; on -32602, `session/load` and one retry; permission requests are never answered | spawn with `delivery_setup` (the session's own leader); `target.session` or the hook-reported one |
-| `screen` | guarded write and submit | nothing |
+| delivery            | how                                                                                                                                                    | needs                                                                                                                                                                                                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `claude-inbox`      | one NDJSON user line to `messagingSocketPath` from `~/.claude/sessions/<pid>.json` of the spawned pid (read only)                                      | nothing; a bypassPermissions target holds it for approval                                                                                                                                                                                                                                      |
+| `http-prompt-async` | `POST /session/<id>/prompt_async` on loopback, basic auth from the spawn env's `OPENCODE_SERVER_PASSWORD`                                              | spawn with `delivery_setup` (pins `--port`); the session the TUI shows (`target.session`, or the one its hooks reported)                                                                                                                                                                       |
+| `codex-queue`       | `codex queue --remote <addr> --thread <id> --message <text>`                                                                                           | spawn with `delivery_setup`, or an explicit `target.remote`; `target.session` (the thread id), else the hook-reported one, else, only on the session's own private app-server, its one loaded thread from `thread/loaded/list` (receipt `thread_from`; none or several declines to the screen) |
+| `grok-leader-acp`   | an ACP client on the session's leader: `initialize`, `session/prompt`; on -32602, `session/load` and one retry; permission requests are never answered | spawn with `delivery_setup` (the session's own leader); `target.session` or the hook-reported one                                                                                                                                                                                              |
+| `screen`            | guarded write and submit                                                                                                                               | nothing                                                                                                                                                                                                                                                                                        |
 
 `delivery_setup: true` on `spawn` launches the runtime so its channel works, with every piece
 inside the session's own process tree (and so inside any systemd scope around the launch).
@@ -197,7 +197,7 @@ is `null` when the profile has no input pattern or a dialog is on screen.
 3. With `submit: true` pmcp-pty waits `submit_delay_ms`, re-checks for a dialog (guard
    `idle` only), then sends one CR.
 4. The receipt: `{accepted, bytes, paste: "bracketed"|"raw", submitted, submit_refused,
-   screen_changed_within_ms}`; the last is `null` when the rendered text did not change
+screen_changed_within_ms}`; the last is `null` when the rendered text did not change
    within `wait_ms`.
 
 Named keys are only sent by `key`, never by `write`: `Enter Escape Tab BTab Backspace Space
@@ -290,17 +290,17 @@ implemented.
 
 From each project's documentation, not from running them.
 
-| need | pmcp-pty | tmux | wezterm mux | zellij |
-| --- | --- | --- | --- | --- |
-| send text | `write`, bracketed paste when the app enabled it, control bytes stripped | `send-keys -l` (literal) or `load-buffer` + `paste-buffer -p` (bracketed when requested) | `wezterm cli send-text` (bracketed paste by default, `--no-paste` raw) | `zellij action write-chars` (typed), `write` (bytes) |
-| refuse when a dialog or busy | yes, profile regexes, returns the reason | X (script it around `capture-pane`) | X | X |
-| write receipt | `screen_changed_within_ms` | X | X | X |
-| read screen | `screen` (rows, cursor, title, modes as JSON) | `capture-pane -p` (`-e` escapes, `-S` history) | `wezterm cli get-text` (`--escapes`, line ranges) | `zellij action dump-screen <file>` (`--full` scrollback) |
-| idle / exit events | `subscribe` | `monitor-silence`, hooks, control mode `%output` | Lua events in config | WASM plugin events |
-| human attach | `pmcp-pty attach`, many clients | native, many clients | GUI or `wezterm connect` | native |
-| access control | 0600 socket and peer uid check | per-uid socket dir, socket mode | unix domain mux socket | per-user session sockets |
-| Windows | ConPTY path, untested | X (WSL/Cygwin only) | yes | X |
-| size | about 1,430 lines of Rust without tests, one binary | large C codebase | full GPU terminal | large Rust codebase, WASM runtime |
+| need                         | pmcp-pty                                                                 | tmux                                                                                     | wezterm mux                                                            | zellij                                                   |
+| ---------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------- |
+| send text                    | `write`, bracketed paste when the app enabled it, control bytes stripped | `send-keys -l` (literal) or `load-buffer` + `paste-buffer -p` (bracketed when requested) | `wezterm cli send-text` (bracketed paste by default, `--no-paste` raw) | `zellij action write-chars` (typed), `write` (bytes)     |
+| refuse when a dialog or busy | yes, profile regexes, returns the reason                                 | X (script it around `capture-pane`)                                                      | X                                                                      | X                                                        |
+| write receipt                | `screen_changed_within_ms`                                               | X                                                                                        | X                                                                      | X                                                        |
+| read screen                  | `screen` (rows, cursor, title, modes as JSON)                            | `capture-pane -p` (`-e` escapes, `-S` history)                                           | `wezterm cli get-text` (`--escapes`, line ranges)                      | `zellij action dump-screen <file>` (`--full` scrollback) |
+| idle / exit events           | `subscribe`                                                              | `monitor-silence`, hooks, control mode `%output`                                         | Lua events in config                                                   | WASM plugin events                                       |
+| human attach                 | `pmcp-pty attach`, many clients                                          | native, many clients                                                                     | GUI or `wezterm connect`                                               | native                                                   |
+| access control               | 0600 socket and peer uid check                                           | per-uid socket dir, socket mode                                                          | unix domain mux socket                                                 | per-user session sockets                                 |
+| Windows                      | ConPTY path, untested                                                    | X (WSL/Cygwin only)                                                                      | yes                                                                    | X                                                        |
+| size                         | about 1,430 lines of Rust without tests, one binary                      | large C codebase                                                                         | full GPU terminal                                                      | large Rust codebase, WASM runtime                        |
 
 What pmcp-pty adds is the guard: a supervisor write is refused, with the reason, while the
 target shows a known dialog, is busy, has output that is not yet idle, or has typed input.

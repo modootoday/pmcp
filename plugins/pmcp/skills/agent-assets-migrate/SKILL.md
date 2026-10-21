@@ -21,14 +21,14 @@ tool files.
 
 List every source with its bytes and line count, and note which are links:
 
-| Found | Goes to |
-| --- | --- |
-| `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.windsurfrules`, `.github/copilot-instructions.md` | merged into `AGENTS.md`; each then becomes a link to it |
-| `.claude/skills/<n>/`, `.agent/skills/<n>/` | `.agents/skills/<n>/` (whole folder) |
-| `.claude/commands/<n>.md`, `.agent/workflows/<n>.md` | `.agents/skills/<n>/SKILL.md` plus `[skills.<n>] invocation = "user"` |
-| `.claude/agents/<n>.md`, `.gemini/agents/<n>.md`, `.agent/agents/<n>.md` | `.agents/agents/<n>/agent.md` |
-| `.claude/rules/*.md` with `paths:` | `.agents/rules/<n>.md` with `trigger: glob` and `globs:` |
-| MCP entries in `.mcp.json`, `.gemini/settings.json`, `.codex/config.toml` | `[mcp.<alias>]` in `pmcp.toml` |
+| Found                                                                                         | Goes to                                                               |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.windsurfrules`, `.github/copilot-instructions.md` | merged into `AGENTS.md`; each then becomes a link to it               |
+| `.claude/skills/<n>/`, `.agent/skills/<n>/`                                                   | `.agents/skills/<n>/` (whole folder)                                  |
+| `.claude/commands/<n>.md`, `.agent/workflows/<n>.md`                                          | `.agents/skills/<n>/SKILL.md` plus `[skills.<n>] invocation = "user"` |
+| `.claude/agents/<n>.md`, `.gemini/agents/<n>.md`, `.agent/agents/<n>.md`                      | `.agents/agents/<n>/agent.md`                                         |
+| `.claude/rules/*.md` with `paths:`                                                            | `.agents/rules/<n>.md` with `trigger: glob` and `globs:`              |
+| MCP entries in `.mcp.json`, `.gemini/settings.json`, `.codex/config.toml`                     | `[mcp.<alias>]` in `pmcp.toml`                                        |
 
 pmcp has no Copilot or Cursor target. Keep those filenames as links to `AGENTS.md` so they
 cannot drift.

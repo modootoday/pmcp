@@ -32,12 +32,12 @@ pmcp-browser serve [--memory-max 2G] [--approved <dir>] [--display :N --xauthori
   installed by you, since a desktop can type into the address bar.
 - **Downloads** go to a per-process directory; past 512 MiB the browser refuses more.
 
-| Tool | |
-| --- | --- |
-| `navigate`, `tabs`, `close` | open a URL; list, open, select or close tabs; end the browser |
-| `snapshot` | the accessibility tree with a ref on each control |
-| `click`, `type`, `press` | by ref, CSS selector or viewport point; key chords |
-| `read_text`, `screenshot`, `wait_for`, `downloads` | read only |
+| Tool                                               |                                                               |
+| -------------------------------------------------- | ------------------------------------------------------------- |
+| `navigate`, `tabs`, `close`                        | open a URL; list, open, select or close tabs; end the browser |
+| `snapshot`                                         | the accessibility tree with a ref on each control             |
+| `click`, `type`, `press`                           | by ref, CSS selector or viewport point; key chords            |
+| `read_text`, `screenshot`, `wait_for`, `downloads` | read only                                                     |
 
 Tests run the pinned Chromium headless against local servers, one approved and one not:
 `cargo test -j 2`.

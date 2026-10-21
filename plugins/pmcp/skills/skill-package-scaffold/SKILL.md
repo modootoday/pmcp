@@ -37,14 +37,14 @@ for code that is not there.
 
 These are the Agent Skills checks `pmcp validate` always runs:
 
-| Field | Rule |
-| --- | --- |
-| `name` | required; at most 64 characters; lowercase letters, digits and single hyphens, not starting or ending with one; equal to the directory name |
-| `description` | required, non-blank; at most 1024 characters |
-| `compatibility` | optional string; at most 500 characters |
-| `license` | optional string |
-| `allowed-tools` | optional; one space-separated string, not a list |
-| `metadata` | optional map |
+| Field           | Rule                                                                                                                                        |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`          | required; at most 64 characters; lowercase letters, digits and single hyphens, not starting or ending with one; equal to the directory name |
+| `description`   | required, non-blank; at most 1024 characters                                                                                                |
+| `compatibility` | optional string; at most 500 characters                                                                                                     |
+| `license`       | optional string                                                                                                                             |
+| `allowed-tools` | optional; one space-separated string, not a list                                                                                            |
+| `metadata`      | optional map                                                                                                                                |
 
 A marketplace may add its own rules on top (a metadata schema, tiers, ASCII-only text).
 `pmcp validate` checks them only when `pmcp.toml` names a profile in `[catalog.validation]`
@@ -59,10 +59,10 @@ description: Draft a reply to a customer disputing an invoice ... Use when ... N
 
 ## Evals: three cases, each self-contained
 
-| Case | Tests |
-| --- | --- |
-| normal | the common request, with every input present |
-| exception | the input that should change the answer: a rule's exception, an edge value, a refusal |
+| Case         | Tests                                                                                         |
+| ------------ | --------------------------------------------------------------------------------------------- |
+| normal       | the common request, with every input present                                                  |
+| exception    | the input that should change the answer: a rule's exception, an edge value, a refusal         |
 | missing-info | a request lacking something essential; the skill must ask or state the assumption, not invent |
 
 Each `prompt.md` must carry everything the case needs. The grader's sandbox starts empty, so
