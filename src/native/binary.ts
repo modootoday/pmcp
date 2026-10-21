@@ -36,6 +36,36 @@ export function packagedBinary(
     : { reason: `@modootoday/${platform} has no ${name}` };
 }
 
+// Which platforms have a package, and which binaries each carries (scripts/platform-packages.mjs).
+const BUILT: Readonly<Record<string, readonly string[]>> = {
+  "linux-x64": ["pmcp-pty", "pmcp-tui", "pmcp-browser", "pmcp-desktop"],
+  "linux-arm64": ["pmcp-pty", "pmcp-tui", "pmcp-browser", "pmcp-desktop"],
+  "darwin-x64": ["pmcp-pty", "pmcp-tui"],
+  "darwin-arm64": ["pmcp-pty", "pmcp-tui"],
+};
+
+// Why a native binary is missing, in words that lead to the fix: an npm install that ran
+// before the platform package was available (or with --omit=optional) leaves only the main
+// package, and a generic "not found" hides that a reinstall fixes it.
+export function missingBinary(
+  name: string,
+  variable: string,
+  version: string,
+  from: string = import.meta.url,
+): string {
+  const platform = `${process.platform}-${process.arch}`;
+  const pkg = `@modootoday/pmcp-${platform}@${version}`;
+  const own = `, or set ${variable} to a ${name} you built`;
+  if (!BUILT[platform]?.includes(name))
+    return `${name} is not built for ${platform}; set ${variable} to a ${name} you built`;
+  const found = packagedBinary(name, from);
+  if ("path" in found)
+    return `${name} at ${found.path} is not executable${own}`;
+  if (found.reason.startsWith("no "))
+    return `${name} not found: the platform package ${pkg} is not installed; reinstall @modootoday/pmcp (npm installs it as an optional dependency)${own}`;
+  return `${name} not found: ${found.reason}; reinstall @modootoday/pmcp${own}`;
+}
+
 function packaged(name: string): string | null {
   const found = packagedBinary(name);
   return "path" in found ? found.path : null;

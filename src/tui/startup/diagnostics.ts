@@ -1,4 +1,6 @@
 import { dependencies } from "./dependencies.js";
+import { VERSION } from "../../commands/version.js";
+import { missingBinary } from "../../native/binary.js";
 import { assertNativeHost } from "../../harness/adapters/systemd/admission.js";
 import { runtimeExecutables } from "../../harness/runtimes/registry.js";
 import { locateExecutable } from "../../harness/adapters/process/executable.js";
@@ -14,13 +16,9 @@ function remediation(
       "Use Linux or macOS for the terminal workspace. Other PMCP CLI features do not require this host profile.",
     );
   if (!tools.pmcpPty)
-    steps.push(
-      "Build or install pmcp-pty and set PMCP_PTY_BIN to it, or put it on PATH.",
-    );
+    steps.push(`${missingBinary("pmcp-pty", "PMCP_PTY_BIN", VERSION)}.`);
   if (!tools.pmcpTui)
-    steps.push(
-      "Build or install pmcp-tui and set PMCP_TUI_BIN to it, or put it on PATH.",
-    );
+    steps.push(`${missingBinary("pmcp-tui", "PMCP_TUI_BIN", VERSION)}.`);
   if (tools.platform === "linux" && !(tools.systemctl && tools.systemdRun))
     steps.push(
       "Install systemd's systemctl and systemd-run for your distribution and add them to PATH.",

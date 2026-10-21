@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { nativeBinary } from "../native/binary.js";
+import { VERSION } from "../commands/version.js";
+import { missingBinary, nativeBinary } from "../native/binary.js";
 import { pickEnv } from "../native/env-names.js";
 import { readLock } from "./apply/lock.js";
 import type { Finding } from "./doctor/types.js";
@@ -85,7 +86,7 @@ export function ptyBinaryDoctor(
         tool: "project",
         check: "pmcp-pty binary",
         status: "warn",
-        detail: "pmcp-pty not found; set PMCP_PTY_BIN or put it on PATH",
+        detail: missingBinary("pmcp-pty", "PMCP_PTY_BIN", VERSION),
       };
 }
 

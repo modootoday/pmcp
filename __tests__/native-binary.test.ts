@@ -1,41 +1,48 @@
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, expect, it } from "vitest";
-import { nativeBinary } from "../src/native/binary.js";
+import { pathToFileURL } from "node:url";
+import { expect, it, type TestContext } from "vitest";
 
-const directories: string[] = [];
-afterEach(() => {
-  for (const directory of directories.splice(0))
-    rmSync(directory, { recursive: true, force: true });
-});
-function bin(name: string): string {
-  const directory = mkdtempSync(join(tmpdir(), "pmcp-native-"));
-  directories.push(directory);
-  const path = join(directory, name);
-  writeFileSync(path, "#!/bin/sh\n");
-  chmodSync(path, 0o755);
-  return path;
+import { missingBinary } from "../src/native/binary.js";
+
+// An install made while npm was still processing the platform package (0.18.4), or with
+// --omit=optional, has only the main package; the message must lead to the reinstall.
+function from(t: TestContext, layout: "none" | "empty"): string {
+  const dir = mkdtempSync(join(tmpdir(), "pmcp-native-"));
+  t.onTestFinished(() => rmSync(dir, { recursive: true, force: true }));
+  if (layout === "empty") {
+    const pkg = join(
+      dir,
+      "node_modules/@modootoday",
+      `pmcp-${process.platform}-${process.arch}`,
+    );
+    mkdirSync(join(pkg, "bin"), { recursive: true });
+    writeFileSync(join(pkg, "package.json"), "{}");
+  }
+  return pathToFileURL(join(dir, "cli.js")).href;
 }
 
-// No platform package is installed in the repository, so these cover the override and PATH ends;
-// the packaged middle is checked against packed tarballs in the release dry run.
-it("prefers the override, and a broken override is not silently replaced", () => {
-  const onPath = bin("pmcp-pty");
-  const given = bin("pmcp-pty");
-  const path = join(onPath, "..");
-  expect(nativeBinary("pmcp-pty", "PMCP_PTY_BIN", { PATH: path })).toBe(onPath);
+const platform = `${process.platform}-${process.arch}`;
+
+it("names the platform package and the reinstall when it is not installed", (t) => {
   expect(
-    nativeBinary("pmcp-pty", "PMCP_PTY_BIN", {
-      PATH: path,
-      PMCP_PTY_BIN: given,
-    }),
-  ).toBe(given);
+    missingBinary("pmcp-pty", "PMCP_PTY_BIN", "9.9.9", from(t, "none")),
+  ).toBe(
+    `pmcp-pty not found: the platform package @modootoday/pmcp-${platform}@9.9.9 is not installed; reinstall @modootoday/pmcp (npm installs it as an optional dependency), or set PMCP_PTY_BIN to a pmcp-pty you built`,
+  );
+});
+
+it("says when the installed platform package lacks the binary", (t) => {
   expect(
-    nativeBinary("pmcp-pty", "PMCP_PTY_BIN", {
-      PATH: path,
-      PMCP_PTY_BIN: join(path, "missing"),
-    }),
-  ).toBeNull();
-  expect(nativeBinary("pmcp-tui", "PMCP_TUI_BIN", { PATH: path })).toBeNull();
+    missingBinary("pmcp-tui", "PMCP_TUI_BIN", "9.9.9", from(t, "empty")),
+  ).toBe(
+    `pmcp-tui not found: @modootoday/pmcp-${platform} has no pmcp-tui; reinstall @modootoday/pmcp, or set PMCP_TUI_BIN to a pmcp-tui you built`,
+  );
+});
+
+it("says when a binary is not built for this platform at all", (t) => {
+  expect(missingBinary("pmcp-nothing", "X_BIN", "9.9.9", from(t, "none"))).toBe(
+    `pmcp-nothing is not built for ${platform}; set X_BIN to a pmcp-nothing you built`,
+  );
 });

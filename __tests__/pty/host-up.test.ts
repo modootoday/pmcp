@@ -207,7 +207,7 @@ describe("pmcp harness host up and down", () => {
       ptyBinary({ PMCP_PTY_BIN: join(dir, "missing"), PATH: dir }),
     ).toBeNull();
     expect(() => unitText("/s", "/d", { PATH: "/nonexistent" })).toThrow(
-      "pmcp-pty not found; set PMCP_PTY_BIN or put it on PATH",
+      "pmcp-pty not found",
     );
     const text = unitText("/run/u/pmcp-pty.sock", "/s/host-approvals/abc", {
       PMCP_PTY_BIN: bin,

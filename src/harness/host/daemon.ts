@@ -3,6 +3,8 @@ import { createHash } from "node:crypto";
 import { closeSync, mkdirSync, openSync, readFileSync } from "node:fs";
 import { dirname } from "node:path";
 
+import { VERSION } from "../../commands/version.js";
+import { missingBinary } from "../../native/binary.js";
 import { ptyBinary } from "../../project/host.js";
 import type { Call } from "./up.js";
 
@@ -20,7 +22,7 @@ const unitName = (dir: string) =>
 function binary(env: Readonly<Record<string, string | undefined>>): string {
   const found = ptyBinary(env);
   if (!found)
-    throw new Error("pmcp-pty not found; set PMCP_PTY_BIN or put it on PATH");
+    throw new Error(missingBinary("pmcp-pty", "PMCP_PTY_BIN", VERSION));
   return found;
 }
 
