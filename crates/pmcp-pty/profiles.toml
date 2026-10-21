@@ -259,6 +259,21 @@ name = "placeholder"
 regex = 'Ask anything… "|Run a command… "'
 source = "opencode-ai 1.18.33 opencode.exe @106966276"
 
+# After the first turn the empty box shows no placeholder: blank ┃ rows above the agent row
+# (Build · <model>) and the ╹ bottom border. Message bubbles share the ┃ border but have neither.
+[[profiles.opencode.input_empty]]
+name = "blank-box"
+# Anchored at the box top (a row without ┃ above it), so a blank row below a draft is not it.
+regex = '(?m)(?:\A|^[^┃\n]*\n)[ \t]*┃[ \t]*\n(?:[ \t]*┃[ \t]*\n)*[ \t]*┃  \S+ · [^\n]*\n[ \t]*╹'
+source = "live capture of opencode 1.18.33, 2026-10-21"
+
+# The box itself, so a screen without one (a wrapper's output before the TUI draws) is not
+# idle: live, a turn sent then was refused as "input box is not empty" (pilot, 2026-10-21).
+[profiles.opencode.input]
+name = "box"
+regex = '(?m)^[ \t]*┃[ \t]*\n[ \t]*┃  (?P<text>\S[^\n]*?)[ \t]*\n(?:[ \t]*┃[^\n]*\n)*?[ \t]*┃  \S+ · [^\n]*\n[ \t]*╹'
+source = "live captures of opencode 1.18.33, 2026-10-20 and 2026-10-21; first draft row only"
+
 [profiles.agy]
 argv0 = ["agy"]
 version = "1.4.3"

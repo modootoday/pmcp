@@ -1,0 +1,44 @@
+     34
+     35                                                                                             Numbers 1 to 60, one per line
+     36
+     37                                                                                             Context
+     38                                                                                             15,418 tokens
+     39                                                                                             1% used
+     40                                                                                             $0.03 spent
+     41
+     42                                                                                             MCP
+     43                                                                                             • pmcp-desktop Connected
+     44                                                                                             • skills Connected
+     45
+     46                                                                                             LSP
+     47                                                                                             LSPs are disabled
+     48
+     49
+     50
+     51
+     52
+     53
+     54
+     55
+     56
+     57
+     58
+     59
+     60
+
+     ▣  Build · model-1 · 1m 7s
+
+  ┃
+  ┃  Reply with exactly PTY-BUSY-OK-opencode and nothing else.
+  ┃
+
+     PTY-BUSY-OK-opencode
+
+     ▣  Build · model-1 · 1m 0s
+
+  ┃
+  ┃
+  ┃
+  ┃  Build · model-1 Example Gateway                                                 ~/project:main
+  ╹▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+   ~/project               15.4K (1%) · $0.03  ctrl+p commands    • OpenCode 1.18.33

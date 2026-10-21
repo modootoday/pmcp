@@ -156,3 +156,43 @@ fn a_bare_mark_is_an_empty_box_for_claude_and_codex() {
     let draft = "────────\n❯ fix it\n────────";
     assert_eq!(claude.observe_typed(draft, draft).input_empty, Some(false));
 }
+
+// opencode drew nothing but a wrapper's line for seconds; with no input pattern that quiet screen
+// read as idle, a turn sent then was refused as "input box is not empty", and after a turn the
+// empty box (no placeholder) read as a draft (pilot live check, 2026-10-21).
+#[test]
+fn opencode_reads_its_box_and_is_not_ready_before_it() {
+    let set = builtin();
+    let p = set.get("opencode").unwrap();
+    let read = |screen: &str| {
+        let m = p.observe_typed(screen, screen);
+        (
+            m.input_empty,
+            p.composer_missing(&m),
+            p.draft(screen, screen),
+        )
+    };
+    let bottom = "  ┃  Build · GLM-5.3 Example Gateway\n  ╹▀▀▀▀▀▀▀▀\n   ~/project  ctrl+p commands";
+
+    let wrapper = "- running with 9 values bash\n\n";
+    assert_eq!(read(wrapper), (None, true, None));
+
+    let fresh = format!("  ┃\n  ┃  Ask anything… \"Fix a TODO in the codebase\"\n  ┃\n{bottom}");
+    assert_eq!(read(&fresh), (Some(true), false, Some(String::new())));
+
+    let after_turn =
+        format!("  ┃\n  ┃  Reply with exactly OK.\n  ┃\n\n     OK\n\n  ┃\n  ┃\n  ┃\n{bottom}");
+    assert_eq!(read(&after_turn), (Some(true), false, Some(String::new())));
+
+    let draft = format!("  ┃\n  ┃  summarize the readme\n  ┃\n{bottom}");
+    assert_eq!(
+        read(&draft),
+        (Some(false), false, Some("summarize the readme".to_string()))
+    );
+
+    // A message bubble alone is not the box.
+    assert_eq!(
+        read("  ┃\n  ┃  Reply with exactly OK.\n  ┃\n"),
+        (None, true, None)
+    );
+}
