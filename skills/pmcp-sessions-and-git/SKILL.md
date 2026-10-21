@@ -1,6 +1,6 @@
 ---
 name: pmcp-sessions-and-git
-description: Work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, pause, resume and broadcast when the user asks, wait out a lease, work in a linked worktree instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and linked worktrees, and read pmcp logs to explain a hook refusal. Use when a pmcp hook refused or warned, when several agents share one repository, when asked to deliver work, or when a session reports a pause, lease or leftover edits. Not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.
+description: Work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, leave pause and broadcast to the user, wait out a lease, work in a linked worktree instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and linked worktrees, and read pmcp logs to explain a hook refusal. Use when a pmcp hook refused or warned, when several agents share one repository, when asked to deliver work, or when a session reports a pause, lease or leftover edits. Not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.
 metadata:
   tier: open
   level: L2
@@ -26,19 +26,11 @@ It prints each live session (its id, runtime, checkout and current tool), the pa
 broadcasts, held leases, and files edited but not delivered in a shared checkout. Read it
 before delivering anything, and whenever a hook mentions another session.
 
-## Pause and broadcast (only when the user asks)
+## Pause and broadcast are the user's
 
-```sh
-pmcp sessions pause "release freeze" --by operator
-pmcp sessions resume
-pmcp sessions broadcast "main moved; sync your worktree before delivering"
-pmcp sessions unbroadcast
-pmcp sessions sweep   # drop records whose process is gone
-```
-
-While paused, every other session's edits and mutating commands are refused; reading and
-planning continue. A broadcast reaches each session once, as context. An agent does not
-pause, resume or broadcast on its own initiative; it reports the need to the user.
+Do not pause, resume or broadcast on your own initiative; report the need to the user. While
+a pause is in effect, your edits and mutating commands are refused; keep to reading and
+planning until it lifts.
 
 ## Leases
 

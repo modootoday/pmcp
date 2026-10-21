@@ -57,6 +57,10 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/sessions/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/skills-reference/</loc>
     <priority>0.8</priority>
   </url>

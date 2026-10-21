@@ -92,15 +92,18 @@ it("provides working content and all eight homepage sections without JavaScript"
   expect(home).not.toContain("window.openai");
 });
 
-it("shows real shipped instructions instead of unpublished demonstration skills", () => {
+// The page describes the shipped skills for people and links the file an agent reads; the
+// agent-facing body is not rendered as page copy.
+it("describes the real shipped skills instead of unpublished demonstration skills", () => {
   const examples = readFileSync(join(output, "examples/index.html"), "utf8");
   const source = readFileSync(
     join(root, "skills/package-skill-catalog/SKILL.md"),
     "utf8",
   );
   expect(examples).toContain("package-skill-catalog");
-  expect(examples).toContain("Installing a skill does not");
+  expect(examples).toContain("skills/package-skill-catalog/SKILL.md");
   expect(source).toContain("Installing a skill does not");
+  expect(examples).not.toContain("Installing a skill does not");
   expect(examples).not.toContain("demo/release-review");
   expect(examples).not.toContain("examples executed");
 });

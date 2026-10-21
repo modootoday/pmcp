@@ -7,6 +7,13 @@ export const guides = [
       "Keep native runtime configuration, MCP servers and explicit guards in one project source.",
   },
   {
+    source: "sessions.md",
+    route: "/sessions/",
+    title: "Run several agents",
+    description:
+      "See and coordinate several agent sessions in one repository: pause, messages, leases and one delivery path.",
+  },
+  {
     source: "skills.md",
     route: "/skills-reference/",
     title: "Skills and MCP reference",

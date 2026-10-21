@@ -22,9 +22,9 @@ const entries = [
   },
   {
     path: "/examples/",
-    title: "Skill example — PMCP",
+    title: "Skills pmcp ships — pmcp",
     description:
-      "Read the actual SKILL.md instructions shipped by the public PMCP package.",
+      "What each skill shipped with pmcp is for, with a link to the instructions an agent reads.",
     kind: "examples",
     body: renderExamples(examples),
   },

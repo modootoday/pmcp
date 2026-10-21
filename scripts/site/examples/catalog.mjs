@@ -20,7 +20,6 @@ export function shippedExamples(root) {
         path,
         name: metadata.name,
         description: metadata.description,
-        body: parts[2].trim(),
       };
     });
 }

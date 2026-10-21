@@ -63,9 +63,11 @@ JSON lines over the socket: one request object per line, one reply line, except
 `bad_request not_found exited busy dialog_open guard timeout lease conflict stale`. Sessions
 are addressed by `id` (`s1`, `s2`, ...) or `name`.
 
-### For AI callers
+### Core ops
 
-One request does one whole thing; the daemon waits, not the caller.
+The ops a client drives a session with. One request does one whole thing; the daemon waits,
+not the caller. An agent gets the same contract from the `describe` op, or as tools from
+`pmcp harness mcp`; this section is the reference for writing a client.
 
 | op | request fields | reply |
 | --- | --- | --- |
@@ -285,8 +287,7 @@ implemented.
 
 ## Comparison
 
-From each project's documentation; none of them is installed here, so nothing below was
-run.
+From each project's documentation, not from running them.
 
 | need | pmcp-pty | tmux | wezterm mux | zellij |
 | --- | --- | --- | --- | --- |
