@@ -22,7 +22,7 @@ export function registerCatalogTool(
     {
       ...readOnlyTool("List skills"),
       description:
-        "Every skill the installed packages and marketplaces ship, grouped by package or plugin, with names, one-line descriptions and tier, and no bodies. Paged by group. With kind it lists agents, hooks or MCP servers instead. Items list the runtimes they were verified on (verifiedRuntimes). With runtime, verified items are marked and listed first within their group but the others are kept; verifiedOnly drops the unverified ones.",
+        "Browse the whole catalog page by page; use it when skill_find returned nothing useful or to see what exists. Every skill the installed packages and marketplaces ship, grouped by package or plugin, with names, one-line descriptions and tier, and no bodies. Paged by group. With kind it lists agents, hooks or MCP servers instead. Items list the runtimes they were verified on (verifiedRuntimes). With runtime, verified items are marked and listed first within their group but the others are kept; verifiedOnly drops the unverified ones.",
       inputSchema: z.object({
         page: z.number().int().min(1).optional(),
         pageSize: z.number().int().min(1).max(20).optional(),

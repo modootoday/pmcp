@@ -52,7 +52,8 @@ export const PTY_TOOLS: readonly Tool[] = [
   {
     op: "list",
     title: "pmcp-pty list",
-    description: "Hosted sessions, optionally filtered by labels.",
+    description:
+      "Hosted sessions, optionally filtered by labels. Call first: the other tools take the session ids it returns.",
     schema: z
       .object({ labels: z.record(z.string(), z.string()).optional() })
       .strict(),

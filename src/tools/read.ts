@@ -11,7 +11,7 @@ export function registerReadTool(server: McpServer, tools: SkillTools): void {
     {
       ...readOnlyTool("Read a skill file"),
       description:
-        "One file inside a skill's directory in this catalog, with its sha256 and media type: text as text, images and audio as image and audio content, other binary files as an embedded resource. path is relative to the skill, as skill_call, skill_bundle and skill_describe list it (layout: https://pmcp.build). Scripts are returned as content, never run, and no external API is called. Files over 256 KiB and paths outside the skill are refused.",
+        "One file inside a skill's directory in this catalog, with its sha256 and media type: text as text, images and audio as image and audio content, other binary files as an embedded resource. path is relative to the skill, as skill_call, skill_bundle and skill_describe list it. Scripts are returned as content, never run, and no external API is called. Files over 256 KiB and paths outside the skill are refused.",
       inputSchema: z.object({
         name: skillNameInput,
         path: z

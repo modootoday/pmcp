@@ -24,7 +24,7 @@ export function registerCallTool(server: McpServer, tools: SkillTools): void {
     {
       ...readOnlyTool("Read a skill"),
       description:
-        "The body of a single skill, by the name skill_find or skill_catalog returned, followed by the list of reference, script and asset files the skill carries, if any, as text; skill_read returns one of them and skill_bundle links them all. This is the only call that costs a document.",
+        "The body of a single skill, by the name skill_find or skill_catalog returned, followed by the list of reference, script and asset files the skill carries, if any, as text; skill_read returns one of them and skill_bundle links them all. It loads the full instructions into context, so call it only for the one or two skills you chose.",
       inputSchema: z.object({
         name: z
           .string()

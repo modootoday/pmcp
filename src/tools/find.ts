@@ -19,7 +19,7 @@ export function registerFindTool(server: McpServer, tools: SkillTools): void {
     {
       ...readOnlyTool("Find skills"),
       description:
-        "Skill names ranked against an intent, with descriptions and scores, and no bodies. The ranking compares the intent with skill descriptions, so a full sentence matches better than a single keyword. Each match lists the runtimes it was verified on (verifiedRuntimes). With runtime, verified matches are marked and listed first but the others are kept; verifiedOnly drops the unverified ones. The answer's runtime is the one the ordering used, or null.",
+        "Search the skill catalog; call this first when a task might have a skill. Describe the task in a full sentence: the ranking compares it with skill descriptions, so a sentence matches better than a keyword. Returns skill names with descriptions and scores, no bodies; then call skill_call with one returned name. Not for listing everything (use skill_catalog). Each match lists the runtimes it was verified on (verifiedRuntimes). With runtime, verified matches are marked and listed first but the others are kept; verifiedOnly drops the unverified ones. The answer's runtime is the one the ordering used, or null.",
       inputSchema: z.object({
         intent: z
           .string()
