@@ -54,8 +54,28 @@ fn an_approved_app_starts_on_the_display_and_ends_with_it_and_browsers_never_sta
         .parse()
         .unwrap();
     assert!(alive(pid));
-    let env = std::fs::read_to_string(format!("/proc/{pid}/environ")).unwrap();
-    assert!(env.contains("DISPLAY=:9") && env.contains("XAUTHORITY="));
+    // Intermittent under host load (seen in full crate runs, never alone): read the environ for
+    // up to 2 s, and if it still lacks the display, fail with what the process actually had.
+    let has = |env: &str| env.contains("DISPLAY=:9") && env.contains("XAUTHORITY=");
+    let start = Instant::now();
+    let mut env = String::new();
+    while start.elapsed() < Duration::from_secs(2) {
+        env = std::fs::read_to_string(format!("/proc/{pid}/environ")).unwrap_or_default();
+        if has(&env) {
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    let names: Vec<&str> = env
+        .split('\0')
+        .filter_map(|e| e.split('=').next())
+        .filter(|n| !n.is_empty())
+        .collect();
+    assert!(
+        has(&env),
+        "launched app environ ({} bytes) lacks the display: {names:?}",
+        env.len()
+    );
     let web = desk.run("launch", &json!({ "app": "web" })).unwrap_err();
     assert!(
         web.contains("web is not approved; approved: sleeper"),
