@@ -32,6 +32,13 @@ export class Reader {
     return value;
   }
 
+  envName(key: string): string | undefined {
+    const value = this.string(key);
+    if (value !== undefined && !/^[A-Z_][A-Z0-9_]{0,127}$/u.test(value))
+      this.fail(key, "an environment variable name (A-Z, 0-9, _)");
+    return value;
+  }
+
   oneOf<T extends string>(key: string, values: readonly T[], fallback: T): T {
     const value = this.table[key] ?? fallback;
     if (!values.includes(value as T)) this.fail(key, values.join(" | "));

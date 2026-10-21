@@ -4,6 +4,7 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
+  rmSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
@@ -81,6 +82,10 @@ export function writeHolder(
     startedAt: new Date().toISOString(),
   };
   writeFileSync(holderFile(lockPath), `${JSON.stringify(record)}\n`);
+}
+
+export function removeHolder(lockPath: string): void {
+  rmSync(holderFile(lockPath), { force: true });
 }
 
 export function readHolder(lockPath: string): Holder | null {

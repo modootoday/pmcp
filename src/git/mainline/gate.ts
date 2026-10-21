@@ -82,6 +82,7 @@ export function runGate(
   command: Argv,
   links: readonly string[],
   report: Reporter,
+  lockEnv?: string,
 ): number {
   const problem = prepareGateTree(mainRoot, tree, tip, links);
   if (problem !== null) {
@@ -92,5 +93,6 @@ export function runGate(
   return runCommand(command, tree, {
     PMCP_GATE_TIP: tip,
     PMCP_GATE_MAIN: mainRoot,
+    ...(lockEnv ? { [lockEnv]: "1" } : {}),
   });
 }

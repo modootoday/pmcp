@@ -24,6 +24,9 @@ export interface GateConfig {
   readonly command?: Argv;
   readonly tree?: string;
   readonly lockWaitSeconds: number;
+  // Set to 1 for the gate command and its children; a deliver started with it set does not
+  // take the lock again, so another tool sharing the lock can nest pmcp or be nested.
+  readonly lockEnv?: string;
 }
 
 export interface DeliverConfig {

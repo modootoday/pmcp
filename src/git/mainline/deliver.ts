@@ -8,7 +8,12 @@ import type {
   Reporter,
 } from "../types.js";
 import { gateTree, runGate } from "./gate.js";
-import { acquireHostLock, readHolder, writeHolder } from "./lock.js";
+import {
+  acquireHostLock,
+  readHolder,
+  removeHolder,
+  writeHolder,
+} from "./lock.js";
 import { waitForLeases } from "./lease-wait.js";
 import { replay } from "./replay.js";
 import type { SessionGate } from "./store.js";
@@ -76,6 +81,7 @@ function attempts(options: DeliverOptions): number {
         command,
         options.links,
         report,
+        options.gate?.lockEnv,
       ) !== 0
     ) {
       report.warn("the gate failed; nothing was pushed");
@@ -110,6 +116,13 @@ function attempts(options: DeliverOptions): number {
 function underLock(options: DeliverOptions): number {
   const { lock } = gateTree(options.tree);
   const wait = options.gate?.lockWaitSeconds ?? 5400;
+  const lockEnv = options.gate?.lockEnv;
+  if (lockEnv && process.env[lockEnv] === "1") {
+    options.report.info(
+      `the gate lock is held by the caller (${lockEnv}=1); not taking it again`,
+    );
+    return attempts(options);
+  }
   const held = acquireHostLock(lock, wait, () => {
     const holder = readHolder(lock);
     const who =
@@ -126,6 +139,7 @@ function underLock(options: DeliverOptions): number {
     return attempts(options);
   } finally {
     held.release();
+    removeHolder(lock);
   }
 }
 

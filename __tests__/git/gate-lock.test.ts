@@ -1,0 +1,120 @@
+import { spawn, type ChildProcess } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { afterEach, beforeAll, expect, it } from "vitest";
+
+import { gate as readGate } from "../../src/git/config/tables.js";
+import { detect } from "../../src/git/detect.js";
+import {
+  deliver,
+  type DeliverOptions,
+} from "../../src/git/mainline/deliver.js";
+import {
+  commit,
+  isolateGit,
+  recorder,
+  remote,
+  type Remote,
+} from "./fixture.js";
+
+beforeAll(isolateGit);
+
+const holders: ChildProcess[] = [];
+afterEach(() => {
+  for (const child of holders.splice(0)) child.kill("SIGKILL");
+  delete process.env["PMCP_TEST_GATE_LOCK"];
+});
+
+function options(
+  origin: Remote,
+  overrides: Partial<DeliverOptions> = {},
+): DeliverOptions {
+  return {
+    ctx: detect(origin.main)!,
+    named: [],
+    deliver: {
+      attempts: 1,
+      refuseDirectPush: true,
+      duringPause: "refuse",
+      leaseWaitSeconds: 1,
+    },
+    tree: join(origin.base, "state/gate/tree"),
+    links: [],
+    leases: [],
+    store: {
+      pause: { read: () => null },
+      leases: { read: () => null, take: () => true, release: () => {} },
+    },
+    report: recorder(),
+    ...overrides,
+  };
+}
+
+// Another tool holding the gate lock the way a workspace land script does: flock on the file
+// beside the gate tree, for as long as its process lives.
+async function holdLock(origin: Remote): Promise<void> {
+  const dir = join(origin.base, "state/gate");
+  mkdirSync(dir, { recursive: true });
+  const child = spawn("flock", [join(dir, "lock"), "-c", "sleep 30"], {
+    stdio: "ignore",
+  });
+  holders.push(child);
+  for (let i = 0; i < 50; i++) {
+    await new Promise((done) => setTimeout(done, 50));
+    if (existsSync(join(dir, "lock"))) break;
+  }
+  await new Promise((done) => setTimeout(done, 200));
+}
+
+it("waits on a gate lock another tool holds with flock, then gives up", async () => {
+  const origin = remote();
+  commit(origin.main, "a.txt", "a\n", "add a");
+  await holdLock(origin);
+  const report = recorder();
+  const gate = { command: ["true"], lockWaitSeconds: 1 };
+  expect(deliver(options(origin, { gate, report }))).toBe(1);
+  expect(
+    report.lines.some((line) => line.startsWith("waiting for the gate")),
+  ).toBe(true);
+  expect(report.lines).toContain("the gate lock stayed held for 1s");
+});
+
+it("sets lock_env for the gate and removes its holder record afterwards", () => {
+  const origin = remote();
+  commit(origin.main, "a.txt", "a\n", "add a");
+  const seen = join(origin.base, "seen");
+  const gate = {
+    command: ["sh", "-c", `printf %s "$PMCP_TEST_GATE_LOCK" > ${seen}`],
+    lockWaitSeconds: 60,
+    lockEnv: "PMCP_TEST_GATE_LOCK",
+  };
+  expect(deliver(options(origin, { gate }))).toBe(0);
+  expect(readFileSync(seen, "utf8")).toBe("1");
+  expect(existsSync(join(origin.base, "state/gate/holder.json"))).toBe(false);
+});
+
+it("does not take the lock again when started under a holder that set lock_env", async () => {
+  const origin = remote();
+  commit(origin.main, "a.txt", "a\n", "add a");
+  await holdLock(origin);
+  process.env["PMCP_TEST_GATE_LOCK"] = "1";
+  const report = recorder();
+  const gate = {
+    command: ["true"],
+    lockWaitSeconds: 1,
+    lockEnv: "PMCP_TEST_GATE_LOCK",
+  };
+  expect(deliver(options(origin, { gate, report }))).toBe(0);
+  expect(report.lines).toContain(
+    "the gate lock is held by the caller (PMCP_TEST_GATE_LOCK=1); not taking it again",
+  );
+});
+
+it("accepts only an environment variable name as lock_env", () => {
+  expect(
+    readGate("pmcp.toml", "/p", { lock_env: "GATE_LOCK_HELD" }).lockEnv,
+  ).toBe("GATE_LOCK_HELD");
+  expect(() => readGate("pmcp.toml", "/p", { lock_env: "gate-lock" })).toThrow(
+    "environment variable name",
+  );
+});

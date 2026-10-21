@@ -74,7 +74,13 @@ session). Installs never block a session.</p>
 <p><code>[git.mainline.gate]</code>: <code>command</code> (argv; no gate when missing), <code>tree</code> (the
 gate&#39;s worktree, default <code>&lt;state dir&gt;/gate/tree</code>; a relative path is relative to
 the main checkout, like <code>state_dir</code>), <code>lock_wait_seconds</code>
-(default <code>5400</code>).</p>
+(default <code>5400</code>) and <code>lock_env</code> (an environment variable name).</p>
+<p>One delivery gates at a time: pmcp takes an exclusive <code>flock</code> on the file <code>lock</code>
+beside the gate tree (<code>&lt;dir of tree&gt;/lock</code>), so another tool that takes the same
+file with <code>flock</code> (a workspace land script) and pmcp never gate together. With
+<code>lock_env</code> set, pmcp sets that variable to <code>1</code> for the gate command and its
+children, and a <code>pmcp git deliver</code> started with it already <code>1</code> runs under its
+caller&#39;s lock instead of waiting for it.</p>
 <p><code>[git.mainline.deliver]</code> enables <code>pmcp git deliver</code>, which replays commits onto
 the fetched mainline, runs the gate, and pushes one delivery at a time:
 <code>attempts</code> (default <code>3</code>), <code>refuse_direct_push</code> (default <code>true</code>: a hook refuses
