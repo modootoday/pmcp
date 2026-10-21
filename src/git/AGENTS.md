@@ -3,8 +3,8 @@
 Multi-session git workflow: worktrees, delivery to the mainline, main checkout sync.
 
 - Every feature is opt-in. A missing `[git]` table, or `enabled = false`, turns the whole
-  workflow off; a missing sub-table turns its command off. Keys stay snake_case as in the
-  design's pmcp.toml surface; an unknown key is a config error.
+  workflow off; a missing sub-table turns its command off. Keys stay snake_case as in
+  docs/project-configuration.md#git-workflow; an unknown key is a config error.
 - Nothing here encodes a workspace. Gate, install, bootstrap and notify are configured argv
   lists; never add a package manager, path or env name of one repository to code.
 - Only these commands mutate: `pmcp git worktree create|sync`, `pmcp git deliver`,

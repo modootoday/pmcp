@@ -7,8 +7,8 @@ belongs in README.md and docs/.
 - Keep detailed public configuration and integration examples in docs/.
 - Keep agent instructions in AGENTS.md files next to the code they govern.
 - Optional local supervision belongs to the CLI host only; MCP server entries
-  cannot reach it. Provider authentication stays native, and enterprise policy
-  belongs to a private hosted composition, not this package.
+  cannot reach it. Provider authentication stays native. Do not add
+  organization policy, identity or audit retention to this package.
 - Keep CLI routing thin, domain responsibilities separate and the terminal
   transport behind its adapter. The TUI consumes the complete CLI contract.
 - Add tool output fields only when the call supplies the new opt-in input.
@@ -18,7 +18,9 @@ belongs in README.md and docs/.
 - Never put credentials, native auth profiles, session transcripts or paths
   from your own machine in this package.
 - Keep published relative documentation links valid through package.json files.
-- Follow the repository's source formatting and comment rules.
+- Format with `bun run format` (prettier); `format:check` fails otherwise.
+  Comments are English and say why, in at most three lines: longer ones are
+  skipped and go stale.
 - Use the package's typecheck and test scripts for code changes. Documentation
   changes need link, packaging and formatting checks; avoid rebuilding
   unrelated runtime artifacts.

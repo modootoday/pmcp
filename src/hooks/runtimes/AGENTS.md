@@ -8,8 +8,9 @@ Rules for runtime adapters. Hook core rules: ../AGENTS.md.
   compile or src/project.
 - A projected command never reads an inherited $PWD; one that finds the project itself uses
   climbCommand, and Gemini's names no $NAME at all (Gemini expands them when it loads settings).
-- capabilities.ts changes only from a measurement (hook-contract-matrix or a recorded headless
-  session); name the runtime version and date in its comment.
+- capabilities.ts changes only from a measurement (a recorded headless session, kept under
+  `__tests__/hooks/fixtures/<runtime>/<version>/`); name the runtime version and date in its
+  comment.
 - normalize returns null for a payload it does not handle; it never throws on missing fields.
 - render writes only shapes the runtime was measured to accept, and no allow decision unless the
   runtime reads silence as a refusal (antigravity); such a runtime also defines silent.

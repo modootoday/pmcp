@@ -1,6 +1,7 @@
 # src/hooks
 
-Rules for the hook core. Package rules: ../../AGENTS.md. Design of record: the pmcp unified design artifact.
+Rules for the hook core. Package rules: ../../AGENTS.md. User-facing behaviour:
+../../docs/project-configuration.md#hooks.
 
 - contract.ts imports nothing. Dependencies point one way: runtimes -> contract <- policies.
 - Runtime strings (native event names, tool names, output field names) appear only under
