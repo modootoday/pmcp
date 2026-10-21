@@ -2,7 +2,7 @@ import { guides } from "../guides/catalog.mjs";
 
 // Getting started leads the menu and the references close it; the other guides keep their order.
 const EARLY = ["/guide/", "/install/"];
-const LATE = ["/authoring/", "/commands/", "/compatibility/", "/glossary/", "/compare/"];
+const LATE = ["/authoring/", "/commands/", "/compatibility/", "/upgrading/", "/known-issues/", "/glossary/", "/compare/"];
 const guide = (route) => guides.find((entry) => entry.route === route);
 
 export const documents = [

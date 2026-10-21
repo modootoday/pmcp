@@ -67,5 +67,14 @@ Edit the source, then regenerate; the checks fail on a generated file edited by 
 
 ## Commits and releases
 
-Commit messages describe the change for a reader of the public history. Releases follow
+Release notes are generated from commit subjects, so each subject is a line a user reads:
+
+- `type(scope)!: summary`, with type `feat`, `fix`, `docs`, `ci`, `chore`, `test`,
+  `refactor`, `perf`, `build` or `style`; the scope is optional.
+- Mark a breaking change with `!` and a `BREAKING CHANGE: <what users must do>` footer, and
+  add the steps to `docs/upgrading.md`.
+- Say what changed for the user, not how the code changed. One logical change per commit:
+  one commit is one line in the notes.
+
+Releases follow
 [RELEASING.md](https://github.com/modootoday/pmcp/blob/main/.github/RELEASING.md).

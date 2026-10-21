@@ -100,6 +100,19 @@ export const guides = [
     description: "Platforms, native runtimes and what each part of pmcp needs.",
   },
   {
+    source: "upgrading.md",
+    route: "/upgrading/",
+    title: "Upgrading",
+    description: "What to do when a release changes something you rely on.",
+  },
+  {
+    source: "known-issues.md",
+    route: "/known-issues/",
+    title: "Known issues",
+    description:
+      "What the current release does not do yet, and what to do instead.",
+  },
+  {
     source: "glossary.md",
     route: "/glossary/",
     title: "Glossary",

@@ -2,7 +2,8 @@
 
 [Back to the overview](../README.md)
 
-What runs where. Other pages link here instead of repeating requirements.
+What runs where. Other pages link here instead of repeating requirements. What does not work yet
+is on [Known issues](known-issues.md).
 
 ## Platforms
 

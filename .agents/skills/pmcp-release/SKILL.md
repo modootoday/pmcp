@@ -21,7 +21,10 @@ order to do it in and the mistakes that cost a release before.
    `cargo update -p pmcp-plugin-support` in the two plugin crates (their lockfiles record that
    path dependency; a `--locked` build fails without it). Run `bun run marketplace:build`.
    Matching `0.x.y` strings in Cargo files can belong to other crates; check before changing.
-2. Release notes as RELEASING.md describes for this version.
+2. Release notes are generated from commit subjects since the previous published release.
+   Commits follow `type(scope)!: summary` (CONTRIBUTING.md); mark a breaking change with `!`
+   and a `BREAKING CHANGE:` footer, and update `docs/upgrading.md` and
+   `docs/known-issues.md`. Read the notes in the dry-run summary before tagging.
 3. Checks, once: `bun run site:build`, `npm run build`, `npm run typecheck`, `npm test`,
    `npm run docs:check`, and in each crate `cargo fmt --check`,
    `cargo clippy --locked --all-targets` and `cargo test --locked -j 2`.

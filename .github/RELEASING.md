@@ -36,8 +36,11 @@ main package names a platform package that is missing.
    the two plugin crates, whose lockfiles also record that path dependency. Run
    `bun run marketplace:build`: the plugin and extension manifests, including the
    bridge's `npx @modootoday/pmcp@<version>`, follow `package.json`.
-2. `CHANGELOG.md`: turn Unreleased into the version, each line with its commit or
-   pull request, plus Upgrading and Known issues when they apply.
+2. Release notes: the workflow writes them from the commit subjects since the previous
+   published release (`scripts/release/notes.mjs`). Read them in the dry-run summary; a
+   wrong or missing line means a commit subject to fix before tagging. Update
+   `docs/upgrading.md` for a breaking change and `docs/known-issues.md` for what is still
+   open or now fixed.
 3. Docs and site: `bun run site:build`, then `npm run docs:check`. Pushing to
    main deploys pmcp.build (`pages.yml`); `bun run site:deployed` checks it.
 4. Checks: `npm run build`, `npm run typecheck`, `npm test`, and the Rust checks

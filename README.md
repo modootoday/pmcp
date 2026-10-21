@@ -131,26 +131,28 @@ code.
 
 ## Documentation
 
-| Page                                                     | For                                                         |
-| -------------------------------------------------------- | ----------------------------------------------------------- |
-| [Getting started](docs/getting-started.md)               | connecting a tool and finding skills                        |
-| [pmcp.toml reference](docs/project-configuration.md)     | every `pmcp.toml` table with its keys and defaults          |
-| [Hooks](docs/hooks.md)                                   | guards and checks, and which runtime supports what          |
-| [Git workflow](docs/git-workflow.md)                     | linked worktrees, delivery and sync                         |
-| [Browser and desktop](docs/browser-and-desktop.md)       | pmcp-browser and pmcp-desktop for agents                    |
-| [Library skills](docs/library-skills.md)                 | free library instructions as plugins, npm packages or files |
-| [Run several agents](docs/sessions.md)                   | sessions, messages, leases, worktrees and delivery          |
-| [Skills and MCP reference](docs/skills.md)               | skill layouts, tools, resources and the marketplace         |
-| [Terminal workspace](docs/terminal-workspace.md)         | the `pmcp tui` workspace                                    |
-| [Native terminal control](docs/terminal-harness.md)      | harness groups, control, recovery and `[host]`              |
-| [Embedding models](docs/embeddings.md)                   | semantic search with a local model                          |
-| [Local mailbox](docs/mailbox.md)                         | messages between actors with their own credentials          |
-| [HTTP hosting](docs/hosting.md)                          | serving a catalog from your application                     |
-| [Command reference](docs/commands.md)                    | commands, flags and exit codes                              |
-| [Compatibility](docs/compatibility.md)                   | platforms, runtimes and qualification                       |
-| [Glossary](docs/glossary.md)                             | the terms these pages use                                   |
-| [Changelog](CHANGELOG.md)                                | what changed, and how to upgrade                            |
-| [Contributing](CONTRIBUTING.md), [Security](SECURITY.md) | working on pmcp, reporting a vulnerability                  |
+| Page                                                         | For                                                         |
+| ------------------------------------------------------------ | ----------------------------------------------------------- |
+| [Getting started](docs/getting-started.md)                   | connecting a tool and finding skills                        |
+| [pmcp.toml reference](docs/project-configuration.md)         | every `pmcp.toml` table with its keys and defaults          |
+| [Hooks](docs/hooks.md)                                       | guards and checks, and which runtime supports what          |
+| [Git workflow](docs/git-workflow.md)                         | linked worktrees, delivery and sync                         |
+| [Browser and desktop](docs/browser-and-desktop.md)           | pmcp-browser and pmcp-desktop for agents                    |
+| [Library skills](docs/library-skills.md)                     | free library instructions as plugins, npm packages or files |
+| [Run several agents](docs/sessions.md)                       | sessions, messages, leases, worktrees and delivery          |
+| [Skills and MCP reference](docs/skills.md)                   | skill layouts, tools, resources and the marketplace         |
+| [Terminal workspace](docs/terminal-workspace.md)             | the `pmcp tui` workspace                                    |
+| [Native terminal control](docs/terminal-harness.md)          | harness groups, control, recovery and `[host]`              |
+| [Embedding models](docs/embeddings.md)                       | semantic search with a local model                          |
+| [Local mailbox](docs/mailbox.md)                             | messages between actors with their own credentials          |
+| [HTTP hosting](docs/hosting.md)                              | serving a catalog from your application                     |
+| [Command reference](docs/commands.md)                        | commands, flags and exit codes                              |
+| [Compatibility](docs/compatibility.md)                       | platforms, runtimes and qualification                       |
+| [Glossary](docs/glossary.md)                                 | the terms these pages use                                   |
+| [Release notes](https://github.com/modootoday/pmcp/releases) | what changed in each release                                |
+| [Upgrading](docs/upgrading.md)                               | what to do when a release changes something you rely on     |
+| [Known issues](docs/known-issues.md)                         | what the current release does not do yet                    |
+| [Contributing](CONTRIBUTING.md), [Security](SECURITY.md)     | working on pmcp, reporting a vulnerability                  |
 
 ## Licence
 

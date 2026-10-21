@@ -93,6 +93,10 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/known-issues/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/library-skills/</loc>
     <priority>0.8</priority>
   </url>
@@ -1154,6 +1158,10 @@
   </url>
   <url>
     <loc>https://pmcp.build/terminal-workspace/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/upgrading/</loc>
     <priority>0.8</priority>
   </url>
 </urlset>
