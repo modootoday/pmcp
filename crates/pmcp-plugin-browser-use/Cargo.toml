@@ -1,6 +1,6 @@
 [package]
 name = "pmcp-plugin-browser-use"
-version = "0.18.2"
+version = "0.18.3"
 edition = "2024"
 description = "An isolated Chromium for coding agents over MCP, with an address allowlist enforced in Chromium"
 publish = false
