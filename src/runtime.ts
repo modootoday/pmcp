@@ -64,8 +64,7 @@ export function detectRuntime(
   ctx?: RequestContext,
 ): Runtime | null {
   const envelope = ctx?.mcpReq?.envelope as
-    | Record<string, { name?: unknown } | undefined>
-    | undefined;
+    Record<string, { name?: unknown } | undefined> | undefined;
   const fromEnvelope = envelope?.[CLIENT_INFO_META_KEY]?.name;
   if (typeof fromEnvelope === "string") return runtimeOfClient(fromEnvelope);
   return runtimeOfClient(server.server?.getClientVersion?.()?.name);

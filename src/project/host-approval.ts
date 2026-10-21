@@ -64,10 +64,7 @@ export function readApproval(dir: string): Approval | null {
 }
 
 export type ApprovalState =
-  | "approved"
-  | "differs"
-  | "unapproved"
-  | "unprojected";
+  "approved" | "differs" | "unapproved" | "unprojected";
 
 export function approvalState(
   root: string,
