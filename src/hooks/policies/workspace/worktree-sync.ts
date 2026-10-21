@@ -50,7 +50,9 @@ function blocked(input: HookInput, ctx: Context): string | null {
   if (pause && pause.by !== input.session.id)
     return `the workspace is paused (${pause.reason})`;
   const lease = ctx.store.leases.read("lockfile");
-  return lease ? `a lockfile change is landing (${lease.subject})` : null;
+  return lease
+    ? `a lockfile change is being delivered (${lease.subject})`
+    : null;
 }
 
 function changed(
@@ -90,7 +92,7 @@ function move(input: HookInput, ctx: Context, git: GitContext): string[] {
     changed(git.root, "HEAD", opts.installWhen, git.upstream).length > 0
   ) {
     return [
-      `${git.upstream} changed ${opts.installWhen.join(", ")}; this desk moves at the next session start or with pmcp git worktree sync.`,
+      `${git.upstream} changed ${opts.installWhen.join(", ")}; this linked worktree moves at the next session start or with pmcp git worktree sync.`,
     ];
   }
   const install =

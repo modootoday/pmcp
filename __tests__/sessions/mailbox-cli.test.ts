@@ -156,6 +156,19 @@ describe("pmcp sessions send, inbox, ack and reply", () => {
       ).output,
     );
     expect(sent.to).toEqual([`desk:${join(root, ".claude/worktrees/a")}`]);
+    const named = JSON.parse(
+      (
+        await run(
+          "sessions",
+          "send",
+          "--json",
+          "--to",
+          "worktree:.claude/worktrees/a",
+          "hi",
+        )
+      ).output,
+    );
+    expect(named.to).toEqual([`worktree:${join(root, ".claude/worktrees/a")}`]);
   });
 
   it("sweeps expired messages with their markers", async (t) => {

@@ -154,7 +154,7 @@ describe.each(BOTH)("sessions.leases on %s payloads", (runtime) => {
       store,
     );
     expect(out.verdict).toBe("deny");
-    expect(out.stdout).toMatch(/bump vitest/u);
+    expect(out.stdout).toMatch(/being delivered \(bump vitest.*once the delivery finishes/u);
     expect(
       (
         await runShell(

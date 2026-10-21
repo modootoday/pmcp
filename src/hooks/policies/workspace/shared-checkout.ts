@@ -36,7 +36,7 @@ function sessionWarning(input: HookInput, ctx: Context): string[] {
     return [];
   ctx.store.registry.upsert(input.session.id, { sharedWarned: true });
   return [
-    `This session works in the shared checkout ${checkout.root}, not a desk. Keep to reading, syncing and delivering here; make changes in a desk or a scratch worktree.`,
+    `This session works in the shared checkout ${checkout.root}, not a linked worktree. Keep to reading, syncing and delivering here; make changes in a linked worktree (pmcp git worktree create) or a scratch worktree.`,
   ];
 }
 
@@ -93,7 +93,7 @@ function onEdit(input: HookInput, ctx: Context): string[] {
   });
   if (!record?.sharedEditNoticed) {
     lines.push(
-      `You are editing the shared checkout ${checkout.root}, not a desk. Land this change within the task, or make it in a scratch worktree; an edit left here blocks syncing the shared main.`,
+      `You are editing the shared checkout ${checkout.root}, not a linked worktree. Deliver this change within the task, or make it in a linked or scratch worktree; an edit left here blocks syncing the shared main.`,
     );
   }
   return lines;

@@ -41,7 +41,7 @@ export const sessionsSpec: CommandSpec = {
     {
       name: "to",
       describe:
-        "Message recipients: all, session:<id>, alias:<name>, role:<name> or desk:<path>. Repeatable.",
+        "Message recipients: all, session:<id>, alias:<name>, role:<name> or worktree:<path> (desk:<path> also works). Repeatable.",
       placeholder: "<selector>",
       repeat: true,
     },

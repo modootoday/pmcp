@@ -100,7 +100,7 @@ export interface MessageFrom {
 export interface Message {
   readonly id: string;
   readonly from: MessageFrom;
-  // Selectors: all, session:<id>, alias:<name>, role:<name>, desk:<path>.
+  // Selectors: all, session:<id>, alias:<name>, role:<name>, worktree:<path> (alias desk:<path>).
   readonly to: readonly string[];
   readonly subject?: string;
   readonly body: string;

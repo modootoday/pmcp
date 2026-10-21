@@ -2,7 +2,9 @@ import { basename, resolve } from "node:path";
 
 import type { Message, Recipient } from "../types.js";
 
-const KINDS = ["session", "alias", "role", "desk"] as const;
+// worktree:<path> names a linked worktree; desk:<path> is its older spelling and still works.
+const KINDS = ["session", "alias", "role", "worktree", "desk"] as const;
+const isWorktree = (kind: string) => kind === "worktree" || kind === "desk";
 
 // Selectors name who a message is for; anything else is refused when it is sent.
 export function checkSelector(selector: string): string {
@@ -10,7 +12,7 @@ export function checkSelector(selector: string): string {
   const [kind, value] = splitSelector(selector);
   if (!(KINDS as readonly string[]).includes(kind) || !value)
     throw new Error(
-      `--to ${selector}: use all, session:<id>, alias:<name>, role:<name> or desk:<path>`,
+      `--to ${selector}: use all, session:<id>, alias:<name>, role:<name> or worktree:<path>`,
     );
   return selector;
 }
@@ -21,10 +23,10 @@ function splitSelector(selector: string): [string, string] {
   return [selector.slice(0, at), selector.slice(at + 1)];
 }
 
-// A desk is named by its path when sent from the CLI, so relative paths are fixed then.
+// A worktree is named by its path when sent from the CLI, so relative paths are fixed then.
 export function normalizeSelector(selector: string, cwd: string): string {
   const [kind, value] = splitSelector(checkSelector(selector));
-  return kind === "desk" ? `desk:${resolve(cwd, value)}` : selector;
+  return isWorktree(kind) ? `${kind}:${resolve(cwd, value)}` : selector;
 }
 
 function matches(selector: string, recipient: Recipient): boolean {
@@ -34,7 +36,7 @@ function matches(selector: string, recipient: Recipient): boolean {
     return !!recipient.session && recipient.session.startsWith(value);
   if (kind === "alias") return recipient.alias === value;
   if (kind === "role") return (recipient.roles ?? []).includes(value);
-  if (kind !== "desk" || !recipient.desk) return false;
+  if (!isWorktree(kind) || !recipient.desk) return false;
   return recipient.desk === value || basename(recipient.desk) === value;
 }
 

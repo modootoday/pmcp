@@ -72,7 +72,7 @@ export const leases: Policy<readonly LeaseRule[]> = {
       if (!lease) continue;
       return {
         verdict: "deny",
-        reason: `A ${rule.path ?? rule.name} change is landing (${lease.subject}, since ${lease.since}). This command waits for it; retry when it has landed.`,
+        reason: `A ${rule.path ?? rule.name} change is being delivered (${lease.subject}, since ${lease.since}). This command waits for it; retry once the delivery finishes.`,
       };
     }
     return pass;

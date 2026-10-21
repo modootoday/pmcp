@@ -43,7 +43,7 @@ export function preset(cwd: string, kind: "solo" | "multi-session") {
       raw.git.worktrees = {};
       raw.git.shared_checkout = { enabled: "auto" };
       reasons.push(
-        "desks: worktree commands and shared-checkout warnings; no install or gate command invented",
+        "linked worktrees: worktree commands and shared-checkout warnings; no install or gate command invented",
       );
     }
   }

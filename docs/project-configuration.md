@@ -700,9 +700,9 @@ Each message is one file, `<state>/messages/<id>.json`, created atomically and
 never rewritten: `id`, `from` (session and alias), `to`, `subject`, `body`,
 `createdAt`, `expiresAt`, `replyTo`, `once`. `to` lists selectors: `all`,
 `session:<id>` (a prefix of at least eight characters works), `alias:<name>`,
-`role:<name>` (a `[sessions.roles]` name or the agent type), or `desk:<path>`
-(a linked worktree's path, or its directory name: `desk` is the selector
-name for a linked worktree). A message to `all` reaches the
+`role:<name>` (a `[sessions.roles]` name or the agent type), or `worktree:<path>`
+(a linked worktree's path, or its directory name; `desk:<path>` is an older
+spelling that still works). A message to `all` reaches the
 sessions that were running when it was sent; a session the registry records
 later does not get earlier broadcasts. Delivery and acknowledgement are
 empty markers under `<state>/inbox/<session>/`, so a message is never edited

@@ -87,7 +87,7 @@ describe.each(["claude", "codex"] as const)(
       expect(
         (await decide(event(runtime, "SessionStart", main), policy, { store }))
           .context?.[0],
-      ).toMatch(/shared checkout/u);
+      ).toMatch(/shared checkout .*not a linked worktree/u);
       expect(
         (
           await decide(event(runtime, "UserPromptSubmit", main), policy, {
@@ -113,7 +113,7 @@ describe.each(["claude", "codex"] as const)(
         (
           await decide(edit(runtime, main, file), policy, { store })
         ).context?.join("\n"),
-      ).toMatch(/editing the shared checkout/u);
+      ).toMatch(/editing the shared checkout .*Deliver this change/u);
       expect(
         (await decide(edit(runtime, main, file), policy, { store })).context,
       ).toBeUndefined();

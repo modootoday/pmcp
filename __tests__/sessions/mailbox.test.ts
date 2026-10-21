@@ -81,7 +81,7 @@ describe("mailbox store", () => {
     expect(audit).toEqual(["sent", "sent", "acked", "expired"]);
   });
 
-  it("resolves session, alias, role and desk selectors", () => {
+  it("resolves session, alias, role and worktree selectors, desk: as the older spelling", () => {
     const store = scratchStore({ mailbox: MAILBOX_ON });
     const send = (to: string) =>
       store.mailbox.send({ from: {}, to: [to], body: to }).id;
@@ -89,6 +89,8 @@ describe("mailbox store", () => {
       session: send("session:aaaaaaaa"),
       alias: send("alias:reviewer-desk"),
       role: send("role:reviewer"),
+      worktree: send("worktree:/w/.claude/worktrees/feature"),
+      worktreeName: send("worktree:feature"),
       desk: send("desk:/w/.claude/worktrees/feature"),
       deskName: send("desk:feature"),
     };

@@ -6,7 +6,7 @@ metadata:
   level: L2
   domain: agent-workflow
   install: optional
-  keywords: "pmcp, sessions, pause, broadcast, lease, worktree, desk, deliver, mainline, git sync, pmcp logs, hook refusal"
+  keywords: "pmcp, sessions, pause, broadcast, lease, worktree, deliver, mainline, git sync, pmcp logs, hook refusal"
   requires-bin: "pmcp"
 ---
 
@@ -44,14 +44,13 @@ pause, resume or broadcast on its own initiative; it reports the need to the use
 
 A lease protects a file two sessions must not change at once, such as a lockfile. While a
 delivery that touches it is in progress, the commands listed for that lease are refused with
-`... is landing ... retry when it has landed` ("landing" means being delivered). Wait and
-retry; do not run the command another way.
+`... is being delivered ... retry once the delivery finishes`. Wait and retry; do not run
+the command another way.
 
 ## Linked worktrees, not the shared checkout
 
 When the repository has worktrees, the main checkout is shared: an edit left there blocks
-syncing the mainline for every session, and the hook says so. Work in a linked worktree
-(hook messages call it a desk):
+syncing the mainline for every session, and the hook says so. Work in a linked worktree:
 
 ```sh
 pmcp git worktree create <alias>     # prints the worktree path; work there
