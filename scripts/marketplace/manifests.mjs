@@ -1,5 +1,4 @@
 const repository = "https://github.com/modootoday/pmcp";
-const nativeBridgeVersion = "0.13.1";
 export const MOD_HOOKS = "./mod/hooks.json";
 // The host refuses a mod whose state keys no manifest-named contract declares.
 export const MOD_TYPES = "./mod/contract.d.ts";
@@ -15,12 +14,13 @@ export function pluginManifests(descriptor, { withMod = false } = {}) {
     repository,
     homepage: "https://pmcp.build/skills/",
   };
+  // The bridge runs the release it ships in (package.json), so it cannot fall behind the CLI.
   const mcpServers = descriptor.bridge
     ? {
         pmcp: {
           type: "stdio",
           command: "npx",
-          args: ["-y", `@modootoday/pmcp@${nativeBridgeVersion}`, "serve"],
+          args: ["-y", `@modootoday/pmcp@${descriptor.version}`, "serve"],
         },
       }
     : {};

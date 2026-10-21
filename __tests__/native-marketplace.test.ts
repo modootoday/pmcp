@@ -24,6 +24,11 @@ import { readLocalMarketplace } from "../src/marketplace/local.js";
 
 const roots: string[] = [];
 const publicRoot = publicMarketplaceRoot();
+const BRIDGE = [
+  "-y",
+  `@modootoday/pmcp@${JSON.parse(readFileSync(join(publicRoot, "package.json"), "utf8")).version}`,
+  "serve",
+];
 afterEach(() => {
   for (const root of roots.splice(0))
     rmSync(root, { recursive: true, force: true });
@@ -62,7 +67,17 @@ describe("built-in public marketplace", () => {
     expect(
       JSON.parse(readFileSync(join(publicRoot, "mcp.json"), "utf8")).mcpServers
         .pmcp.args,
-    ).toEqual(["-y", "@modootoday/pmcp@0.13.1", "serve"]);
+    ).toEqual(BRIDGE);
+  });
+  // 0.18.0 shipped a bridge that still started 0.13.1: every bridge manifest runs this release.
+  it("starts the release it ships in from every bridge manifest", () => {
+    for (const dir of ["", "plugins/pmcp/"])
+      for (const path of ["mcp.json", ".mcp.json", "gemini-extension.json"])
+        expect(
+          JSON.parse(readFileSync(join(publicRoot, dir + path), "utf8"))
+            .mcpServers.pmcp.args,
+          dir + path,
+        ).toEqual(BRIDGE);
   });
   it("is CLI-only by default and preserves explicit library catalog selection", () => {
     const root = temporary();
@@ -222,7 +237,7 @@ describe("selected native plugin exports", () => {
     expect(files.has("mcp.json")).toBe(false);
     expect(
       JSON.parse(files.get("mcp_config.json")!.toString()).mcpServers.pmcp.args,
-    ).toEqual(["-y", "@modootoday/pmcp@0.13.1", "serve"]);
+    ).toEqual(BRIDGE);
   });
   it("rejects absent plugins before creating output", () => {
     expect(() =>
