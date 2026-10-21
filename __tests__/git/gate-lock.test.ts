@@ -1,9 +1,10 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeAll, expect, it } from "vitest";
 
 import { gate as readGate } from "../../src/git/config/tables.js";
+import { removeHolder } from "../../src/git/mainline/lock.js";
 import { detect } from "../../src/git/detect.js";
 import {
   deliver,
@@ -117,4 +118,66 @@ it("accepts only an environment variable name as lock_env", () => {
   expect(() => readGate("pmcp.toml", "/p", { lock_env: "gate-lock" })).toThrow(
     "environment variable name",
   );
+});
+
+// The race itself (the next holder writing between our release and our cleanup) is too narrow
+// to force here; what makes it harmless is that cleanup never removes a record not ours.
+it("never removes a holder record written by another process", () => {
+  const origin = remote();
+  const gate = join(origin.base, "state/gate");
+  mkdirSync(gate, { recursive: true });
+  const lock = join(gate, "lock");
+  const theirs = {
+    tip: "t",
+    subject: "queued",
+    checkout: "x",
+    pid: process.ppid,
+    startedAt: "s",
+  };
+  writeFileSync(join(gate, "holder.json"), JSON.stringify(theirs));
+  removeHolder(lock);
+  expect(
+    JSON.parse(readFileSync(join(gate, "holder.json"), "utf8")).subject,
+  ).toBe("queued");
+  writeFileSync(
+    join(gate, "holder.json"),
+    JSON.stringify({ ...theirs, pid: process.pid }),
+  );
+  removeHolder(lock);
+  expect(existsSync(join(gate, "holder.json"))).toBe(false);
+});
+
+// Released, the lock may go at once to a tool queued on it, which writes its own holder; ours
+// must be gone before that, and theirs must survive our cleanup.
+it("removes its own holder before releasing the lock, never the next holder's", async () => {
+  const origin = remote();
+  commit(origin.main, "a.txt", "a\n", "add a");
+  const gate = join(origin.base, "state/gate");
+  const waiter = join(origin.base, "waiter.mjs");
+  writeFileSync(
+    waiter,
+    `import { writeFileSync } from "node:fs";
+writeFileSync(process.argv[2], JSON.stringify({ tip: "next", subject: "queued", checkout: "x", pid: process.pid, startedAt: "t" }));
+setTimeout(() => {}, 1500);
+`,
+  );
+  const holder = join(gate, "holder.json");
+  const command = [
+    "sh",
+    "-c",
+    `flock ${join(gate, "lock")} ${process.execPath} ${waiter} ${holder} >/dev/null 2>&1 &`,
+  ];
+  expect(
+    deliver(options(origin, { gate: { command, lockWaitSeconds: 60 } })),
+  ).toBe(0);
+  let record: { subject?: string } | null = null;
+  for (let i = 0; i < 40 && record?.subject !== "queued"; i++) {
+    await new Promise((done) => setTimeout(done, 50));
+    record = existsSync(holder)
+      ? (JSON.parse(readFileSync(holder, "utf8")) as { subject?: string })
+      : null;
+  }
+  expect(record?.subject).toBe("queued");
+  await new Promise((done) => setTimeout(done, 300));
+  expect(existsSync(holder)).toBe(true);
 });

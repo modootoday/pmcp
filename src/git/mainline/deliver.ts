@@ -232,8 +232,8 @@ function underLock(options: DeliverOptions): number {
     if (options.pushPins && !pinsPushed(options)) return 1;
     return attempts(options);
   } finally {
-    held.release();
     removeHolder(lock);
+    held.release();
   }
 }
 

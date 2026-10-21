@@ -84,8 +84,11 @@ export function writeHolder(
   writeFileSync(holderFile(lockPath), `${JSON.stringify(record)}\n`);
 }
 
+// Ours only, and before the lock is released: once released, the next holder may already have
+// written its own record, which must stay for the tools waiting behind it.
 export function removeHolder(lockPath: string): void {
-  rmSync(holderFile(lockPath), { force: true });
+  if (readHolder(lockPath)?.pid === process.pid)
+    rmSync(holderFile(lockPath), { force: true });
 }
 
 export function readHolder(lockPath: string): Holder | null {
