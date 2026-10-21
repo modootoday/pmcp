@@ -1,6 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { realpathSync, statSync, unlinkSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+  unlinkSync,
+} from "node:fs";
 import { join } from "node:path";
+import { parse } from "smol-toml";
 import {
   assertOwnedRecords,
   createBackend,
@@ -25,6 +32,23 @@ export function groupEnv(value: unknown): string[] {
   }
 }
 
+// The project's pmcp.toml [harness] env, the default when the group input names none.
+export function projectHarnessEnv(projectRoot: string): unknown {
+  const path = join(projectRoot, "pmcp.toml");
+  if (!existsSync(path)) return undefined;
+  let raw: Record<string, unknown>;
+  try {
+    raw = parse(readFileSync(path, "utf8")) as Record<string, unknown>;
+  } catch {
+    throw new Error("invalid_project_config");
+  }
+  const harness = raw["harness"];
+  if (harness === undefined) return undefined;
+  if (harness === null || typeof harness !== "object" || Array.isArray(harness))
+    throw new Error("invalid_env_names");
+  return (harness as Record<string, unknown>)["env"];
+}
+
 export async function createGroup(
   input: Record<string, unknown>,
 ): Promise<{ groupFile: string; group: Group }> {
@@ -40,7 +64,7 @@ export async function createGroup(
   const supported = Object.keys(runtimeExecutables);
   if (allowedRuntimes.some((runtime) => !supported.includes(runtime)))
     throw new Error("unsupported_runtime");
-  const env = groupEnv(input.env);
+  const env = groupEnv(input.env ?? projectHarnessEnv(projectRoot));
   if (profile === "docker" && env.length > 0)
     throw new Error("env_requires_native_profile");
   const memoryMb = integer(input.memoryMb ?? 2048, "memory_budget", 128, 4096);

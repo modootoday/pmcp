@@ -65,6 +65,7 @@ ignored.
 | `[ui.claude]`                                                                                                                                                                             | [Claude session panes](#claude-session-panes)                           |
 | `[tui]`, `[mailbox]`                                                                                                                                                                      | [Terminal workspace](terminal-workspace.md)                             |
 | `[host]`, `[[host.sessions]]`, `[[host.answers]]`, `[host.browser]`, `[host.desktop]`, `[[host.desktop.launch]]`                                                                          | [Sessions pmcp-pty hosts](#sessions-pmcp-pty-hosts)                     |
+| `[harness]`                                                                                                                                                                               | [Terminal harness](terminal-harness.md#create-a-group-and-its-sessions) |
 
 ## Marketplaces
 

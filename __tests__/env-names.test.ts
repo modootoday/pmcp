@@ -4,7 +4,9 @@ import { join } from "node:path";
 import { describe, expect, it, type TestContext } from "vitest";
 
 import { spawnRequest } from "../src/harness/adapters/terminal/lifecycle.js";
-import { groupEnv } from "../src/harness/groups/service.js";
+import { groupEnv, projectHarnessEnv } from "../src/harness/groups/service.js";
+import { readConfig } from "../src/config.js";
+import { readSpec } from "../src/project/spec.js";
 import { hostUp, type HostRun } from "../src/harness/host/up.js";
 import { envNames, pickEnv } from "../src/native/env-names.js";
 import { hostEnvDoctor, hostManifest, readHost } from "../src/project/host.js";
@@ -164,5 +166,36 @@ describe("env passed by declared name", () => {
       GOOGLE_CLOUD_PROJECT: "demo",
       PMCP_PTY_BIN: "/bin/pmcp-pty",
     });
+  });
+
+  it("[harness] env in pmcp.toml is validated and is a group's default", (t) => {
+    const dir = mkdtempSync(join(tmpdir(), "pmcp-harness-env-"));
+    t.onTestFinished(() => rmSync(dir, { recursive: true, force: true }));
+    const toml = (body: string) =>
+      writeFileSync(
+        join(dir, "pmcp.toml"),
+        `[targets]\ntools = ["claude"]\n${body}`,
+      );
+    toml(
+      `[harness]\nenv = ["GOOGLE_CLOUD_PROJECT", "GOOGLE_CLOUD_LOCATION"]\n`,
+    );
+    expect(readSpec(readConfig(join(dir, "pmcp.toml"))).harness).toEqual({
+      env: ["GOOGLE_CLOUD_PROJECT", "GOOGLE_CLOUD_LOCATION"],
+    });
+    expect(groupEnv(projectHarnessEnv(dir))).toEqual([
+      "GOOGLE_CLOUD_PROJECT",
+      "GOOGLE_CLOUD_LOCATION",
+    ]);
+    toml(`[harness]\nenv = ["lower"]\n`);
+    expect(() => readSpec(readConfig(join(dir, "pmcp.toml")))).toThrow(
+      "environment variable name",
+    );
+    expect(() => groupEnv(projectHarnessEnv(dir))).toThrow("invalid_env_names");
+    toml(`[harness]\nvars = ["X"]\n`);
+    expect(() => readSpec(readConfig(join(dir, "pmcp.toml")))).toThrow(
+      "[harness] unknown key vars",
+    );
+    toml("");
+    expect(projectHarnessEnv(dir)).toBeUndefined();
   });
 });

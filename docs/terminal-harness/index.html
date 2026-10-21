@@ -172,7 +172,11 @@ Do not publish these directories or add them to source control.</p>
 pmcp harness group list</code></pre>
 <p>Add <code>&quot;env&quot;: [&quot;GOOGLE_CLOUD_PROJECT&quot;, &quot;GOOGLE_CLOUD_LOCATION&quot;]</code> to the group spec when
 its runtimes need variables from your environment (a cloud project for gemini on
-Vertex AI, for example). Only the names are stored; each <code>session start</code> reads the
+Vertex AI, for example). Without <code>env</code> in the spec, the group takes the project&#39;s
+default from pmcp.toml:</p>
+<pre><code>[harness]
+env = [&quot;GOOGLE_CLOUD_PROJECT&quot;, &quot;GOOGLE_CLOUD_LOCATION&quot;]</code></pre>
+<p>Only the names are stored; each <code>session start</code> reads the
 values from its own environment and refuses with <code>env_not_set:&lt;names&gt;</code> when one is
 unset, instead of starting a runtime that waits for a login. Native groups only.</p>
 <p>The JSON receipt provides the private groupFile and generation. Set GROUP_FILE

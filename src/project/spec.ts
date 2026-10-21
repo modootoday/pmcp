@@ -9,6 +9,7 @@ import type { UiSettings } from "../ui/claude/reader/index.js";
 import { readUiClaude } from "./ui-claude.js";
 import { readPermissions, type PermissionSpec } from "./permissions.js";
 import { readHost, type HostSpec } from "./host-spec.js";
+import { envNames } from "../native/env-names.js";
 import { TOOLS, type Tool } from "./tools.js";
 
 export { TOOLS, type Tool };
@@ -62,6 +63,8 @@ export interface ProjectSpec {
   readonly uiClaude?: UiSettings;
   readonly permissions?: PermissionSpec;
   readonly host?: HostSpec;
+  // [harness]: env names a harness group created in this project passes by default.
+  readonly harness?: { readonly env: readonly string[] };
 }
 
 const NAME = /^[a-z0-9][a-z0-9-]*$/u;
@@ -92,6 +95,25 @@ function named(path: string, where: string, name: string): string {
     );
   }
   return name;
+}
+
+function readHarness(
+  path: string,
+  raw: unknown,
+): { env: string[] } | undefined {
+  if (raw === undefined) return undefined;
+  if (raw === null || typeof raw !== "object" || Array.isArray(raw))
+    throw new ConfigError(path, "[harness] must be a table");
+  for (const key of Object.keys(raw))
+    if (key !== "env")
+      throw new ConfigError(path, `[harness] unknown key ${key}`);
+  try {
+    return {
+      env: envNames((raw as Record<string, unknown>)["env"], "[harness] env"),
+    };
+  } catch (error) {
+    throw new ConfigError(path, (error as Error).message);
+  }
 }
 
 export function readSpec(config: ProjectConfig): ProjectSpec {
@@ -177,6 +199,7 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
   const uiClaude = readUiClaude(path, raw["ui"], sessionHooks);
   const permissions = readPermissions(path, raw["permissions"]);
   const host = readHost(path, raw["host"]);
+  const harness = readHarness(path, raw["harness"]);
 
   return {
     root: config.dir,
@@ -189,6 +212,7 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
     ...(uiClaude ? { uiClaude } : {}),
     ...(permissions ? { permissions } : {}),
     ...(host ? { host } : {}),
+    ...(harness ? { harness } : {}),
     ...(hooks.legacy.length > 0 ? { hooks: hooks.legacy } : {}),
     ...(hooks.bundle ? { hookBundle: hooks.bundle } : {}),
     ...(hooks.deprecations.length > 0

@@ -167,7 +167,15 @@ pmcp harness group list
 
 Add `"env": ["GOOGLE_CLOUD_PROJECT", "GOOGLE_CLOUD_LOCATION"]` to the group spec when
 its runtimes need variables from your environment (a cloud project for gemini on
-Vertex AI, for example). Only the names are stored; each `session start` reads the
+Vertex AI, for example). Without `env` in the spec, the group takes the project's
+default from pmcp.toml:
+
+```toml
+[harness]
+env = ["GOOGLE_CLOUD_PROJECT", "GOOGLE_CLOUD_LOCATION"]
+```
+
+Only the names are stored; each `session start` reads the
 values from its own environment and refuses with `env_not_set:<names>` when one is
 unset, instead of starting a runtime that waits for a login. Native groups only.
 
