@@ -91,6 +91,15 @@ the mainline: `install` (argv), `install_when_changed` (paths; when no
 `[sessions.leases]` are declared, these become an implicit `lockfile` lease),
 `keep_identical_files` and `refuse_with_unlanded` (booleans, default `true`).
 
+After a successful install, sync records the hash it installed in a stamp and
+installs again only when that hash changes. By default the stamp is pmcp's own,
+in its state directory. `stamp` puts it at a path another tool also reads
+(`${git_dir}/name` is in the checkout's own git directory, so each worktree has
+one; `~/` and absolute paths work too). `stamp_hash = "plain"` makes the hash the
+sha256 of the single `install_when_changed` file's bytes, which other tools can
+compute and write themselves; the default `"pmcp"` hashes every listed path with
+its name. Delivery events record the same hash and whether the stamp matches it.
+
 `[git.submodules]`: `follow = "clean_pins"` (the default when the table is
 present) moves submodules to the pinned commit when they are clean; `"off"`
 leaves them. Without the table submodules are not followed.

@@ -1,3 +1,4 @@
+import { isAbsolute } from "node:path";
 import { ConfigError } from "../../config.js";
 import type {
   DeliverConfig,
@@ -108,12 +109,40 @@ export function mainlineSync(path: string, source: Table): MainlineSyncConfig {
     "install_when_changed",
     "keep_identical_files",
     "refuse_with_unlanded",
+    "stamp",
+    "stamp_hash",
   ]);
+  const installWhenChanged = read.list("install_when_changed");
+  const stamp = read.string("stamp");
+  const hash = read.oneOf("stamp_hash", ["pmcp", "plain"], "pmcp");
+  if (stamp !== undefined) {
+    const home = stamp.startsWith("~/") || stamp.startsWith("$HOME/");
+    if (!stamp.startsWith("${git_dir}/") && !home && !isAbsolute(stamp))
+      throw new ConfigError(
+        path,
+        "[git.mainline.sync] stamp must start with ${git_dir}/, ~/ or /",
+      );
+    if (hash === "plain" && installWhenChanged.length !== 1)
+      throw new ConfigError(
+        path,
+        '[git.mainline.sync] stamp_hash = "plain" needs exactly one install_when_changed path',
+      );
+  }
   return {
     install: read.argv("install"),
-    installWhenChanged: read.list("install_when_changed"),
+    installWhenChanged,
     keepIdenticalFiles: read.bool("keep_identical_files", true),
     refuseWithUnlanded: read.bool("refuse_with_unlanded", true),
+    ...(stamp !== undefined
+      ? {
+          stamp: {
+            path: stamp.startsWith("${git_dir}/")
+              ? stamp
+              : expandPath("/", stamp),
+            hash,
+          },
+        }
+      : {}),
   };
 }
 

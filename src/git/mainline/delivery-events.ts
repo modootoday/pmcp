@@ -1,7 +1,7 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-import { lockHash, readStamp, stampFile } from "../install.js";
+import { installSpec, installState, lockHash } from "../install.js";
 import { leaseSpecs, type GitSetup } from "../setup.js";
 import type { Delivery } from "./deliver.js";
 
@@ -18,17 +18,12 @@ export function deliveryEvents(setup: GitSetup): (delivery: Delivery) => void {
       const events = setup.leaseFiles[name]?.events;
       if (!events) continue;
       const paths = specs.find((spec) => spec.name === name)?.paths ?? [];
-      const hash = lockHash(root, paths);
-      const installed =
-        hash !== null &&
-        sync?.install !== undefined &&
-        readStamp(
-          stampFile(root, {
-            command: sync.install,
-            when: sync.installWhenChanged,
-            stateDir: setup.stateDir,
-          }),
-        ) === hash;
+      // The same stamp and hash sync writes, so another tool reading either agrees with it.
+      const spec = installSpec(sync, setup.stateDir);
+      const state = spec
+        ? installState(root, spec)
+        : { hash: lockHash(root, paths), installed: false };
+      const { hash, installed } = state;
       mkdirSync(dirname(events), { recursive: true });
       appendFileSync(
         events,

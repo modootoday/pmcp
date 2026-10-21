@@ -49,6 +49,8 @@ export interface MainlineSyncConfig {
   readonly installWhenChanged: readonly string[];
   readonly keepIdenticalFiles: boolean;
   readonly refuseWithUnlanded: boolean;
+  // A stamp shared with another tool; absent, pmcp keeps its own in the state dir.
+  readonly stamp?: { readonly path: string; readonly hash: "pmcp" | "plain" };
 }
 
 export interface SubmodulesConfig {

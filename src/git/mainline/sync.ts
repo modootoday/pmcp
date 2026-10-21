@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 import { git, gitText } from "../exec.js";
-import { installIfStale } from "../install.js";
+import { installIfStale, installSpec } from "../install.js";
 import { cherry } from "../landed.js";
 import { followPins } from "../submodules.js";
 import type { GitContext, MainlineSyncConfig, Reporter } from "../types.js";
@@ -43,13 +43,8 @@ function refusal(ctx: GitContext): string | null {
 
 function install(options: MainlineSyncOptions): number {
   const { ctx, sync, report } = options;
-  if (sync.install === undefined || sync.installWhenChanged.length === 0)
-    return 0;
-  const spec = {
-    command: sync.install,
-    when: sync.installWhenChanged,
-    stateDir: options.stateDir,
-  };
+  const spec = installSpec(sync, options.stateDir);
+  if (spec === undefined) return 0;
   const status = installIfStale(ctx.root, spec, report);
   if (status === null || status === 0) return 0;
   return 1;

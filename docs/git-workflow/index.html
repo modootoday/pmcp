@@ -118,6 +118,14 @@ fetch failed or no configuration.</p>
 the mainline: <code>install</code> (argv), <code>install_when_changed</code> (paths; when no
 <code>[sessions.leases]</code> are declared, these become an implicit <code>lockfile</code> lease),
 <code>keep_identical_files</code> and <code>refuse_with_unlanded</code> (booleans, default <code>true</code>).</p>
+<p>After a successful install, sync records the hash it installed in a stamp and
+installs again only when that hash changes. By default the stamp is pmcp&#39;s own,
+in its state directory. <code>stamp</code> puts it at a path another tool also reads
+(<code>${git_dir}/name</code> is in the checkout&#39;s own git directory, so each worktree has
+one; <code>~/</code> and absolute paths work too). <code>stamp_hash = &quot;plain&quot;</code> makes the hash the
+sha256 of the single <code>install_when_changed</code> file&#39;s bytes, which other tools can
+compute and write themselves; the default <code>&quot;pmcp&quot;</code> hashes every listed path with
+its name. Delivery events record the same hash and whether the stamp matches it.</p>
 <p><code>[git.submodules]</code>: <code>follow = &quot;clean_pins&quot;</code> (the default when the table is
 present) moves submodules to the pinned commit when they are clean; <code>&quot;off&quot;</code>
 leaves them. Without the table submodules are not followed.
