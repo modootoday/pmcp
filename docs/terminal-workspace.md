@@ -8,18 +8,9 @@ from a `[host]` you approved are the one place where listed tool dialogs
 may be answered for you (see
 [Sessions pmcp-pty hosts](project-configuration.md#sessions-pmcp-pty-hosts)).
 
-This feature requires PMCP 0.13.0 or later. PMCP 0.18.0 and later draw the
-workspace with pmcp-tui (`crates/pmcp-tui`) on the group's pmcp-pty host
-(`crates/pmcp-pty`); earlier releases used tmux views. The host needs Linux or
-macOS, Node.js 22 or later, pmcp-pty and pmcp-tui. npm installs both with
-PMCP on Linux and macOS (x64 and arm64) through a platform package
-(`@modootoday/pmcp-<os>-<cpu>`); PMCP_PTY_BIN and PMCP_TUI_BIN override it, and
-PATH is the fallback. The Linux binaries need glibc 2.35 or later. The macOS
-binaries are unsigned; installed through npm they run as they are, since npm
-sets no quarantine flag. Signing is decided when direct downloads start. On
-Linux a working user systemd manager also caps
-each native session in its own scope; macOS runs sessions uncapped. Windows is
-not supported yet.
+pmcp-tui (`crates/pmcp-tui`) draws the workspace on the group's pmcp-pty host
+(`crates/pmcp-pty`), and npm installs both with pmcp. It runs on Linux and macOS;
+[Compatibility](compatibility.md) lists what each platform needs.
 
 ## Open a workspace
 

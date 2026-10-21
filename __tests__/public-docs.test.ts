@@ -67,7 +67,8 @@ it("states terminal prerequisites and separates an illustration from live execut
     join(root, "docs/terminal-workspace.md"),
     "utf8",
   );
-  expect(workspace).toContain("PMCP 0.13.0 or later");
+  expect(workspace).toContain("It runs on Linux and macOS");
+  expect(workspace).toContain("[Compatibility](compatibility.md)");
   const home = readFileSync(join(root, "docs/index.html"), "utf8");
   expect(home).toContain("A shared project, native sessions");
   expect(home.replace(/\s+/gu, " ")).toContain(
