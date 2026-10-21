@@ -7,10 +7,26 @@ environment. By hand (workflow_dispatch) it never publishes: mode `dry-run`
 builds and packs everything and deletes its draft release; mode `bootstrap`
 keeps the draft release `v<version>` with one binary archive per target.
 
-Neither mode runs `npm publish`, so a dry run does not test the publish step. Every path
-handed to `npm publish` or `npm pack` starts with `./` or `/`: npm reads `packed/<name>.tgz`
-as a GitHub `owner/repo` shorthand, which is how the first 0.18.1 tag run failed.
-`__tests__/release-paths.test.ts` checks the workflow and this page for it.
+Every mode runs the same publish script, `scripts/release/publish.sh`. A tag push
+publishes; `dry-run` and `bootstrap` rehearse with `npm publish --dry-run` on the same
+`./packed` paths, so a publish that would fail does so before any tag. Before 0.18.2 the
+manual modes skipped the publish step, and the 0.18.1 tag run failed there: npm read
+`packed/<name>.tgz` as a GitHub `owner/repo` shorthand. Every path handed to
+`npm publish` or `npm pack` starts with `./` or `/`, which
+`__tests__/release-paths.test.ts` checks; v0.18.1 was tagged but never published.
+
+## If a release fails
+
+A failed publish job writes to its summary which of the five `name@version` are on npm
+and which are not, keeps the draft release, and prints the recovery command. A partial
+publish is safe: platform packages go first and the main package last, so no published
+main package names a platform package that is missing.
+
+- Transient failure (registry, OIDC, network): `gh run rerun <run id> --failed`, then approve
+  the `npm` environment again. Versions already on npm are skipped, so the rerun publishes
+  only what is missing.
+- A failure that needs a code or workflow change: never move or reuse the tag. Fix it on main
+  and release the next patch version.
 
 ## Release checklist
 

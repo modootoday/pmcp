@@ -6,7 +6,7 @@ import { parse } from "yaml";
 const root = join(import.meta.dirname, "..");
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 
-// The release workflow's run scripts and RELEASING.md's shell blocks.
+// The release workflow's run scripts, the scripts it runs and RELEASING.md's shell blocks.
 function scripts(): { source: string; text: string }[] {
   const workflow = parse(read(".github/workflows/release.yml")) as {
     jobs: Record<string, { steps?: { run?: string }[] }>;
@@ -17,8 +17,13 @@ function scripts(): { source: string; text: string }[] {
   const blocks = [
     ...read(".github/RELEASING.md").matchAll(/```sh\n([\s\S]*?)```/gu),
   ];
+  const shells = ["publish.sh", "report.sh"].map((name) => ({
+    source: name,
+    text: read(`scripts/release/${name}`),
+  }));
   return [
     ...runs.map((text) => ({ source: "release.yml", text })),
+    ...shells,
     ...blocks.map((block) => ({ source: "RELEASING.md", text: block[1]! })),
   ];
 }
@@ -32,6 +37,7 @@ it("passes npm publish and npm pack only explicit local paths", () => {
   const bad: string[] = [];
   for (const { source, text } of scripts()) {
     for (const line of text.split("\n")) {
+      if (/^\s*#/u.test(line)) continue;
       const npm = /\bnpm (publish|pack)\b(.*?)(;|$)/u.exec(line);
       if (npm) {
         const words = npm[2]!.trim().split(/\s+/u).filter(Boolean);

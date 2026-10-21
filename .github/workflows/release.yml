@@ -168,33 +168,23 @@ jobs:
       # npm Trusted Publishing: npm exchanges this job's OIDC token (id-token: write) for a
       # short-lived publish credential, so no npm token is stored. It needs npm 11.5.1 or later,
       # and each package's trusted publisher entry on npmjs.com (.github/RELEASING.md).
-      # A version already on npm (the bootstrap published it by hand) is skipped, not republished.
-      - name: Publish
-        if: env.MODE == 'publish'
+      # Every mode runs the same publish script: dry-run and bootstrap rehearse it with
+      # npm publish --dry-run on the same paths, so a broken publish fails before a tag.
+      - name: Publish (rehearsal unless publishing)
+        id: publish
         run: |
           npm install --global npm@11.5.1
-          published=0
-          publish() {
-            manifest="$(tar -xzOf "$1" package/package.json)"
-            name="$(node -p 'JSON.parse(process.argv[1]).name' "$manifest")"
-            version="$(node -p 'JSON.parse(process.argv[1]).version' "$manifest")"
-            if [ "$(npm view "$name@$version" version 2>/dev/null)" = "$version" ]; then
-              echo "skip: $name@$version is already on npm"
-            else
-              npm publish "$1" --access public --provenance
-              published=$((published + 1))
-            fi
-          }
-          for archive in ./packed/modootoday-pmcp-linux-*.tgz ./packed/modootoday-pmcp-darwin-*.tgz; do publish "$archive"; done
-          publish "./packed/modootoday-pmcp-$(node -p 'require("./package.json").version').tgz"
-          if [ "$published" -gt 0 ]; then
-            gh release edit "$RELEASE_TAG" --draft=false --notes "Published to npm"
-          else
-            echo "every package of $RELEASE_TAG is already on npm; nothing published"
-          fi
+          bash scripts/release/publish.sh ./packed
+      - name: Mark the release published
+        if: env.MODE == 'publish' && steps.publish.outputs.published != '0'
+        run: gh release edit "$RELEASE_TAG" --draft=false --notes "Published to npm"
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+      # On failure: which packages reached npm, the kept draft, and the recovery command.
+      - name: Report what reached npm
+        if: failure()
+        run: bash scripts/release/report.sh
       - name: Remove the dry-run draft
         if: always() && env.MODE == 'dry-run'
         run: gh release delete "$RELEASE_TAG" --yes --cleanup-tag
