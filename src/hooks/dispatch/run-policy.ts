@@ -3,6 +3,19 @@ import type { Logger } from "../../logging/logger.js";
 import type { GitProbe, Policy, PolicyContext } from "../policies/types.js";
 import type { SessionStore } from "../../sessions/types.js";
 import { applyMode } from "./compose.js";
+import { afterFailure, type FailureSettings } from "./failure.js";
+
+class Timeout extends Error {}
+
+function within<T>(work: Promise<T>, ms: number | undefined): Promise<T> {
+  if (ms === undefined) return work;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Timeout(`timeout ${ms} ms`)), ms);
+    timer.unref?.();
+  });
+  return Promise.race([work, late]).finally(() => clearTimeout(timer));
+}
 
 export interface Selected {
   readonly policy: Policy<any>;
@@ -22,6 +35,7 @@ export interface RunDeps {
   readonly store: SessionStore;
   // The verified sha256 of policy.json this hook ran under.
   readonly policySha256?: string;
+  readonly failure?: FailureSettings;
   now(): number;
 }
 
@@ -61,9 +75,26 @@ export async function runPolicy(
       now: deps.now,
       ...(deps.policySha256 ? { policySha256: deps.policySha256 } : {}),
     };
-    const raw = await (deps.evaluate
-      ? deps.evaluate(selected, input, context)
-      : policy.evaluate(input, context));
+    const evaluate = () =>
+      Promise.resolve(
+        deps.evaluate
+          ? deps.evaluate(selected, input, context)
+          : policy.evaluate(input, context),
+      );
+    // With [hooks.failure], each try is bounded and a failed one runs again before it counts.
+    const tries = (deps.failure?.retry ?? 0) + 1;
+    let raw: Decision | undefined;
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        raw = await within(evaluate(), deps.failure?.timeoutMs);
+        break;
+      } catch (error) {
+        if (attempt >= tries) throw error;
+        log.warn("policy failed; trying again", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
     const decision = applyMode(policy.id, raw, mode);
     log.debug("policy", {
       verdict: decision.verdict,
@@ -75,6 +106,13 @@ export async function runPolicy(
       error: error instanceof Error ? error.message : String(error),
     });
     if (policy.fail === "open") return finish({});
+    if (deps.failure) {
+      const cause =
+        error instanceof Timeout
+          ? error.message
+          : `error: ${(error instanceof Error ? error.message : String(error)).split("\n")[0]}`;
+      return finish(afterFailure(policy.id, cause, input, deps.failure));
+    }
     return finish({
       verdict: "deny",
       reason: `pmcp ${policy.id} failed, refusing to be safe`,

@@ -127,6 +127,20 @@ command the parser cannot read is judged by a conservative pattern instead.</p>
 <tr><td><code>on</code></td><td>string</td><td><code>&quot;before_shell&quot;</code></td><td><code>before_shell</code> or <code>after_edit</code>.</td></tr></tbody></table></div>
 <p>The script receives the JSON contract described under
 <a href="#deprecated-shell-guards">Deprecated shell guards</a>. Custom guards have no <code>mode</code>.</p>
+<h2 id="hooksfailure"><code>[hooks.failure]</code></h2>
+<p>What a guard that fails to evaluate means for the call: it threw, or it ran past
+<code>timeout_ms</code>. A guard&#39;s own deny is a verdict and is never affected. Without the
+table a failed guard refuses the call (a bookkeeping guard such as the session
+registry lets it through), as it always has.</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>timeout_ms</code></td><td>integer</td><td><code>2000</code></td><td>Longest one try of a guard may take (100 to 60000). The projected runtime timeout covers every try.</td></tr>
+<tr><td><code>retry</code></td><td>integer</td><td><code>1</code></td><td>Further tries before the failure counts (0 to 3).</td></tr>
+<tr><td><code>pass</code></td><td>list</td><td><code>[]</code></td><td>What still goes through after the last try, with a warning: <code>read</code> (read tools) and <code>edit-own-worktree</code> (edits whose every path is inside the session&#39;s linked worktree, never the shared main checkout). Everything else, every shell call included, is refused.</td></tr></tbody></table></div>
+<pre><code>[hooks.failure]
+timeout_ms = 2000
+retry = 1
+pass = [&quot;read&quot;, &quot;edit-own-worktree&quot;]</code></pre>
+<p>Either way the call carries one line naming the guard and the cause, e.g.
+<code>pmcp hooks: sessions.leases failed (timeout 2000 ms); refused</code>.</p>
 <h2 id="hookschecksafter_edit-and-hookscheckson_stop"><code>[hooks.checks.after_edit]</code> and <code>[hooks.checks.on_stop]</code></h2>
 <p>Checks report through context and never block; a check that cannot run is
 logged and stays quiet.</p>

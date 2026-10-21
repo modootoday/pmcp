@@ -22,7 +22,12 @@ export async function dispatch(
   const selected = off ? [] : selectPolicies(compiled, input);
   if (off) deps.log.warn("emergency off file present; guards pass");
   const decisions = await Promise.all(
-    selected.map((entry) => runPolicy(entry, input, deps)),
+    selected.map((entry) =>
+      runPolicy(entry, input, {
+        ...deps,
+        ...(compiled.failure ? { failure: compiled.failure } : {}),
+      }),
+    ),
   );
   const composed = lower(
     compose([protect, ...decisions]),

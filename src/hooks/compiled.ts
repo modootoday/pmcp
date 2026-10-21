@@ -6,6 +6,7 @@ import { join } from "node:path";
 
 import type { MailboxSettings } from "../sessions/types.js";
 import type { GateLocation, LeaseFiles } from "../sessions/lease-files.js";
+import type { FailureSettings } from "./dispatch/failure.js";
 import type { Mode, RuntimeId } from "./contract.js";
 import {
   rememberVerified,
@@ -44,6 +45,8 @@ export interface CompiledPolicy {
   readonly policySha256?: string;
   readonly targets: readonly RuntimeId[];
   readonly emergencyOffFile?: string;
+  // [hooks.failure], only when declared.
+  readonly failure?: FailureSettings;
 
   readonly stateDir?: string;
 

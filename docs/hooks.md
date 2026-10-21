@@ -103,6 +103,29 @@ A project script under `.agents/guards/` that decides like a built-in guard.
 The script receives the JSON contract described under
 [Deprecated shell guards](#deprecated-shell-guards). Custom guards have no `mode`.
 
+## `[hooks.failure]`
+
+What a guard that fails to evaluate means for the call: it threw, or it ran past
+`timeout_ms`. A guard's own deny is a verdict and is never affected. Without the
+table a failed guard refuses the call (a bookkeeping guard such as the session
+registry lets it through), as it always has.
+
+| Key          | Type    | Default | Meaning                                                                                                                                                                                                                                                           |
+| ------------ | ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `timeout_ms` | integer | `2000`  | Longest one try of a guard may take (100 to 60000). The projected runtime timeout covers every try.                                                                                                                                                               |
+| `retry`      | integer | `1`     | Further tries before the failure counts (0 to 3).                                                                                                                                                                                                                 |
+| `pass`       | list    | `[]`    | What still goes through after the last try, with a warning: `read` (read tools) and `edit-own-worktree` (edits whose every path is inside the session's linked worktree, never the shared main checkout). Everything else, every shell call included, is refused. |
+
+```toml
+[hooks.failure]
+timeout_ms = 2000
+retry = 1
+pass = ["read", "edit-own-worktree"]
+```
+
+Either way the call carries one line naming the guard and the cause, e.g.
+`pmcp hooks: sessions.leases failed (timeout 2000 ms); refused`.
+
 ## `[hooks.checks.after_edit]` and `[hooks.checks.on_stop]`
 
 Checks report through context and never block; a check that cannot run is

@@ -87,6 +87,7 @@ export function compileHooks(
     ...(table.emergencyOffFile
       ? { emergencyOffFile: table.emergencyOffFile }
       : {}),
+    ...(table.failure ? { failure: table.failure } : {}),
     ...(sessions.stateDir ? { stateDir: sessions.stateDir } : {}),
     ...(table.errorLog ? { logFile: table.errorLog } : {}),
     log: { ...readLoggingTable(tables.logging), enabled: table.logEnabled },

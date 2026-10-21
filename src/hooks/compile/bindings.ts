@@ -48,7 +48,14 @@ export function bindingsFor(
       want(event, listener.tools ?? ["other"]);
   }
   if (policy.emergencyOffFile) want("before_tool", ["shell", "edit"]);
-  const slowest = Math.max(0, ...policy.custom.map((entry) => entry.timeoutMs));
+  // Every try of a failing guard must fit, or the runtime kills the hook mid-retry.
+  const tries = policy.failure
+    ? policy.failure.timeoutMs * (policy.failure.retry + 1)
+    : 0;
+  const slowest = Math.max(
+    tries,
+    ...policy.custom.map((entry) => entry.timeoutMs),
+  );
   const timeoutSec = Math.max(BASE_TIMEOUT_SEC, Math.ceil(slowest / 1000) + 2);
   return [...wanted].flatMap(([event, tools]) =>
     adapter.bindings(event, [...tools], timeoutSec),

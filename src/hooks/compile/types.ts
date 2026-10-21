@@ -1,3 +1,4 @@
+import type { FailureSettings } from "../dispatch/failure.js";
 import type { AskFallback, CompiledPolicy } from "../compiled.js";
 import { RUNTIME_IDS, type RuntimeId } from "../contract.js";
 import type { FileEdit, ProjectedFile } from "../runtimes/types.js";
@@ -20,6 +21,7 @@ export interface HooksTable {
   readonly logEnabled: boolean;
   readonly errorLog?: string;
   readonly emergencyOffFile?: string;
+  readonly failure?: FailureSettings;
 }
 
 export interface CompiledHooks {
