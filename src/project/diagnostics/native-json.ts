@@ -20,7 +20,7 @@ export const nativeJsonRunner: Runner = (command, args, cwd, env) => {
   try {
     const file = join(directory, "stdout.json");
     descriptor = openSync(file, "wx", 0o600);
-    // Native CLIs can exit before their piped stdout drains.
+    // Drain native stdout because some CLIs exit before their piped output finishes.
     const result = spawnSync(command, [...args], {
       cwd,
       ...(env ? { env: { ...process.env, ...env } } : {}),

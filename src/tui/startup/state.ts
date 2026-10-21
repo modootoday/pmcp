@@ -12,6 +12,7 @@ export interface StartupState {
   runtime: string;
   groupFile?: string;
   generation?: string;
+  // Written by releases that opened a tmux view; read and then dropped.
   viewFile?: string;
 }
 
@@ -55,7 +56,6 @@ export function readStartup(
     text(value.groupFile, "group_file");
     text(value.generation, "generation");
   }
-  if (value.phase === "ready") text(value.viewFile, "view_file");
   return value as unknown as StartupState;
 }
 

@@ -92,6 +92,23 @@ describe("opt-in native shell hooks", () => {
     ]);
   });
 
+  it("keeps [[hooks.shell]] and [[hooks.edit]] working and says they are deprecated", (t) => {
+    const { config } = fixture(t, declaration + editDeclaration);
+    const spec = readSpec(readConfig(config));
+    expect(spec.hooks?.map((hook) => hook.name)).toEqual([
+      "edit-policy",
+      "shell-policy",
+    ]);
+    expect(spec.deprecations).toEqual([
+      '[[hooks.shell]] is deprecated; declare [[hooks.guards.custom]] with on = "before_shell" and list its runtimes in [hooks] targets',
+      '[[hooks.edit]] is deprecated; declare [[hooks.guards.custom]] with on = "after_edit" and list its runtimes in [hooks] targets',
+    ]);
+    expect(project(spec, { check: true }).warnings).toEqual(spec.deprecations);
+    expect(
+      readSpec(readConfig(fixture(t, "").config)).deprecations,
+    ).toBeUndefined();
+  });
+
   it("generates no native hook files without a declaration", (t) => {
     const { root, apply } = fixture(t, "");
     expect(apply().code).toBe(0);

@@ -143,12 +143,18 @@ and memory metadata.
 ## Manage native terminals
 
 PMCP 0.13.0 or later can show a native main runtime, its worker terminals and a
-coordination panel in one terminal workspace. The optional harness and TUI need
-Linux, tmux, util-linux flock, Node.js 22 or later and a working user systemd
-manager. Provider login, folder trust and tool approvals remain native.
+coordination panel in one terminal workspace. PMCP 0.18.0 and later run it on
+pmcp-pty (`crates/pmcp-pty`), a PTY host, and draw it with pmcp-tui
+(`crates/pmcp-tui`); earlier releases used tmux. The optional harness and TUI
+need Linux (glibc 2.35 or later) or macOS, Node.js 22 or later, and on Linux a
+working user systemd manager; npm installs pmcp-pty and pmcp-tui with PMCP.
+Windows is not supported yet. Provider login, folder trust and tool approvals
+remain native; an operator-approved `[host]` may answer the tool dialogs it
+lists, and never login, auth or trust prompts (see
+[Sessions pmcp-pty hosts](docs/project-configuration.md#sessions-pmcp-pty-hosts)).
 
-PMCP 0.16.0 adds the numbered runtime picker, worker menu, worker-start and
-read-only recovery flows below.
+See the [changelog](CHANGELOG.md) for what changed in 0.18.0, including the
+removal of tmux.
 
 ```sh
 npx @modootoday/pmcp --version
@@ -163,8 +169,8 @@ pmcp
 ```
 
 The first launch lists installed native runtimes. Choose a number or accept the
-default, then confirm the start; q cancels without creating a group. No group or
-view JSON is required. Later launches reconnect to the workspace
+default, then confirm the start; q cancels without creating a group. No group JSON is
+required. Later launches reconnect to the workspace
 created for this project. Native login and folder trust stay with the runtime.
 Use `pmcp tui --runtime codex-cli` to choose the main, or set an optional default:
 
@@ -173,9 +179,8 @@ Use `pmcp tui --runtime codex-cli` to choose the main, or set an optional defaul
 runtime = "codex-cli"
 ```
 
-Once the workspace is open, press Ctrl-g then n to choose and confirm a worker.
-The menu releases input control and preserves the current draft. You can also use
-`pmcp tui start-worker --runtime gemini-cli`. The existing group keeps its
+Add a worker with `pmcp tui start-worker --runtime gemini-cli`; it appears in
+the workspace's dock. The existing group keeps its
 runtime grants and resource bounds. Use `pmcp tui recovery` to inspect a saved
 workspace and obtain explicit next commands after an interrupted start. Inspection
 does not restart a runtime or replay input.
@@ -184,8 +189,8 @@ does not restart a runtime or replay input.
 [terminal workspace guide](docs/terminal-workspace.md) covers defaults, custom
 configuration and advanced controls. The [native terminal guide](docs/terminal-harness.md)
 explains explicit group and session operations.
-Views start read only; acquiring control and stopping a runtime are explicit
-actions. This optional CLI feature does not add execution tools to the MCP server.
+The workspace starts read only; taking control (Ctrl-g then c) and stopping a
+runtime are explicit actions. This optional CLI feature does not add execution tools to the MCP server.
 
 ## Everyday commands
 
@@ -222,20 +227,20 @@ interactive hosts show help and prerequisite guidance.
 
 ## Compatibility
 
-| Surface                                | Current qualification                                                                                                                     |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| CLI and MCP on Linux amd64             | Published 0.15.0 passed clean Docker installation with npm on Debian/Alpine and Bun/pnpm on Debian; 60 installation and failure contracts |
-| Optional terminal workspace            | Linux PTY/tmux checks and bounded native Codex, Gemini, Grok and agy main/worker acceptance; Claude remains deferred                      |
-| Public skill installation              | npm, Bun and pnpm 10.17.1; confirmation required, scripts disabled                                                                        |
-| Native plugin export                   | Claude, Codex, Gemini, Grok and agy formats; export does not install or activate a vendor plugin                                          |
-| pnpm workspace installation            | Selects the member, preserves root dependencies and updates the shared lockfile                                                           |
-| Yarn skill installation                | Refused without changing project files; Yarn PnP is not supported                                                                         |
-| macOS, Windows and other architectures | Not qualified by the Linux Docker tests                                                                                                   |
+| Surface                                | Current qualification                                                                                                                               |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CLI and MCP on Linux amd64             | Published 0.15.0 passed clean Docker installation with npm on Debian/Alpine and Bun/pnpm on Debian; 60 installation and failure contracts           |
+| Optional terminal workspace            | Linux pmcp-pty checks and a native Claude main with a Gemini worker (control, input, wake turns, recovery); other runtimes measured on tmux in 0.17 |
+| Public skill installation              | npm, Bun and pnpm 10.17.1; confirmation required, scripts disabled                                                                                  |
+| Native plugin export                   | Claude, Codex, Gemini, Grok and agy formats; export does not install or activate a vendor plugin                                                    |
+| pnpm workspace installation            | Selects the member, preserves root dependencies and updates the shared lockfile                                                                     |
+| Yarn skill installation                | Refused without changing project files; Yarn PnP is not supported                                                                                   |
+| macOS, Windows and other architectures | Not qualified by the Linux Docker tests; macOS terminal binaries ship unsigned, Windows is not supported yet                                        |
 
 Provider authentication, native children and vendor behavior have separate
 qualification scopes. An installed executable or exported manifest is not proof
-that every native feature works. Public package CI checks actual packed-archive
-installation, CLI startup, MCP and SQLite before publication; isolated projects
+that every native feature works. The packed-package check, run before a
+release, covers actual archive installation, CLI startup, MCP and SQLite; isolated projects
 on a host are distinct from Docker and OS qualification.
 
 ## Guides

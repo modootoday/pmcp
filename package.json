@@ -1,6 +1,6 @@
 {
   "name": "@modootoday/pmcp",
-  "version": "0.17.4",
+  "version": "0.18.0",
   "license": "Elastic-2.0",
   "author": "modootoday",
   "description": "Use the skills your packages already ship, and keep your AI tools' project configuration in one place.",
@@ -55,11 +55,14 @@
     "pmcp": "dist/cli.js"
   },
   "files": [
+    "schema",
     "dist",
     "!dist/**/*.map",
     "!dist/.tsbuildinfo",
     "skills",
     "plugins",
+    "!plugins/*/tsconfig.json",
+    "!plugins/*/.claude-plugin/types",
     ".claude-plugin/marketplace.json",
     ".claude-plugin/plugin.json",
     ".agents/plugins/marketplace.json",
@@ -68,8 +71,10 @@
     ".mcp.json",
     "gemini-extension.json",
     "docs/catalog.json",
+    "docs/hooks/capabilities/*.json",
     "docs/*.md",
     "README.md",
+    "CHANGELOG.md",
     "SECURITY.md",
     "LICENSE",
     "NOTICE"
@@ -78,6 +83,7 @@
     "build": "tsup",
     "typecheck": "tsgo --noEmit --incremental --tsBuildInfoFile ./dist/.tsbuildinfo --singleThreaded && tsgo -p tsconfig.tests.json --noEmit --singleThreaded",
     "test": "vitest run",
+    "metadata:schema": "bun scripts/metadata-schema.ts",
     "clean": "rimraf dist",
     "site:build": "bun run marketplace:build && node scripts/build-site-styles.mjs && node scripts/build-site-assets.mjs && node scripts/build-public-pages.mjs && node scripts/build-guide-pages.mjs && node scripts/build-catalog-pages.mjs && node scripts/build-observation-pages.mjs && node scripts/build-sitemap.mjs",
     "site:check": "node scripts/build-site-styles.mjs --check && node scripts/build-site-assets.mjs --check && node scripts/build-public-pages.mjs --check && node scripts/build-guide-pages.mjs --check && node scripts/build-catalog-pages.mjs --check && node scripts/build-observation-pages.mjs --check && node scripts/build-sitemap.mjs --check",

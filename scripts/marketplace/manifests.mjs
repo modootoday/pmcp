@@ -1,7 +1,11 @@
 const repository = "https://github.com/modootoday/pmcp";
 const nativeBridgeVersion = "0.13.1";
+export const MOD_HOOKS = "./mod/hooks.json";
+// The host refuses a mod whose state keys no manifest-named contract declares.
+export const MOD_TYPES = "./mod/contract.d.ts";
 
-export function pluginManifests(descriptor) {
+// The package root has no mod directory, so only the plugin manifest can register it.
+export function pluginManifests(descriptor, { withMod = false } = {}) {
   const identity = {
     name: descriptor.id,
     version: descriptor.version,
@@ -28,7 +32,12 @@ export function pluginManifests(descriptor) {
         ...identity,
       },
     ],
-    [".claude-plugin/plugin.json", identity],
+    [
+      ".claude-plugin/plugin.json",
+      withMod && descriptor.mod
+        ? { ...identity, hooks: [MOD_HOOKS], types: MOD_TYPES }
+        : identity,
+    ],
     [
       "gemini-extension.json",
       {

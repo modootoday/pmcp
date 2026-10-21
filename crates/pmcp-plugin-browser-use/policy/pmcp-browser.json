@@ -1,0 +1,20 @@
+{
+  "URLBlocklist": [
+    "file://*",
+    "chrome://*",
+    "chrome-extension://*",
+    "chrome-untrusted://*",
+    "devtools://*",
+    "view-source:*",
+    "javascript:*",
+    "data:*",
+    "blob:*",
+    "ftp://*"
+  ],
+  "BrowserSignin": 0,
+  "SyncDisabled": true,
+  "PasswordManagerEnabled": false,
+  "AutofillAddressEnabled": false,
+  "AutofillCreditCardEnabled": false,
+  "ExtensionInstallBlocklist": ["*"]
+}

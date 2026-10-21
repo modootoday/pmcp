@@ -1,0 +1,6 @@
+△ Permission required
+# Shell command
+  ls -la
+
+Allow once   Allow always   Reject
+⇆ select  enter confirm

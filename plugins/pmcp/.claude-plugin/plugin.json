@@ -1,9 +1,11 @@
 {
   "name": "pmcp",
-  "version": "0.17.4",
+  "version": "0.18.0",
   "description": "Find package skills and use native runtime project configuration.",
   "author": { "name": "modootoday" },
   "license": "Elastic-2.0",
   "repository": "https://github.com/modootoday/pmcp",
-  "homepage": "https://pmcp.build/skills/"
+  "homepage": "https://pmcp.build/skills/",
+  "hooks": ["./mod/hooks.json"],
+  "types": "./mod/contract.d.ts"
 }

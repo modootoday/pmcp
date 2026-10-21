@@ -1,6 +1,8 @@
 import { command } from "../process/command.js";
 
+// Sessions get systemd scopes on Linux only; elsewhere no unit ever exists to be active.
 export function unitActive(unit: string): boolean {
+  if (process.platform !== "linux") return false;
   let state: string;
   try {
     state = command("systemctl", [

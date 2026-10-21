@@ -1,20 +1,19 @@
-/**
- * Every output the sources imply, read from disk but written nowhere. Sources:
- * .agents/skills, .agents/agents, .agents/rules, package rule files, and pmcp.toml.
- */
-
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import { renderFrontmatter, splitFrontmatter } from "./frontmatter.js";
 import { mcpOutputs } from "./mcp.js";
 import { hookOutputs } from "./hooks.js";
+import { hostOutputs } from "./host.js";
 import { jsonOutput, MARK, type Output } from "./outputs.js";
 import { packageRuleOutputs, RULES_DIR } from "./package-rules.js";
 import type { ProjectSpec, Tool } from "./spec.js";
 import { opencodeSkillOutputs } from "./adapters/opencode-skills.js";
+import { mergeBlocks } from "./blocks.js";
+import { marketplaceOutputs } from "./marketplaces.js";
+import { permissionOutputs } from "./permissions.js";
+import { uiClaudeOutputs } from "./ui-claude.js";
 
-/** Fields each tool keeps when an agent is copied; Gemini rejects the others. */
 const AGENT_FIELDS: Partial<Record<Tool, readonly string[]>> = {
   claude: ["name", "description", "tools", "model", "effort"],
   gemini: ["name", "description"],
@@ -75,7 +74,6 @@ function skillOutputs(spec: ProjectSpec): Output[] {
   return outputs;
 }
 
-/** Rules keep Antigravity's form (trigger, globs); Claude gets paths: one level down. */
 function ruleOutputs(spec: ProjectSpec): Output[] {
   if (!spec.tools.has("claude")) return [];
   const dir = join(spec.root, ".agents/rules");
@@ -156,15 +154,18 @@ export function plan(
     ...ruleOutputs(spec),
     ...agentOutputs(spec),
     ...mcpOutputs(spec),
+    ...marketplaceOutputs(spec),
     ...hookOutputs(spec),
+    ...hostOutputs(spec),
+    ...uiClaudeOutputs(spec),
+    ...permissionOutputs(spec),
   ];
   if (spec.packageRules && spec.tools.has("claude")) {
     outputs.push(...packageRuleOutputs(spec.root, spec.packageRules, owned));
   }
-  return outputs;
+  return mergeBlocks(outputs);
 }
 
-/** Directories every entry of which must be declared by the plan. */
 export function censusDirs(spec: ProjectSpec): string[] {
   const dirs = [
     ".claude/skills",

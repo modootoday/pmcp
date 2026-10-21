@@ -1,8 +1,4 @@
-/**
- * Links each package's path-scoped rule file into .claude/rules/<dir>/. One level
- * down because Grok Build loads every top-level .claude/rules/*.md unscoped.
- * Names already in use are kept, so moving the links renames nothing.
- */
+// Nest rule links because Grok loads top-level Claude rule files without path scoping.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readdirSync, readlinkSync } from "node:fs";
@@ -20,7 +16,6 @@ export class ProjectError extends Error {
 
 export const RULES_DIR = ".claude/rules";
 
-/** Tracked files, relative to root; empty outside a git work tree. */
 export function trackedFiles(root: string, recurse = false): string[] {
   try {
     const out = execFileSync(
@@ -59,7 +54,6 @@ function linkTarget(abs: string): string | null {
   }
 }
 
-/** Top-level rule links an older layout left: name -> repo-relative target. */
 export function legacyLinks(root: string): Map<string, string> {
   const found = new Map<string, string>();
   const dir = join(root, RULES_DIR);
@@ -84,8 +78,7 @@ export function packageRuleOutputs(
     .sort();
   const prefix = `${RULES_DIR}/${spec.dir}/`;
 
-  // Adopt a name from the lock first, then from a top-level link to the same
-  // file or to a sibling in its directory (the long-form file it replaced).
+  // Reuse locked names so moving package-rule links does not rename established entries.
   const byTarget = new Map<string, string>();
   for (const [path, target] of owned) {
     if (!path.startsWith(prefix)) continue;

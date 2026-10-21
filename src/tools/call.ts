@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { CallResponse, SkillTools } from "../server.js";
 import { readOnlyTool, unknownSkill } from "./shared.js";
 
-/** The body names its references by relative path; this says they can be fetched. */
+// Expose reference paths so clients can fetch files named relative to a skill body.
 function manifest(found: CallResponse): string {
   const lines = found.files.map(
     (file) =>
@@ -37,8 +37,7 @@ export function registerCallTool(server: McpServer, tools: SkillTools): void {
       if (!found) return unknownSkill(name);
       const body = { type: "text" as const, text: found.body };
       if (found.files.length === 0) return { content: [body] };
-      // Links in a read result make ChatGPT ask the user to create them as file
-      // attachments; the text list is enough, and skill_bundle keeps the links.
+      // Avoid links in read text because some clients turn them into attachment-creation requests.
       return {
         content: [body, { type: "text" as const, text: manifest(found) }],
       };

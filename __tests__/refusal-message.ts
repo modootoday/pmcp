@@ -1,8 +1,4 @@
-/**
- * The message from a call that must reject. Written once because the inline
- * form types as the union of the result and the error, which vitest never
- * notices and tsc always does.
- */
+// Sharing the rejection helper avoids a result/error union that Vitest accepts but TypeScript rejects.
 export async function refusalMessage(
   promise: Promise<unknown>,
 ): Promise<string> {

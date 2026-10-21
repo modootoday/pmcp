@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import {
   assertOwnedRecords,
   writableClients,
-} from "../adapters/tmux/backend.js";
+} from "../adapters/terminal/backend.js";
 import { recoverInputLock } from "../adapters/process/recover-lock.js";
 import { budgetOperation } from "../adapters/systemd/budget.js";
 import type { GroupContext } from "../application/context.js";
@@ -12,7 +12,7 @@ import { startSession } from "../sessions/service.js";
 import { inspectPendingStarts } from "../launch/service.js";
 import { pendingLaunches, LaunchJournal } from "../launch/journal.js";
 import { abortLaunch } from "../launch/recovery.js";
-import { Connection } from "../adapters/tmux/connection.js";
+import { Connection } from "../adapters/terminal/connection.js";
 
 export function inspectRecovery(
   context: GroupContext,
@@ -77,8 +77,7 @@ export function reconcile(context: GroupContext): Receipt {
       retained.push(lease);
       continue;
     }
-    const session = backend.inspect(lease.sessionId);
-    if (writableClients(backend, session.tmuxSessionId) > 0) {
+    if (writableClients(backend, lease.sessionId) > 0) {
       retained.push(lease);
     }
   }

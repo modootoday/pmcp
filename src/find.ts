@@ -1,10 +1,4 @@
-/**
- * Ranking an intent against skill descriptions.
- *
- * Semantic when an embedder is supplied, lexical otherwise, and the answer says
- * which. A caller that cannot tell the two apart cannot tell a degraded server
- * from a working one.
- */
+// Expose the ranking method so callers can distinguish lexical fallback from semantic results.
 
 import type { SkillEntry } from "./catalog.js";
 import { createHash } from "node:crypto";
@@ -24,18 +18,14 @@ export interface FindResult {
   readonly matches: readonly Match[];
 }
 
-/**
- * The encoder, supplied by the caller. There is no default and no bundled
- * model: which model runs decides what the scores mean, so it is the consuming
- * repository's declaration rather than this package's.
- */
+// Let the consumer choose the encoder because model identity determines score meaning.
 export interface Embedder {
   readonly modelId: string;
   readonly indexKey?: string;
   readonly dims: number;
-  /** Encodes an intent, the query side. */
+
   embed(text: string): Promise<Float32Array>;
-  /** Encodes a description, for models that write the two sides differently. */
+
   embedPassage?(text: string): Promise<Float32Array>;
 }
 
@@ -45,7 +35,7 @@ export interface FindOptions {
   readonly limit?: number;
   readonly embedder?: Embedder;
   readonly cache?: IntentCache;
-  /** Precomputed description vectors, keyed by skill name. */
+
   readonly vectors?: ReadonlyMap<string, Float32Array>;
 }
 
@@ -55,7 +45,6 @@ function tokens(text: string): string[] {
   return normaliseIntent(text).split(" ").filter(Boolean);
 }
 
-/** Character bigrams, used for the overlap half of the lexical score. */
 function bigrams(text: string): Set<string> {
   const flat = normaliseIntent(text).replaceAll(" ", "");
   const out = new Set<string>();
@@ -63,11 +52,7 @@ function bigrams(text: string): Set<string> {
   return out;
 }
 
-/**
- * Token overlap and bigram Dice, averaged. Deterministic and dependency-free:
- * this is the answer when there is no model, so it must never be the thing
- * that fails.
- */
+// Keep lexical fallback dependency-free so optional encoder failures cannot disable search.
 export function lexicalScore(intent: string, description: string): number {
   const wanted = tokens(intent);
   if (wanted.length === 0) return 0;
@@ -85,7 +70,6 @@ export function lexicalScore(intent: string, description: string): number {
   return (overlap + dice) / 2;
 }
 
-/** Cosine over two equal-width vectors. Zero when either has no magnitude. */
 export function cosine(a: Float32Array, b: Float32Array): number {
   if (a.length !== b.length) return 0;
   let dot = 0;
@@ -100,13 +84,7 @@ export function cosine(a: Float32Array, b: Float32Array): number {
   return dot / (Math.sqrt(na) * Math.sqrt(nb));
 }
 
-/**
- * Ranked matches, and which ranking produced them.
- *
- * Returns rather than loads: a search verb that also acts cannot be used to
- * look, and the whole reason this server exists is that looking should be
- * cheap.
- */
+// Keep ranking independent of body reads so catalog search stays cheap.
 export async function find(options: FindOptions): Promise<FindResult> {
   const limit = options.limit ?? DEFAULT_FIND_LIMIT;
   const semantic =
@@ -137,8 +115,7 @@ export async function find(options: FindOptions): Promise<FindResult> {
         score: cosine(query, vector),
       });
     }
-    // Every entry missing a vector means the index does not cover this catalog,
-    // and a partial semantic answer is worse than an honest lexical one.
+    // Reject partial semantic coverage so missing vectors cannot distort the ranking.
     if (scored.length === options.entries.length) {
       return {
         ranking: "semantic",

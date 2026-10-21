@@ -257,7 +257,7 @@ describe("package rule links", () => {
     expect(existsSync(join(root, ".claude/rules/pkg/x.md"))).toBe(true);
     expect(existsSync(join(root, ".claude/rules/legacy-name.md"))).toBe(false);
     expect(check(root).code).toBe(0);
-    // The lock keeps the adopted name once the legacy link is gone.
+
     expect(run(root).code).toBe(0);
     expect(existsSync(join(root, ".claude/rules/pkg/legacy-name.md"))).toBe(
       true,

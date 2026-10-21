@@ -1,0 +1,47 @@
+// pmcp-pty as a library: the wire protocol (proto, error) and a client for other crates such as a
+// TUI, plus the daemon the pmcp-pty binary runs. Internal modules stay private.
+pub mod attach;
+mod attach_serve;
+mod attachers;
+mod audit;
+mod channel;
+pub mod client;
+mod clock;
+mod codex_threads;
+pub mod daemon;
+mod delivery;
+mod dialog;
+mod driver_acp;
+mod driver_claude;
+mod driver_codex;
+mod driver_http;
+pub mod error;
+pub mod fixtures;
+mod guard;
+mod handler;
+mod helper;
+mod http;
+mod input;
+mod lease;
+mod observe;
+pub mod paths;
+pub use pmcp_plugin_support::platform;
+mod policy;
+pub mod profile;
+pub mod proto;
+use pmcp_plugin_support::reap;
+mod redact;
+mod ring;
+mod scrub;
+mod session;
+mod signals;
+mod term;
+mod transcript;
+mod transport;
+mod turn;
+mod version;
+mod views;
+mod wait;
+mod write;
+
+pub use transport::UnixStream;

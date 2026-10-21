@@ -6,6 +6,7 @@ import { readSkillFiles } from "../library-skills/source.mjs";
 import {
   canonicalSkillDirectory,
   libraryPluginId,
+  pmcpSkillDirectories,
 } from "../library-skills/layout.mjs";
 
 export function marketplaceDescriptors(root) {
@@ -16,8 +17,9 @@ export function marketplaceDescriptors(root) {
     description:
       "Find package skills and use native runtime project configuration.",
     version: manifest.version,
-    directory: join(root, "plugins/pmcp/skills/package-skill-catalog"),
+    directories: pmcpSkillDirectories(root),
     bridge: true,
+    mod: true,
   };
   const libraries = catalog.entries.map((entry) => ({
     id: libraryPluginId(entry.productId, entry.line.major),

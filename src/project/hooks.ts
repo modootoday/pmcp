@@ -3,9 +3,11 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { climbCommand } from "../hooks/runtimes/climb.js";
 import { jsonOutput, splitKeyed, type Output } from "./outputs.js";
 import { ProjectError } from "./package-rules.js";
 import { guardPath } from "./hook-adapter.js";
+import { bundleEdits, bundleFiles, bundleOwns } from "./hook-bundle.js";
 import type { ProjectSpec } from "./spec.js";
 
 export const HOOK_DIRECTORY = ".agents/pmcp-hooks";
@@ -88,15 +90,17 @@ export function hookOutputs(spec: ProjectSpec): Output[] {
         outputs?: { path: string; managed?: unknown[] }[];
       })
     : {};
+  // Limit ownership to hook keys so projection preserves unrelated native registrations.
   const previous = new Map(
     (lock.outputs ?? [])
       .filter((entry) => entry.managed !== undefined)
+      .filter((entry) => /#(hooks|pmcp-shell|pmcp)\./u.test(entry.path))
       .map((entry) => [entry.path, entry.managed!]),
   );
   const selected = (spec.hooks ?? []).filter((hook) =>
     hook.targets.some((tool) => spec.tools.has(tool)),
   );
-  if (selected.length === 0 && previous.size === 0) {
+  if (selected.length === 0 && previous.size === 0 && !spec.hookBundle) {
     return [];
   }
   const outputs: Output[] = [];
@@ -127,9 +131,13 @@ export function hookOutputs(spec: ProjectSpec): Output[] {
         }
         const target = hook.event === "after_edit" ? editNative : native[tool];
         const eventArgument = hook.event === "after_edit" ? " after_edit" : "";
-        const command =
-          'd="$PWD"; while [ ! -f "$d/pmcp.toml" ]; do [ "$d" = / ] && exit 1; d=$(dirname "$d"); done; ' +
-          `exec node "$d/${ADAPTER}" --pmcp-shell-hook ${tool} "$d/${policyFile}" ${integrity}${eventArgument}`;
+        // agy reads a silent PreToolUse as a deny, so a missing project still allows.
+        const command = climbCommand(
+          `node ${ADAPTER} --pmcp-shell-hook ${tool} ${policyFile} ${integrity}${eventArgument}`,
+          tool === "antigravity"
+            ? `printf '%s\\n' '{"decision":"allow"}'`
+            : undefined,
+        );
         const timeout =
           tool === "gemini"
             ? hook.timeoutMs + 2000
@@ -149,17 +157,30 @@ export function hookOutputs(spec: ProjectSpec): Output[] {
       }
     }
   }
+  outputs.push(...bundleFiles(spec));
+  for (const edit of bundleEdits(spec)) {
+    const path = `${edit.file}#${edit.key.join(".")}`;
+    const entry = desired.get(path) ?? {
+      file: edit.file,
+      key: edit.key,
+      managed: [],
+    };
+    entry.managed.push(...edit.entries);
+    desired.set(path, entry);
+  }
   const same = (left: unknown, right: unknown) =>
     JSON.stringify(left) === JSON.stringify(right);
   for (const path of new Set([...desired.keys(), ...previous.keys()])) {
     const parts = splitKeyed(path);
+    const bundleOwned = parts !== null && bundleOwns(parts.file, parts.key);
     if (
       !parts ||
-      ![...Object.values(native), editNative].some(
-        (entry) =>
-          entry.file === parts.file &&
-          entry.key.join(".") === parts.key.join("."),
-      )
+      (!bundleOwned &&
+        ![...Object.values(native), editNative].some(
+          (entry) =>
+            entry.file === parts.file &&
+            entry.key.join(".") === parts.key.join("."),
+        ))
     ) {
       throw new ProjectError("Unknown managed hook path in pmcp.lock");
     }

@@ -1,17 +1,13 @@
-/**
- * SKILL.md frontmatter, read as YAML the way a host reads it, and checked against
- * the Agent Skills specification (https://agentskills.io/specification).
- */
+// Parse YAML so folded descriptions agree with native host interpretation.
 
 import { parse } from "yaml";
 
 export type MetadataLeaf = string | readonly string[];
 
-/** A metadata value: a leaf, or a map of leaves one level below the metadata key. */
 export type MetadataValue =
-  MetadataLeaf | { readonly [key: string]: MetadataLeaf };
+  | MetadataLeaf
+  | { readonly [key: string]: MetadataLeaf };
 
-/** The frontmatter text between the fences, BOM and CRLF tolerated; null when absent. */
 export function frontmatterText(source: string): string | null {
   const text = source.replace(/^﻿/u, "").replace(/\r\n/gu, "\n");
   if (!text.startsWith("---\n") && text !== "---") return null;
@@ -20,7 +16,6 @@ export function frontmatterText(source: string): string | null {
   return text.slice(4, end + 1);
 }
 
-/** The body after the frontmatter, or the whole file when there is none. */
 export function bodyOf(source: string): string {
   const text = source.replace(/^﻿/u, "").replace(/\r\n/gu, "\n");
   if (!text.startsWith("---\n")) return text;
@@ -34,10 +29,7 @@ const asObject = (value: unknown): Record<string, unknown> | null =>
     ? (value as Record<string, unknown>)
     : null;
 
-/**
- * Parsed frontmatter. A value with an unquoted ": " is a common authoring slip
- * the client guide says to recover from by quoting it, so that is retried once.
- */
+// Retry common unquoted-colon errors to preserve the specification's lenient loading behavior.
 export function frontmatterObject(
   source: string,
 ): Record<string, unknown> | null {
@@ -62,7 +54,6 @@ export function frontmatterObject(
   }
 }
 
-/** Top-level scalar fields as strings; folded and block scalars arrive unfolded. */
 export function stringFields(
   front: Record<string, unknown> | null,
 ): Record<string, string> {
@@ -84,10 +75,6 @@ function leafOf(value: unknown): MetadataLeaf | undefined {
   return undefined;
 }
 
-/**
- * The metadata map: strings, string lists, and maps of those one level down
- * (`requires:`). Anything nested deeper is dropped.
- */
 export function metadataOf(
   front: Record<string, unknown> | null,
 ): Record<string, MetadataValue> {
@@ -116,10 +103,6 @@ export const NAME_MAX = 64;
 export const DESCRIPTION_MAX = 1024;
 export const COMPATIBILITY_MAX = 500;
 
-/**
- * What the specification requires of one SKILL.md, as messages; empty when valid.
- * directory is the name of the folder holding it.
- */
 export function specProblems(
   front: Record<string, unknown> | null,
   directory: string,

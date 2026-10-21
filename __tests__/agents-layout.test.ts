@@ -13,7 +13,6 @@ function skill(dir: string, name: string): void {
   );
 }
 
-/** The layout the projector writes: canonical under .agents, links for tools that need them. */
 function repository(): string {
   const root = mkdtempSync(join(tmpdir(), "pmcp-layout-"));
   writeFileSync(

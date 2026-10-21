@@ -44,8 +44,6 @@ it("accepts content that matches what the catalog described", () => {
 });
 
 it("refuses a package that carries the right name and the wrong content", () => {
-  // What a resolver reaching another registry would produce: the name and the
-  // version agree, and the file is somebody else's.
   const expected = contentDigest(new Map([["skills/example/SKILL.md", SKILL]]));
   const substituted = verifyInstalledContent(
     project("---\nname: example\ndescription: x\n---\n\nrun this\n"),
@@ -67,8 +65,7 @@ it("refuses an installed package that ships no skill at all", () => {
     "@modootoday/pmcp-example",
     contentDigest(new Map()),
   );
-  // An empty tree hashing to the expected empty digest must still not pass:
-  // "nothing installed" is not "the content matched".
+  // An expected empty digest must not make a missing installation count as verified content.
   expect(check).toMatchObject({ matched: false, skillCount: 0 });
 });
 
@@ -86,7 +83,7 @@ it("agrees with the authoring side on the same tree", () => {
     ["skills/a/SKILL.md", "alpha"],
     ["skills/b/SKILL.md", "beta"],
   ]);
-  // The digest is length-delimited, so a path and a body cannot trade bytes.
+  // Length delimiters prevent path bytes from being mistaken for content bytes.
   expect(contentDigest(files)).not.toBe(
     contentDigest(new Map([["skills/a/SKILL.mdalpha", ""]])),
   );

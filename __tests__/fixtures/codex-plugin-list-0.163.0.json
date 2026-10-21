@@ -1,0 +1,34 @@
+{
+  "installed": [
+    {
+      "pluginId": "fleet@team",
+      "name": "fleet",
+      "marketplaceName": "team",
+      "version": "0.2.17",
+      "installed": true,
+      "enabled": true
+    },
+    {
+      "pluginId": "extra@team",
+      "name": "extra",
+      "marketplaceName": "team",
+      "version": "1.0.0",
+      "installed": true,
+      "enabled": true
+    }
+  ],
+  "available": [
+    {
+      "pluginId": "zustand-5@team",
+      "name": "zustand-5",
+      "marketplaceName": "team",
+      "version": "5.0.0",
+      "installed": false,
+      "enabled": true,
+      "source": { "source": "local", "path": "/market/plugins/zustand-5" },
+      "marketplaceSource": { "sourceType": "local", "source": "/market" },
+      "installPolicy": "AVAILABLE",
+      "authPolicy": "ON_USE"
+    }
+  ]
+}

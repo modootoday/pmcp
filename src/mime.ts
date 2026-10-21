@@ -1,7 +1,4 @@
-/**
- * One MIME table for every surface that hands out skill files, so a file is text,
- * image, audio or blob the same way through skill_read and through resources/read.
- */
+// Share MIME decisions so tools and resource reads classify the same bytes consistently.
 
 const TYPES: Readonly<Record<string, string>> = {
   ".md": "text/markdown",
@@ -80,7 +77,6 @@ const TEXT_APPLICATION = new Set([
   "image/svg+xml",
 ]);
 
-/** The declared type of a path by extension, or null when the extension is unknown. */
 export function mimeOf(path: string): string | null {
   const slash = path.lastIndexOf("/");
   const dot = path.lastIndexOf(".");
@@ -88,7 +84,6 @@ export function mimeOf(path: string): string | null {
   return TYPES[path.slice(dot).toLowerCase()] ?? null;
 }
 
-/** True when the bytes decode as UTF-8 and encode back to themselves, without NUL. */
 export function isUtf8Text(bytes: Uint8Array): boolean {
   if (bytes.includes(0)) return false;
   try {
@@ -106,10 +101,7 @@ export interface Classified {
   readonly mimeType: string;
 }
 
-/**
- * How a file goes out. A type that names text is still served as a blob when the
- * bytes are not valid UTF-8, so a digest over them stays exact.
- */
+// Serve invalid UTF-8 as binary so byte-level digests remain exact.
 export function classify(path: string, bytes: Uint8Array): Classified {
   const declared = mimeOf(path);
   const textual =

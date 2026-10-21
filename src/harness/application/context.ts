@@ -1,5 +1,5 @@
 import { dirname } from "node:path";
-import { openBackend, type Backend } from "../adapters/tmux/backend.js";
+import { openBackend, type Backend } from "../adapters/terminal/backend.js";
 import { GroupStore } from "../groups/store.js";
 
 export interface GroupContext {

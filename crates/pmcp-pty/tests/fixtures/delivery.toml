@@ -1,0 +1,46 @@
+# The fake agent's patterns under four delivery channels, for tests/delivery.rs.
+[profiles.fake-claude]
+delivery = "claude-inbox"
+idle_ms = 300
+settle_ms = 150
+submit_delay_ms = 50
+busy = [{ name = "working", regex = 'esc to cancel' }]
+spinner = [{ name = "frames", regex = '^[⠋⠙⠹⠸]' }]
+input_empty = [{ name = "prompt", regex = '(?m)^>$' }]
+dialogs = [{ name = "exec", regex = 'Allow execution of' }]
+input = { name = "prompt", regex = '^>(?: (?P<text>.*))?$' }
+
+[profiles.fake-opencode]
+delivery = "http-prompt-async"
+idle_ms = 300
+settle_ms = 150
+submit_delay_ms = 50
+busy = [{ name = "working", regex = 'esc to cancel' }]
+spinner = [{ name = "frames", regex = '^[⠋⠙⠹⠸]' }]
+input_empty = [{ name = "prompt", regex = '(?m)^>$' }]
+dialogs = [{ name = "exec", regex = 'Allow execution of' }]
+input = { name = "prompt", regex = '^>(?: (?P<text>.*))?$' }
+
+[profiles.fake-codex]
+delivery = "codex-queue"
+idle_ms = 300
+settle_ms = 150
+submit_delay_ms = 50
+busy = [{ name = "working", regex = 'esc to cancel' }]
+spinner = [{ name = "frames", regex = '^[⠋⠙⠹⠸]' }]
+input_empty = [{ name = "prompt", regex = '(?m)^>$' }]
+dialogs = [{ name = "exec", regex = 'Allow execution of' }]
+input = { name = "prompt", regex = '^>(?: (?P<text>.*))?$' }
+
+[profiles.fake-grok]
+delivery = "grok-leader-acp"
+idle_ms = 300
+settle_ms = 150
+submit_delay_ms = 50
+busy = [{ name = "working", regex = 'esc to cancel' }]
+spinner = [{ name = "frames", regex = '^[⠋⠙⠹⠸]' }]
+input_empty = [{ name = "prompt", regex = '(?m)^>$' }]
+dialogs = [{ name = "exec", regex = 'Allow execution of' }]
+input = { name = "prompt", regex = '^>(?: (?P<text>.*))?$' }
+
+[profiles.default]

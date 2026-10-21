@@ -1,8 +1,4 @@
-/**
- * One prompt per skill, for hosts that offer prompts as commands: the Agent
- * Skills "user-explicit activation" path. Off unless the host asks for it,
- * because the list grows with the catalog.
- */
+// Keep skill prompts opt-in because advertising one per skill grows with the catalog.
 
 import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
@@ -10,7 +6,7 @@ import { z } from "zod";
 import { kindOf, type SkillEntry } from "./catalog.js";
 import type { SkillTools } from "./server.js";
 
-/** Prompt names travel into host command names, so they stay to a plain set. */
+// Restrict prompt names because hosts may turn them into command names.
 export const promptName = (entry: Pick<SkillEntry, "name">): string =>
   entry.name.replace(/^@/u, "").replace(/[^A-Za-z0-9_-]+/gu, "-");
 

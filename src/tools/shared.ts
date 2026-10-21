@@ -1,5 +1,3 @@
-/** What every tool shares: its annotations and the shape of its answers. */
-
 import { z } from "zod";
 
 import { runtimeSchema } from "./schemas.js";
@@ -11,8 +9,7 @@ const readOnly = {
   openWorldHint: false,
 } as const;
 
-// Hosts differ on where they read a tool's display name: Claude's directory reads
-// annotations.title and ignores the top-level one, so both carry the same words.
+// Publish both title locations because native hosts read different metadata fields.
 export const readOnlyTool = (title: string) => ({
   title,
   annotations: { ...readOnly, title },
@@ -51,13 +48,12 @@ export const asText = (value: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }],
 });
 
-/** JSON for older clients, and the same value as structuredContent for newer ones. */
 export const structured = <T extends object>(value: T) => ({
   ...asText(value),
   structuredContent: { ...value } as Record<string, unknown>,
 });
 
-/** An error result carries no structuredContent: there is no schema it could match. */
+// Omit structured content from errors because successful-response schemas cannot validate them.
 export const unknownSkill = (name: string) => ({
   ...asText({
     error: "unknown_skill",

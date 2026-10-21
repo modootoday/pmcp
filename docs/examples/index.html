@@ -25,28 +25,351 @@
 <main id="main"><section class="section examples-page"><h1>Read a skill.<br />See what it carries.</h1>
     <p class="lede">These instructions ship with the public PMCP package. Your project's catalog comes from the packages and plugins it has installed.</p>
     <label class="search-box"><span>Find an example</span><input type="search" data-example-search placeholder="Try dependencies or catalog" /></label>
-    <div class="results" data-example-results><a class="result" href="#package-skill-catalog" data-example-result data-search="package-skill-catalog find version-appropriate development instructions for installed public libraries, inspect a pmcp skill before using it, or install selected pmcp marketplace skills through a native runtime.">
-    <strong>package-skill-catalog</strong><span>Find version-appropriate development instructions for installed public libraries, inspect a PMCP skill before using it, or install selected PMCP marketplace skills through a native runtime.</span><small>@modootoday/pmcp / skills/package-skill-catalog/SKILL.md</small>
+    <div class="results" data-example-results><a class="result" href="#agent-assets-migrate" data-example-result data-search="agent-assets-migrate move a repository's scattered agent files - claude.md, .cursorrules, .windsurfrules, copilot-instructions.md, .claude/skills, .claude/agents, .claude/commands, .gemini/agents and a root .agent/ folder - into one agents.md, .agents/ and pmcp.toml without losing a line, keeping historical citations as they are, and finishing with a clean pmcp project --check. use when consolidating agent instructions from several tools into one source, when adopting pmcp in a repository that already has agent files, or when agent files have drifted apart. not for a new empty repository or for trimming an oversized agents.md.">
+    <strong>agent-assets-migrate</strong><span>Move a repository's scattered agent files - CLAUDE.md, .cursorrules, .windsurfrules, copilot-instructions.md, .claude/skills, .claude/agents, .claude/commands, .gemini/agents and a root .agent/ folder - into one AGENTS.md, .agents/ and pmcp.toml without losing a line, keeping historical citations as they are, and finishing with a clean pmcp project --check. Use when consolidating agent instructions from several tools into one source, when adopting pmcp in a repository that already has agent files, or when agent files have drifted apart. Not for a new empty repository or for trimming an oversized AGENTS.md.</span><small>@modootoday/pmcp / skills/agent-assets-migrate/SKILL.md</small>
+  </a>
+<a class="result" href="#headless-agents-ci-scaffold" data-example-result data-search="headless-agents-ci-scaffold write a ci job that runs claude code, gemini cli, codex, grok build and antigravity headless against a project mcp server, giving each the permission setting it actually honours, asserting on the tool call rather than the exit code, and gating with pmcp project --check and pmcp doctor. use when adding agent clis to ci, when a headless agent run skips an mcp tool call, or when a permission flag seems to do nothing. not for interactive sessions or for writing the mcp server itself.">
+    <strong>headless-agents-ci-scaffold</strong><span>Write a CI job that runs Claude Code, Gemini CLI, Codex, Grok Build and Antigravity headless against a project MCP server, giving each the permission setting it actually honours, asserting on the tool call rather than the exit code, and gating with pmcp project --check and pmcp doctor. Use when adding agent CLIs to CI, when a headless agent run skips an MCP tool call, or when a permission flag seems to do nothing. Not for interactive sessions or for writing the MCP server itself.</span><small>@modootoday/pmcp / skills/headless-agents-ci-scaffold/SKILL.md</small>
+  </a>
+<a class="result" href="#marketplace-plugin-scaffold" data-example-result data-search="marketplace-plugin-scaffold package skills, commands, subagents, hooks and mcp servers as a plugin in a plugin marketplace laid out the way pmcp's catalog reads it - marketplace.json with a tier, plugin.json, skills/, commands/, agents/, hooks/hooks.json and .mcp.json - and confirm every asset is listed with pmcp list and pmcp validate. use when turning a folder of skills into a marketplace plugin, when a plugin's assets do not show up in a skill catalog, or when setting the tier of a marketplace. not for writing a single skill's content or for hosting the catalog over http.">
+    <strong>marketplace-plugin-scaffold</strong><span>Package skills, commands, subagents, hooks and MCP servers as a plugin in a plugin marketplace laid out the way pmcp's catalog reads it - marketplace.json with a tier, plugin.json, skills/, commands/, agents/, hooks/hooks.json and .mcp.json - and confirm every asset is listed with pmcp list and pmcp validate. Use when turning a folder of skills into a marketplace plugin, when a plugin's assets do not show up in a skill catalog, or when setting the tier of a marketplace. Not for writing a single skill's content or for hosting the catalog over HTTP.</span><small>@modootoday/pmcp / skills/marketplace-plugin-scaffold/SKILL.md</small>
+  </a>
+<a class="result" href="#package-skill-catalog" data-example-result data-search="package-skill-catalog find, check and load the right skill from a pmcp skill catalog instead of guessing, including version-appropriate instructions for installed public libraries, and install selected pmcp marketplace skills through a native runtime. use when a task might have a dedicated skill, when the pmcp tools (skill_find, skill_catalog, skill_describe, skill_call, skill_read, skill_bundle) are available, or when a search for a skill came back empty.">
+    <strong>package-skill-catalog</strong><span>Find, check and load the right skill from a PMCP skill catalog instead of guessing, including version-appropriate instructions for installed public libraries, and install selected PMCP marketplace skills through a native runtime. Use when a task might have a dedicated skill, when the PMCP tools (skill_find, skill_catalog, skill_describe, skill_call, skill_read, skill_bundle) are available, or when a search for a skill came back empty.</span><small>@modootoday/pmcp / skills/package-skill-catalog/SKILL.md</small>
+  </a>
+<a class="result" href="#pmcp-project-init" data-example-result data-search="pmcp-project-init set up a repository so every coding agent reads the same instructions, skills, subagents, rules and mcp servers - one agents.md with claude.md and gemini.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared mcp authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent cli needs. use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.">
+    <strong>pmcp-project-init</strong><span>Set up a repository so every coding agent reads the same instructions, skills, subagents, rules and MCP servers - one AGENTS.md with CLAUDE.md and GEMINI.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared MCP authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent CLI needs. Use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. Not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.</span><small>@modootoday/pmcp / skills/pmcp-project-init/SKILL.md</small>
+  </a>
+<a class="result" href="#pmcp-sessions-and-git" data-example-result data-search="pmcp-sessions-and-git work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, pause, resume and broadcast as the operator, wait out a lease, work in a desk (a linked worktree) instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and desks, and read pmcp logs to explain a hook refusal. use when a pmcp hook refused or warned, when several agents share one repository, when asked to land or deliver work, or when a session reports a pause, lease or leftover edits. not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.">
+    <strong>pmcp-sessions-and-git</strong><span>Work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, pause, resume and broadcast as the operator, wait out a lease, work in a desk (a linked worktree) instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and desks, and read pmcp logs to explain a hook refusal. Use when a pmcp hook refused or warned, when several agents share one repository, when asked to land or deliver work, or when a session reports a pause, lease or leftover edits. Not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.</span><small>@modootoday/pmcp / skills/pmcp-sessions-and-git/SKILL.md</small>
+  </a>
+<a class="result" href="#skill-package-scaffold" data-example-result data-search="skill-package-scaffold lay out one new skill folder that passes the agent skills specification - skill.md frontmatter within the limits pmcp validate enforces, references/, scripts/ and assets/ only where needed, and evals/ with a normal, an exception and a missing-information case - then gate it with pmcp validate. use when creating the folder for a new skill, when pmcp validate rejects a skill, or when a skill needs its first eval cases. not for deciding what the skill should teach or for packaging several skills as a plugin.">
+    <strong>skill-package-scaffold</strong><span>Lay out one new skill folder that passes the Agent Skills specification - SKILL.md frontmatter within the limits pmcp validate enforces, references/, scripts/ and assets/ only where needed, and evals/ with a normal, an exception and a missing-information case - then gate it with pmcp validate. Use when creating the folder for a new skill, when pmcp validate rejects a skill, or when a skill needs its first eval cases. Not for deciding what the skill should teach or for packaging several skills as a plugin.</span><small>@modootoday/pmcp / skills/skill-package-scaffold/SKILL.md</small>
   </a></div><p data-example-empty hidden>No example matches. Clear the search to see the shipped skill.</p>
-    <div class="examples-content"><article id="package-skill-catalog" class="example-body docs-body">
+    <div class="examples-content"><article id="agent-assets-migrate" class="example-body docs-body">
+    <p class="eyebrow">Shipped source / @modootoday/pmcp</p>
+    <h2>agent-assets-migrate</h2>
+    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/agent-assets-migrate/SKILL.md">Read the source file</a></p>
+    <h2>Migrating agent assets into AGENTS.md, .agents/ and pmcp.toml</h2>
+<p>The risk is not the move; it is silent loss. Two files that look alike usually differ by a
+few rules, and a field one tool needed vanishes when an agent file is copied. Inventory
+first, move verbatim, prove nothing was dropped, then let <code>pmcp project</code> regenerate the
+tool files.</p>
+<h3>1. Inventory</h3>
+<p>List every source with its bytes and line count, and note which are links:</p>
+<table>
+<thead>
+<tr>
+<th>Found</th>
+<th>Goes to</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>.cursorrules</code>, <code>.windsurfrules</code>, <code>.github/copilot-instructions.md</code></td>
+<td>merged into <code>AGENTS.md</code>; each then becomes a link to it</td>
+</tr>
+<tr>
+<td><code>.claude/skills/&lt;n&gt;/</code>, <code>.agent/skills/&lt;n&gt;/</code></td>
+<td><code>.agents/skills/&lt;n&gt;/</code> (whole folder)</td>
+</tr>
+<tr>
+<td><code>.claude/commands/&lt;n&gt;.md</code>, <code>.agent/workflows/&lt;n&gt;.md</code></td>
+<td><code>.agents/skills/&lt;n&gt;/SKILL.md</code> plus <code>[skills.&lt;n&gt;] invocation = &quot;user&quot;</code></td>
+</tr>
+<tr>
+<td><code>.claude/agents/&lt;n&gt;.md</code>, <code>.gemini/agents/&lt;n&gt;.md</code>, <code>.agent/agents/&lt;n&gt;.md</code></td>
+<td><code>.agents/agents/&lt;n&gt;/agent.md</code></td>
+</tr>
+<tr>
+<td><code>.claude/rules/*.md</code> with <code>paths:</code></td>
+<td><code>.agents/rules/&lt;n&gt;.md</code> with <code>trigger: glob</code> and <code>globs:</code></td>
+</tr>
+<tr>
+<td>MCP entries in <code>.mcp.json</code>, <code>.gemini/settings.json</code>, <code>.codex/config.toml</code></td>
+<td><code>[mcp.&lt;alias&gt;]</code> in <code>pmcp.toml</code></td>
+</tr>
+</tbody></table>
+<p>pmcp has no Copilot or Cursor target. Keep those filenames as links to <code>AGENTS.md</code> so they
+cannot drift.</p>
+<h3>2. Merge instruction files without loss</h3>
+<p>Diff each instruction file against the others line by line. Keep the union; where two say
+different things, settle it from the code or ask, and record the decision. Do not summarise
+during the move. Then replace each old file with a link (<code>ln -s AGENTS.md CLAUDE.md</code>).
+Use file-to-file links only: a directory symlink at the repository root, such as <code>.agents</code>
+pointing at <code>.agent</code>, is rejected by the Codex sandbox.</p>
+<h3>3. Split agent fields</h3>
+<p>A subagent&#39;s <code>agent.md</code> keeps only <code>name</code>, <code>description</code> and the body. Everything else is
+tool-specific and becomes a <code>pmcp.toml</code> table:</p>
+<pre><code class="language-toml">[agents.reviewer.claude]
+tools = &quot;Read, Grep, Glob&quot;
+model = &quot;sonnet&quot;
+effort = &quot;high&quot;
+</code></pre>
+<p>Why: Antigravity silently drops an agent whose <code>tools</code> field lists another tool&#39;s tool
+names. What survives projection: Claude keeps <code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>,
+<code>effort</code>; Gemini keeps <code>name</code> and <code>description</code>; Codex gets those two plus the body. A
+Gemini-only field has nowhere to go; list it in the report as dropped.</p>
+<h3>4. Keep history as it was</h3>
+<p>Change live references to the new paths: scripts, configs, current docs, other skills.
+Leave decision records, dated plans, changelogs and evidence notes citing the old paths
+untouched; they record what was true then. Count both groups and report them.</p>
+<h3>5. Remove the old copies, then project</h3>
+<p><code>pmcp project</code> refuses to overwrite a file it did not write (exit 1, naming the file), so
+delete the hand-written <code>.claude/agents/&lt;n&gt;.md</code>, <code>.claude/skills/&lt;n&gt;</code> and old MCP blocks
+after their content is in the sources. Then:</p>
+<pre><code class="language-sh">pmcp project
+pmcp project --check   # must exit 0
+</code></pre>
+<p><code>--check</code> exits 2 and names each problem: <code>drift</code> (an output differs from its source),
+<code>stale</code> (the lock lists an output no source produces), <code>undeclared</code> (a file left in
+<code>.claude/skills</code>, <code>.claude/agents</code>, <code>.claude/commands</code>, <code>.gemini/agents</code>, <code>.codex/agents</code>,
+<code>.grok/skills</code> or <code>.claude/rules/pmcp</code> that nothing generates, often a copy you forgot to
+delete), and <code>dead glob</code> (a rule glob matching no tracked file).</p>
+<p>Codex in <code>workspace-write</code> cannot edit <code>.agents/</code> unless it is listed in
+<code>sandbox_workspace_write.writable_roots</code>; a patch touching it is refused whole.</p>
+<h3>6. Prove nothing was lost</h3>
+<p>For each old file, check that every non-blank line now exists in a source (same text, or
+a recorded decision). Count skills, agents, commands and MCP servers before and after; the
+counts must match, with commands now counted as user-invoked skills.</p>
+<h3>Report</h3>
+<p>The inventory table, conflicts and how each was settled, fields dropped, live and historical
+citation counts, the before and after asset counts, and the <code>pmcp project --check</code> output.</p>
+
+  </article>
+<article id="headless-agents-ci-scaffold" class="example-body docs-body">
+    <p class="eyebrow">Shipped source / @modootoday/pmcp</p>
+    <h2>headless-agents-ci-scaffold</h2>
+    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/headless-agents-ci-scaffold/SKILL.md">Read the source file</a></p>
+    <h2>Headless agent CLIs in CI</h2>
+<p>Every agent CLI blocks an MCP tool call it was not told to allow, and each spells the
+allowance differently. Several fail quietly: the model announces the call and the run ends
+with exit 0. So a CI job needs the right setting per tool and an assertion that the call
+happened.</p>
+<p>The settings below were measured with one headless MCP call per tool (Claude Code 2.1.289,
+Gemini CLI 0.38.2, Codex 0.131.0, Grok Build 1.0.46, Antigravity 1.2.16). Re-check after an
+upgrade; these flags move.</p>
+<h3>Permission per tool</h3>
+<p><code>&lt;server&gt;</code> is the MCP alias (the <code>[mcp.&lt;alias&gt;]</code> name), <code>&lt;tool&gt;</code> the tool name.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Command</th>
+<th>What lets the call through</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Claude Code</td>
+<td><code>claude -p &quot;&lt;prompt&gt;&quot; --permission-mode default --allowedTools mcp__&lt;server&gt;__&lt;tool&gt;</code></td>
+<td>the <code>--allowedTools</code> rule; without it the call is blocked under <code>default</code></td>
+</tr>
+<tr>
+<td>Gemini CLI</td>
+<td><code>gemini -p &quot;&lt;prompt&gt;&quot; --allowed-mcp-server-names &lt;server&gt; --allowed-tools mcp_&lt;server&gt;_&lt;tool&gt;</code></td>
+<td>one <code>--allowed-tools</code> flag per tool (a bare tool name does not match; the array form swallowed the prompt); the folder must be trusted; the flag is deprecated in favour of the Policy Engine</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td><code>codex exec &quot;&lt;prompt&gt;&quot;</code></td>
+<td>nothing; <code>exec</code> allowed the call without a flag</td>
+</tr>
+<tr>
+<td>Grok Build</td>
+<td><code>grok -p &quot;&lt;prompt&gt;&quot; --permission-mode default --allow &lt;server&gt;__&lt;tool&gt;</code></td>
+<td><code>--allow &lt;server&gt;__&lt;tool&gt;</code>; the Claude-style <code>mcp__&lt;server&gt;__&lt;tool&gt;</code> matches nothing</td>
+</tr>
+<tr>
+<td>Antigravity</td>
+<td><code>agy -p &quot;&lt;prompt&gt;&quot;</code></td>
+<td>a <code>permissions.allow</code> entry <code>mcp(&lt;server&gt;/&lt;tool&gt;)</code> in <code>~/.gemini/antigravity-cli/settings.json</code>; <code>mcp(&lt;server&gt;)</code> alone does not match, and an unlisted tool is auto-denied</td>
+</tr>
+</tbody></table>
+<h4>Grok precedence traps</h4>
+<ul>
+<li>Grok reads Claude Code&#39;s <code>~/.claude/settings.json</code>. A <code>defaultMode: auto</code> there approves
+MCP calls over Grok&#39;s own <code>--permission-mode default</code> and <code>--disallowed-tools</code>. Run Grok on
+a runner whose home has no such setting.</li>
+<li><code>--permission-mode default</code> on the command line beats a config <code>permission_mode = &quot;always-approve&quot;</code>, but <code>--disallowed-tools</code> does not. Do not rely on a deny rule to keep a
+tool from running; pin the mode by flag and allow only what the job needs.</li>
+<li>A blocked call in <code>-p</code> is silent: no error line, exit 0.</li>
+</ul>
+<h4>Codex sandbox</h4>
+<p>Under <code>--sandbox workspace-write</code>, <code>.agents/</code> is protected like <code>.git</code>: a patch touching it
+is refused whole, including its other files. If the job edits <code>.agents/</code>, list it under
+<code>[sandbox_workspace_write] writable_roots</code> in <code>.codex/config.toml</code>, or per run:</p>
+<pre><code class="language-sh">codex exec -s workspace-write \
+  -c &#39;sandbox_workspace_write.writable_roots=[&quot;&lt;absolute repo path&gt;/.agents&quot;]&#39; &quot;&lt;prompt&gt;&quot;
+</code></pre>
+<h3>Trust on the runner</h3>
+<p>Codex, Gemini and Grok skip project assets (skills, MCP servers, agents) in an untrusted
+folder, without an error. On a fresh runner, record the checkout as trusted for each tool
+before the run (Codex: <code>[projects.&quot;&lt;absolute path&gt;&quot;] trust_level = &quot;trusted&quot;</code> in
+<code>~/.codex/config.toml</code>; Gemini: <code>~/.gemini/trustedFolders.json</code>; Grok:
+<code>~/.grok/trusted_folders.toml</code>; Antigravity: <code>trustedWorkspaces</code> in its settings file).</p>
+<h3>Assert the call, not the exit code</h3>
+<p>Exit 0 proves nothing here. Either put a logging proxy in front of the MCP server and
+assert it logged a <code>tools/call</code> for the tool, or have the prompt return a value only the
+tool can supply and grep for it.</p>
+<h3>Projection gate</h3>
+<pre><code class="language-sh">pmcp project --check   # exit 2: generated files drifted, went stale or are undeclared
+pmcp doctor            # exit 1 on any failed check
+</code></pre>
+<p><code>pmcp doctor</code> skips a CLI that is not installed, except the Codex trust check, which reads
+<code>~/.codex/config.toml</code> whenever <code>codex</code> is in <code>[targets]</code>. On a runner without Codex, either
+write the trust entry or pass <code>--tool</code> for the tools present (<code>pmcp doctor --tool claude --tool gemini</code>).</p>
+<h3>Job skeleton</h3>
+<pre><code class="language-sh">set -eu
+pmcp project --check
+pmcp doctor --tool claude --tool gemini --tool grok
+out=$(claude -p &quot;Call &lt;tool&gt; on &lt;server&gt; and print the first result name.&quot; \
+  --permission-mode default --allowedTools mcp__&lt;server&gt;__&lt;tool&gt;)
+printf &#39;%s\n&#39; &quot;$out&quot; | grep -q &#39;&lt;expected value&gt;&#39;
+</code></pre>
+<p>Repeat the last two lines per tool with its own setting from the table.</p>
+<h3>Report</h3>
+<p>The job file, the per-tool settings used with the version each was checked on, how each run
+asserts the call, and any tool left out and why.</p>
+
+  </article>
+<article id="marketplace-plugin-scaffold" class="example-body docs-body">
+    <p class="eyebrow">Shipped source / @modootoday/pmcp</p>
+    <h2>marketplace-plugin-scaffold</h2>
+    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/marketplace-plugin-scaffold/SKILL.md">Read the source file</a></p>
+    <h2>Scaffolding a marketplace plugin pmcp can read</h2>
+<p>pmcp reads a marketplace by its files, with no package.json involved. Anything outside the
+places below is invisible to it, and an asset without a description is dropped with a
+reason, not served.</p>
+<h3>Layout</h3>
+<pre><code>&lt;marketplace&gt;/
+  .claude-plugin/marketplace.json
+  plugins/&lt;plugin&gt;/
+    .claude-plugin/plugin.json
+    skills/&lt;name&gt;/SKILL.md
+    commands/&lt;name&gt;.md
+    agents/&lt;name&gt;.md            or agents/&lt;name&gt;/agent.md
+    hooks/hooks.json
+    .mcp.json
+</code></pre>
+<h3>marketplace.json</h3>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;acme&quot;,
+  &quot;metadata&quot;: { &quot;tier&quot;: &quot;open&quot; },
+  &quot;plugins&quot;: [{ &quot;name&quot;: &quot;billing-skills&quot;, &quot;source&quot;: &quot;./plugins/billing-skills&quot; }]
+}
+</code></pre>
+<ul>
+<li>A plugin entry without <code>name</code> or <code>source</code>, or whose <code>source</code> directory does not exist, is
+skipped without a message. Check the count in <code>pmcp list</code>.</li>
+<li>The tier lives here, for the whole marketplace. There is no plugin-level tier.</li>
+<li>A skill, command or agent may repeat it as <code>metadata.tier</code> in its frontmatter. If that
+disagrees with the marketplace tier the asset is rejected, because a mislabelled tier is
+how a private asset leaks. Keep one tier per marketplace and split marketplaces by tier.</li>
+</ul>
+<h3>plugin.json</h3>
+<p><code>description</code> is what a hook entry and each MCP server entry are described with. <code>hooks</code> may
+name a different hooks file (a string path); otherwise <code>hooks/hooks.json</code> is read.</p>
+<h3>What each place becomes</h3>
+<table>
+<thead>
+<tr>
+<th>Place</th>
+<th>Catalog entry</th>
+<th>Name in the catalog</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>skills/&lt;name&gt;/SKILL.md</code></td>
+<td>a skill; its folder is what describe and read may open</td>
+<td><code>&lt;marketplace&gt;/&lt;plugin&gt;/&lt;name&gt;</code></td>
+</tr>
+<tr>
+<td><code>commands/&lt;name&gt;.md</code></td>
+<td>a one-file skill; only that file is readable</td>
+<td><code>&lt;marketplace&gt;/&lt;plugin&gt;/&lt;name&gt;</code></td>
+</tr>
+<tr>
+<td><code>agents/&lt;name&gt;.md</code>, <code>agents/&lt;name&gt;/agent.md</code></td>
+<td>kind <code>agent</code></td>
+<td><code>&lt;marketplace&gt;/&lt;plugin&gt;/agents/&lt;name&gt;</code></td>
+</tr>
+<tr>
+<td><code>hooks/hooks.json</code></td>
+<td>one kind <code>hook</code> entry for the plugin; needs a <code>description</code> in the file or in plugin.json</td>
+<td><code>&lt;marketplace&gt;/&lt;plugin&gt;/hooks</code></td>
+</tr>
+<tr>
+<td><code>.mcp.json</code></td>
+<td>one kind <code>mcp</code> entry per key of <code>mcpServers</code></td>
+<td><code>&lt;marketplace&gt;/&lt;plugin&gt;/mcp/&lt;server&gt;</code></td>
+</tr>
+</tbody></table>
+<p>Skills and commands appear in <code>skill_catalog</code> and <code>skill_find</code>. Agents, hooks and MCP
+servers are left out unless the caller asks for that <code>kind</code> (<code>agent</code>, <code>hook</code>, <code>mcp</code> or
+<code>any</code>). A command is listed like any skill; nothing marks it as started by the user only.
+The frontmatter <code>name</code> sets the slug; without one the file or folder name is used. Keep
+them equal: the Agent Skills specification requires a skill&#39;s name to match its directory.</p>
+<h3>Check</h3>
+<pre><code class="language-sh">pmcp list --marketplace &lt;marketplace&gt; --no-config      # every entry, with its tier
+pmcp validate --marketplace &lt;marketplace&gt; --no-config  # rejections and specification errors
+</code></pre>
+<p><code>validate</code> prints why each asset was left out (<code>no description</code>, <code>metadata.tier ... in a ... marketplace</code>, <code>.mcp.json has no mcpServers object</code>, <code>hooks.json is not a JSON object</code>).
+Compare the <code>list</code> count with the files you created; a missing plugin is usually a wrong
+<code>source</code>.</p>
+<h3>Report</h3>
+<p>The tree, marketplace.json and plugin.json, the <code>pmcp list</code> count per kind against the files
+created, and the <code>pmcp validate</code> output.</p>
+
+  </article>
+<article id="package-skill-catalog" class="example-body docs-body">
     <p class="eyebrow">Shipped source / @modootoday/pmcp</p>
     <h2>package-skill-catalog</h2>
     <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/package-skill-catalog/SKILL.md">Read the source file</a></p>
     <h2>Package skill catalog</h2>
-<p>Use PMCP when library instructions are available through its catalog or an installed
-package. Prefer the project&#39;s installed library version and preserve its package
-manager, configuration, build scripts and native runtime permissions.</p>
-<h3>Find and inspect</h3>
-<p>When PMCP MCP tools are connected, use skill_find with the concrete development
-task. Use skill_catalog for an inventory, skill_describe to inspect compatibility
-and resources, and skill_call for the selected instructions. Use skill_read for a
-referenced file and skill_bundle when the complete selected skill is needed.</p>
+<p>A catalog server keeps hundreds of skills out of the session until one is
+needed. Its value depends on the order you use it in: search before you read,
+check before you load, and never invent a name. Prefer the project&#39;s installed
+library version and preserve its package manager, configuration, build scripts
+and native runtime permissions.</p>
+<h3>The loop</h3>
+<ol>
+<li><strong>Search with the problem, not a keyword.</strong> Call skill_find with one full
+English sentence that says what you are trying to do and for whom. Add
+filters only for facts you already know (for example tier or medium).</li>
+<li><strong>On an empty result, look before concluding.</strong> Call skill_catalog (paged)
+and scan the group names. An empty search means the wording missed, not that
+no skill exists. Rephrase once with the vocabulary you saw there.</li>
+<li><strong>Check the top one to three candidates.</strong> Call skill_describe for each and
+compare metadata.level, the requirements, compatibility, the output licence
+and whether approval is needed. Prefer the narrowest skill that covers the task.</li>
+<li><strong>Load one.</strong> Call skill_call with the exact name the server returned. The
+body is the instruction; follow it on your own host.</li>
+<li><strong>Read extra files only when the body points at them.</strong> Use skill_read with
+the path the body names, or skill_bundle when the complete selected skill is
+needed. Treat scripts as text to review, not to run, unless the body asks and
+the user agreed.</li>
+</ol>
+<h3>Library instructions</h3>
 <p>Check the target major and verified version before following version-sensitive
 API examples. Catalog availability is not proof that a particular version was
 tested. Read only the relevant skill and its needed references.</p>
 <p>Without MCP, use pmcp list to inspect local catalogs and pmcp available to match
 the public catalog against installed npm dependencies. Public library instructions
 remain free and do not require a PMCP account.</p>
+<h3>Rules</h3>
+<ul>
+<li>Use only names a tool returned. A guessed name wastes a call and can load the
+wrong skill.</li>
+<li>Load at most two skills for one task. If neither fits, say so and work
+without one rather than stacking partial matches.</li>
+<li>Say which skill you used and why, in one line, so the user can check the
+choice.</li>
+<li>A skill tagged paid runs on a remote service and may cost the user. Show the
+estimate it asks for and wait for confirmation before submitting work.</li>
+<li>Never paste secrets into a skill&#39;s inputs. Skills name the environment
+variables they need; the values stay in the user&#39;s environment.</li>
+<li>When native skills and MCP both expose the same instructions, use one source
+for the task rather than loading duplicate bodies.</li>
+</ul>
 <h3>Install deliberately</h3>
 <p>PMCP 0.14.0 includes the marketplace export command and public default provider.
 Older versions retain their previous install behavior; their users can install
@@ -57,9 +380,10 @@ install the target library. Preserve native installation consent and project tru
 <p>Use pmcp install --dry-run before applying public npm skill installation with
 --yes. Hosted catalog installation is a separate explicit provider. Do not copy
 provider OAuth credentials into plugin manifests or PMCP configuration.</p>
-<p>Avoid activating competing major versions under the same unnamespaced skill name.
-When native skills and MCP both expose the same instructions, use one source for
-the task rather than loading duplicate bodies.</p>
+<p>Avoid activating competing major versions under the same unnamespaced skill name.</p>
+<h3>When to stop using the catalog</h3>
+<p>If the task is a one-line answer, or the user named the exact procedure, skip
+the search. The catalog is for tasks where a tested procedure beats improvising.</p>
 <h3>Boundaries and sources</h3>
 <p>Catalog MCP tools read local files. They do not install plugins, run target library
 commands, download models or grant tool permissions. Native runtime authentication
@@ -68,6 +392,386 @@ and approval remain native.</p>
 <a href="https://pmcp.build/skills/">skill catalog</a>. Skills follow
 <a href="https://agentskills.io/specification">Agent Skills</a>; plugin packaging follows
 <a href="https://agent-plugins.org/">Agent Plugins</a> with native runtime adapters.</p>
+
+  </article>
+<article id="pmcp-project-init" class="example-body docs-body">
+    <p class="eyebrow">Shipped source / @modootoday/pmcp</p>
+    <h2>pmcp-project-init</h2>
+    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/pmcp-project-init/SKILL.md">Read the source file</a></p>
+    <h2>Starting a repository the pmcp way</h2>
+<p>pmcp has no <code>init</code> command. You write the sources by hand; <code>pmcp project</code> writes every
+tool&#39;s native files from them, and <code>pmcp doctor</code> asks each installed tool what it loads.
+Never write the generated files yourself: pmcp refuses to overwrite a file it did not write.</p>
+<p>Install the pmcp package as a dev dependency under the scoped name its documentation gives.
+Never run the bare unscoped name through npx: that name is not the package, and whoever
+publishes it later would run in your repository.</p>
+<h3>1. Instructions: one file, two links</h3>
+<pre><code class="language-sh">printf &#39;# &lt;project&gt;\n\n&#39; &gt; AGENTS.md
+ln -s AGENTS.md CLAUDE.md
+ln -s AGENTS.md GEMINI.md
+</code></pre>
+<p><code>AGENTS.md</code> is the real file. Claude Code reads <code>CLAUDE.md</code> and Gemini CLI <code>GEMINI.md</code>, so
+the links make them read the same text. pmcp does not create these links. Keep them
+file-to-file links; a directory symlink at the repository root (for example <code>.agents</code>
+pointing at another folder) is rejected by the Codex sandbox.</p>
+<h3>2. Sources under .agents/</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Holds</th>
+<th>Frontmatter</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>.agents/skills/&lt;name&gt;/SKILL.md</code></td>
+<td>a skill; <code>&lt;name&gt;</code> equals the frontmatter <code>name</code></td>
+<td><code>name</code>, <code>description</code></td>
+</tr>
+<tr>
+<td><code>.agents/agents/&lt;name&gt;/agent.md</code></td>
+<td>a subagent (directory form; a flat <code>&lt;name&gt;.md</code> is not read)</td>
+<td><code>name</code>, <code>description</code> only</td>
+</tr>
+<tr>
+<td><code>.agents/rules/&lt;topic&gt;.md</code></td>
+<td>a path-scoped rule</td>
+<td><code>trigger: glob</code>, <code>description</code>, <code>globs:</code> list</td>
+</tr>
+</tbody></table>
+<p>Keep <code>tools</code>, <code>model</code> and other tool-specific fields out of <code>agent.md</code>: Antigravity drops
+an agent whose <code>tools</code> names another tool&#39;s tools. Those fields go in <code>pmcp.toml</code>.</p>
+<h3>3. The base pmcp.toml</h3>
+<pre><code class="language-toml">[targets]
+tools = [&quot;claude&quot;, &quot;codex&quot;, &quot;gemini&quot;, &quot;grok&quot;, &quot;antigravity&quot;]
+
+[mcp.skills]
+command = &quot;node&quot;
+args = [&quot;${PROJECT_ROOT}/node_modules/&lt;pmcp package&gt;/dist/cli.js&quot;, &quot;serve&quot;]
+
+[skills.release]
+invocation = &quot;user&quot;
+
+[agents.reviewer.claude]
+tools = &quot;Read, Grep&quot;
+model = &quot;inherit&quot;
+</code></pre>
+<ul>
+<li><code>[targets] tools</code> - any of <code>claude</code>, <code>codex</code>, <code>gemini</code>, <code>grok</code>, <code>antigravity</code>, <code>opencode</code>.
+An unknown name is an error. A tool not listed gets no files.</li>
+<li><code>[mcp.&lt;alias&gt;]</code> - exactly one of <code>command</code> (stdio: <code>args</code>, <code>env</code>, <code>env_vars</code>, <code>cwd</code>) or
+<code>url</code> (Streamable HTTP: <code>headers</code>, <code>header_env</code>, <code>bearer_token_env_var</code>); <code>targets</code>
+narrows the tools, <code>tools</code> filters the server&#39;s tools. A value naming <code>${PROJECT_ROOT}</code>
+is launched through <code>sh</code>, so committed files carry no machine path.</li>
+<li><code>[skills.&lt;name&gt;] invocation</code> - <code>&quot;any&quot;</code> (default) or <code>&quot;user&quot;</code>: the person starts it and the
+model is not offered it.</li>
+<li><code>[agents.&lt;name&gt;.&lt;tool&gt;]</code> - fields merged into that tool&#39;s copy. Claude keeps <code>name</code>,
+<code>description</code>, <code>tools</code>, <code>model</code>, <code>effort</code>; Gemini keeps <code>name</code> and <code>description</code>.</li>
+<li><code>[catalog]</code> - optional search roots; an unknown key is an error.</li>
+</ul>
+<p>The project configuration guide lists every table with its keys and defaults.</p>
+<h3>4. Choose the optional layers from what the repository is</h3>
+<p>Every layer is a table; a missing table is off. Look before adding:</p>
+<pre><code class="language-sh">git rev-parse --git-common-dir   # a git checkout? then the git layer applies
+git worktree list                # more than one line: desks already exist
+git remote -v                    # the remote deliveries push to
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>The repository</th>
+<th>Add</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agents run shell commands (always for Claude or Codex)</td>
+<td><code>[hooks]</code> with <code>targets</code>, and the <code>[hooks.guards.shell.*]</code> and <code>[hooks.guards.git.*]</code> you want</td>
+<td>Refuses heredocs, in-place <code>sed -i</code>, <code>git add -A</code>, <code>push --no-verify</code>, credential exfiltration. Each declared table is one guard.</td>
+</tr>
+<tr>
+<td>A validator script per skill or package</td>
+<td><code>[hooks.checks.after_edit]</code> with <code>validator_glob</code> and a <code>command</code> containing <code>{validator}</code></td>
+<td>Reports a failing validator as context right after the edit.</td>
+</tr>
+<tr>
+<td>Committed generated files</td>
+<td><code>[hooks.checks.on_stop]</code></td>
+<td>Reports projection drift at the end of a turn that edited.</td>
+</tr>
+<tr>
+<td>More than one agent at a time</td>
+<td><code>[sessions.registry]</code>, <code>[sessions.pause]</code>, <code>[sessions.broadcast]</code></td>
+<td>The operator can see, pause and message every session.</td>
+</tr>
+<tr>
+<td>A lockfile or other file two sessions must not change at once</td>
+<td><code>[sessions.leases.&lt;name&gt;]</code> with <code>path</code> and the <code>blocks</code> command prefixes</td>
+<td>A delivery touching that file holds the lease; the listed commands wait.</td>
+</tr>
+<tr>
+<td>A git checkout</td>
+<td>nothing: <code>[git] enabled</code> is <code>&quot;auto&quot;</code>, and <code>[git.shared_checkout]</code> warns once the hooks exist</td>
+<td>A session in the main checkout is warned while desks exist.</td>
+</tr>
+<tr>
+<td>Parallel agents in worktrees</td>
+<td><code>[git.worktrees]</code>, <code>[git.worktrees.sync]</code></td>
+<td><code>pmcp git worktree create &lt;alias&gt;</code>; desks follow the mainline when that loses nothing.</td>
+</tr>
+<tr>
+<td>A protected mainline with a test gate</td>
+<td><code>[git.mainline]</code> with <code>branch</code>, <code>[git.mainline.gate]</code> with <code>command</code>, <code>[git.mainline.deliver]</code>, <code>[git.mainline.sync]</code></td>
+<td><code>pmcp git deliver</code> replays, gates and pushes one delivery at a time; direct <code>git push</code> is refused.</td>
+</tr>
+<tr>
+<td>Submodules</td>
+<td><code>[git.submodules]</code></td>
+<td>Sync follows clean submodule pins.</td>
+</tr>
+<tr>
+<td>You will debug hooks</td>
+<td><code>[logging]</code> with <code>level</code></td>
+<td><code>pmcp logs</code> reads the JSONL; redaction is on by default.</td>
+</tr>
+<tr>
+<td>A remote MCP server both Claude and Codex use</td>
+<td><code>auth = &quot;pmcp&quot;</code> on that <code>[mcp.&lt;alias&gt;]</code>, then <code>pmcp mcp login &lt;alias&gt;</code></td>
+<td>One login shared by both tools; tokens never enter the project.</td>
+</tr>
+<tr>
+<td>A team plugin marketplace</td>
+<td><code>[marketplaces.&lt;name&gt;]</code> with <code>source</code> and <code>plugins</code></td>
+<td>Claude and Codex both enable the same plugins.</td>
+</tr>
+<tr>
+<td>Claude Code with several sessions</td>
+<td><code>[ui.claude]</code> (needs <code>[sessions.registry]</code>)</td>
+<td>Session panes and a hold before editing another session&#39;s file.</td>
+</tr>
+<tr>
+<td>Claude should ask before reading secrets or running risky git</td>
+<td><code>[permissions.claude]</code> with <code>allow</code>, <code>ask</code>, <code>deny</code> lists of native rules such as <code>Read(.env)</code> or <code>Bash(git push:*)</code></td>
+<td>pmcp owns only the entries it adds to <code>.claude/settings.json</code>; rules already there stay. Claude only.</td>
+</tr>
+</tbody></table>
+<p>Keep Codex&#39;s limits in mind: Codex has no ask, so an ask becomes <code>[hooks] ask_fallback</code>
+(<code>deny</code> by default); roles cannot apply there (no agent type); Stop notices arrive at the
+next prompt; SessionEnd hooks get at most 3 seconds.</p>
+<h3>5. Project and check</h3>
+<pre><code class="language-sh">pmcp project          # write; exits 1 if it would overwrite a file it did not write
+pmcp project --check  # write nothing; exit 2 on drift, stale, undeclared or dead-glob outputs
+pmcp doctor           # exit 1 on any failed check; prints the feature x runtime table
+</code></pre>
+<p><code>pmcp project</code> writes the tools&#39; native files, <code>.agents/pmcp-hooks/</code> when any hook layer is
+declared, and <code>pmcp.lock</code>. Commit the lock with the outputs: <code>--check</code> reports a removed
+source&#39;s outputs as stale only from the lock, and the hook refuses a <code>policy.json</code> whose hash
+differs from it.</p>
+<p>Only Claude gets the rules. For the other tools, add one pointer row per rule to
+<code>AGENTS.md</code> (path and when to read it).</p>
+<h3>6. Trust the folder in each tool</h3>
+<p>Codex, Gemini CLI and Grok Build skip project assets silently until the folder is trusted;
+skills, MCP servers, agents and hooks just do not appear. Each developer does this once per
+tool, and again in Codex <code>/hooks</code> after a projection changes a hook entry:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Where trust is recorded</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Codex</td>
+<td><code>~/.codex/config.toml</code>: <code>[projects.&quot;&lt;absolute path&gt;&quot;]</code> with <code>trust_level = &quot;trusted&quot;</code>; hooks are reviewed in <code>/hooks</code></td>
+</tr>
+<tr>
+<td>Gemini CLI</td>
+<td><code>~/.gemini/trustedFolders.json</code></td>
+</tr>
+<tr>
+<td>Grok Build</td>
+<td><code>~/.grok/trusted_folders.toml</code></td>
+</tr>
+<tr>
+<td>Antigravity</td>
+<td><code>trustedWorkspaces</code> in <code>~/.gemini/antigravity-cli/settings.json</code></td>
+</tr>
+</tbody></table>
+<p><code>pmcp doctor</code> reports Codex and Grok trust directly. Run it after trusting, not before, or
+its failures only restate the missing trust.</p>
+<h3>Report</h3>
+<p>The files written, the layers chosen and why, the <code>pmcp project --check</code> exit code, the
+<code>pmcp doctor</code> feature table, and which tools still need the trust or hook review step.</p>
+
+  </article>
+<article id="pmcp-sessions-and-git" class="example-body docs-body">
+    <p class="eyebrow">Shipped source / @modootoday/pmcp</p>
+    <h2>pmcp-sessions-and-git</h2>
+    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/pmcp-sessions-and-git/SKILL.md">Read the source file</a></p>
+    <h2>Working with other sessions under pmcp</h2>
+<p>pmcp hooks see every session in the repository and its worktrees. They refuse or warn with
+a reason that names what to do instead. Do what the reason says; never work around a
+refusal with another spelling of the same command.</p>
+<h3>Read the room first</h3>
+<pre><code class="language-sh">pmcp sessions status
+</code></pre>
+<p>It prints each live session (its id, runtime, checkout and current tool), the pause, current
+broadcasts, held leases, and files edited but not landed in a shared checkout. Read it
+before landing anything, and whenever a hook mentions another session.</p>
+<h3>Pause and broadcast (operator)</h3>
+<pre><code class="language-sh">pmcp sessions pause &quot;release freeze&quot; --by operator
+pmcp sessions resume
+pmcp sessions broadcast &quot;main moved; sync your desk before delivering&quot;
+pmcp sessions unbroadcast
+pmcp sessions sweep   # drop records whose process is gone
+</code></pre>
+<p>While paused, every other session&#39;s edits and mutating commands are refused; reading and
+planning continue. A broadcast reaches each session once, as context. An agent does not
+pause, resume or broadcast on its own initiative; it reports the need to the operator.</p>
+<h3>Leases</h3>
+<p>A lease protects a file two sessions must not change at once, such as a lockfile. While a
+delivery that touches it is landing, the commands listed for that lease are refused with
+<code>... is landing ... retry when it has landed</code>. Wait and retry; do not run the command another
+way.</p>
+<h3>Desks, not the shared checkout</h3>
+<p>When the repository has worktrees, the main checkout is shared: an edit left there blocks
+syncing the mainline for every session, and the hook says so. Work in a desk:</p>
+<pre><code class="language-sh">pmcp git worktree create &lt;alias&gt;     # prints the desk path; work there
+pmcp git worktree list               # alias, branch, behind/ahead, path
+pmcp git worktree sync               # move this desk onto the mainline when nothing is lost
+</code></pre>
+<p>If you already edited the main checkout, land those files within the task or move them to a
+desk. <code>pmcp sessions status</code> lists them under the shared checkout.</p>
+<h3>Deliver, do not push</h3>
+<p>With <code>[git.mainline.deliver]</code>, a direct <code>git push</code> from any checkout of the repository is
+refused. Commit in the desk, then:</p>
+<pre><code class="language-sh">pmcp git deliver                 # every commit the upstream lacks
+pmcp git deliver &lt;commit&gt;...     # only these
+</code></pre>
+<p>It fetches, replays the commits onto the mainline, runs the gate in its own tree under a
+lock, and pushes, replaying again if the mainline moved. Exit 0 delivered or nothing to
+deliver; 1 refused (pause, lease, gate failure, attempts exhausted) with the reason on
+stderr; 2 the fetch failed. Fix what the gate reports; never bypass it with
+<code>--no-verify</code> or a gate-bypass variable, which the guards refuse.</p>
+<p><code>pmcp git sync</code> moves the main checkout to the mainline afterwards; it refuses (exit 2)
+while unlanded edits sit there.</p>
+<h3>Explain a refusal with pmcp logs</h3>
+<pre><code class="language-sh">pmcp logs --since 15m --level warn --pretty
+pmcp logs --session &lt;id-prefix&gt; --pretty
+pmcp logs --trace &lt;trace-id&gt;
+</code></pre>
+<p>Each hook call has a trace id; one trace shows every policy that ran, its verdict and
+duration. Secret values, prompt text and environment values are redacted.</p>
+<h3>Runtime differences</h3>
+<ul>
+<li>Codex has no ask: a guard that would ask denies there.</li>
+<li>Codex sends no agent type, so roles apply only in Claude Code.</li>
+<li>Claude hears end-of-turn notices in the same turn; Codex at the next prompt.</li>
+</ul>
+<h3>Report</h3>
+<p>What <code>pmcp sessions status</code> showed, which refusal or warning occurred and what it asked
+for, the commands run instead (delivery or sync and their exit codes), and anything left for
+the operator (a pause to lift, a lease still held, leftovers in the shared checkout).</p>
+
+  </article>
+<article id="skill-package-scaffold" class="example-body docs-body">
+    <p class="eyebrow">Shipped source / @modootoday/pmcp</p>
+    <h2>skill-package-scaffold</h2>
+    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/skill-package-scaffold/SKILL.md">Read the source file</a></p>
+    <h2>Scaffolding one skill folder</h2>
+<p>This is the shape, not the content. What the body should say, and how to word a description
+that triggers, is skill authoring (domain-skill-authoring covers it). Here the job is a
+folder that every loader accepts and that carries its own test cases.</p>
+<h3>Layout</h3>
+<pre><code>&lt;name&gt;/
+  SKILL.md
+  references/   only files the body names, read on demand
+  scripts/      only code the body tells the agent to run
+  assets/       templates or files the output is built from
+  evals/
+    normal/prompt.md
+    exception/prompt.md
+    missing-info/prompt.md
+</code></pre>
+<p>Create a directory only when something goes in it. An empty <code>scripts/</code> makes reviewers look
+for code that is not there.</p>
+<h3>Frontmatter limits</h3>
+<p>These are the checks <code>pmcp validate</code> runs (pmcp 0.8):</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>required; at most 64 characters; lowercase letters, digits and single hyphens, not starting or ending with one; equal to the directory name</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>required, non-blank; at most 1024 characters</td>
+</tr>
+<tr>
+<td><code>compatibility</code></td>
+<td>optional string; at most 500 characters</td>
+</tr>
+<tr>
+<td><code>license</code></td>
+<td>optional string</td>
+</tr>
+<tr>
+<td><code>allowed-tools</code></td>
+<td>optional; one space-separated string, not a list</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>optional map</td>
+</tr>
+</tbody></table>
+<p>A marketplace may add its own rules on top (a metadata schema, tiers, ASCII-only text).
+Check those separately; <code>pmcp validate</code> does not know them.</p>
+<pre><code class="language-markdown">---
+name: invoice-dispute-reply
+description: Draft a reply to a customer disputing an invoice ... Use when ... Not for ...
+---
+</code></pre>
+<h3>Evals: three cases, each self-contained</h3>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Tests</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>normal</td>
+<td>the common request, with every input present</td>
+</tr>
+<tr>
+<td>exception</td>
+<td>the input that should change the answer: a rule&#39;s exception, an edge value, a refusal</td>
+</tr>
+<tr>
+<td>missing-info</td>
+<td>a request lacking something essential; the skill must ask or state the assumption, not invent</td>
+</tr>
+</tbody></table>
+<p>Each <code>prompt.md</code> must carry everything the case needs. The grader&#39;s sandbox starts empty, so
+paste file contents into the prompt instead of naming a path. Write what PASS means next to
+the prompt, as checkable statements, before writing the body.</p>
+<h3>Gate</h3>
+<pre><code class="language-sh">pmcp validate path/to/&lt;name&gt;           # one folder; exit 1 on any error
+pmcp validate --marketplace &lt;dir&gt;      # every skill a marketplace reaches
+</code></pre>
+<p><code>pmcp validate</code> checks frontmatter and naming only. It does not run the eval cases; run
+those with your eval harness, with and without the skill.</p>
+<p>Size matters when the skill is served over MCP: the Skills extension lists a skill only if
+it stays within 512 files and 16 MiB. Larger skills stay reachable through the tools.
+Scripts are returned as text by catalog servers, never run by them.</p>
+<h3>Report</h3>
+<p>The tree created, the <code>pmcp validate</code> output, and the three eval prompts with their PASS
+statements.</p>
 
   </article></div>
   </section></main><footer class="site-footer">

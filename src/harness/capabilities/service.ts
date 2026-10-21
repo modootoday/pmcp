@@ -2,6 +2,7 @@ import type { Receipt } from "../contracts.js";
 import { runtimeExecutables } from "../runtimes/registry.js";
 import { locateExecutable } from "../adapters/process/executable.js";
 import { nativeHostTools } from "../adapters/systemd/admission.js";
+import { ptyBinary } from "../../project/host.js";
 
 export function capabilities(): Receipt {
   return {
@@ -23,10 +24,13 @@ export function capabilities(): Receipt {
 }
 
 export function doctor(): Receipt {
+  const tools = process.platform === "linux" ? [...nativeHostTools] : [];
   return {
     ...capabilities(),
     platform: process.platform,
-    tools: nativeHostTools.map((executable) => ({
+    terminalHost: ptyBinary(process.env),
+    memoryCapped: process.platform === "linux",
+    tools: tools.map((executable) => ({
       executable,
       path: locateExecutable(executable),
     })),

@@ -3,12 +3,12 @@ import {
   processIdentity,
   controllerExited,
 } from "../adapters/process/identity.js";
-import { Connection } from "../adapters/tmux/connection.js";
-import { assertProof } from "../adapters/tmux/launch-identity.js";
+import { Connection } from "../adapters/terminal/connection.js";
+import { assertProof } from "../adapters/terminal/launch-identity.js";
 import { unitActive } from "../adapters/systemd/units.js";
 import type { GroupContext } from "../application/context.js";
 import type { Receipt } from "../contracts.js";
-import type { RecordStore } from "../adapters/tmux/records.js";
+import type { RecordStore } from "../adapters/terminal/records.js";
 import { LaunchJournal, launchJournals, pendingLaunches } from "./journal.js";
 import { assertResourceFresh } from "../adapters/docker/observation.js";
 

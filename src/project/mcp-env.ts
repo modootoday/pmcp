@@ -7,6 +7,7 @@ import { parse } from "smol-toml";
 import { launch } from "./mcp.js";
 import { ProjectError } from "./package-rules.js";
 import type { ProjectSpec } from "./spec.js";
+import { runProxy } from "../mcp-auth/proxy.js";
 
 function sourcePath(file: string, root: string): string {
   if (file.startsWith("~/")) {
@@ -72,6 +73,9 @@ export async function execMcp(
   alias: string,
   env: Readonly<Record<string, string | undefined>>,
 ): Promise<number> {
+  const declared = spec.mcp[alias];
+  if (declared?.auth === "pmcp" && declared.url)
+    return runProxy({ name: alias, server: declared, env });
   const additions = mcpEnvironment(spec, alias);
   const server = spec.mcp[alias]!;
   const started = launch(server);

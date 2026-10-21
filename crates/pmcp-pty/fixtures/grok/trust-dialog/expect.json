@@ -1,0 +1,17 @@
+{
+  "busy": null,
+  "dialog": "directory-trust",
+  "input": null,
+  "input_empty": false,
+  "options": [
+    {
+      "key": "y",
+      "label": "Yes, proceed"
+    },
+    {
+      "key": "n",
+      "label": "No, quit"
+    }
+  ],
+  "selected": null
+}

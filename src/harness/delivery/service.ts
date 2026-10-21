@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { writableClients } from "../adapters/tmux/backend.js";
+import { writableClients } from "../adapters/terminal/backend.js";
 import type { GroupContext } from "../application/context.js";
 import type { Delivery, Receipt } from "../contracts.js";
 import { resolveLease } from "../control/leases.js";
@@ -15,8 +15,8 @@ export function deliver(
   const { store, backend } = context;
   const lease = resolveLease(context, leaseFile);
   if (lease.mode !== "cli") throw new Error("native_control_held");
-  const session = backend.inspect(lease.sessionId);
-  if (writableClients(backend, session.tmuxSessionId) > 0)
+  backend.inspect(lease.sessionId);
+  if (writableClients(backend, lease.sessionId) > 0)
     throw new Error("native_writer_active");
   if (operation !== "write" && operation !== "submit")
     throw new Error("unsupported_input_operation");
@@ -71,6 +71,7 @@ export function deliver(
   try {
     const receipt = backend.write(lease.sessionId, text, {
       submit: operation === "submit",
+      lease: lease.token,
     });
     delivery.state = "input_written";
     store.save();
@@ -90,10 +91,10 @@ export function deliver(
 export function interrupt(context: GroupContext, leaseFile: string): Receipt {
   const lease = resolveLease(context, leaseFile);
   if (lease.mode !== "cli") throw new Error("native_control_held");
-  const session = context.backend.inspect(lease.sessionId);
-  if (writableClients(context.backend, session.tmuxSessionId) > 0)
+  context.backend.inspect(lease.sessionId);
+  if (writableClients(context.backend, lease.sessionId) > 0)
     throw new Error("native_writer_active");
-  context.backend.interrupt(lease.sessionId);
+  context.backend.interrupt(lease.sessionId, lease.token);
   return {
     sessionId: lease.sessionId,
     signal: "terminal-interrupt",

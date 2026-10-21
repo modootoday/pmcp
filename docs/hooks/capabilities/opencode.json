@@ -1,0 +1,184 @@
+{
+  "runtime": "opencode",
+  "version": "1.18.33",
+  "measuredAt": "2026-10-20T01:10:00Z",
+  "configuration": {
+    "hooks": "no shell-command hooks. Extension surface is a JS/TS plugin: project .opencode/plugin/*.{ts,js} or .opencode/plugins/, global ~/.config/opencode/plugin(s)/, or npm packages in opencode.json \"plugin\". A plugin is an async function receiving {client, project, worktree, directory, experimental_workspace, serverUrl, $ (Bun shell)} and returning a Hooks object. The probe also saw 45 plugin.added events for built-in plugins.",
+    "trust": "measured: none; the project plugin loaded in a fresh directory",
+    "headless": "measured: opencode run '<prompt>' --format json < /dev/null emits one JSON event per line (tool parts with state {status, input, output|error}, text parts). Default permissions ran bash and write without a prompt (permission.ask never fired).",
+    "mcp": "documented: \"mcp\" in opencode.json (project or ~/.config/opencode); pmcp already projects it. Not exercised."
+  },
+  "events": {
+    "plugin_init": {
+      "native": "plugin function call",
+      "fires": true,
+      "fields": [
+        "client",
+        "project",
+        "worktree",
+        "directory",
+        "experimental_workspace",
+        "serverUrl",
+        "$"
+      ]
+    },
+    "prompt": {
+      "native": "chat.message",
+      "fires": true,
+      "fields": ["input.sessionID", "output.message", "output.parts"]
+    },
+    "system": {
+      "native": "experimental.chat.system.transform",
+      "fires": true,
+      "notes": "before every model call (5 times)"
+    },
+    "before_tool": {
+      "native": "tool.execute.before",
+      "fires": true,
+      "fields": [
+        "input.tool",
+        "input.sessionID",
+        "input.callID",
+        "output.args (mutable)"
+      ]
+    },
+    "after_tool": {
+      "native": "tool.execute.after",
+      "fires": true,
+      "fields": [
+        "input.tool",
+        "input.sessionID",
+        "input.callID",
+        "input.args",
+        "output.title",
+        "output.output (mutable)",
+        "output.metadata"
+      ],
+      "notes": "not for the refused call"
+    },
+    "permission": {
+      "native": "permission.ask",
+      "fires": "not in this run (no permission prompt)"
+    },
+    "session_start": {
+      "native": "event session.created",
+      "fires": true
+    },
+    "stop": {
+      "native": "event session.idle (and session.status idle)",
+      "fires": true,
+      "notes": "an event only; nothing can hold the turn open. pmcp maps it to stop for the registry"
+    },
+    "file_edit": {
+      "native": "event file.edited",
+      "fires": true
+    },
+    "session_end": {
+      "native": null,
+      "fires": false,
+      "notes": "no dedicated event; dispose() on plugin shutdown"
+    },
+    "notification": {
+      "native": null,
+      "fires": false
+    }
+  },
+  "tools": {
+    "shell": {
+      "tool_name": "bash",
+      "input": "args.command"
+    },
+    "edit": {
+      "tool_name": "write (edit, patch documented)",
+      "input": "args.filePath, args.content"
+    }
+  },
+  "outputs": {
+    "deny": {
+      "event": "before_tool",
+      "support": "measured",
+      "shape": "throw new Error(reason) in tool.execute.before; the tool part ends status error with the message, and the model reads it"
+    },
+    "context": {
+      "support": "measured",
+      "delivered": ["session_start", "prompt", "after_tool"],
+      "notes": "the model quoted the system token and both after-tool tokens; a before-tool note has no channel except mutating args",
+      "native_delivered": [
+        "system (experimental.chat.system.transform output.system.push)",
+        "after_tool (append to output.output)"
+      ],
+      "deferred": {
+        "before_tool": "after_tool (appended to the tool output); V2 opencode-context-before-cc5abe06"
+      }
+    },
+    "stop_context": {
+      "support": "unsupported",
+      "notes": "no blocking stop hook; session.idle is observe-only"
+    },
+    "shell_hook": {
+      "support": "measured",
+      "notes": "the plugin spawned a hook recorder from tool.execute.before three times (status 0, stdout '{}'). A pmcp adapter can be a small generated plugin that spawns hook.mjs with a normalized payload and maps a deny to a throw."
+    }
+  },
+  "fields_absent": [
+    "cwd per call (plugin context.directory instead)",
+    "transcript path",
+    "turn id",
+    "agent_type"
+  ],
+  "timeouts": "none documented; plugin hooks are awaited in-process",
+  "trust": "none for project plugins",
+  "live": {
+    "version": "1.18.33",
+    "measuredAt": "2026-10-20T04:09:02.251Z",
+    "implementationCommits": ["cfcdf5a", "35f3c77"],
+    "deny": {
+      "support": "measured",
+      "scenarios": [
+        "opencode-heredoc-ae7c72b4",
+        "opencode-stage-all-1f03dfa7",
+        "opencode-pause-69d76efd",
+        "opencode-lease-848c6985"
+      ]
+    },
+    "context": {
+      "support": "measured",
+      "scenarios": {
+        "context-start": "opencode-context-start-5d6b3d08",
+        "context-prompt": null,
+        "context-before": "opencode-context-before-cc5abe06",
+        "broadcast": "opencode-broadcast-3c5d63c7"
+      },
+      "notes": "pause, broadcast and shared_checkout notices reached the model; held context arrived at the next delivering event"
+    },
+    "workflow": {
+      "support": "measured",
+      "scenarios": [
+        "opencode-worktree-create-e471494b",
+        "opencode-worktree-sync-9d07d8bb",
+        "opencode-deliver-8fe00875",
+        "opencode-deliver-race-acb9ab49",
+        "opencode-git-sync-35481ffa"
+      ]
+    },
+    "cost": [
+      {
+        "event": "before_tool",
+        "addedMs": 25.7
+      },
+      {
+        "event": "prompt",
+        "addedMs": 24.5
+      }
+    ],
+    "prompt_context": {
+      "support": "limit",
+      "notes": "opencode stores no system prompt; context-prompt cannot show delivery. The plugin fix 35f3c77 is shown live by the system probes: before it the main model replied NONE, after it the model repeated the token.",
+      "run": "opencode-context-prompt-ccfc54b7"
+    },
+    "scenarios": {
+      "passed": 12,
+      "failed": ["context-prompt"]
+    }
+  }
+}

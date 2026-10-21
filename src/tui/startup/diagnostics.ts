@@ -1,4 +1,4 @@
-import { dependencies } from "../adapters/process/runtime.js";
+import { dependencies } from "./dependencies.js";
 import { assertNativeHost } from "../../harness/adapters/systemd/admission.js";
 import { runtimeExecutables } from "../../harness/runtimes/registry.js";
 import { locateExecutable } from "../../harness/adapters/process/executable.js";
@@ -9,22 +9,27 @@ function remediation(
   userManagerAvailable: boolean,
 ): string[] {
   const steps: string[] = [];
-  if (tools.platform !== "linux")
+  if (tools.platform !== "linux" && tools.platform !== "darwin")
     steps.push(
-      "Use a qualified Linux host for the terminal workspace. Other PMCP CLI features do not require this host profile.",
+      "Use Linux or macOS for the terminal workspace. Other PMCP CLI features do not require this host profile.",
     );
-  const missing = ["tmux", "flock", "systemctl", "systemdRun"].filter(
-    (name) => !tools[name as keyof typeof tools],
-  );
-  if (missing.length)
+  if (!tools.pmcpPty)
     steps.push(
-      `Install the missing tmux, util-linux or systemd tools for your distribution and add them to PATH: ${missing.join(", ")}.`,
+      "Build or install pmcp-pty and set PMCP_PTY_BIN to it, or put it on PATH.",
+    );
+  if (!tools.pmcpTui)
+    steps.push(
+      "Build or install pmcp-tui and set PMCP_TUI_BIN to it, or put it on PATH.",
+    );
+  if (tools.platform === "linux" && !(tools.systemctl && tools.systemdRun))
+    steps.push(
+      "Install systemd's systemctl and systemd-run for your distribution and add them to PATH.",
     );
   if (!tools.nodeSupported)
     steps.push(
       "Select Node.js 22 or later through your existing version manager and check node --version in this terminal.",
     );
-  if (tools.supported && !userManagerAvailable)
+  if (tools.supported && tools.platform === "linux" && !userManagerAvailable)
     steps.push(
       "Check systemctl --user status in your login session and restore access to its user manager before launching. Doctor does not start or repair services.",
     );
@@ -64,7 +69,7 @@ export function inspectTerminalHost(): Receipt {
     ...(reason ? { reason } : {}),
     runtimes,
     qualification:
-      "Prerequisite availability only; native behavior and cgroup delegation require separate qualification.",
+      "Prerequisite availability only; native behavior and memory caps require separate qualification.",
     remediation: remediation(tools, userManagerAvailable),
     nextCommands: ["pmcp tui plan", "pmcp tui recovery"],
     providerInvoked: false,

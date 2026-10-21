@@ -1,20 +1,19 @@
-/**
- * `pmcp.toml`, the project's one record of where its catalog lives.
- *
- * Paths in it are relative to the file, so the same file works from any
- * directory a host starts pmcp in. Catalog and embedding settings are checked
- * here; projector sections are kept as given.
- */
+// Resolve paths from the configuration file so discovery does not depend on launch directory.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 import { parse } from "smol-toml";
 import { resolveEncoder, type EncoderOptions } from "./encoder.js";
+import {
+  readMarketplaces,
+  withDeclaredCatalog,
+} from "./marketplace/declared/index.js";
+import { readValidation } from "./validate/settings.js";
+import type { ValidationSettings } from "./validate/types.js";
 
 export const CONFIG_FILE = "pmcp.toml";
 
-/** What `[catalog]` may say. Each mirrors the repeatable CLI flag of the same meaning. */
 export interface CatalogSection {
   readonly builtin?: boolean;
   readonly roots?: readonly string[];
@@ -22,17 +21,17 @@ export interface CatalogSection {
   readonly workspaces?: readonly string[];
   readonly packages?: readonly string[];
   readonly marketplaces?: readonly string[];
+  readonly validation?: ValidationSettings;
 }
 
 export interface ProjectConfig {
-  /** Absolute path of the file read. */
   readonly path: string;
-  /** Its directory; every relative path in the file resolves against it. */
+
   readonly dir: string;
-  /** `[catalog]` with paths already absolute. */
+
   readonly catalog: CatalogSection;
   readonly embedding?: EmbeddingSection;
-  /** The whole document, for sections this module does not interpret. */
+
   readonly raw: Readonly<Record<string, unknown>>;
 }
 
@@ -144,9 +143,9 @@ const CATALOG_KEYS: ReadonlySet<string> = new Set([
   ...PATH_KEYS,
   "scopes",
   "builtin",
+  "validation",
 ]);
 
-/** The nearest pmcp.toml at or above start, or null when there is none. */
 export function findConfig(start: string): string | null {
   let dir = resolve(start);
   for (;;) {
@@ -166,11 +165,7 @@ function stringList(path: string, key: string, value: unknown): string[] {
   return value;
 }
 
-/**
- * Reads and checks one file. An unknown key under `[catalog]` is an error
- * rather than ignored, for the same reason an unknown flag is: a misspelt
- * `workspace = [...]` must not look like it worked.
- */
+// Reject unknown catalog keys so misspellings cannot silently alter discovery.
 export function readConfig(path: string): ProjectConfig {
   const absolute = resolve(path);
   const dir = dirname(absolute);
@@ -185,8 +180,13 @@ export function readConfig(path: string): ProjectConfig {
   const section = raw["catalog"];
   const embedding = embeddingSection(absolute, dir, raw.embedding);
   const configured = embedding === undefined ? {} : { embedding };
-  if (section === undefined)
-    return { path: absolute, dir, catalog: {}, raw, ...configured };
+  const declared = readMarketplaces(raw["marketplaces"], dir, (message) => {
+    throw new ConfigError(absolute, message);
+  });
+  if (section === undefined) {
+    const catalog = withDeclaredCatalog({} as CatalogSection, declared);
+    return { path: absolute, dir, catalog, raw, ...configured };
+  }
   if (
     section === null ||
     typeof section !== "object" ||
@@ -195,10 +195,16 @@ export function readConfig(path: string): ProjectConfig {
     throw new ConfigError(absolute, "[catalog] must be a table");
   }
 
-  const catalog: Record<string, string[] | boolean> = {};
+  const catalog: Record<string, string[] | boolean | ValidationSettings> = {};
   for (const [key, value] of Object.entries(section)) {
     if (!CATALOG_KEYS.has(key)) {
       throw new ConfigError(absolute, `unknown key [catalog] ${key}`);
+    }
+    if (key === "validation") {
+      catalog[key] = readValidation(value, dir, (message) => {
+        throw new ConfigError(absolute, message);
+      });
+      continue;
     }
     if (key === "builtin") {
       if (typeof value !== "boolean")
@@ -212,7 +218,7 @@ export function readConfig(path: string): ProjectConfig {
   return {
     path: absolute,
     dir,
-    catalog: catalog as CatalogSection,
+    catalog: withDeclaredCatalog(catalog as CatalogSection, declared),
     raw,
     ...configured,
   };

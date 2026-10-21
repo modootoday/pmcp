@@ -1,11 +1,6 @@
 import { dirname, join, resolve } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
-import {
-  ArgumentError,
-  one,
-  type CommandContext,
-  type OptionSpec,
-} from "../cli/command.js";
+import { ArgumentError, one, type CommandContext } from "../cli/command.js";
 import {
   DEFAULT_API_ORIGIN,
   fetchCatalog,
@@ -17,25 +12,7 @@ import { fileCatalogCache } from "../remote/catalog-cache.js";
 import { globalDir } from "../remote/session.js";
 import { publicMarketplaceRoot } from "../marketplace/builtin.js";
 
-export const REMOTE_OPTIONS: readonly OptionSpec[] = [
-  {
-    name: "provider",
-    describe: "Public free catalog (default) or explicitly hosted service.",
-    placeholder: "<public|hosted>",
-  },
-  {
-    name: "project",
-    describe: "Project directory containing package.json.",
-    placeholder: "<dir>",
-  },
-  { name: "api", describe: "Catalog API origin.", placeholder: "<origin>" },
-  {
-    name: "catalog",
-    describe: "Use a saved catalog response without network access.",
-    placeholder: "<file>",
-  },
-  { name: "json", describe: "Print machine-readable results.", boolean: true },
-];
+export { REMOTE_OPTIONS } from "./options/remote.js";
 
 export function catalogProvider(context: CommandContext): "public" | "hosted" {
   const given = one(context.args, "provider");

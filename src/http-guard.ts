@@ -1,8 +1,4 @@
-/**
- * Checks a hosted skills server makes before a request reaches MCP: which browser origins
- * and Host names may call it, how large a request may be, and how often one caller may call.
- * Requests without an Origin header are not from a browser page and are not origin-checked.
- */
+// Validate browser origins before MCP dispatch to prevent cross-origin access and DNS rebinding.
 
 export const DEFAULT_MAX_REQUEST_BYTES = 1024 * 1024;
 
@@ -27,11 +23,7 @@ export type OriginVerdict =
   | { readonly kind: "allowed"; readonly origin: string }
   | { readonly kind: "refused"; readonly response: Response };
 
-/**
- * A page on another origin may call only when listed; DNS rebinding then fails here too.
- * Behind a proxy that ends TLS the request URL is not the public one, so publicOrigins names it.
- * "*" in allowedOrigins admits any origin; auth is a bearer header, never a cookie.
- */
+// Use declared public origins because TLS proxies can hide the externally visible request origin.
 export function checkOrigin(
   request: Request,
   allowedOrigins: readonly string[] = [],
@@ -54,7 +46,6 @@ export function checkOrigin(
   };
 }
 
-/** When the host names its public Host values, any other Host is refused. */
 export function checkHost(
   request: Request,
   allowedHosts: readonly string[] | undefined,
@@ -102,10 +93,7 @@ export function withHeaders(
 const tooLarge = (max: number): Response =>
   json(413, { error: "request_too_large", limit: max });
 
-/**
- * The request with its body read under the cap, or a 413. A declared length over the cap
- * is refused before reading; an undeclared one is read only until it passes the cap.
- */
+// Refuse oversized declared bodies before reading to avoid unnecessary memory use.
 export async function capBody(
   request: Request,
   max: number,
@@ -140,13 +128,11 @@ export async function capBody(
 }
 
 export interface RateLimitOptions {
-  /** Requests one caller may make in a minute. */
   readonly perMinute: number;
-  /** Injected by tests. */
+
   readonly now?: () => number;
 }
 
-/** A fixed one-minute window per caller id; a 429 names when the window ends. */
 export function createRateLimiter(
   options: RateLimitOptions,
 ): (callerId: string) => Response | undefined {

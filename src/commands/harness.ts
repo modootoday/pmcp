@@ -1,16 +1,26 @@
 import { ArgumentError, type Command } from "../cli/command.js";
-import { harnessOptions } from "./harness/options.js";
 import { parseInvocation } from "./harness/invocation.js";
 import { runLayout } from "./harness/layout.js";
+import { harnessSpec } from "./specs/terminal.js";
+import { unsupportedHost, unsupportedReceipt } from "../harness/platform.js";
 
 export const harnessCommand: Command = {
-  name: "harness",
-  describe:
-    "Manage optional owned native sessions independently of the MCP server",
-  usage: "pmcp harness layout | family operation [options]",
-  options: harnessOptions,
+  ...harnessSpec,
   async run(context) {
+    const unsupported = unsupportedHost();
+    if (unsupported) {
+      context.ui.data(`${JSON.stringify(unsupportedReceipt(unsupported))}\n`);
+      return 1;
+    }
     if (context.args.positional[0] === "layout") return runLayout(context);
+    if (context.args.positional[0] === "mcp") {
+      const { runPtyMcp } = await import("./harness/mcp.js");
+      return runPtyMcp(context);
+    }
+    if (context.args.positional[0] === "host") {
+      const { runHost } = await import("./harness/host.js");
+      return runHost(context);
+    }
     try {
       const operation = parseInvocation(context);
       const { invoke } = await import("../harness/application/invoke.js");

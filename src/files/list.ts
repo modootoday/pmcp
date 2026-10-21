@@ -1,5 +1,3 @@
-/** The files one skill carries, with sizes and digests. */
-
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, relative, sep } from "node:path";
@@ -7,7 +5,6 @@ import { basename, join, relative, sep } from "node:path";
 import { servedBytes } from "./redact.js";
 
 export interface SkillFile {
-  /** Relative to the skill directory, with forward slashes. */
   readonly path: string;
   readonly bytes: number;
   readonly sha256: string;
@@ -18,7 +15,6 @@ export interface SkillFileListing {
   readonly truncated: boolean;
 }
 
-/** How many files a listing holds before it says the rest were cut. */
 export const FILE_LIST_LIMIT = 200;
 
 export const sha256 = (bytes: Uint8Array): string =>
@@ -29,10 +25,6 @@ function describe(path: string, full: string): SkillFile {
   return { path, bytes: bytes.length, sha256: sha256(bytes) };
 }
 
-/**
- * Every file under a skill root, or the root itself when the asset is one file.
- * node_modules and .git are never part of a skill.
- */
 export function listSkillFiles(
   root: string,
   limit = FILE_LIST_LIMIT,

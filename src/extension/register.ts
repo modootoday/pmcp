@@ -1,7 +1,4 @@
-/**
- * The Skills extension's methods, skills/list and skills/get. Their files are
- * served by the skill:// resources (resources.ts), which every surface shares.
- */
+// Share resources so tools and extension methods enforce the same caller-visible catalog.
 
 import {
   ProtocolError,
@@ -19,14 +16,11 @@ const PAGE_SIZE = 50;
 const TTL_MS = 60_000;
 
 export interface SkillsExtensionOptions {
-  /**
-   * "public" when every caller sees the same catalog; "private" when the list is
-   * filtered per caller, as it is behind authorization.
-   */
+  // Use private cache scope when caller filtering could otherwise expose another caller's entries.
   readonly cacheScope?: "public" | "private";
 }
 
-/** Entries memoised per catalog array: the array is the same until a refresh. */
+// Use catalog identity for memoization so refresh invalidates extension entries.
 function entriesOf(skills: () => readonly SkillEntry[]) {
   let memo: {
     source: readonly SkillEntry[];
@@ -61,7 +55,7 @@ function page(all: readonly SkillExtensionEntry[], cursor: string | undefined) {
   };
 }
 
-/** Declares the extension and its methods. Must run before the server connects. */
+// Register before connection so initialization advertises the extension.
 export function registerSkillsExtension(
   server: McpServer,
   skills: () => readonly SkillEntry[],

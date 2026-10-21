@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { join } from "node:path";
-import { writableClients } from "../adapters/tmux/backend.js";
+import { writableClients } from "../adapters/terminal/backend.js";
 import type { GroupContext } from "../application/context.js";
 import type { Lease, Receipt } from "../contracts.js";
 import { privateJson, readPrivateJson } from "../groups/store.js";
@@ -42,7 +42,7 @@ export function acquireControl(
   );
   if (current && Date.parse(current.expiresAt) > Date.now())
     throw new Error("control_busy");
-  if (writableClients(backend, observation.tmuxSessionId) > 0)
+  if (writableClients(backend, sessionId) > 0)
     throw new Error("native_writer_active");
   if (mode !== "cli" && mode !== "native")
     throw new Error("invalid_control_mode");
@@ -58,6 +58,8 @@ export function acquireControl(
     (entry) => entry.sessionId !== sessionId,
   );
   store.state.leases.push(lease);
+  // pmcp-pty holds the same token, so any input without it (a wake turn, another tool) is refused.
+  backend.lease(sessionId, lease.token, current?.token);
   store.save();
   const leaseFile = join(backend.runDirectory, `lease-${randomUUID()}.json`);
   privateJson(leaseFile, { token: lease.token });
@@ -72,13 +74,14 @@ export function controlOperation(
   const lease = resolveLease(context, leaseFile, action === "release");
   if (action === "renew") {
     lease.expiresAt = new Date(Date.now() + 60_000).toISOString();
+    context.backend.lease(lease.sessionId, lease.token);
     context.store.save();
     return { sessionId: lease.sessionId, expiresAt: lease.expiresAt };
   }
   if (action !== "release") throw new Error("unsupported_control_operation");
-  const session = context.backend.inspect(lease.sessionId);
-  if (writableClients(context.backend, session.tmuxSessionId) > 0)
+  if (writableClients(context.backend, lease.sessionId) > 0)
     throw new Error("native_writer_active");
+  context.backend.lease(lease.sessionId, null, lease.token);
   context.store.state.leases = context.store.state.leases.filter(
     (entry) => entry.token !== lease.token,
   );
@@ -98,18 +101,19 @@ export function attachment(
   if (mode === "observe")
     return {
       socket: context.backend.socket,
-      session: session.tmuxSessionId,
+      session: session.ptySession,
       readOnly: true,
     };
   if (mode !== "write") throw new Error("invalid_attach_mode");
   const lease = resolveLease(context, text(leaseFile, "lease_file"));
   if (lease.sessionId !== sessionId || lease.mode !== "native")
     throw new Error("native_control_required");
-  if (writableClients(context.backend, session.tmuxSessionId) > 0)
+  if (writableClients(context.backend, sessionId) > 0)
     throw new Error("native_writer_active");
   return {
     socket: context.backend.socket,
-    session: session.tmuxSessionId,
+    session: session.ptySession,
     readOnly: false,
+    lease: lease.token,
   };
 }

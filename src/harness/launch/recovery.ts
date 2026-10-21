@@ -1,6 +1,9 @@
 import { existsSync } from "node:fs";
-import type { Connection } from "../adapters/tmux/connection.js";
-import { assertProof, panePresent } from "../adapters/tmux/launch-identity.js";
+import type { Connection } from "../adapters/terminal/connection.js";
+import {
+  assertProof,
+  panePresent,
+} from "../adapters/terminal/launch-identity.js";
 import { controllerExited } from "../adapters/process/identity.js";
 import { stopUnit, unitActive } from "../adapters/systemd/units.js";
 import { privateJson } from "../groups/store.js";
@@ -31,14 +34,15 @@ export function abortLaunch(
     };
   }
   if (!existsSync(journal.path("proof"))) {
+    const named = () =>
+      (
+        (connection.must({ op: "list" })["sessions"] ?? []) as Record<
+          string,
+          unknown
+        >[]
+      ).some((s) => s["name"] === `pmcp-${intent.id}`);
     const paneUnknown =
-      connection.alive() &&
-      (!intent.dockerCreation ||
-        connection
-          .tmux(["list-sessions", "-F", "#{session_name}"])
-          .trim()
-          .split("\n")
-          .includes(`pmcp-${intent.id}`));
+      connection.alive() && (!intent.dockerCreation || named());
     if (paneUnknown || unitActive(intent.unit))
       throw new Error("launch_identity_unknown");
     if (resource) stopResource(resource);
@@ -62,7 +66,11 @@ export function abortLaunch(
   stopUnit(intent.unit);
   if (present) {
     assertProof(connection, proof);
-    connection.tmux(["kill-pane", "-t", proof.session.paneId]);
+    connection.must({
+      op: "kill",
+      id: proof.session.ptySession,
+      expect: connection.expect(proof.session),
+    });
   }
   if (existsSync(journal.records.path(intent.id)))
     journal.records.save({

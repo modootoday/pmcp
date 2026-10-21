@@ -1,4 +1,3 @@
-/** What the projector writes. A path is unique across a plan and is the lock key. */
 export type Output =
   | { readonly kind: "link"; readonly path: string; readonly target: string }
   | { readonly kind: "file"; readonly path: string; readonly content: string }
@@ -33,7 +32,6 @@ export function blockOutput(file: string, content: string): Output {
   return { kind: "block", path: `${file}#pmcp`, file, content };
 }
 
-/** Splits a lock path back into file and key, for entries whose source is gone. */
 export function splitKeyed(
   path: string,
 ): { file: string; key: string[] } | null {

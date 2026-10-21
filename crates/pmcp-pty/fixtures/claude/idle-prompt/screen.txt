@@ -1,0 +1,10 @@
+❯ summarize the readme
+
+● The readme describes a small example project.
+
+✻ Worked for 3s · done 9:00 AM
+
+──────────────────────────────────────────────────────────── example ─
+❯ Try "fix lint errors"
+────────────────────────────────────────────────────────────
+  ⏵⏵ accept edits on (shift+tab to cycle)

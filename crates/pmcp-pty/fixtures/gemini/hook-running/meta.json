@@ -1,0 +1,4 @@
+{
+  "source": "synthetic",
+  "mirrors": "gemini-cli 0.64.0 IC:23276 hook label, live capture, 2026-10-20 (turn refused busy during a session_start hook)"
+}

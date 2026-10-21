@@ -1,0 +1,179 @@
+{
+  "runtime": "codex",
+  "version": "0.163.0",
+  "measuredAt": "2026-10-19T10:54:00Z",
+  "events": {
+    "session_start": {
+      "native": "SessionStart",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "model",
+        "permission_mode",
+        "source"
+      ]
+    },
+    "prompt": {
+      "native": "UserPromptSubmit",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "turn_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "model",
+        "permission_mode",
+        "prompt"
+      ]
+    },
+    "before_tool": {
+      "native": "PreToolUse",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "turn_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "model",
+        "permission_mode",
+        "tool_name",
+        "tool_input",
+        "tool_use_id"
+      ]
+    },
+    "after_tool": {
+      "native": "PostToolUse",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "turn_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "model",
+        "permission_mode",
+        "tool_name",
+        "tool_input",
+        "tool_response",
+        "tool_use_id"
+      ]
+    },
+    "stop": {
+      "native": "Stop",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "turn_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "model",
+        "permission_mode",
+        "stop_hook_active",
+        "last_assistant_message"
+      ]
+    },
+    "session_end": {
+      "native": "SessionEnd",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "reason"
+      ]
+    },
+    "notification": {
+      "native": null,
+      "fires": false
+    }
+  },
+  "tools": {
+    "shell": {
+      "tool_name": "Bash",
+      "input": "tool_input.command (string)"
+    },
+    "edit": {
+      "tool_name": "apply_patch",
+      "input": "tool_input.command holds the patch; paths are absolute in '*** Add File:' / '*** Update File:' / '*** Delete File:' headers"
+    }
+  },
+  "outputs": {
+    "deny": {
+      "event": "before_tool",
+      "support": "measured",
+      "shape": "hookSpecificOutput.permissionDecision = deny + permissionDecisionReason; the reason reaches the model as the tool result"
+    },
+    "context": {
+      "support": "measured",
+      "delivered": ["session_start", "prompt", "before_tool", "after_tool"],
+      "shape": "hookSpecificOutput.additionalContext; lands in the transcript as a developer message",
+      "notes": "The model declines to quote developer messages, so delivery must be judged from the transcript"
+    },
+    "stop_output": {
+      "support": "unsupported_shape",
+      "notes": "hookSpecificOutput on Stop is rejected: 'hook returned invalid stop hook JSON output'. Stop must return {} or a decision object."
+    },
+    "ask": {
+      "support": "unqualified",
+      "notes": "not exercised; earlier research reports none"
+    }
+  },
+  "live": {
+    "version": "0.163.0",
+    "measuredAt": "2026-10-19T12:41:41.485Z",
+    "implementationCommits": ["880aa32", "d6d2cce"],
+    "deny": {
+      "support": "measured",
+      "scenarios": [
+        "codex-heredoc-a2bd46d6",
+        "codex-stage-all-9d40c45a",
+        "codex-pause-6cb11e0e",
+        "codex-lease-c22c12b4"
+      ]
+    },
+    "context": {
+      "support": "measured",
+      "delivered": {
+        "session_start": "codex-context-start-e7a33f51",
+        "prompt": "codex-context-prompt-31d406cf",
+        "before_tool": "codex-context-before-05898b7b"
+      },
+      "notes": "after_tool context stays measured by the earlier probe; the live extension did not exercise it. A broadcast from a Codex session reached a live Claude session through its hooks (codex-broadcast-34d5291a)."
+    },
+    "stop": {
+      "support": "measured",
+      "notes": "Stop fires in live sessions; no Stop context is claimed, so the stop_output limitation above stands and Stop notices wait for the next prompt"
+    },
+    "session_end_timeout": {
+      "maxSec": 3,
+      "support": "measured",
+      "notes": "Codex clamps a SessionEnd hook timeout to 3 s; pmcp projects min(compiled, 3) since 880aa32"
+    },
+    "quoted_executable_filter": {
+      "support": "measured",
+      "scenarios": [
+        "codex-worktree-create-f94e412f",
+        "codex-worktree-create-9a8e193c"
+      ],
+      "notes": "Codex's exec_command rejects a fully quoted executable form as arbitrary shell execution before spawning it; PreToolUse fires and allows first, so no hook sees the rejection. The unquoted form runs. Not a pmcp defect."
+    },
+    "ask": {
+      "support": "unqualified",
+      "notes": "interactive ask not exercised"
+    },
+    "scenarios": {
+      "passed": 13,
+      "failed": 1,
+      "failedCause": "quoted_executable_filter"
+    }
+  },
+  "fields_absent": ["agent_type"],
+  "trust": "hash_review: changed hooks.json shows 'Hooks need review'; untrusted hooks do not run"
+}

@@ -8,12 +8,7 @@ import {
 } from "../src/remote/catalog-cache.js";
 import { fetchCatalog } from "../src/remote/catalog.js";
 
-/**
- * The hub has answered If-None-Match since it shipped and the client never
- * sent one, so every command re-downloaded the whole catalog. What is asserted
- * here is bytes, not status codes: a 304 that still shipped a body would pass
- * a check written against the status alone.
- */
+// A 304 status alone does not prove that the response saved bandwidth.
 const ORIGIN = "https://api.example.com";
 
 const CATALOG = {
@@ -64,7 +59,6 @@ function scratch(): string {
   return dir;
 }
 
-/** Records every request, and how many bytes each answer actually carried. */
 function hub(): { fetcher: typeof fetch; sent: string[]; bytes: number[] } {
   const sent: string[] = [];
   const bytes: number[] = [];
@@ -117,8 +111,7 @@ it("asks again rather than failing when what it held no longer parses", async ()
   cache.write(ORIGIN, { etag: '"r1"', body: "{ this is not a catalog" });
   const { fetcher, sent } = hub();
 
-  // The hub answers 304 to the tag it recognises, so a client that trusted its
-  // own copy blindly would have nothing to return and no way forward.
+  // A matching remote tag cannot repair a missing local catalog body.
   const catalog = await fetchCatalog(ORIGIN, fetcher, cache);
 
   expect(catalog.revision).toBe("r1");

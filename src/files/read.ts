@@ -1,7 +1,4 @@
-/**
- * One skill file's bytes, typed. Text stays text; images, audio and other binary
- * go out as base64 so nothing is corrupted on the way. Nothing is ever executed.
- */
+// Encode binary content as base64 so transport cannot corrupt its bytes.
 
 import { readFileSync, statSync } from "node:fs";
 
@@ -11,7 +8,6 @@ import { sha256 } from "./list.js";
 import { servedBytes } from "./redact.js";
 import { resolveSkillFile, type FileRefusal } from "./resolve.js";
 
-/** Largest file returned whole. A skill needing more should split it. */
 export const READ_BUDGET_BYTES = 256 * 1024;
 
 export interface SkillFileContent {
@@ -22,9 +18,9 @@ export interface SkillFileContent {
   readonly sha256: string;
   readonly mimeType: string;
   readonly kind: FileKind;
-  /** Set when kind is text. */
+
   readonly text?: string;
-  /** Base64, set when kind is not text. */
+
   readonly blob?: string;
 }
 

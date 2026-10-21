@@ -1,11 +1,14 @@
-import { spawnSync } from "node:child_process";
 import { closeSync, constants, fstatSync, openSync } from "node:fs";
-import { runtime } from "../adapters/process/runtime.js";
+import { lockFile } from "../../locks/file-lock.js";
 import { ensureStartupDirectory, startupFile } from "./state.js";
 import { startupSettings, type StartupRequest } from "./config.js";
+import { prepareWorkspace } from "./workspace.js";
 import type { Receipt } from "../../harness/contracts.js";
 
-export function serializedStartup(request: StartupRequest): Receipt {
+// One startup per project at a time; a second waits up to ten seconds, then says busy.
+export async function serializedStartup(
+  request: StartupRequest,
+): Promise<Receipt> {
   const settings = startupSettings(request);
   const file = startupFile(settings.projectRoot);
   ensureStartupDirectory(file);
@@ -26,36 +29,11 @@ export function serializedStartup(request: StartupRequest): Receipt {
   } finally {
     closeSync(descriptor);
   }
-  const helpers = runtime();
-  const encoded = Buffer.from(JSON.stringify(request)).toString("base64url");
-  const child = spawnSync(
-    "flock",
-    [
-      "--wait",
-      "10",
-      "--close",
-      "--conflict-exit-code",
-      "73",
-      lock,
-      helpers.node,
-      helpers.worker,
-      "startup",
-      encoded,
-    ],
-    {
-      encoding: "utf8",
-      timeout: 60_000,
-      maxBuffer: 256 * 1024,
-      stdio: ["ignore", "pipe", "pipe"],
-      env: {
-        ...process.env,
-        PMCP_TUI_COLUMNS: String(process.stdout.columns),
-        PMCP_TUI_ROWS: String(process.stdout.rows),
-      },
-    },
-  );
-  if (child.status === 73) throw new Error("startup_busy");
-  if (child.error || !child.stdout.trim())
-    throw new Error("startup_requires_recovery");
-  return JSON.parse(child.stdout) as Receipt;
+  const held = lockFile(lock, 10_000);
+  if (!held) throw new Error("startup_busy");
+  try {
+    return await prepareWorkspace(request);
+  } finally {
+    held.release();
+  }
 }

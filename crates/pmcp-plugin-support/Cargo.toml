@@ -1,0 +1,25 @@
+[package]
+name = "pmcp-plugin-support"
+version = "0.18.0"
+edition = "2024"
+description = "Process-tree reaping, systemd scopes and MCP plumbing shared by pmcp-pty and the pmcp plugins"
+publish = false
+
+# reap is the default and needs nothing beyond libc; approved adds sha2 for the approval check.
+[features]
+default = ["reap"]
+reap = []
+scope = []
+approved = ["dep:sha2", "dep:serde_json"]
+mcp = ["dep:rmcp", "dep:tokio", "dep:serde", "dep:serde_json"]
+
+[dependencies]
+sha2 = { version = "0.10.9", optional = true }
+# rmcp moves fast, so one minor is pinned; only the plugins turn mcp on.
+rmcp = { version = "3.6", default-features = false, features = ["server", "transport-io", "macros"], optional = true }
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "io-std", "process", "time", "signal"], optional = true }
+serde = { version = "1.0.229", features = ["derive"], optional = true }
+serde_json = { version = "1.0.154", optional = true }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.191"

@@ -1,48 +1,22 @@
-/**
- * Encodes every description once, so ranking can be semantic.
- *
- * Named a verb and filed apart from the registry: the command is `index`, the
- * module beside this one that dispatches it is `index.ts`.
- */
+// Keep indexing separate from the registry so metadata queries do not load encoder dependencies.
 
-import { type Command } from "../cli/command.js";
+import { EXIT, type Command } from "../cli/command.js";
 import { loadEmbedder, openEntryVectors } from "../embed.js";
 import { existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { resolveEncoder } from "../encoder.js";
-import { EMBEDDING_OPTIONS, embeddingFrom } from "./embedding.js";
+import { embeddingFrom } from "./embedding.js";
 
-import { CATALOG_OPTIONS, catalogFrom, rootsFrom } from "./roots.js";
+import { catalogFrom, rootsFrom } from "./roots.js";
+import { indexSpec } from "./specs/catalog.js";
 
-/** Beside the tree it describes, so two projects never share one index. */
+// Keep indexes beside their project so unrelated projects cannot share stale vectors.
 export function indexPath(root: string): string {
   return `${root}/.cache/pmcp/vectors.sqlite`;
 }
 
 export const indexCommand: Command = {
-  name: "index",
-  describe: "Encode the catalog so ranking can be semantic",
-  usage: "pmcp index [--root <dir>] [--model <id>]",
-  options: [
-    ...CATALOG_OPTIONS,
-    ...EMBEDDING_OPTIONS,
-    { name: "local-only", describe: "Refuse model downloads", boolean: true },
-    {
-      name: "force",
-      describe: "Re-encode the selected model even when descriptions match",
-      boolean: true,
-    },
-    {
-      name: "json",
-      describe: "Emit JSON rather than a summary.",
-      boolean: true,
-    },
-    {
-      name: "dry-run",
-      describe: "Report what would be encoded and write nothing.",
-      boolean: true,
-    },
-  ],
+  ...indexSpec,
 
   async run(context) {
     const entries = catalogFrom(context);
@@ -84,7 +58,7 @@ export const indexCommand: Command = {
       );
       context.ui.info("npm install --save-dev @huggingface/transformers");
       context.ui.info("ranking stays lexical until then, which is the default");
-      return 3;
+      return EXIT.missingOptional;
     }
 
     mkdirSync(dirname(path), { recursive: true });
@@ -101,8 +75,7 @@ export const indexCommand: Command = {
       const stale = new Set(
         force ? [...descriptions.keys()] : store.stale(key, descriptions),
       );
-      // Only what changed. Re-encoding an unchanged description costs the same
-      // as the first time and produces the same vector.
+      // Reuse unchanged descriptions to avoid repeating identical embedding work.
       const todo = entries.filter((entry) => stale.has(entry.name));
       context.ui.info(
         `${todo.length} of ${entries.length} to encode`,
@@ -136,8 +109,7 @@ export const indexCommand: Command = {
         );
       }
 
-      // Partial coverage is reported rather than called success: find needs a
-      // vector for every entry, so a partial index ranks lexically anyway.
+      // Report incomplete coverage because a partial index cannot provide comparable semantic rankings.
       if (indexed < entries.length) {
         context.ui.warn(
           `indexed ${indexed} of ${entries.length}`,

@@ -8,7 +8,7 @@ import {
   RecordStore,
   budgetSlice,
   runtimeUnit,
-} from "../src/harness/adapters/tmux/records.js";
+} from "../src/harness/adapters/terminal/records.js";
 import {
   LaunchJournal,
   pendingLaunches,
@@ -67,11 +67,9 @@ function fixture() {
     owner,
     runtime: "codex-cli",
     socket: records.socket,
-    tmuxSessionId: "$0",
-    windowId: "@0",
-    paneId: "%0",
-    panePid: 123,
-    serverIdentity: "123:456",
+    ptySession: "s1",
+    ptyInstance: "123-456",
+    pid: 123,
     unit: runtimeUnit(id),
     memoryMb: 64,
     cwd: directory,

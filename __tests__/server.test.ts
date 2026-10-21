@@ -52,8 +52,7 @@ describe("catalog", () => {
     ]);
   });
 
-  // The whole point: the overview never carries bodies, so listing costs the
-  // session a description rather than a document.
+  // Omitting bodies keeps startup listings smaller than the documents they describe.
   it("carries no body", () => {
     expect(JSON.stringify(tools().catalog())).not.toContain("Inject the Clock");
   });

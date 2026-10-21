@@ -1,32 +1,23 @@
-/**
- * The intent key and the cache contract.
- *
- * Separate from the sqlite implementation so that ranking, which needs the key
- * and the interface, does not pull a bun-only module into a consumer running
- * under node. Only `cache.ts` requires bun.
- */
+// Keep cache contracts separate so ranking does not load optional storage implementations.
 
 export interface IntentCacheStats {
   readonly hits: number;
   readonly misses: number;
-  /** Rows found for the key but written by a different model. */
+
   readonly mismatched: number;
   readonly rows: number;
-  /** Which sqlite builtin answered, or absent when there is no cache. */
+
   readonly provider?: string;
 }
 
 export interface IntentCache {
-  /** The cached vector for an intent, or null when nothing usable is stored. */
   get(intent: string): Float32Array | null;
   put(intent: string, vector: Float32Array): void;
   stats(): IntentCacheStats;
   close(): void;
 }
 
-/**
- * Canonically equivalent Unicode must share the same query and cache key.
- */
+// Normalize canonically equivalent Unicode so equivalent intents share a cache key.
 export function normaliseIntent(intent: string): string {
   return intent
     .normalize("NFC")

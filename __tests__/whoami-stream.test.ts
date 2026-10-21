@@ -64,7 +64,7 @@ it("answers on stdout, because the answer is what the command is for", () => {
     expiresAt: Date.now() + 600_000,
   });
   const result = invoke();
-  // Redirecting the command must capture the answer, not an empty file.
+  // Redirected output must capture the answer for shell consumers.
   expect(result.out).toContain("issuer https://auth.pmcp.build/");
   expect(result.out).toContain("scope pmcp:catalog:read");
   expect(result.out).toMatch(/token valid for \d+ min/u);

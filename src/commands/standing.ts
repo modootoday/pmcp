@@ -1,14 +1,7 @@
 import type { CommandContext } from "../cli/command.js";
 import type { RemoteEntry } from "../remote/catalog.js";
 
-/**
- * Saying where a line stands, in one place.
- *
- * A verification date that stops moving is honest only while it is said to
- * have stopped, and a line an advisory has reached must not be offered as
- * though it were the one to install. Both commands that show a skill say this,
- * and two copies of the wording is two things to keep true.
- */
+// Share standing text so advisory and verification claims cannot diverge between commands.
 export function sayStanding(
   context: CommandContext,
   line: RemoteEntry["line"],
@@ -16,8 +9,7 @@ export function sayStanding(
   if (!line) return;
 
   if (line.status === "recalled" && line.recall) {
-    // The loudest thing this surface says. The skill is usually not at fault:
-    // what is unsafe is the range it was written for.
+    // Name the affected version range so a refusal does not blame the whole package.
     context.ui.warn(
       "recalled",
       `${line.recall.severity} advisory against the versions this line covers`,

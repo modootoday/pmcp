@@ -1,0 +1,8 @@
+> summarize the readme
+
+The readme describes a small example project.
+
+────────────────────────────────────────────────────────────
+>
+────────────────────────────────────────────────────────────
+? for shortcuts                                        Model · high

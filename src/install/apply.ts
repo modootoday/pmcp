@@ -94,7 +94,7 @@ export function applyInstallPlan(
         "registry integrity differs from the catalog; nothing was installed",
       );
   }
-  // Registry reads may take long enough for another editor to change the project.
+  // Recheck files because registry requests may overlap edits from another process.
   if (fingerprint(plan.context.files) !== plan.context.fingerprint)
     throw new Error("project changed during registry verification");
   const code = runner.install(plan);

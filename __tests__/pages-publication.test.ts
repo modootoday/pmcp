@@ -2,10 +2,35 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { gunzipSync } from "node:zlib";
 import { beforeAll, expect, it } from "vitest";
 
 const root = join(import.meta.dirname, "..");
 const output = join(root, ".release/pages");
+
+// Read a package tarball in-process: three tar processes per catalog line were about 380
+// spawns, which exceeded the 5 s default under load. Same entries, same bytes as tar reports.
+function tarEntries(archive: Buffer): Map<string, Buffer> {
+  const tar = gunzipSync(archive);
+  const entries = new Map<string, Buffer>();
+  const text = (from: number, length: number) =>
+    tar.toString("utf8", from, from + length).replace(/\0.*$/su, "");
+  for (let at = 0; at + 512 <= tar.length;) {
+    const name = text(at, 100);
+    if (name === "") break;
+    const prefix = text(at + 345, 155);
+    const size = Number.parseInt(text(at + 124, 12).trim() || "0", 8);
+    const type = text(at + 156, 1);
+    const body = at + 512;
+    if (type === "" || type === "0" || type === "5")
+      entries.set(
+        prefix ? `${prefix}/${name}` : name,
+        tar.subarray(body, body + size),
+      );
+    at = body + Math.ceil(size / 512) * 512;
+  }
+  return entries;
+}
 
 beforeAll(() => {
   execFileSync(
@@ -128,35 +153,22 @@ it("makes every catalog line and its original content available without authenti
     expect(
       `sha512-${createHash("sha512").update(archive).digest("base64")}`,
     ).toBe(entry.delivery.integrity);
-    const files = execFileSync(
-      "tar",
-      ["-tzf", join(directory, "package.tgz")],
-      { encoding: "utf8" },
-    )
-      .trim()
-      .split("\n");
+    const entries = tarEntries(archive);
+    const files = [...entries.keys()];
     const sources = files.filter((path: string) => path.endsWith("/SKILL.md"));
     expect(sources).toHaveLength(1);
     const skillPath = sources[0];
     if (!skillPath) throw new Error("Archive contains no skill source");
-    const source = execFileSync(
-      "tar",
-      ["-xOzf", join(directory, "package.tgz"), skillPath],
-      { encoding: "utf8" },
-    );
+    const source = entries.get(skillPath)!.toString("utf8");
     expect(readFileSync(join(directory, "SKILL.md"), "utf8")).toBe(source);
     const path = skillPath.slice("package/".length);
     const digest = createHash("sha256").update(
       `${path.length}:${path}:${source.length}:${source}`,
     );
     expect(`sha256:${digest.digest("hex")}`).toBe(entry.contentDigest);
-    const manifest = JSON.parse(
-      execFileSync(
-        "tar",
-        ["-xOzf", join(directory, "package.tgz"), "package/package.json"],
-        { encoding: "utf8" },
-      ),
-    );
+    const packageJson = entries.get("package/package.json");
+    if (!packageJson) throw new Error("Archive contains no package.json");
+    const manifest = JSON.parse(packageJson.toString("utf8"));
     expect(manifest.name).toBe(entry.delivery.packageName);
     expect(manifest.version).toBe(entry.delivery.version);
     expect(manifest.scripts).toBeUndefined();

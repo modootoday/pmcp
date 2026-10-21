@@ -1,8 +1,4 @@
-/**
- * The invocation a host uses. Reachable by name so it appears in help, but it
- * is also what running pmcp with no command does, because the MCP host contract
- * is a bare spawn.
- */
+// Preserve bare serving because native MCP hosts launch the process without a verb.
 
 import { ArgumentError, one, type Command } from "../cli/command.js";
 import { invocation } from "../cli/invocation.js";
@@ -10,60 +6,13 @@ import { serve, serveWithMailbox } from "../stdio.js";
 import { mailboxConfigFrom } from "../mailbox/config.js";
 import { prepareSearch } from "../search.js";
 import { indexPath } from "./reindex.js";
-import { EMBEDDING_OPTIONS, embeddingFrom } from "./embedding.js";
+import { embeddingFrom } from "./embedding.js";
 
-import {
-  CATALOG_OPTIONS,
-  catalogOptionsFrom,
-  configFrom,
-  rootsFrom,
-} from "./roots.js";
+import { catalogOptionsFrom, configFrom, rootsFrom } from "./roots.js";
+import { serveSpec } from "./specs/serve.js";
 
 export const serveCommand: Command = {
-  name: "serve",
-  describe: "Run the MCP server on stdio (also the default for piped launches)",
-  usage:
-    "pmcp serve [--root <dir>] [--scope <prefix>] [--marketplace <dir>] [--package <dir>] [--workspace <dir>] [--config <file> | --no-config] [--prompts]",
-  options: [
-    ...CATALOG_OPTIONS,
-    ...EMBEDDING_OPTIONS,
-    {
-      name: "lexical",
-      describe: "Skip semantic index and model loading",
-      boolean: true,
-    },
-    {
-      name: "mailbox-actor-file",
-      describe: "Private launcher actor credential for opt-in mailbox",
-      placeholder: "<file>",
-    },
-    {
-      name: "mailbox-binding-file",
-      describe: "Private attachment file written by the launcher",
-      placeholder: "<file>",
-    },
-    {
-      name: "mailbox-runtime",
-      describe: "Launcher-assigned canonical runtime",
-      placeholder: "<runtime>",
-    },
-    {
-      name: "mailbox-replace-session",
-      describe: "Exact old attachment ID to replace",
-      placeholder: "<id>",
-    },
-    {
-      name: "mailbox-native-session",
-      describe: "Launcher-owned native session ID",
-      placeholder: "<id>",
-    },
-    {
-      name: "prompts",
-      describe:
-        "Also offer one prompt per skill, for hosts that turn prompts into commands.",
-      boolean: true,
-    },
-  ],
+  ...serveSpec,
 
   async run(context) {
     const selection = embeddingFrom(context);
@@ -127,8 +76,7 @@ export const serveCommand: Command = {
     ) {
       throw new ArgumentError("Provide a launcher mailbox actor file");
     }
-    // Nothing is written to stdout here. From this point stdout is the
-    // protocol, and a diagnostic on it corrupts the stream.
+    // Keep diagnostics off stdout because it carries the MCP protocol.
     serve(catalogOptionsFrom(context), serving);
     return 0;
   },

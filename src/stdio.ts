@@ -1,11 +1,5 @@
 #!/usr/bin/env node
-/**
- * The stdio entry a host launches.
- *
- * Wired as `node <path in node_modules>`, never `npx`: the server's position in
- * the dependency tree is its data source, and from an npx cache it is not a
- * sibling of the consumer's packages and would find no skills at all.
- */
+// Launch the installed entry directly because an npx cache would discover the wrong dependency tree.
 
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
 
@@ -18,7 +12,6 @@ import {
   type MailboxAttachmentOptions,
 } from "./mailbox/attachment.js";
 
-/** `node_modules` roots to walk, from argv or from the working directory. */
 export function resolveRoots(argv: readonly string[], cwd: string): string[] {
   const given = argv.filter((arg) => !arg.startsWith("-"));
   return given.length > 0 ? given : [`${cwd}/node_modules`];
@@ -29,7 +22,7 @@ export interface ServeOptions extends Pick<
   "embedder" | "vectors" | "loadCatalog"
 > {
   readonly mailbox?: MailboxService;
-  /** One prompt per skill, for hosts that offer prompts as commands. */
+
   readonly prompts?: boolean;
 }
 
@@ -46,8 +39,7 @@ export function serve(
       process.stderr.write(`pmcp: warning ${path}: ${reason}\n`),
   };
   return serveStdio(() => createSkillServer(options), {
-    // stdout is the protocol. A diagnostic written there corrupts the stream,
-    // so out-of-band errors go to stderr and nowhere else.
+    // Keep diagnostics on stderr because stdout carries the MCP protocol.
     onerror: (error) => process.stderr.write(`pmcp: ${error.message}\n`),
   });
 }

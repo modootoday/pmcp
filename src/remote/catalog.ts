@@ -30,9 +30,7 @@ const target = z
   .refine((value) =>
     value.verifiedVersions.every((item) => semver.satisfies(item, value.range)),
   );
-// Skill packages live under the organisation scope; `@pmcp` on the public
-// registry belongs to someone else, so a catalog naming it would point at a
-// namespace this project cannot publish into.
+// Use the owned package namespace so catalog entries cannot point into an unrelated registry scope.
 const deliveryName = npmName.refine((value) =>
   value.startsWith("@modootoday/pmcp-"),
 );
@@ -54,19 +52,14 @@ const entry = z.object({
       .optional(),
     examplesExecuted: z.number().int().positive(),
   }),
-  // Optional for the same reason the service makes it optional: a snapshot
-  // published before previews existed cannot grow one, and a client that
-  // demands it rejects the whole catalog rather than one older entry.
+  // Keep previews optional so older published snapshots remain readable.
   preview: z
     .object({
       headings: z.array(z.string().min(1)),
       example: z.string().min(1),
     })
     .optional(),
-  // Where this line stands: which major of the target it is written for, and
-  // whether it is the current one, an older one nobody is revising, or one an
-  // advisory has reached. Optional for the same reason as the preview -- a
-  // client that demands it rejects a catalog published before it existed.
+  // Keep standing optional so older catalog entries remain compatible.
   line: z
     .object({
       major: z.number().int().nonnegative(),
@@ -149,8 +142,7 @@ export async function fetchCatalog(
     try {
       return await request(origin, fetcher, held, cache);
     } catch (error) {
-      // A cache that cannot be honoured is a cache to ignore, not a failure:
-      // fall through and ask for the whole thing.
+      // Ignore unusable cache data so the client can fetch a complete answer.
       if (!(error instanceof StaleCacheError)) throw error;
     }
   }
@@ -165,9 +157,7 @@ async function request(
   held: CachedCatalog | null,
   cache: CatalogCache,
 ): Promise<RemoteCatalog> {
-  // The public index request contains no account, dependency list or query text.
-  // The entity tag says which revision is already held, which the catalog
-  // itself publishes; it says nothing about the machine asking.
+  // Send only the public entity tag so catalog requests disclose no account or dependency information.
   const response = await fetcher(catalogEndpoint(origin), {
     method: "GET",
     headers: held
@@ -219,7 +209,7 @@ async function request(
   }
   const text = new TextDecoder().decode(bytes);
   const catalog = parseCatalog(JSON.parse(text));
-  // Stored only after it parsed: a cache is a copy of an answer we accepted.
+  // Cache only validated responses so invalid data cannot become a reusable answer.
   const tag = response.headers.get("etag");
   if (tag !== null && tag !== "")
     cache.write(origin, { etag: tag, body: text });

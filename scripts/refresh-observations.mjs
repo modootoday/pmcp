@@ -1,13 +1,5 @@
 #!/usr/bin/env node
-/**
- * Pulls the observation ledger into the file the pages are built from.
- *
- * The same reason the catalog is pulled rather than copied: a page written by
- * hand keeps showing evidence the API no longer serves. This one matters more,
- * because the claims are about other people's packages.
- *
- * Run: node scripts/refresh-observations.mjs [--api https://api.pmcp.build]
- */
+// Fetch the ledger so pages do not retain claims the API no longer serves.
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -50,15 +42,12 @@ for (let fetched = 0; fetched < MAX_PAGES; fetched += 1) {
 }
 if (before) throw new Error("the ledger did not end within the page budget");
 
-// The disclaimer is not decoration. It is the sentence that keeps an
-// example-stage observation from reading as an accusation, so a ledger served
-// without one is not publishable and the build stops here rather than there.
+// Require the disclaimer so example failures cannot be mistaken for upstream defects.
 if (!disclaimer.includes("not a finding of safety")) {
   throw new Error("the ledger came back without its disclaimer");
 }
 
-// A row that cannot be rendered honestly is not rendered at all. Each of these
-// is a way the page could say something the run did not establish.
+// Reject incomplete evidence rather than render claims the run did not establish.
 for (const entry of examinations) {
   if (typeof entry.packageName !== "string" || entry.packageName === "") {
     throw new Error("an examination names no package");

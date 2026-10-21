@@ -1,5 +1,3 @@
-/** A catalog on disk: skills with text, binary and invalid-UTF-8 files, per tier. */
-
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -22,7 +20,6 @@ export interface SkillTree {
   readonly entries: SkillEntry[];
 }
 
-/** Two skills: an open one carrying every file kind, and a paid one. */
 export function skillTree(): SkillTree {
   const root = mkdtempSync(join(tmpdir(), "pmcp-tree-"));
   const dir = (slug: string) => join(root, slug);

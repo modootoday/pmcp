@@ -1,0 +1,428 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "string": {
+      "type": "string"
+    },
+    "nullableString": {
+      "type": ["string", "null"]
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "feature": {
+      "type": "object",
+      "required": ["feature", "enabled", "source"],
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "lease": {
+      "type": "object",
+      "required": ["name", "pid", "subject", "since"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/string"
+        },
+        "pid": {
+          "type": "number"
+        },
+        "subject": {
+          "$ref": "#/$defs/string"
+        },
+        "since": {
+          "$ref": "#/$defs/string"
+        },
+        "cwd": {
+          "$ref": "#/$defs/string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "broadcast": {
+      "type": "object",
+      "required": ["id", "by", "text", "since", "unseenBy"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/string"
+        },
+        "by": {
+          "$ref": "#/$defs/string"
+        },
+        "text": {
+          "$ref": "#/$defs/string"
+        },
+        "since": {
+          "$ref": "#/$defs/string"
+        },
+        "unseenBy": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "sessions": {
+      "type": "object",
+      "required": ["version", "live", "pause", "leases", "broadcasts"],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "live": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/record"
+          }
+        },
+        "pause": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/record"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "leases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/lease"
+          }
+        },
+        "broadcasts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/broadcast"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "worktree": {
+      "type": "object",
+      "required": ["path", "main"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/string"
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "alias": {
+          "$ref": "#/$defs/string"
+        },
+        "branch": {
+          "$ref": "#/$defs/string"
+        },
+        "behind": {
+          "type": "number"
+        },
+        "ahead": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "auth": {
+      "type": "object",
+      "required": ["name", "present", "expiresAt", "scopes"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/string"
+        },
+        "present": {
+          "type": "boolean"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/string"
+          }
+        },
+        "error": {
+          "$ref": "#/$defs/string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["runtime", "event", "policy", "mode", "source"],
+      "properties": {
+        "runtime": {
+          "enum": ["claude", "codex"]
+        },
+        "event": {
+          "$ref": "#/$defs/string"
+        },
+        "policy": {
+          "$ref": "#/$defs/string"
+        },
+        "mode": {
+          "$ref": "#/$defs/string"
+        },
+        "source": {
+          "$ref": "#/$defs/string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "observation": {
+      "type": "object",
+      "required": [
+        "policy",
+        "mode",
+        "decision",
+        "durationMs",
+        "skipped",
+        "source",
+        "verdict",
+        "reason"
+      ],
+      "properties": {
+        "policy": {
+          "$ref": "#/$defs/string"
+        },
+        "mode": {
+          "$ref": "#/$defs/string"
+        },
+        "decision": {
+          "$ref": "#/$defs/record"
+        },
+        "durationMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/string"
+        },
+        "verdict": {
+          "enum": ["allow", "ask", "deny"]
+        },
+        "reason": {
+          "$ref": "#/$defs/nullableString"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "schemas": {
+    "status": {
+      "type": "object",
+      "required": [
+        "version",
+        "config",
+        "drift",
+        "features",
+        "projection",
+        "sessions",
+        "worktrees",
+        "mcp",
+        "errors"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "config": {
+          "$ref": "#/$defs/string"
+        },
+        "drift": {
+          "type": "boolean"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/feature"
+          }
+        },
+        "projection": {
+          "type": "object",
+          "required": ["drift", "outputs", "problems"],
+          "properties": {
+            "drift": {
+              "type": "boolean"
+            },
+            "outputs": {
+              "type": "number"
+            },
+            "problems": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "sessions": {
+          "$ref": "#/$defs/sessions"
+        },
+        "worktrees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/worktree"
+          }
+        },
+        "mcp": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/auth"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/record"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "hooks-list": {
+      "type": "object",
+      "required": ["version", "policies"],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/policy"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "hooks-test": {
+      "type": "object",
+      "required": [
+        "version",
+        "runtime",
+        "event",
+        "payload",
+        "decision",
+        "policies",
+        "rendered"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "runtime": {
+          "enum": ["claude", "codex"]
+        },
+        "event": {
+          "$ref": "#/$defs/string"
+        },
+        "payload": {
+          "$ref": "#/$defs/record"
+        },
+        "decision": {
+          "$ref": "#/$defs/record"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/observation"
+          }
+        },
+        "rendered": {
+          "type": "object",
+          "required": ["stdout", "exitCode"],
+          "properties": {
+            "stdout": {
+              "$ref": "#/$defs/string"
+            },
+            "exitCode": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "sessions-status": {
+      "$ref": "#/$defs/sessions"
+    },
+    "logs": {
+      "type": "object",
+      "required": ["version", "records"],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/record"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "git-worktree-list": {
+      "type": "object",
+      "required": ["version", "worktrees"],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "worktrees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/worktree"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "mcp-status": {
+      "type": "object",
+      "required": ["version", "name", "present", "expiresAt", "scopes"],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "name": {
+          "$ref": "#/$defs/string"
+        },
+        "present": {
+          "type": "boolean"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

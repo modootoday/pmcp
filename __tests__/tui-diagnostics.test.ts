@@ -5,15 +5,16 @@ const mocks = vi.hoisted(() => ({ assertHost: vi.fn() }));
 vi.mock("../src/harness/adapters/systemd/admission.js", () => ({
   assertNativeHost: mocks.assertHost,
 }));
-vi.mock("../src/tui/adapters/process/runtime.js", () => ({
+vi.mock("../src/tui/startup/dependencies.js", () => ({
   dependencies: () => ({
     supported: true,
     platform: "linux",
-    tmux: "/fixture/tmux",
-    flock: "/fixture/flock",
+    pmcpPty: "/fixture/pmcp-pty",
+    pmcpTui: "/fixture/pmcp-tui",
     systemctl: "/fixture/systemctl",
     systemdRun: "/fixture/systemd-run",
     nodeSupported: true,
+    memoryCapped: true,
   }),
 }));
 vi.mock("../src/harness/adapters/process/executable.js", () => ({
@@ -40,6 +41,7 @@ it("does not certify support when installed tools cannot reach the user manager"
 it("distinguishes executable discovery from native acceptance and authentication", () => {
   const receipt = inspectTerminalHost();
   expect(receipt.supported).toBe(true);
+  expect(receipt.pmcpTui).toBe("/fixture/pmcp-tui");
   expect(receipt.authenticationInspected).toBe(false);
   expect(receipt.runtimes).toContainEqual({
     id: "codex-cli",

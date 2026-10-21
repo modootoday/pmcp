@@ -1,0 +1,18 @@
+{
+  "options": {
+    "names": ["ACME_ALLOW_DIRECT_PUSH", "ACME_GATE_LOCK_HELD", "ACME_GATE_IN_PLACE"]
+  },
+  "blocked": [
+    "git commit --no-verify -m x",
+    "ACME_ALLOW_DIRECT_PUSH=1 git push origin HEAD:main",
+    "export ACME_GATE_IN_PLACE=1",
+    "env ACME_GATE_LOCK_HELD=1 node land.mjs",
+    "bash -c 'ACME_GATE_IN_PLACE=1 node land.mjs'"
+  ],
+  "allowed": [
+    "grep -n 'ACME_ALLOW_DIRECT_PUSH' AGENTS.md",
+    "git commit -m \"explain --no-verify\"",
+    "git push origin HEAD:main",
+    "echo $ACME_GATE_IN_PLACE"
+  ]
+}

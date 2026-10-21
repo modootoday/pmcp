@@ -14,7 +14,6 @@ function write(path: string, text: string): void {
 const md = (fields: string, body = "Body.") =>
   `---\n${fields}\n---\n\n${body}\n`;
 
-/** One plugin carrying every asset kind the plugin format has. */
 function marketplace(): string {
   const dir = mkdtempSync(join(tmpdir(), "pmcp-assets-"));
   write(

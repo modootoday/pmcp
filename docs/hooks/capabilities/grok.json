@@ -1,0 +1,192 @@
+{
+  "runtime": "grok",
+  "version": "1.0.50",
+  "measuredAt": "2026-10-20T01:05:00Z",
+  "configuration": {
+    "hooks": "merged from ~/.grok/hooks/*.json, ~/.claude/settings.json (+ .local), ~/.cursor/hooks.json, <project>/.grok/hooks/*.json, <project>/.claude/settings.json (+ .local), <project>/.cursor/hooks.json, [[hooks.<Event>]] in ~/.grok/config.toml, managed/requirements toml, plugins",
+    "double_hooks": "measured: all three sources fire together. Each PreToolUse dispatched 4 hooks: global/settings (the user's ~/.claude/settings.json Bash hook, run for both shell calls, not for the write), project/settings (project .claude/settings.json) and project/probe (.grok/hooks, two handlers). Every recorded event appears once from .grok/hooks and once from .claude/settings.json. A pmcp projection that writes Claude hooks into .claude/settings.json and grok hooks into .grok/hooks would run each check twice; the adapter must project into one of them (or disable compat with [compat.claude] hooks = false, a user-level setting).",
+    "hook_env": "measured: a .claude/settings.json hook runs with CLAUDE_PROJECT_DIR and GROK_WORKSPACE_ROOT set to the project root and PWD at the project root, so a Claude projection's $CLAUDE_PROJECT_DIR command resolves under grok",
+    "trust": "measured: before trust, projectTrusted false and no project hook ran; after /hooks-trust, grok inspect lists 30 .grok/hooks handlers and 15 .claude handlers and they run headless. Trust is folder-wide (MCP, LSP, instructions, skills).",
+    "headless": "grok -p '<prompt>' --output-format json -> {text, stopReason, sessionId, usage, num_turns}; --permission-mode dontAsk with --allow rules ran the allowed tools without prompts",
+    "mcp": "documented: [mcp_servers.<name>] in <repo-root>/.grok/config.toml or <cwd>/.grok/config.toml (command or url), trust-gated; tools <server>__<tool> via search_tool/use_tool. Not exercised."
+  },
+  "events": {
+    "session_start": {
+      "native": "SessionStart",
+      "fires": true,
+      "fields": [
+        "hookEventName",
+        "sessionId",
+        "cwd",
+        "workspaceRoot",
+        "timestamp",
+        "transcriptPath",
+        "permissionMode",
+        "source",
+        "and snake_case twins"
+      ]
+    },
+    "prompt": {
+      "native": "UserPromptSubmit",
+      "fires": true
+    },
+    "before_tool": {
+      "native": "PreToolUse",
+      "fires": true,
+      "fields": [
+        "hookEventName",
+        "sessionId",
+        "cwd",
+        "workspaceRoot",
+        "timestamp",
+        "transcriptPath",
+        "permissionMode",
+        "toolName",
+        "toolUseId",
+        "toolInput",
+        "toolInputTruncated",
+        "hook_event_name",
+        "session_id",
+        "transcript_path",
+        "permission_mode",
+        "tool_name",
+        "tool_input",
+        "tool_use_id"
+      ]
+    },
+    "after_tool": {
+      "native": "PostToolUse",
+      "fires": true,
+      "notes": "not for the denied call"
+    },
+    "stop": {
+      "native": "Stop",
+      "fires": true,
+      "fields": ["... common", "reason", "stopHookActive", "stop_hook_active"]
+    },
+    "session_end": {
+      "native": "SessionEnd",
+      "fires": true,
+      "fields": ["... common", "reason (shutdown)"]
+    },
+    "other_documented": "PostToolUseFailure, PermissionDenied, StopFailure, StopCancelled, Notification, SubagentStart, SubagentStop, PreCompact, PostCompact (not triggered in this run)",
+    "notification": {
+      "native": "Notification",
+      "fires": false,
+      "notes": "documented, not triggered"
+    }
+  },
+  "tools": {
+    "shell": {
+      "tool_name": "run_terminal_command (matcher alias Bash)",
+      "input": "tool_input.command, tool_input.description"
+    },
+    "edit": {
+      "tool_name": "write (matcher alias Write); search_replace for edits (documented)",
+      "input": "tool_input.file_path, tool_input.content"
+    }
+  },
+  "outputs": {
+    "deny": {
+      "event": "before_tool",
+      "support": "measured",
+      "shape": "hookSpecificOutput.permissionDecision deny + permissionDecisionReason; the tool result reads 'Hook denied: <reason>' and the model reports it"
+    },
+    "context": {
+      "support": "measured",
+      "delivered": ["before_tool", "after_tool", "stop"],
+      "not_delivered": ["session_start", "prompt"],
+      "shape": "hookSpecificOutput.additionalContext; before_tool context arrives after the call ran, with its results",
+      "native_delivered": ["before_tool", "after_tool", "stop"],
+      "deferred": {
+        "session_start": "before_tool; V2 grok-context-start-fcfd44d1",
+        "prompt": "before_tool; V2 grok-context-prompt-6c279a76"
+      }
+    },
+    "stop_context": {
+      "support": "measured",
+      "notes": "additionalContext on Stop continues the turn, as on Claude: 9 Stop events in one run until --max-turns 10. Policies may return Stop context only when stop_hook_active is false."
+    },
+    "ask": {
+      "support": "documented",
+      "notes": "decision ask reaches the permission prompt; dontAsk turns it into a deny"
+    },
+    "failure": {
+      "support": "documented",
+      "notes": "hook failures fail open; only an explicit deny blocks"
+    }
+  },
+  "fields_absent": [
+    "promptId (documented, absent in this headless run)",
+    "agent_type"
+  ],
+  "timeouts": "default 5 s; 600 s for Stop, SubagentStop and PostToolUse gates",
+  "trust": "folder trust (~/.grok/trusted_folders.toml) required for any project hook, including .claude/settings.json; user-level ~/.claude/settings.json hooks run without it",
+  "live": {
+    "version": "1.0.62",
+    "measuredAt": "2026-10-20T03:50:35.533Z",
+    "implementationCommits": ["cfcdf5a", "35f3c77"],
+    "deny": {
+      "support": "measured",
+      "scenarios": [
+        "grok-heredoc-0a303279",
+        "grok-stage-all-a0ae281d",
+        "grok-pause-cc959085",
+        "grok-lease-677333e4"
+      ]
+    },
+    "context": {
+      "support": "measured",
+      "scenarios": {
+        "context-start": "grok-context-start-fcfd44d1",
+        "context-prompt": "grok-context-prompt-6c279a76",
+        "context-before": "grok-context-before-8db85a8c",
+        "broadcast": "grok-broadcast-c9f5d420"
+      },
+      "notes": "pause, broadcast and shared_checkout notices reached the model; held context arrived at the next delivering event"
+    },
+    "workflow": {
+      "support": "measured",
+      "scenarios": [
+        "grok-worktree-create-53b690da",
+        "grok-worktree-sync-18990306",
+        "grok-deliver-86fb266a",
+        "grok-deliver-race-e292c85c",
+        "grok-git-sync-adeae993"
+      ]
+    },
+    "cost": [
+      {
+        "event": "before_tool",
+        "addedMs": 28.8
+      },
+      {
+        "event": "prompt",
+        "addedMs": 20.8
+      }
+    ],
+    "single_dispatch": {
+      "support": "measured",
+      "notes": "With claude and grok targeted, pmcp projects only .claude/settings.json; every V2 grok run logged each hook once as runtime grok",
+      "scenarios": [
+        "grok-heredoc-0a303279",
+        "grok-stage-all-a0ae281d",
+        "grok-context-start-fcfd44d1",
+        "grok-context-prompt-6c279a76",
+        "grok-context-before-8db85a8c",
+        "grok-pause-cc959085",
+        "grok-lease-677333e4",
+        "grok-broadcast-c9f5d420",
+        "grok-worktree-create-53b690da",
+        "grok-worktree-sync-18990306",
+        "grok-deliver-86fb266a",
+        "grok-deliver-race-e292c85c",
+        "grok-git-sync-adeae993"
+      ]
+    },
+    "scenarios": {
+      "passed": 13,
+      "failed": []
+    }
+  }
+}

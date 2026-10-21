@@ -1,11 +1,4 @@
-/**
- * Query vectors, kept on disk between sessions.
- *
- * An MCP server starts per session and exits with it, so a process-local cache
- * begins empty every time and the same question pays its full embed cost in
- * every session that asks it. The table outlives the process; that is the whole
- * reason it is a table.
- */
+// Persist vectors because separate server sessions would otherwise repeat the same embedding work.
 
 import { normaliseIntent, type IntentCache } from "./intent.js";
 
@@ -27,15 +20,14 @@ export async function openDatabase(
 }
 
 export interface IntentCacheOptions {
-  /** Database file. `:memory:` is accepted and is what the tests use. */
   readonly path: string;
-  /** The embedder's identity. Rows from another model are never scored. */
+  // Vectors from different models cannot be compared safely.
   readonly modelId: string;
-  /** Vector width. A row of a different width is a different model. */
+  // Reject width mismatches because they indicate incompatible embeddings.
   readonly dims: number;
-  /** Rows kept. The least recently asked are dropped past this. */
+
   readonly limit?: number;
-  /** Injected for tests. Real time otherwise. */
+
   readonly now?: () => number;
 }
 
@@ -52,14 +44,7 @@ const SCHEMA = `
   CREATE INDEX IF NOT EXISTS intent_vector_used_at ON intent_vector (used_at);
 `;
 
-/**
- * Opens the cache, or returns null when it cannot be opened.
- *
- * Null is the normal answer on a read-only volume, a locked file, a corrupt
- * database, or a runtime with neither builtin: the caller embeds on demand
- * instead. A cache that throws would turn a missing optimisation into a failed
- * search, and an older runtime is that case rather than an error.
- */
+// Cache failures must not prevent searches from embedding on demand.
 export async function openIntentCache(
   options: IntentCacheOptions,
 ): Promise<IntentCache | null> {
@@ -114,9 +99,7 @@ export async function openIntentCache(
         misses += 1;
         return null;
       }
-      // Two models' distances are not comparable, so a row written by another
-      // one is not a hit. It is left in place: it may be the current model
-      // again after a rollback, and deleting it would lose that.
+      // Retain other models' rows so switching back does not discard reusable vectors.
       if (row.model_id !== options.modelId || row.dims !== options.dims) {
         mismatched += 1;
         return null;
@@ -124,8 +107,7 @@ export async function openIntentCache(
       hits += 1;
       touch.run(now(), key);
       const bytes = row.vector;
-      // Copied rather than viewed: the row's buffer is owned by the driver and
-      // is not guaranteed to outlive the statement.
+      // Copy the bytes because the driver's buffer may not outlive the statement.
       return new Float32Array(
         bytes.buffer.slice(
           bytes.byteOffset,

@@ -1,0 +1,203 @@
+name: Release
+
+# A v<version> tag publishes to npm after a reviewer approves the "npm" environment. By hand:
+# dry-run builds and packs everything, publishes nothing and deletes its draft; bootstrap keeps
+# the draft release v<version> with the binaries for a first publish from a maintainer host
+# (.github/RELEASING.md). Nothing run by hand publishes.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: dry-run (nothing kept) or bootstrap (keep the draft release with binaries)
+        type: choice
+        options: [dry-run, bootstrap]
+        default: dry-run
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  MODE: ${{ github.event_name == 'push' && 'publish' || inputs.mode }}
+
+jobs:
+  # A draft release carries the binaries between jobs, through the gh CLI the runners ship,
+  # so no artifact action has to be trusted. It is deleted after a dry run.
+  draft:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - id: tag
+        run: |
+          version="v$(node -p 'require("./package.json").version')"
+          if [ "$MODE" = dry-run ]; then version="dry-run-$GITHUB_RUN_ID"; fi
+          echo "tag=$version" >> "$GITHUB_OUTPUT"
+      - name: Check the tag matches package.json
+        if: github.event_name == 'push'
+        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+      # After a bootstrap the release already exists (published by hand); reuse it.
+      - run: |
+          tag="${{ steps.tag.outputs.tag }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "release $tag exists; reusing it"
+          else
+            gh release create "$tag" --draft --title "$tag" --notes "Building" --target "$GITHUB_SHA"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+
+  binaries:
+    needs: draft
+    env:
+      RELEASE_TAG: ${{ needs.draft.outputs.tag }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - {
+              os: ubuntu-22.04,
+              target: x86_64-unknown-linux-gnu,
+              plugins: true,
+            }
+          - {
+              os: ubuntu-22.04-arm,
+              target: aarch64-unknown-linux-gnu,
+              plugins: true,
+            }
+          - { os: macos-13, target: x86_64-apple-darwin, plugins: false }
+          - { os: macos-14, target: aarch64-apple-darwin, plugins: false }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install stable --profile minimal
+      - name: Build
+        shell: bash
+        run: |
+          crates="pmcp-pty pmcp-tui"
+          if [ "${{ matrix.plugins }}" = true ]; then crates="$crates pmcp-plugin-browser-use pmcp-plugin-computer-use"; fi
+          mkdir -p out
+          for crate in $crates; do
+            cargo build --locked --release --manifest-path "crates/$crate/Cargo.toml" --target "${{ matrix.target }}"
+          done
+          for bin in pmcp-pty pmcp-tui pmcp-browser pmcp-desktop; do
+            for crate in $crates; do
+              path="crates/$crate/target/${{ matrix.target }}/release/$bin"
+              if [ -f "$path" ]; then cp "$path" out/; fi
+            done
+          done
+          ls -l out
+          tar -C out -czf "${{ matrix.target }}.tar.gz" .
+      # An archive already on the release (from the bootstrap) is the one that was published.
+      - shell: bash
+        run: |
+          asset="${{ matrix.target }}.tar.gz"
+          if gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | grep -qx "$asset"; then
+            echo "skip: $asset is already on $RELEASE_TAG"
+          else
+            gh release upload "$RELEASE_TAG" "$asset"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+
+  publish:
+    needs: [draft, binaries]
+    env:
+      RELEASE_TAG: ${{ needs.draft.outputs.tag }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    environment: ${{ github.event_name == 'push' && 'npm' || '' }}
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "22.23.3"
+          registry-url: "https://registry.npmjs.org"
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: "1.3.0"
+      - run: bun install --frozen-lockfile
+      - run: npm run build
+      - name: Platform packages
+        run: |
+          gh release download "$RELEASE_TAG" --pattern "*.tar.gz" --dir bins
+          for archive in bins/*.tar.gz; do
+            target="$(basename "$archive" .tar.gz)"
+            mkdir -p "bins/$target"
+            tar -C "bins/$target" -xzf "$archive"
+            node scripts/platform-packages.mjs --target "$target" --bin-dir "bins/$target" --out platform
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+      # The main package names the platform packages only in the published manifest, so
+      # installs from the repository never reach for versions that are not on npm yet.
+      - name: Main package
+        run: |
+          node scripts/platform-packages.mjs --optional-dependencies > optional.json
+          node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("package.json"));p.optionalDependencies={...p.optionalDependencies,...JSON.parse(fs.readFileSync("optional.json"))};fs.writeFileSync("package.json",JSON.stringify(p,null,2)+"\n")'
+      - name: Pack
+        run: |
+          mkdir -p packed
+          for dir in platform/*/; do npm pack "$dir" --pack-destination packed; done
+          npm pack --pack-destination packed
+          ls -l packed
+      # npm Trusted Publishing: npm exchanges this job's OIDC token (id-token: write) for a
+      # short-lived publish credential, so no npm token is stored. It needs npm 11.5.1 or later,
+      # and each package's trusted publisher entry on npmjs.com (.github/RELEASING.md).
+      # A version already on npm (the bootstrap published it by hand) is skipped, not republished.
+      - name: Publish
+        if: env.MODE == 'publish'
+        run: |
+          npm install --global npm@11.5.1
+          published=0
+          publish() {
+            manifest="$(tar -xzOf "$1" package/package.json)"
+            name="$(node -p 'JSON.parse(process.argv[1]).name' "$manifest")"
+            version="$(node -p 'JSON.parse(process.argv[1]).version' "$manifest")"
+            if [ "$(npm view "$name@$version" version 2>/dev/null)" = "$version" ]; then
+              echo "skip: $name@$version is already on npm"
+            else
+              npm publish "$1" --access public --provenance
+              published=$((published + 1))
+            fi
+          }
+          for archive in packed/modootoday-pmcp-linux-*.tgz packed/modootoday-pmcp-darwin-*.tgz; do publish "$archive"; done
+          publish "packed/modootoday-pmcp-$(node -p 'require("./package.json").version').tgz"
+          if [ "$published" -gt 0 ]; then
+            gh release edit "$RELEASE_TAG" --draft=false --notes "Published to npm"
+          else
+            echo "every package of $RELEASE_TAG is already on npm; nothing published"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+      - name: Remove the dry-run draft
+        if: always() && env.MODE == 'dry-run'
+        run: gh release delete "$RELEASE_TAG" --yes --cleanup-tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

@@ -1,9 +1,8 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { Group } from "../src/harness/contracts.js";
-import type { View } from "../src/tui/contracts.js";
 import { prepareWorkspace } from "../src/tui/startup/workspace.js";
 import {
   ensureStartupDirectory,
@@ -14,18 +13,10 @@ import {
 
 const mocks = vi.hoisted(() => ({
   invoke: vi.fn(),
-  createView: vi.fn(),
   groups: new Map<string, Group>(),
-  views: new Map<string, View>(),
 }));
 vi.mock("../src/harness/application/invoke.js", () => ({
   invoke: mocks.invoke,
-}));
-vi.mock("../src/tui/application/create.js", () => ({
-  createView: mocks.createView,
-}));
-vi.mock("../src/tui/state/store.js", () => ({
-  readView: (file: string) => ({ file, view: mocks.views.get(file) }),
 }));
 vi.mock("../src/harness/groups/store.js", async (original) => ({
   ...(await original<Record<string, unknown>>()),
@@ -41,13 +32,13 @@ vi.mock("../src/harness/groups/store.js", async (original) => ({
 
 let cwd: string;
 let groupFile: string;
-let viewFile: string;
+let socket: string;
 let group: Group;
 beforeEach(() => {
   cwd = mkdtempSync(join(tmpdir(), "pmcp-startup-flow-"));
   vi.stubEnv("XDG_STATE_HOME", join(cwd, "state"));
   groupFile = join(cwd, "group.json");
-  viewFile = join(cwd, "view.json");
+  socket = join(cwd, "s");
   group = {
     schemaVersion: 1,
     owner: "fixture-owner",
@@ -69,24 +60,21 @@ beforeEach(() => {
     return {
       ok: true,
       sessions: [
-        { id: "fixture-main", role: "main", runtime: "codex-cli", alive: true },
+        {
+          id: "fixture-main",
+          role: "main",
+          runtime: "codex-cli",
+          alive: true,
+          socket,
+          ptySession: "s1",
+        },
       ],
     };
-  });
-  mocks.createView.mockImplementation(async () => {
-    writeFileSync(viewFile, "fixture");
-    mocks.views.set(viewFile, {
-      state: "open",
-      groupFile,
-      generation: group.generation,
-    } as View);
-    return { ok: true, viewFile };
   });
   ensureStartupDirectory(startupFile(cwd));
 });
 afterEach(() => {
   mocks.groups.clear();
-  mocks.views.clear();
   vi.resetAllMocks();
   vi.unstubAllEnvs();
   rmSync(cwd, { recursive: true, force: true });
@@ -97,7 +85,8 @@ it("creates through the harness contract and reopens without another runtime sta
   expect(receipt).toMatchObject({
     ok: true,
     groupFile,
-    viewFile,
+    socket,
+    main: "s1",
     readOnly: true,
   });
   expect(
@@ -111,7 +100,6 @@ it("creates through the harness contract and reopens without another runtime sta
   expect(mocks.invoke).toHaveBeenCalledWith(
     expect.objectContaining({ action: "list" }),
   );
-  expect(mocks.createView).toHaveBeenCalledTimes(1);
 });
 
 it("retains an interrupted native start and refuses automatic retry", async () => {
@@ -135,14 +123,18 @@ it("retains an interrupted native start and refuses automatic retry", async () =
   expect(mocks.invoke).not.toHaveBeenCalled();
 });
 
-it("retries presentation creation without restarting a successful main", async () => {
-  mocks.createView.mockRejectedValueOnce(new Error("fixture_view_failure"));
-  await expect(prepareWorkspace({ cwd })).rejects.toThrow(
-    "fixture_view_failure",
-  );
-  expect(readStartup(startupFile(cwd), cwd)?.phase).toBe("view-pending");
-  mocks.invoke.mockClear();
-  expect(await prepareWorkspace({ cwd })).toMatchObject({ ok: true, viewFile });
+it("reopens a checkpoint an older release left with a tmux view, dropping the view", async () => {
+  saveStartup(startupFile(cwd), {
+    schemaVersion: 1,
+    projectRoot: cwd,
+    runtime: "codex-cli",
+    groupFile,
+    generation: group.generation,
+    viewFile: join(cwd, "view.json"),
+    phase: "ready",
+  });
+  expect(await prepareWorkspace({ cwd })).toMatchObject({ ok: true, socket });
+  expect(readStartup(startupFile(cwd), cwd)?.viewFile).toBeUndefined();
   expect(
     mocks.invoke.mock.calls.map(([operation]) => operation.action),
   ).toEqual(["list"]);
@@ -164,7 +156,7 @@ it("allows an explicit fresh launch after stopping an interrupted owned group", 
   group.state = "stopped";
   expect(await prepareWorkspace({ cwd, fresh: true })).toMatchObject({
     ok: true,
-    viewFile,
+    socket,
   });
   expect(
     mocks.invoke.mock.calls.map(
@@ -180,7 +172,6 @@ it("preserves paused groups and refuses a fresh-launch override", async () => {
     runtime: "codex-cli",
     groupFile,
     generation: group.generation,
-    viewFile,
     phase: "ready",
   });
   group.state = "paused";
@@ -198,7 +189,6 @@ it("rejects a stale generation or foreign project without adopting it", async ()
     runtime: "codex-cli",
     groupFile,
     generation: "old-generation",
-    viewFile,
     phase: "ready",
   });
   await expect(prepareWorkspace({ cwd })).rejects.toThrow(

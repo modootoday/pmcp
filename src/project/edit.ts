@@ -1,8 +1,3 @@
-/**
- * add copies a catalog skill or agent into .agents/ so every tool finds it
- * natively; remove deletes one and its pmcp.toml tables. Both reproject after.
- */
-
 import {
   cpSync,
   existsSync,
@@ -18,7 +13,6 @@ import { kindOf, type SkillEntry } from "../catalog.js";
 import { renderFrontmatter, splitFrontmatter } from "./frontmatter.js";
 import { ProjectError } from "./package-rules.js";
 
-/** Fields a canonical agent keeps; the rest are tool-specific and go to pmcp.toml. */
 const CROSS_TOOL = ["name", "description"];
 
 const tomlValue = (value: unknown) => JSON.stringify(value);
@@ -73,7 +67,7 @@ export function addEntry(root: string, entry: SkillEntry): Added {
     } else {
       mkdirSync(dest);
     }
-    // The agentskills.io format requires the frontmatter name to equal the directory.
+    // Keep names aligned because the skill specification requires the directory and frontmatter name to match.
     const head = renderFrontmatter({
       ...meta,
       name,
@@ -92,8 +86,11 @@ export function addEntry(root: string, entry: SkillEntry): Added {
   const kept: Record<string, unknown> = {};
   const moved: Record<string, unknown> = {};
   for (const [key, value] of Object.entries({ ...meta, name })) {
-    if (CROSS_TOOL.includes(key)) kept[key] = value;
-    else moved[key] = value;
+    if (CROSS_TOOL.includes(key)) {
+      kept[key] = value;
+      continue;
+    }
+    moved[key] = value;
   }
   mkdirSync(dest, { recursive: true });
   writeFileSync(
@@ -113,7 +110,6 @@ export function addEntry(root: string, entry: SkillEntry): Added {
   return { kind, name, path: `.agents/agents/${name}/agent.md` };
 }
 
-/** Drops [skills.<name>] and [agents.<name>...] tables from pmcp.toml text. */
 export function withoutTables(toml: string, name: string): string {
   const own = new RegExp(
     `^\\[(skills\\.${name}|agents\\.${name}(\\.[a-z]+)?)\\]\\s*$`,

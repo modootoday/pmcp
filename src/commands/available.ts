@@ -3,18 +3,11 @@ import { invocation } from "../cli/invocation.js";
 import { sayStanding } from "./standing.js";
 import { readInstalledDependencies } from "../installed.js";
 import { matchingSkills } from "../install/plan.js";
-import {
-  REMOTE_OPTIONS,
-  projectFrom,
-  remoteCatalog,
-} from "./remote-options.js";
+import { projectFrom, remoteCatalog } from "./remote-options.js";
+import { availableSpec } from "./specs/remote.js";
 
 export const availableCommand: Command = {
-  name: "available",
-  describe:
-    "Find provided skills matching this project's installed dependencies",
-  usage: "pmcp available [--project <dir>] [--catalog <file>] [--json]",
-  options: REMOTE_OPTIONS,
+  ...availableSpec,
   async run(context) {
     if (context.args.positional.length)
       throw new ArgumentError("available takes no package arguments");

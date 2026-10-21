@@ -39,7 +39,7 @@ export interface InstallPlan {
   readonly catalogRevision: string;
   readonly context: InstallContext;
   readonly changes: readonly RemoteEntry["delivery"][];
-  /** Lines in this plan that an advisory has reached. */
+
   readonly recalled: readonly {
     readonly packageName: string;
     readonly line: NonNullable<RemoteEntry["line"]>;
@@ -121,9 +121,7 @@ export function planInstall(options: {
       a.delivery.packageName.localeCompare(b.delivery.packageName),
     );
 
-  // A recalled line must not be installed without saying so. The plan carries
-  // it because `changes` is only the delivery, and a caller holding a package
-  // name has no way back to the standing that came with it.
+  // Carry standing in the plan so installation cannot hide advisory warnings.
   const recalled = changes
     .filter((entry) => entry.line?.status === "recalled")
     .map((entry) => ({

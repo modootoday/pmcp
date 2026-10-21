@@ -1,7 +1,4 @@
-/**
- * One catalog skill as the Skills extension (SEP-2640) describes it: frontmatter
- * plus a complete manifest of its files with sha256 digests and sizes.
- */
+// Validate extension entries so protocol limits do not expose an incomplete skill manifest.
 
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -33,7 +30,7 @@ interface FileFacts {
   readonly size: number;
 }
 
-// Shared across server instances: the HTTP handler builds one per request.
+// Share cached entries because HTTP creates a server instance for each request.
 const digests = new Map<string, FileFacts>();
 
 function facts(path: string): FileFacts {
@@ -48,7 +45,6 @@ function facts(path: string): FileFacts {
   return fresh;
 }
 
-/** Every file under a skill directory, or null past the extension's file limit. */
 function filesUnder(root: string): string[] | null {
   const found: string[] = [];
   const stack = [root];
@@ -65,19 +61,14 @@ function filesUnder(root: string): string[] | null {
   return found.sort();
 }
 
-/**
- * The extension's entry, or null when the skill cannot be served under SEP-2640:
- * not a directory with SKILL.md, frontmatter that breaks the Agent Skills
- * specification, a name unlike its path, or over the per-skill limits. Such a
- * skill stays reachable through the skill_* tools.
- */
+// Keep invalid extension entries available through the less restrictive skill tools.
 export function extensionEntry(entry: SkillEntry): SkillExtensionEntry | null {
   if (kindOf(entry) !== "skill" || basename(entry.path) !== "SKILL.md")
     return null;
   const frontmatter = frontmatterObject(readFileSync(entry.path, "utf8"));
   const root = dirname(entry.path);
   if (specProblems(frontmatter, basename(root)).length > 0) return null;
-  // The URI's last segment is the name, which also has to be the catalog slug.
+  // Require the URI name to agree with the slug so extension identities remain unambiguous.
   if (frontmatter?.["name"] !== entry.slug) return null;
   const files = filesUnder(root);
   if (files === null) return null;

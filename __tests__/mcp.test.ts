@@ -37,8 +37,7 @@ const entries = [
 const tools = () => createSkillTools({ roots: [], loadCatalog: () => entries });
 
 describe("registerSkillTools", () => {
-  // Five, whatever the catalog holds. The whole package is the claim that a
-  // session's startup listing does not grow with the number of skills.
+  // Startup tool listings must remain bounded as the catalog grows.
   it("registers exactly six tools", () => {
     const { server, tools: registered } = fakeServer();
     registerSkillTools(server as never, tools());

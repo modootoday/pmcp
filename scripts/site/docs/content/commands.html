@@ -30,7 +30,145 @@
         option, takes that path.
       </p>
 
-      <h2>serve</h2>
+      <h2 id="status">status</h2>
+<pre><code>pmcp status [--config &lt;file&gt;] [--json]</code></pre>
+<p>
+  Show enabled features and their TOML or auto source, projection drift, live
+  sessions, pause, leases, unseen broadcasts, desk ahead/behind counts, shared
+  MCP credential presence, and logged errors from the last hour. Reads do not
+  acknowledge broadcasts, refresh credentials, prune logs, fetch or move git
+  refs. Projection uses the same check as <code>project --check</code>. Exit 0,
+  or 2 when projection or desk ahead/behind drift exists. Missing or invalid
+  input follows the normal usage/failure exit contract. Human output is a
+  compact summary on stderr; JSON retains the full details.
+</p>
+
+<h2 id="init">init</h2>
+<pre><code>pmcp init [--preset solo|multi-session] [--force]</code></pre>
+<p>
+  Create <code>pmcp.toml</code> in the current directory. Solo enables
+  Claude/Codex targets, the stage-all and heredoc guards, and detected git
+  settings. Multi-session adds registry, pause and broadcast; in git it also
+  enables worktree commands and shared-checkout warnings. Git remote and
+  mainline come from the same detection used by the git workflow. No gate,
+  installation command, MCP credential or provider is invented. Both presets are
+  parsed and compiled before writing. Existing files require
+  <code>--force</code>. Output explains each choice; projection remains a
+  separate explicit operation. Exit 0 on creation, 2 for a bad preset or refused
+  overwrite, 1 for a write failure.
+</p>
+
+<h2 id="hooks">hooks</h2>
+<pre><code>pmcp hooks list [--runtime claude|codex] [--config &lt;file&gt;] [--json]
+pmcp hooks test --runtime claude|codex --event before_tool --command "git add -A" [--json]
+pmcp hooks test --runtime claude --event before_tool --path fixture.txt --session-state state.json</code></pre>
+<p>
+  List compiled policies per runtime and neutral event, including mode and
+  source table. Test constructs a synthetic payload in that runtime's recorded
+  shape, normalizes it, runs policy selection and composition, lowers
+  unsupported asks, and renders the native response. The event accepts a neutral
+  name or a supported native name. Choose at most one of
+  <code>--command</code>, <code>--path</code> and <code>--tool</code>; these
+  selectors require a tool event. Tool accepts a native name or shell, edit,
+  read or other, subject to that runtime's tool vocabulary. No native runtime or
+  model call is needed.
+</p>
+<p>
+  Session state is isolated in a temporary directory, then removed. Commands and
+  patches are classified, never executed. External custom guards, validators,
+  Stop projection subprocesses and worktree synchronization are explicitly
+  marked skipped. Their simulated context reports this limitation; the command
+  does not claim a full live result. Exit 0 means the simulation completed, even
+  when the rendered decision denies; invalid input exits 2. Per-policy timings
+  and reasons precede the rendered output in human mode.
+</p>
+<p>
+  <code>--session-state</code> accepts a JSON object with optional
+  <code>records</code> (session records with valid 8–64 character IDs),
+  <code>pause</code> (by, reason, since), <code>leases</code> (name to pid,
+  subject, since, optional cwd), and <code>broadcast</code> (id, by, text,
+  since). Pause and broadcast may be null. Existing liveness and
+  unseen-broadcast rules apply. This file and the real session store remain
+  unchanged.
+</p>
+
+<h2 id="read-json">Read command JSON schemas</h2>
+<p>
+  These opt-in snapshots write one JSON object and a newline to stdout, with
+  <code>version: 1</code>. No color or human summary is mixed into stdout.
+  Errors remain on stderr. Without the flag, existing human output is retained,
+  including MCP status's original unversioned object and logs' JSONL stream.
+  Schemas are named in <a href="/commands/schemas.json">schemas.json</a>; each
+  entry under <code>schemas</code> uses the shared root <code>$defs</code>.
+  Consumers must allow unknown fields inside session, decision and log records.
+  Tokens are never part of an auth status object.
+</p>
+<div class="scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Command</th>
+        <th>Schema</th>
+        <th>Fields after version</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>status --json</code></td>
+        <td>status</td>
+        <td>
+          config, drift, features, projection, sessions, worktrees, mcp, errors
+        </td>
+      </tr>
+      <tr>
+        <td><code>hooks list --json</code></td>
+        <td>hooks-list</td>
+        <td>policies: runtime, event, policy, mode, source</td>
+      </tr>
+      <tr>
+        <td><code>hooks test --json</code></td>
+        <td>hooks-test</td>
+        <td>runtime, event, payload, decision, policies, rendered</td>
+      </tr>
+      <tr>
+        <td><code>sessions status --json</code></td>
+        <td>sessions-status</td>
+        <td>live, pause, leases, broadcasts with unseenBy session IDs</td>
+      </tr>
+      <tr>
+        <td><code>logs --json</code></td>
+        <td>logs</td>
+        <td>
+          records; filtered snapshot, incompatible with --follow and --pretty
+        </td>
+      </tr>
+      <tr>
+        <td><code>git worktree list --json</code></td>
+        <td>git-worktree-list</td>
+        <td>worktrees: path, main, optional alias, branch, behind and ahead</td>
+      </tr>
+      <tr>
+        <td><code>mcp status &lt;name&gt; --json</code></td>
+        <td>mcp-status</td>
+        <td>name, present, expiresAt (UTC string or null), scopes</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  Feature rows have feature, enabled and source. Projection has drift, outputs
+  and problems. Session snapshots include only live records; broadcasts include
+  the IDs that have not yet seen each entry. Worktree counts are omitted when
+  the upstream cannot be compared; absence does not assert equality. Status auth
+  rows add a redacted error when credentials are unavailable or invalid. Errors
+  are JSONL records with valid timestamps within the last hour, excluding future
+  rows. Hooks test observations have policy, mode, decision, durationMs,
+  skipped, source, verdict and reason; rendered has stdout and exitCode. The
+  final decision includes runtime lowering, while each policy row retains its
+  configured verdict. Mutating sessions, git and MCP verbs reject
+  <code>--json</code>.
+</p>
+<h2>serve</h2>
       <pre><code>pmcp serve [--config &lt;file&gt;] [--root &lt;dir&gt;] [--scope &lt;prefix&gt;] [embedding options]</code></pre>
       <p>
         Reachable by name so it appears in help. It writes nothing to standard
@@ -165,6 +303,117 @@ pmcp project import-mcp --source codex:/path/to/config.toml</code></pre>
         replay terminal input. The complete set of files is not a single
         transaction.
       </p>
+
+      <h2 id="sessions">sessions</h2>
+      <pre><code>pmcp sessions status
+pmcp sessions pause "release freeze" [--by &lt;name&gt;]
+pmcp sessions resume
+pmcp sessions broadcast "main moved; rebase before delivering" [--by &lt;name&gt;]
+pmcp sessions unbroadcast
+pmcp sessions sweep</code></pre>
+      <p>
+        Coordinate the live agent sessions of this repository and its
+        worktrees, through the state the hooks keep for
+        <a href="/project-configuration/#sessions"><code>[sessions]</code></a>.
+        <code>status</code> (the default verb) prints each live session, the
+        pause, current broadcasts, held leases and unlanded edits in a shared
+        checkout to standard output, or <code>no live sessions</code>.
+        <code>pause</code> refuses edits and mutating commands in every other
+        session until <code>resume</code>; <code>broadcast</code> delivers its
+        text once to each session as context, and <code>unbroadcast</code>
+        withdraws it. <code>--by</code> names the sender, whose own session is
+        exempt; it defaults to <code>operator</code>. <code>sweep</code>
+        removes records whose process is gone. Exit 0, or 2 for an unknown
+        verb, missing text or no <code>pmcp.toml</code>.
+      </p>
+
+      <h2 id="logs">logs</h2>
+      <pre><code>pmcp logs --since 10m --level warn --pretty
+pmcp logs --session 4f92 --component hooks
+pmcp logs --trace 7cef825e8fbd8c3f
+pmcp logs --follow</code></pre>
+      <p>
+        Read this project's JSONL logs from the state directory, or the file
+        <code>[hooks] error_log</code> names. Filters combine:
+        <code>--session</code> takes an id prefix, <code>--trace</code> one
+        hook call, <code>--component</code> a component and those below it,
+        <code>--level</code> that level and more severe, <code>--since</code> a
+        duration (<code>10m</code>, <code>2h</code>, <code>3d</code>) or an ISO
+        time. Records print as JSON lines unless <code>--pretty</code>;
+        <code>--follow</code> keeps printing until interrupted. Secret values,
+        prompt text and environment values are redacted at write time, per
+        <a href="/project-configuration/#logging"><code>[logging]</code></a>.
+        Exit 0, or 2 for an unusable filter or no <code>pmcp.toml</code>.
+      </p>
+
+      <h2 id="git">git</h2>
+      <pre><code>pmcp git worktree create review [--base &lt;ref&gt;]
+pmcp git worktree list
+pmcp git worktree sync
+pmcp git deliver [&lt;commit&gt;...] [--during-pause]
+pmcp git sync</code></pre>
+      <p>
+        The git workflow configured by
+        <a href="/project-configuration/#git-workflow"><code>[git]</code></a>.
+        Each subcommand needs its table; without it the command exits 1 and
+        names the missing table.
+      </p>
+      <ul>
+        <li>
+          <code>worktree create &lt;alias&gt;</code> makes a desk under
+          <code>[git.worktrees] root</code> on a new branch from the upstream
+          (or <code>--base</code>), links the configured files from the main
+          checkout, runs <code>bootstrap</code>, and prints the path.
+        </li>
+        <li>
+          <code>worktree list</code> prints alias, branch, behind/ahead and path
+          for the main checkout and each desk.
+        </li>
+        <li>
+          <code>worktree sync</code> moves the current desk onto the mainline
+          when that loses nothing; exit 1 when it is held back.
+        </li>
+        <li>
+          <code>deliver</code> fetches, replays the named commits (default: the
+          ones the upstream lacks) onto the mainline, runs the gate in its own
+          tree under a lock, and pushes; it replays again if the mainline moved.
+          A delivery that touches a leased path holds that lease until it has
+          pushed and installed, and it refuses during a pause
+          unless <code>--during-pause</code> or
+          <code>during_pause = "allow"</code>. Exit 0 delivered or nothing to
+          deliver, 1 refused, gate failed or attempts exhausted, 2 fetch failed.
+        </li>
+        <li>
+          <code>sync</code> moves the main checkout to the mainline, installs
+          when a listed file changed, and follows clean submodule pins. Exit 0
+          moved or already equal, 1 when local work would be lost, 2 when
+          blocked (unlanded edits) or the fetch failed.
+        </li>
+      </ul>
+
+      <h2 id="completion">completion</h2>
+      <pre><code>pmcp completion bash &gt; ~/.local/share/bash-completion/completions/pmcp
+pmcp completion zsh &gt; "${fpath[1]}/_pmcp"
+pmcp completion fish &gt; ~/.config/fish/completions/pmcp.fish</code></pre>
+      <p>
+        Print a completion script for commands and global options to standard
+        output. Exit 0, or 2 for another shell.
+      </p>
+
+<h2 id="mcp">mcp</h2>
+<pre><code>pmcp mcp login remote [--no-wait | --code &lt;callback-or-code&gt;] [--port &lt;port&gt;] [--client-id &lt;id&gt;] [--bearer-env &lt;name&gt;]
+pmcp mcp status remote
+pmcp mcp logout remote</code></pre>
+<p>
+  Manage a shared remote MCP session for a server declared with
+  <code>auth = "pmcp"</code>. Login prints an authorization URL and accepts a
+  loopback callback or pasted code. Status reports presence, UTC expiry and
+  scopes; tokens are never printed. Bearer credentials can be loaded with
+  <code>--bearer-env</code>. Native authentication remains the default.
+  <a href="/project-configuration/#shared-remote-mcp-authentication"
+    >Shared authentication configuration</a
+  >.
+</p>
 
       <h2 id="doctor">doctor</h2>
       <pre><code>pmcp doctor
@@ -368,14 +617,20 @@ pmcp sync [--project &lt;dir&gt;] [--dry-run | --yes]</code></pre>
               <td><code>1</code></td>
               <td>it ran and found a problem</td>
               <td>
-                no skills under those roots, a partial index, or no SQLite in
-                this runtime to store vectors in
+                no skills under those roots, a partial index, no SQLite in
+                this runtime to store vectors in, a refused or failed
+                <code>git deliver</code>
               </td>
             </tr>
             <tr>
               <td><code>2</code></td>
-              <td>the arguments were unusable</td>
-              <td>an unknown command, an unknown option, a missing value</td>
+              <td>the arguments were unusable, or a check found drift</td>
+              <td>
+                an unknown command, an unknown option, a missing value;
+                <code>project --check</code> drift, stale or undeclared
+                outputs; a <code>git</code> fetch that failed or a sync blocked
+                by unlanded edits
+              </td>
             </tr>
             <tr>
               <td><code>3</code></td>

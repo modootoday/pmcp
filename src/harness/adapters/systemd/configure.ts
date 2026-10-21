@@ -3,8 +3,8 @@ import { join } from "node:path";
 import type { GroupContext } from "../../application/context.js";
 import { privateJson, readPrivateJson } from "../../groups/store.js";
 import { integer, object } from "../../validation.js";
-import { assertOwnedRecords } from "../tmux/backend.js";
-import { budgetSlice } from "../tmux/records.js";
+import { assertOwnedRecords } from "../terminal/backend.js";
+import { budgetSlice } from "../terminal/records.js";
 
 export function configureBudget(
   context: GroupContext,

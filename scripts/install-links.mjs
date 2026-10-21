@@ -1,12 +1,9 @@
 #!/usr/bin/env node
-// The one-click install links, generated rather than hand-written: the two
-// editors encode the same config differently, and a hand-typed base64 payload
-// fails silently by opening an editor with nothing configured.
+// Generate editor-specific encodings so install links cannot silently open an empty form.
 
 const NAME = "pmcp";
 
-// What each editor writes into its own MCP config. Kept identical across the
-// two so a user gets the same server whichever badge they press.
+// Keep editor payloads equivalent so each install link configures the same server.
 const CONFIG = {
   type: "stdio",
   command: "npx",
@@ -44,8 +41,7 @@ if (process.argv.includes("--json")) {
   }
 }
 
-// The payload has to survive the round trip, or the badge opens an editor with
-// an empty form and the failure looks like the editor's.
+// Verify the round trip because malformed payloads can open an empty editor form without an error.
 const decoded = JSON.parse(
   Buffer.from(
     new URL(cursor).searchParams.get("config") ?? "",

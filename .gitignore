@@ -1,16 +1,74 @@
-# Build and install output
+# Root allowlist: only these top-level entries can be committed.
+/*
+!/.agents/
+!/.claude-plugin/
+!/.github/
+!/.gitignore
+!/.mcp.json
+!/.prettierignore
+!/.prettierrc.json
+!/AGENTS.md
+!/CHANGELOG.md
+!/CLAUDE.md
+!/GEMINI.md
+!/LICENSE
+!/NOTICE
+!/README.md
+!/SECURITY.md
+!/__tests__/
+!/bun.lock
+!/crates/
+!/docs/
+!/gemini-extension.json
+!/mcp.json
+!/package.json
+!/plugin.json
+!/plugins/
+!/release-manifest.json
+!/schema/
+!/scripts/
+!/skills/
+!/src/
+!/tsconfig.json
+!/tsconfig.tests.json
+!/tsup.config.ts
+!/vitest.config.ts
+
+# Build, install and generated output (default deny inside allowed dirs)
 node_modules/
 dist/
 coverage/
+target/
 *.tsbuildinfo
 .turbo/
+.release/
+# The vector index this server writes beside the tree it describes
+.cache/
 *.tgz
 !docs/skills/*/*/package.tgz
 !docs/skills/*/*/releases/*.tgz
-.release/
 
-# The vector index this server writes beside the tree it describes
-.cache/
+# Local agent and runtime state. This repository does not dogfood pmcp, so the runtime
+# projection directories pmcp writes elsewhere never belong here.
+.pmcp/
+pmcp.lock
+.claude/
+.codex/
+.gemini/
+.opencode/
+.grok/
+.agents/*
+!.agents/plugins/
+.agents/plugins/*
+!.agents/plugins/marketplace.json
+
+# Evidence-like material must never land here
+evidence/
+recordings/
+scratch/
+*.jsonl
+*.tar
+__tests__/**/fixtures/**/raw/
 
 # Credentials. This repository is public, so an accidental env file here is
 # published, not merely committed.
@@ -26,6 +84,10 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Claude Code writes editor types into a plugin folder it loads; they are not sources
+plugins/*/tsconfig.json
+plugins/*/.claude-plugin/types/
 
 # Logs
 *.log

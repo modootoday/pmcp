@@ -2,10 +2,7 @@ import { expect, it } from "vitest";
 import { Ui } from "../src/cli/ui.js";
 import { sayStanding } from "../src/commands/standing.js";
 
-/**
- * What a reader is told about a line. Driven through the real Ui so the test
- * reads the bytes a person would, and so a change of stream shows up here.
- */
+// Capturing the real UI detects output sent to the wrong stream.
 function said(line: Parameters<typeof sayStanding>[1]): string {
   let out = "";
   let err = "";
@@ -27,8 +24,7 @@ function said(line: Parameters<typeof sayStanding>[1]): string {
 }
 
 it("says nothing about the current line", () => {
-  // The normal case earns no words. A surface that annotates everything is one
-  // where the annotation that matters is not read.
+  // Annotating routine output would make exceptional annotations harder to notice.
   expect(said({ major: 4, status: "active" })).toBe("");
 });
 

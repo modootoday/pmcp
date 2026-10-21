@@ -1,0 +1,16 @@
+{
+  "blocked": [
+    "git push --no-verify",
+    "git push -n origin main",
+    "git push origin HEAD:main --no-verify",
+    "git -C ../ws push --no-verify origin main",
+    "timeout 60 git push --no-verify"
+  ],
+  "allowed": [
+    "git push",
+    "git push origin main",
+    "git commit -m 'no-verify mentioned in the message'",
+    "git commit --no-verify -m x",
+    "echo 'git push --no-verify'"
+  ]
+}

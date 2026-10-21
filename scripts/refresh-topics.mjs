@@ -1,16 +1,5 @@
 #!/usr/bin/env node
-/**
- * Works out which group each published skill belongs in, from the target
- * package's own npm keywords.
- *
- * A flat list of forty-five rows answers "is my package here" once you can
- * filter, and never answers "what is here at all". Grouping is what answers
- * the second, and the label has to come from somewhere: taking it from the
- * package's own keywords means this project describes nobody's package for
- * them, and a package arriving tomorrow places itself.
- *
- * Run: node scripts/refresh-topics.mjs
- */
+// Use package-owned keywords so categorization does not invent claims about another package.
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -28,7 +17,6 @@ const names = [
   ),
 ].sort();
 
-/** The keywords the package publishes about itself, lowercased. */
 async function keywordsOf(name) {
   const response = await fetch(
     `https://registry.npmjs.org/${encodeURIComponent(name)}`,
@@ -50,13 +38,15 @@ const keywords = {};
 for (const name of names) {
   const own = await keywordsOf(name);
   keywords[name] = own;
-  // First match wins, so the map's order is the page's order and the specific
-  // labels are written before the general ones.
+  // Match specific groups first so general labels cannot hide them.
   const group = map.groups.find((candidate) =>
     candidate.keywords.some((keyword) => own.includes(keyword)),
   );
-  if (group) placed.get(group.label).push(name);
-  else ungrouped.push(name);
+  if (group) {
+    placed.get(group.label).push(name);
+    continue;
+  }
+  ungrouped.push(name);
 }
 
 const written = `${JSON.stringify(

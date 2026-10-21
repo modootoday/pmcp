@@ -1,16 +1,10 @@
 import type { Command } from "../cli/command.js";
 
-import { CATALOG_OPTIONS, catalogFrom, rootsFrom } from "./roots.js";
+import { catalogFrom, rootsFrom } from "./roots.js";
+import { listSpec } from "./specs/catalog.js";
 
 export const listCommand: Command = {
-  name: "list",
-  describe: "List the skills discovered in node_modules and marketplaces",
-  usage:
-    "pmcp list [--root <dir>] [--scope <prefix>] [--marketplace <dir>] [--package <dir>] [--workspace <dir|glob>] [--config <file> | --no-config] [--json]",
-  options: [
-    ...CATALOG_OPTIONS,
-    { name: "json", describe: "Emit JSON rather than a table.", boolean: true },
-  ],
+  ...listSpec,
   run(context) {
     const rejected: { path: string; reason: string }[] = [];
     const entries = catalogFrom(context, (rejection) =>
@@ -24,13 +18,11 @@ export const listCommand: Command = {
       return entries.length > 0 && rejected.length === 0 ? 0 : 1;
     }
 
-    // A rejected skill is a mislabelled one, and serving around it would hide
-    // the leak the tier check exists to catch.
+    // Report rejected assets so tier-validation failures cannot be hidden by serving other results.
     for (const { path, reason } of rejected)
       context.ui.error("skipped", `${path}: ${reason}`);
 
-    // An empty catalog is a finding, not a success: a project that installed
-    // this and sees nothing has a misconfiguration worth an exit code.
+    // Signal an empty catalog so automation can detect a likely discovery misconfiguration.
     if (entries.length === 0) {
       context.ui.error("no skills found", rootsFrom(context).join(" "));
       return 1;

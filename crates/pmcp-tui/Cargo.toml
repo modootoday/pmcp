@@ -1,0 +1,23 @@
+[package]
+name = "pmcp-tui"
+version = "0.18.0"
+edition = "2024"
+description = "Terminal workspace for agent sessions hosted by pmcp-pty"
+publish = false
+
+[dependencies]
+# The wire protocol, the client and the attach stream; one vt100 shared with the host.
+pmcp-pty = { path = "../pmcp-pty" }
+# ratatui with the crossterm backend only: no termion, termwiz or serde surface.
+ratatui = { version = "=0.30.2", default-features = false, features = ["crossterm"] }
+crossterm = "=0.29.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+vt100 = "0.18.1"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.191"
+
+[profile.release]
+opt-level = "s"
+lto = "thin"

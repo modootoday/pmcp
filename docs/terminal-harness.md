@@ -2,14 +2,26 @@
 
 Use `pmcp harness` to manage a main runtime and its workers through a local CLI.
 Each runtime keeps its own conversation interface, OAuth login, folder trust and
-tool permissions. PMCP manages owned terminal processes, observations and
-explicit input delivery. These controls are available from version 0.12.0;
+tool permissions. The one exception is a session pmcp-pty hosts from an
+operator-approved `[host]`: pmcp-pty may choose the tool-dialog options its
+`[[host.answers]]` list, and never login, auth, trust or hook-review dialogs
+(see [Sessions pmcp-pty hosts](#sessions-pmcp-pty-hosts)). PMCP manages owned
+terminal processes, observations and explicit input delivery. These controls are available from version 0.12.0;
 check your installed release's `pmcp harness --help` before using them.
 
-The host currently needs Linux, tmux, util-linux flock and a working user systemd
-manager. Native executables must be on PATH. The terminal transport was tested
-with tmux 3.2a and controlled executable fixtures. That does not qualify every
-vendor's prompt state, automatic wake, authentication refresh or native children.
+The host needs Linux or macOS and pmcp-pty (`crates/pmcp-pty`; set
+PMCP_PTY_BIN to it or put it on PATH). Native executables must be on PATH. Each
+group has its own pmcp-pty daemon on the group's socket: it owns every session's
+PTY, reads its screen through a per-runtime profile and takes input only with
+the session's identity and, while one is held, its lease. On Linux a working user
+systemd manager also caps each session in its own scope inside the group's slice;
+macOS has no equivalent, so sessions run uncapped there while the session count
+still holds. Controlled executable fixtures do not qualify every vendor's prompt
+state, automatic wake, authentication refresh or native children.
+
+Groups created by releases before pmcp-pty ran their sessions in tmux. They are
+not migrated: stop and clean them up with the older pmcp release that created
+them, then create a new group.
 
 ## Check the host
 
@@ -24,7 +36,8 @@ provider feature. Use `pmcp doctor` separately for project configuration checks.
 
 Group creation checks required tools and contacts the user manager before it
 writes group state. Missing tools return native_host_tool_unavailable followed
-by the tool name; an unreachable manager returns native_user_manager_unavailable.
+by the tool name (pmcp-pty, and on Linux systemctl or systemd-run); an
+unreachable manager returns native_user_manager_unavailable.
 The doctor report lists prerequisites and does not certify cgroup delegation.
 An ordinary isolated Docker container usually lacks this user manager and a
 writable delegated cgroup subtree. Container resource limits alone do not
@@ -33,7 +46,7 @@ qualify the native session controls; the current profile requires its Linux host
 ## Choose native or Docker execution
 
 The default native profile starts executables on the Linux host. The optional
-Docker profile keeps the same host-side tmux and user-systemd controller, while
+Docker profile keeps the same host-side pmcp-pty and user-systemd controller, while
 each native executable runs in its own bounded container. Docker does not
 replace the host prerequisites above. Only a local Docker Engine is supported.
 
@@ -68,7 +81,7 @@ permission bypass. Docker access itself is a privileged host capability.
 
 The session `memoryMb` reserves both runtime memory and 64 MiB for its host
 connection. Its Docker memory limit is therefore 64 MiB smaller. Leave additional
-headroom in the group budget for its controller and tmux server.
+headroom in the group budget for its controller and pmcp-pty daemon.
 Session receipts include the owned container identity only for Docker execution.
 Unknown or changed container identity blocks cleanup and admission.
 
@@ -153,7 +166,7 @@ pmcp harness group list
 
 The JSON receipt provides the private groupFile and generation. Set GROUP_FILE
 and GENERATION to those values for the examples below. Group state lives below
-XDG_STATE_HOME/pmcp/harness, or ~/.local/state/pmcp/harness. The tmux socket path
+XDG_STATE_HOME/pmcp/harness, or ~/.local/state/pmcp/harness. The pmcp-pty socket path
 must fit within 100 bytes; an unusually long state root is refused.
 
 Save `main-spec.json`:
@@ -199,7 +212,7 @@ pmcp harness session read --group-file "$GROUP_FILE" --session "$SESSION"
 pmcp harness attach open --group-file "$GROUP_FILE" --session "$SESSION"
 ```
 
-Attachment is read-only by default. Detach with tmux's Ctrl-b then d, or use
+Attachment is read-only by default. Detach with Ctrl-\ pressed twice, or use
 attach detach with the target session and current generation. Detach preserves
 the runtime. Reading returns terminal text and does not infer model readiness.
 
@@ -215,18 +228,13 @@ pmcp harness session read --group-file "$GROUP_FILE" --session "$SESSION" --inpu
 
 lines accepts 1–2000 and maxBytes accepts 1–65536. Defaults remain 100 lines and
 16384 bytes. A bounded result reports truncated when it omits earlier content.
-During an alternate-screen application, alternate: true reads the saved normal
-screen; omitted or false reads the current screen. This returns the owned native
-pane's content, separate from a surrounding terminal's older shell output.
+Lines come from the session's recent output with terminal escapes removed;
+alternate: true returns the screen as it is now instead. Both read the owned
+session only, separate from a surrounding terminal's older shell output.
 
-On the tested tmux 3.2a, read-only native clients ignore typing, wheel reports
-and copy-mode keys; use session read for history without acquiring control.
-Inside another tmux with the same Ctrl-b prefix, Ctrl-b then Ctrl-b forwards
-one prefix to the inner layer. Ctrl-b then [ opens the outer copy mode, while
-Ctrl-b, Ctrl-b, d detaches the inner connection. Outer history is the rendered
-wrapper screen; session read retrieves the owned runtime's history.
-PMCP does not change the outer tmux configuration. Other terminal mouse and
-trackpad settings require their own qualification.
+A read-only attachment drops every keystroke; use session read for history
+without acquiring control. Ctrl-\ followed by any other key is passed through,
+so a nested terminal multiplexer keeps its own prefix.
 
 For bounded polling, session watch also takes an input file containing count
 (1–10) and intervalMs (100–2000). It returns snapshots rather than an endless
@@ -241,8 +249,10 @@ pmcp harness attach open --group-file "$GROUP_FILE" --generation "$GENERATION" -
 
 Set LEASE_FILE to the acquire receipt's private credential path. A writable
 attachment renews its 60-second lease and releases it after detach. Failed
-renewal disconnects the client. It does not stop the runtime. Another writable
-tmux client blocks CLI delivery even if it bypassed PMCP's lease.
+renewal disconnects the client. It does not stop the runtime. pmcp-pty holds
+the same lease token, so while it is held it refuses a writable attachment or
+input without it, and a person typing in an attachment wins over program input
+for five seconds after the last keystroke.
 
 ## Deliver input explicitly
 
@@ -256,7 +266,7 @@ pmcp harness control release --group-file "$GROUP_FILE" --generation "$GENERATIO
 ```
 
 Write and Enter submission are separate operations. Newlines, tabs, terminal
-control characters and input above 16 KiB are refused. A tmux paste flag alone
+control characters and input above 16 KiB are refused. Bracketed paste alone
 cannot guarantee safe multiline delivery in a native approval menu.
 
 Inspect the native screen before writing or submitting. A control lease identifies
@@ -290,6 +300,39 @@ into a native menu. Follow the [mailbox guide](mailbox.md) for actor credentials
 and launcher-bound runtime attachments.
 There is no automatic delivery loop. Native readiness and approval stay with
 the operator and runtime; an input receipt does not establish prompt readiness.
+
+### Sessions pmcp-pty hosts
+
+`[host]` in pmcp.toml lists long-running sessions for one shared pmcp-pty host
+outside any group (see
+[Sessions pmcp-pty hosts](project-configuration.md#sessions-pmcp-pty-hosts)).
+After `pmcp project` and your own `pmcp harness host approve`:
+
+- `pmcp harness host up` starts pmcp-pty if its socket (`PMCP_PTY_SOCKET`, else
+  `$XDG_RUNTIME_DIR/pmcp-pty.sock`) does not answer, in a transient
+  `systemd-run --user --scope` capped at 4G and loading the approved copy with
+  `--host`. The binary is `PMCP_PTY_BIN`, else the first `pmcp-pty` on
+  `PATH`; without one, `up` stops at once and `pmcp doctor` says so, and a
+  start that never answers reports the scope's own output (kept in
+  `host-daemon.log` beside the journal). It starts each approved session that
+  is not running, labelled
+  `pmcp.host=<name>`, and leaves running ones alone. An exited session
+  restarts only with `restart = "on-exit"`, up to `max_restarts` since its
+  last fresh start; run `up` again to apply it, since nothing watches in the
+  background. Each start, restart and stop goes to `host-runs.jsonl` in the
+  project's pmcp state directory.
+- `pmcp harness host down` stops the host's sessions (their whole process
+  trees) and forgets them, so the next `up` starts them fresh. pmcp-pty and
+  its other sessions keep running.
+- `pmcp harness host status` reports the approval: `approved`, `differs` (a
+  newer projection waits for approval; the approved one keeps running),
+  `unapproved` or `unprojected`.
+- `pmcp harness host unit` prints a systemd user unit that runs pmcp-pty with
+  the approved copy. Installing and enabling it is the operator's step; pmcp
+  never writes or enables a unit.
+
+`up` and `down` use only the approved copy, so a session or answer an agent
+adds to pmcp.toml runs only after you approve it.
 
 ### A manual request and review workflow
 
@@ -354,7 +397,7 @@ reservations. Expanding grants requires a new group.
 
 session stop names one owned session. group stop explicitly stops its entire
 owned group and removes runtime budget properties. Both require the current
-generation. They do not target an existing external tmux session.
+generation. They do not target an existing external terminal session.
 
 recovery inspect reports observations, leases, uncertain deliveries and
 unregistered owned sessions. recovery reconcile removes a writer lock only
@@ -384,7 +427,7 @@ or resend an uncertain request.
 pmcp harness layout --columns 120 --rows 40
 ```
 
-This pure command needs no tmux, provider, project or network. It returns layout
+This pure command needs no terminal host, provider, project or network. It returns layout
 A at 120 columns and 32 rows or larger: a main pane, worker dock and bottom
 coordination pane. Smaller terminals retain a full-width main. The minimum is
 40 columns by 12 rows; the maximum is 1000 in either dimension.

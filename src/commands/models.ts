@@ -1,13 +1,9 @@
 import { type Command } from "../cli/command.js";
 import { embeddingModels } from "../encoder.js";
+import { modelsSpec } from "./specs/catalog.js";
 
 export const modelsCommand: Command = {
-  name: "models",
-  describe: "List embedding presets without loading or downloading models",
-  usage: "pmcp models [--json]",
-  options: [
-    { name: "json", describe: "Emit preset metadata as JSON", boolean: true },
-  ],
+  ...modelsSpec,
   run(context) {
     const models = embeddingModels();
     if (context.args.flags.has("json")) {

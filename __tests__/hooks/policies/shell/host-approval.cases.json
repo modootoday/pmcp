@@ -1,0 +1,19 @@
+{
+  "blocked": [
+    "pmcp harness host approve",
+    "npx @modootoday/pmcp harness host approve",
+    "node dist/cli.js harness host approve",
+    "cd app && pmcp harness host approve",
+    "yes | pmcp harness host approve",
+    "cat ~/.local/state/pmcp/host-approvals/abc/approval.json",
+    "cp policy.json ~/.local/state/pmcp/host-approvals/abc/policy.json",
+    "bash -c \"pmcp harness host approve\""
+  ],
+  "allowed": [
+    "pmcp harness host status",
+    "pmcp project",
+    "pmcp doctor",
+    "grep -rn approve src/",
+    "echo host"
+  ]
+}

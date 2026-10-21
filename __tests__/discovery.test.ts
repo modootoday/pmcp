@@ -31,8 +31,7 @@ function makePackage(packageName: string): void {
   );
 }
 
-// One package per convention, so a regression naming the wrong directory loses
-// exactly one entry rather than all of them.
+// Separate packages let a wrong convention path lose one entry without hiding the others.
 const CONVENTIONS = [
   ["pkg-plain", "skills"],
   ["pkg-agent", ".agent/skills"],
@@ -82,8 +81,6 @@ describe("what discovery refuses to walk", () => {
     expect(entries).toEqual([]);
   });
 
-  // The skip list once held `lib`, which hid the most widely installed skill in
-  // the real world. Nothing a package builds into is skipped now.
   it.each(["lib", "dist", "build", "out"])(
     "finds a skill a package ships under %s",
     (dir) => {

@@ -58,10 +58,7 @@ it("distinguishes login, scope, subscription and dependency failures", async () 
 });
 
 it("says what was refused and where it is resolved", async () => {
-  // A sentence about an account leaves the reader with nothing to act on. The
-  // skills come from the caller, which knows what it was about to install; the
-  // address comes from the service, because a price compiled into a published
-  // client keeps being quoted after it changes.
+  // Service-provided pricing avoids embedding prices that can become stale.
   const refused = (async () =>
     Response.json(
       {

@@ -1,0 +1,17 @@
+{
+  "busy": null,
+  "dialog": "tool-confirm-exec",
+  "input": null,
+  "input_empty": false,
+  "options": [
+    {
+      "key": "1",
+      "label": "Allow once"
+    },
+    {
+      "key": "2",
+      "label": "No, suggest changes (esc)"
+    }
+  ],
+  "selected": "1"
+}

@@ -1,7 +1,4 @@
-// Every example in .agent/skills/skill-catalog-mcp/SKILL.md, run against the
-// real package over a real node_modules-shaped fixture. The walk is the part a
-// mock would get wrong, so nothing here is mocked except the Embedder, which
-// has no default by design.
+// Real directory traversal catches discovery errors that mocked catalog entries would hide.
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -29,9 +26,6 @@ function writeSkill(
   );
 }
 
-// A project root holding a node_modules with four installed packages, two of
-// them under one scope. Returned as { projectRoot, nodeModules } because the
-// "why does it find nothing" example needs both.
 function project(): { projectRoot: string; nodeModules: string } {
   const projectRoot = mkdtempSync(join(tmpdir(), "skill-mcp-examples-"));
   const nodeModules = join(projectRoot, "node_modules");
@@ -155,7 +149,6 @@ describe("SKILL.md — worked example 3, why the catalog comes back empty", () =
 });
 
 describe("SKILL.md — Testing against it, the fixture", () => {
-  // Transcribed from the Fixtures subsection, verbatim in shape.
   function fixture(): string {
     const root = mkdtempSync(join(tmpdir(), "skill-fixture-"));
     const pkg = join(root, "node_modules", "@acme", "thing");

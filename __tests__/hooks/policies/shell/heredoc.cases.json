@@ -1,0 +1,18 @@
+{
+  "blocked": [
+    "python3 - << 'PY'\nopen('x.ts','w').write('...')\nPY",
+    "cat > src/foo.ts << EOF\nconst a = 1;\nEOF",
+    "cat <<-EOF > f\n\tbody\n\tEOF",
+    "cat <<< \"$payload\" > out.json",
+    "cat << 'EOF' > f\nx\nEOF",
+    "cat <<EOF > f\ndon't stop\nEOF"
+  ],
+  "allowed": [
+    "python3 tools/report.py --json",
+    "cd /tmp && python -c 'print(1)'",
+    "diff <(git show HEAD:f) f",
+    "bun test 2>&1 | tail -20 > /tmp/out.txt",
+    "echo $((1<<2))",
+    "git commit -m \"docs: never use <<EOF in commands\""
+  ]
+}

@@ -1,5 +1,6 @@
 import type { Command } from "../cli/command.js";
 import { invocation } from "../cli/invocation.js";
+import { loginSpec, logoutSpec, whoamiSpec } from "./specs/session.js";
 import {
   clearSession,
   discover,
@@ -11,12 +12,7 @@ import {
   type Fetcher,
 } from "../remote/session.js";
 
-/**
- * Signing in is optional and only the CLI does it. Reading the skills a project
- * already has never touches the network, so the MCP server the host spawns has
- * no credential, no issuer and no fetch. What signing in unlocks is obtaining
- * skills the project does not have yet.
- */
+// Keep sign-in in the CLI so reading installed skills requires neither credentials nor network access.
 const DEFAULT_ISSUER = "https://auth.pmcp.build";
 const DEFAULT_CLIENT = "https://auth.pmcp.build/oauth-client.json";
 const DEFAULT_RESOURCE = "https://api.pmcp.build";
@@ -35,16 +31,7 @@ const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 export const loginCommand: Command = {
-  name: "login",
-  describe: "Sign in on this machine, to obtain skills this project lacks",
-  usage: "pmcp login [--issuer <url>]",
-  options: [
-    {
-      name: "issuer",
-      describe: "override the auth issuer",
-      placeholder: "<url>",
-    },
-  ],
+  ...loginSpec,
 
   async run({ ui, args, env }) {
     const issuer =
@@ -74,8 +61,7 @@ export const loginCommand: Command = {
       return 1;
     }
 
-    // No browser is opened. This terminal may be on a machine nobody is
-    // looking at, and the code is short enough to carry to one that is.
+    // Print a portable code because the terminal may run on a host without an attended browser.
     ui.info("open", start.verificationUriComplete ?? start.verificationUri);
     ui.info("code", start.userCode);
     ui.line();
@@ -101,8 +87,7 @@ export const loginCommand: Command = {
         ui.success("signed in", issuer);
         return 0;
       }
-      // The server asks for a slower cadence by name, and ignoring it is how a
-      // client gets rate limited into failing.
+      // Honor slower polling requests to avoid provider rate limits.
       if (outcome.kind === "slow_down") interval += 5000;
       if (outcome.kind === "denied") {
         ui.error("declined", "the request was not approved");
@@ -120,9 +105,7 @@ export const loginCommand: Command = {
 };
 
 export const logoutCommand: Command = {
-  name: "logout",
-  describe: "Forget the sign-in on this machine",
-  usage: "pmcp logout",
+  ...logoutSpec,
 
   async run({ ui, env }) {
     const session = readSession();
@@ -131,8 +114,7 @@ export const logoutCommand: Command = {
       return 0;
     }
     const clientId = setting(env, "PMCP_OAUTH_CLIENT_ID", DEFAULT_CLIENT);
-    // The local copy goes first. If revocation fails the token is still gone
-    // from this machine, which is what the person asked for.
+    // Clear local credentials first so a revocation outage cannot undo local logout.
     clearSession();
     try {
       const metadata = await discover(session.issuer, fetcher);
@@ -149,18 +131,11 @@ export const logoutCommand: Command = {
 };
 
 export const whoamiCommand: Command = {
-  name: "whoami",
-  describe: "Whether this machine is signed in, and to what",
-  usage: "pmcp whoami [--json]",
-  options: [
-    { name: "json", describe: "Print the answer as JSON.", boolean: true },
-  ],
+  ...whoamiSpec,
 
   run({ ui, args }) {
     const session = readSession();
-    // This command exists to answer a question, so the answer goes to stdout
-    // where it can be piped or redirected. Status messages belong on stderr,
-    // but here the status is the answer.
+    // Write status data to stdout so callers can pipe the answer.
     if (!session) {
       if (args.flags.has("json")) {
         ui.data(`${JSON.stringify({ signedIn: false }, null, 2)}\n`);
@@ -174,7 +149,7 @@ export const whoamiCommand: Command = {
       session.expiresAt === undefined
         ? undefined
         : session.expiresAt - Date.now();
-    // The token itself is never printed. Knowing it is present is the answer.
+    // Report credential presence without exposing its value.
     const answer = {
       signedIn: true,
       issuer: session.issuer,

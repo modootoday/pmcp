@@ -1,8 +1,4 @@
-/**
- * What a client receives for a file, which for an MCP config is not its bytes: .mcp.json
- * carries env values and headers that often hold credentials, and any entry whose root
- * reaches the file (its own MCP entry, a plugin's hook entry) would otherwise serve them.
- */
+// Redact MCP configuration because environment and header values can contain credentials.
 
 import { basename } from "node:path";
 
@@ -27,7 +23,6 @@ function redactValue(value: unknown): unknown {
   return out;
 }
 
-/** An MCP config with every env and headers value replaced; unparseable configs serve nothing. */
 export function redactMcpConfig(text: string): string {
   let parsed: unknown;
   try {
@@ -41,7 +36,6 @@ export function redactMcpConfig(text: string): string {
 export const isMcpConfig = (path: string): boolean =>
   basename(path) === ".mcp.json";
 
-/** The bytes served for a file: unchanged, except an MCP config, which is redacted. */
 export function servedBytes(path: string, raw: Buffer): Buffer {
   if (!isMcpConfig(path)) return raw;
   return Buffer.from(redactMcpConfig(raw.toString("utf8")), "utf8");

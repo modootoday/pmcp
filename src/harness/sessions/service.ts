@@ -1,7 +1,7 @@
 import { realpathSync } from "node:fs";
 import { relative } from "node:path";
 import { budgetOperation } from "../adapters/systemd/budget.js";
-import { assertOwnedRecords } from "../adapters/tmux/backend.js";
+import { assertOwnedRecords } from "../adapters/terminal/backend.js";
 import type { GroupContext } from "../application/context.js";
 import type { Receipt, SessionRecord } from "../contracts.js";
 import { integer, strings, text } from "../validation.js";
@@ -110,6 +110,7 @@ export async function startSession(
     backend.records().some((record) => record.resource?.id === resource.id)
   )
     throw new Error("container_already_bound");
+  const profileOptions = privateProfile ? { privateProfile } : {};
   const dockerPreparation =
     group.profile === "docker" && !resource
       ? {
@@ -121,7 +122,7 @@ export async function startSession(
             1,
             50000,
           ),
-          ...(privateProfile ? { privateProfile } : {}),
+          ...profileOptions,
         }
       : undefined;
   const executablePath = locateExecutable(

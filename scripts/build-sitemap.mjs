@@ -1,13 +1,5 @@
 #!/usr/bin/env node
-/**
- * Writes the sitemap from the pages that exist.
- *
- * Kept by hand it was a list to remember to update, and one skill now emits a
- * page per line, so remembering does not scale past the first package with two
- * majors. Walking the built site cannot disagree with the built site.
- *
- * Run: node scripts/build-sitemap.mjs [--check]
- */
+// Discover pages from the built site so newly generated routes cannot be omitted.
 import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -33,8 +25,7 @@ function routes() {
   return found.sort();
 }
 
-// The home page is the entry; everything else is equal. A priority that varies
-// per page is a guess about what a reader wants, and this site does not know.
+// Keep priorities equal because the site has no evidence of reader preferences.
 const priorityOf = (route) => (route === "/" ? "1.0" : "0.8");
 
 const body = `<?xml version="1.0" encoding="UTF-8"?>

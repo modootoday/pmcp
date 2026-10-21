@@ -11,7 +11,7 @@ import { join } from "node:path";
 import { expect, it } from "vitest";
 import { readPrivateJson } from "../src/harness/groups/store.js";
 import { validateState } from "../src/harness/groups/validation.js";
-import { validateText } from "../src/harness/adapters/tmux/input.js";
+import { validateText } from "../src/harness/adapters/terminal/input.js";
 
 function state() {
   return {

@@ -1,38 +1,46 @@
 import type { Command } from "../cli/command.js";
 import { ArgumentError } from "../cli/command.js";
 import { ConfigError } from "../config.js";
-import { tuiOptions, parseTui } from "./tui/invocation.js";
+import { parseTui } from "./tui/invocation.js";
+import { tuiSpec } from "./specs/terminal.js";
+import { unsupportedHost, unsupportedReceipt } from "../harness/platform.js";
+
+// An error message is code[: detail]; the code is what scripts branch on.
+function failed(error: unknown) {
+  const message = error instanceof Error ? error.message : "tui_failed";
+  const [code, ...detail] = message.split(": ");
+  return {
+    schemaVersion: 1,
+    ok: false,
+    error: code,
+    ...(detail.length ? { hint: detail.join(": ") } : {}),
+    inputReplayed: false,
+  };
+}
 
 export const tuiCommand: Command = {
-  name: "tui",
-  describe: "Open a native terminal workspace with optional configuration",
-  usage:
-    "pmcp tui [--config <file>] [--runtime <id>] | plan | recovery | doctor | start-worker --runtime <id> | operation --view <file>",
-  options: tuiOptions,
+  ...tuiSpec,
   async run(context) {
     const invocation = parseTui(context.args);
-    const { invokeTui, failedInvocation } =
-      await import("../tui/application/invoke.js");
+    const unsupported = unsupportedHost();
+    if (unsupported) {
+      context.ui.data(`${JSON.stringify(unsupportedReceipt(unsupported))}\n`);
+      return 1;
+    }
     try {
       let receipt;
-      if (invocation.action === "start-worker") {
-        if (invocation.viewFile) {
-          const { startViewWorker } =
-            await import("../tui/application/worker-start.js");
-          receipt = await startViewWorker(
-            invocation.viewFile,
-            invocation.startup!.runtime!,
-            invocation.startup?.memoryMb,
-          );
-        } else {
-          const { startWorkspaceWorker } =
-            await import("../tui/startup/worker.js");
-          receipt = await startWorkspaceWorker(
-            { config: invocation.startup?.config, cwd: context.cwd },
-            invocation.startup!.runtime!,
-            invocation.startup?.memoryMb,
-          );
-        }
+      if (invocation.action === "doctor") {
+        const { inspectTerminalHost } =
+          await import("../tui/startup/diagnostics.js");
+        receipt = inspectTerminalHost();
+      } else if (invocation.action === "start-worker") {
+        const { startWorkspaceWorker } =
+          await import("../tui/startup/worker.js");
+        receipt = await startWorkspaceWorker(
+          { config: invocation.startup?.config, cwd: context.cwd },
+          invocation.startup!.runtime!,
+          invocation.startup?.memoryMb,
+        );
       } else if (invocation.action === "recovery") {
         const { inspectStartupRecovery } =
           await import("../tui/startup/recovery.js");
@@ -40,10 +48,7 @@ export const tuiCommand: Command = {
           ...invocation.startup,
           cwd: context.cwd,
         });
-      } else if (
-        invocation.action === "launch" ||
-        invocation.action === "plan"
-      ) {
+      } else {
         const { launchStartup, planStartup } =
           await import("../tui/startup/entry.js");
         const request = { ...invocation.startup, cwd: context.cwd };
@@ -54,20 +59,13 @@ export const tuiCommand: Command = {
                 request,
                 invocation.startup?.confirmed === true,
               );
-      } else {
-        receipt = await invokeTui(invocation);
       }
-      if (
-        !["open", "launch"].includes(invocation.action) ||
-        receipt.ok !== true
-      )
+      if (invocation.action !== "launch" || receipt.ok !== true)
         context.ui.data(`${JSON.stringify(receipt)}\n`);
       return receipt.ok === true ? 0 : 1;
     } catch (error) {
       if (error instanceof ConfigError) throw new ArgumentError(error.message);
-      context.ui.data(
-        `${JSON.stringify(failedInvocation(invocation.action, error))}\n`,
-      );
+      context.ui.data(`${JSON.stringify(failed(error))}\n`);
       return 1;
     }
   },

@@ -1,0 +1,28 @@
+{
+  "blocked": [
+    "docker compose down",
+    "docker compose down -v",
+    "docker compose -f compose.yml down -v",
+    "docker compose --profile web down",
+    "docker compose stop",
+    "docker compose rm -f",
+    "docker compose kill",
+    "docker compose stop -t 5",
+    "docker compose kill -s SIGTERM",
+    "docker-compose down",
+    "cd infra && docker compose down"
+  ],
+  "allowed": [
+    "docker compose up -d web",
+    "docker compose build web",
+    "docker compose restart web",
+    "docker compose stop web",
+    "docker compose stop api-worker",
+    "docker compose rm -f web",
+    "docker compose kill -s SIGTERM web",
+    "docker compose -f compose.yml stop web",
+    "docker compose --file=compose.yml stop web",
+    "docker stop some-container",
+    "echo 'docker compose down is project-wide'"
+  ]
+}

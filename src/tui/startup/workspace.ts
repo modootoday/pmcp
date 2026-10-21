@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { invoke } from "../../harness/application/invoke.js";
 import { GroupStore } from "../../harness/groups/store.js";
 import type {
@@ -6,8 +5,6 @@ import type {
   Receipt,
   SessionObservation,
 } from "../../harness/contracts.js";
-import { createView } from "../application/create.js";
-import { readView } from "../state/store.js";
 import { startupSettings, type StartupRequest } from "./config.js";
 import {
   readStartup,
@@ -118,31 +115,15 @@ export async function prepareWorkspace(
   );
   if (!main) throw new Error("startup_main_unavailable");
   state.runtime = main.runtime;
-  const existing =
-    state.viewFile && existsSync(state.viewFile)
-      ? readView(state.viewFile).view
-      : undefined;
-  if (existing) {
-    if (
-      existing.groupFile !== state.groupFile ||
-      existing.generation !== state.generation
-    )
-      throw new Error("foreign_startup_view");
-  }
-  if (!existing || existing.state === "closed") {
-    const created = await createView({
-      groupFile: state.groupFile!,
-      columns: process.stdout.columns ?? Number(process.env.PMCP_TUI_COLUMNS),
-      rows: process.stdout.rows ?? Number(process.env.PMCP_TUI_ROWS),
-    });
-    state.viewFile = created.viewFile;
-  }
+  delete state.viewFile;
   state.phase = "ready";
   saveStartup(file, state);
+  // The workspace opens on the group's own pmcp-pty socket with main shown first.
   return {
     schemaVersion: 1,
     ok: true,
-    viewFile: state.viewFile,
+    socket: main.socket,
+    main: main.ptySession,
     groupFile: state.groupFile,
     generation: state.generation,
     runtime: state.runtime,

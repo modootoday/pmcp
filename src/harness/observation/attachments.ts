@@ -1,4 +1,4 @@
-import { attachedClients } from "../adapters/tmux/clients.js";
+import { attachedClients } from "../adapters/terminal/clients.js";
 import type { GroupContext } from "../application/context.js";
 
 export function inspectAttachments(context: GroupContext, sessionId: string) {

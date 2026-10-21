@@ -93,7 +93,7 @@ function locate(
   }
 }
 
-/** Declared ranges never substitute for an installed package's version. */
+// Use installed versions because declared ranges do not prove what code is present.
 export function readInstalledDependencies(
   projectDirectory: string,
 ): InstalledInventory {
@@ -126,8 +126,11 @@ export function readInstalledDependencies(
   const issues: DependencyIssue[] = [];
   for (const name of [...names].sort()) {
     const result = locate(name, project);
-    if ("reason" in result) issues.push(result);
-    else dependencies.push(result);
+    if ("reason" in result) {
+      issues.push(result);
+      continue;
+    }
+    dependencies.push(result);
   }
   return { dependencies, issues };
 }

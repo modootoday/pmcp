@@ -1,10 +1,7 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-/**
- * What the client already holds, so a catalog that has not moved costs no
- * bytes. The hub has answered If-None-Match since it shipped; nothing sent it.
- */
+// Reuse entity tags so unchanged catalogs do not require downloading the same bytes.
 export interface CachedCatalog {
   readonly etag: string;
   readonly body: string;
@@ -15,7 +12,6 @@ export interface CatalogCache {
   write(origin: string, entry: CachedCatalog): void;
 }
 
-/** Bounded well above a catalog and well below anything worth storing. */
 const MAX_CACHE_BYTES = 8 * 1024 * 1024;
 
 export function memoryCatalogCache(): CatalogCache {
@@ -28,11 +24,7 @@ export function memoryCatalogCache(): CatalogCache {
   };
 }
 
-/**
- * One origin at a time: a second hub replaces the file rather than growing it.
- * The cache holds the public catalog, so it carries no account and no
- * dependency list, and a miss is never an error.
- */
+// Bound the public cache to one origin so switching hubs cannot grow it indefinitely.
 export function fileCatalogCache(dir: string): CatalogCache {
   const path = join(dir, "catalog-cache.json");
   return {
@@ -53,7 +45,7 @@ export function fileCatalogCache(dir: string): CatalogCache {
       }
     },
     write(origin, entry) {
-      // A cache that cannot be written is still a working command.
+      // Ignore cache-write failures so an optional optimization cannot break a working command.
       try {
         if (entry.body.length > MAX_CACHE_BYTES) return;
         mkdirSync(dir, { recursive: true });

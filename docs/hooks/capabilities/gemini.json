@@ -1,0 +1,196 @@
+{
+  "runtime": "gemini",
+  "version": "0.63.0",
+  "measuredAt": "2026-10-20T01:00:00Z",
+  "configuration": {
+    "hooks": "hooks object in .gemini/settings.json (project), ~/.gemini/settings.json (user), system settings and extensions; per event: [{matcher, sequential, hooks:[{type: command, command, name, timeout, description}]}]",
+    "trust": "measured: without trust, gemini -p exits 55 ('Gemini CLI is not running in a trusted directory ... --skip-trust, GEMINI_CLI_TRUST_WORKSPACE=true, or trust this directory in interactive mode'); an untrusted folder also ignores .gemini/settings.json and .env. With per-run trust, stderr warns 'The following project-level hooks have been detected in this workspace' and the hooks run.",
+    "trusted_hooks_write": "measured: the first run wrote ~/.gemini/trusted_hooks.json (397 -> 2968 bytes): 22 hook identities (name + command) under the project path. ~/.gemini/trustedFolders.json unchanged (no persistent folder trust).",
+    "auth_note": "measured: Vertex AI needs GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION; ~/.gemini/.env holds them but is not read in an untrusted folder (exit 41 before the trust check). Exported per run; values not printed.",
+    "headless": "gemini -p '<prompt>' --output-format json -> {session_id, response, stats}; --allowed-tools must be one flag per tool with = (a bare second value is read as a positional prompt)",
+    "mcp": "documented: mcpServers in .gemini/settings.json (project, trusted folders only) or user settings; tools named mcp_<server>_<tool>. Not exercised."
+  },
+  "events": {
+    "session_start": {
+      "native": "SessionStart",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "timestamp",
+        "source"
+      ]
+    },
+    "prompt": {
+      "native": "BeforeAgent",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "timestamp",
+        "prompt"
+      ]
+    },
+    "before_tool": {
+      "native": "BeforeTool",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "timestamp",
+        "tool_name",
+        "tool_input"
+      ]
+    },
+    "after_tool": {
+      "native": "AfterTool",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "timestamp",
+        "tool_name",
+        "tool_input",
+        "tool_response {llmContent, returnDisplay}"
+      ],
+      "notes": "not for the denied call"
+    },
+    "stop": {
+      "native": "AfterAgent",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "timestamp",
+        "prompt",
+        "prompt_response",
+        "stop_hook_active"
+      ]
+    },
+    "session_end": {
+      "native": "SessionEnd",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "timestamp",
+        "reason"
+      ]
+    },
+    "model": {
+      "native": "BeforeModel (4), AfterModel (25, per streamed chunk), BeforeToolSelection (4)",
+      "fires": true
+    },
+    "compress": {
+      "native": "PreCompress",
+      "fires": true,
+      "notes": "4 times with trigger auto in a short run"
+    },
+    "notification": {
+      "native": "Notification",
+      "fires": "not in this run (no permission prompt in headless mode)"
+    }
+  },
+  "tools": {
+    "shell": {
+      "tool_name": "run_shell_command",
+      "input": "tool_input.command, tool_input.description"
+    },
+    "edit": {
+      "tool_name": "write_file (also replace, documented)",
+      "input": "tool_input.file_path (relative to cwd here), tool_input.content"
+    }
+  },
+  "outputs": {
+    "deny": {
+      "event": "before_tool",
+      "support": "measured",
+      "shape": "top-level {decision: deny, reason}; the tool result reads 'Tool execution blocked: <reason>' and the model reports it"
+    },
+    "context": {
+      "support": "measured",
+      "delivered": ["session_start", "prompt", "after_tool"],
+      "not_delivered": ["before_tool additionalContext"],
+      "shape": "hookSpecificOutput.additionalContext; transcript user content wrapped in <hook_context>...</hook_context>",
+      "native_delivered": [
+        "session_start",
+        "prompt (BeforeAgent)",
+        "after_tool"
+      ],
+      "deferred": {
+        "before_tool": "after_tool; V2 gemini-context-before-619fdd0c"
+      }
+    },
+    "stop_context": {
+      "support": "documented",
+      "notes": "AfterAgent decision deny forces a retry with reason as the new prompt; stop_hook_active marks it. Not exercised (the probe does not deny AfterAgent)."
+    },
+    "rewrite": {
+      "support": "documented",
+      "notes": "BeforeTool hookSpecificOutput.tool_input merges into the arguments"
+    }
+  },
+  "fields_absent": ["turn_id / prompt_id", "agent_type"],
+  "timeouts": "per hook in milliseconds, default 60000",
+  "trust": "folder trust required for project settings (and so project hooks) in headless mode; new project hook identities warned about and recorded in ~/.gemini/trusted_hooks.json",
+  "live": {
+    "version": "0.63.0",
+    "measuredAt": "2026-10-20T04:07:05.574Z",
+    "implementationCommits": ["cfcdf5a", "35f3c77"],
+    "deny": {
+      "support": "measured",
+      "scenarios": [
+        "gemini-heredoc-8623d8e2",
+        "gemini-stage-all-e4881b2f",
+        "gemini-pause-c9ad18d6",
+        "gemini-lease-73ef0b6a"
+      ]
+    },
+    "context": {
+      "support": "measured",
+      "scenarios": {
+        "context-start": "gemini-context-start-5084022a",
+        "context-prompt": "gemini-context-prompt-6b8143f8",
+        "context-before": "gemini-context-before-619fdd0c",
+        "broadcast": "gemini-broadcast-dd1ccef0"
+      },
+      "notes": "pause, broadcast and shared_checkout notices reached the model; held context arrived at the next delivering event"
+    },
+    "workflow": {
+      "support": "measured",
+      "scenarios": [
+        "gemini-worktree-create-7e550fcb",
+        "gemini-worktree-sync-f2b22e6c",
+        "gemini-deliver-b0decc82",
+        "gemini-deliver-race-fcd98c2a",
+        "gemini-git-sync-28c4be9c"
+      ]
+    },
+    "cost": [
+      {
+        "event": "before_tool",
+        "addedMs": 24.6
+      },
+      {
+        "event": "prompt",
+        "addedMs": 25.3
+      }
+    ],
+    "scenarios": {
+      "passed": 13,
+      "failed": []
+    }
+  }
+}

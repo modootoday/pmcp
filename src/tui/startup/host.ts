@@ -1,7 +1,7 @@
 import { interactiveEntry } from "../../cli/entry.js";
 import { planLayout } from "../../harness/terminal/layout.js";
 import { assertNativeHost } from "../../harness/adapters/systemd/admission.js";
-import { dependencies } from "../adapters/process/runtime.js";
+import { dependencies } from "./dependencies.js";
 
 export function terminalSupport(): { supported: boolean; reason?: string } {
   try {

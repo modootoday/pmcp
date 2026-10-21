@@ -1,7 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { realpathSync, statSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
-import { assertOwnedRecords, createBackend } from "../adapters/tmux/backend.js";
+import {
+  assertOwnedRecords,
+  createBackend,
+} from "../adapters/terminal/backend.js";
 import { budgetOperation } from "../adapters/systemd/budget.js";
 import { configureBudget } from "../adapters/systemd/configure.js";
 import type { GroupContext } from "../application/context.js";

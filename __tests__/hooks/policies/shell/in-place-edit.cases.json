@@ -1,0 +1,24 @@
+{
+  "blocked": [
+    "sed -i 's/a/b/' file.txt",
+    "sed --in-place 's/a/b/' file.txt",
+    "sed -i.bak 's/a/b/' file.txt",
+    "sed -Ei 's/a/b/' file.txt",
+    "perl -i -pe 's/a/b/' file.txt",
+    "perl -pi -e 's/a/b/' file.txt",
+    "awk -i inplace '{print}' file.txt",
+    "echo hi && sed -i 's/a/b/' file.txt",
+    "cat file.txt; gawk -i inplace '{print}' file.txt",
+    "FOO=1 sed -i 's/a/b/' file.txt",
+    "bash -c \"sed -i 's/a/b/' f\"",
+    "find . -name '*.ts' | xargs sed -i 's/a/b/'"
+  ],
+  "allowed": [
+    "sed -n '1,20p' file.txt",
+    "cat file.txt | sed 's/a/b/'",
+    "grep -R pattern .",
+    "perl -pe 's/a/b/' file.txt",
+    "echo 'sed -i is discussed here'",
+    "git commit -m 'stop using sed -i'"
+  ]
+}

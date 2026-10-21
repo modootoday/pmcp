@@ -1,4 +1,6 @@
-import { parse } from "yaml";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
 
 export interface Document {
   readonly meta: Record<string, unknown>;
@@ -8,6 +10,8 @@ export interface Document {
 export function splitFrontmatter(source: string): Document {
   const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/u.exec(source);
   if (!match) return { meta: {}, body: source };
+  // Load YAML only for documents with frontmatter so empty projection checks stay cheap.
+  const { parse } = require("yaml") as typeof import("yaml");
   const meta: unknown = parse(match[1] ?? "");
   const object =
     meta !== null && typeof meta === "object" && !Array.isArray(meta)
@@ -21,7 +25,6 @@ function scalar(value: unknown): string {
   return JSON.stringify(value);
 }
 
-/** YAML for a flat frontmatter; multi-line strings become block scalars. */
 export function renderFrontmatter(
   meta: Readonly<Record<string, unknown>>,
 ): string {

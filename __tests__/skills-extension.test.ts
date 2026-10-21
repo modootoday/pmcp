@@ -13,7 +13,6 @@ function write(path: string, text: string): void {
   writeFileSync(path, text);
 }
 
-/** A workspace whose skills cover each case the extension decides on. */
 function workspace(): string {
   const root = mkdtempSync(join(tmpdir(), "pmcp-ext-"));
   write(join(root, "package.json"), JSON.stringify({ name: "@acme/kit" }));
@@ -129,7 +128,7 @@ describe("over the protocol", () => {
     expect(listed.skills.map((s: { uri: string }) => s.uri)).toEqual([
       "skill://pmcp/@acme/kit/refunds/SKILL.md",
     ]);
-    // Behind authorization the list is filtered per caller.
+
     expect(listed.cacheScope).toBe("private");
 
     const got = (

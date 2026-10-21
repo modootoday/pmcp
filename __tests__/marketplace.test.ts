@@ -180,7 +180,6 @@ describe("catalog paging and tier", () => {
 
 describe("find filters and keywords", () => {
   it("ranks keywords but returns the plain description", async () => {
-    // Only the keyword carries "version history"; the description never says it.
     const result = await tools.find("version history", 3);
     expect(result.matches[0]?.name).toBe("acme/release-notes/changelog-draft");
     expect(result.matches[0]?.description).toBe(

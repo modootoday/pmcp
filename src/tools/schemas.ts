@@ -1,8 +1,4 @@
-/**
- * The shapes the tools answer with, defined once: the TypeScript types are
- * inferred from these schemas and the same schemas are each tool's outputSchema,
- * so structuredContent cannot drift from what a client validates it against.
- */
+// Infer response types from schemas so structured output cannot drift from client validation.
 
 import { z } from "zod";
 
@@ -13,8 +9,7 @@ const kind = z.enum(ASSET_KINDS);
 
 export const runtimeSchema = z.enum(RUNTIMES);
 
-// Open objects: a client that cached an older outputSchema must keep accepting answers
-// that gain a field, so additions never break a session that has not re-listed tools.
+// Keep output objects open so added fields remain compatible with cached schemas.
 export const catalogItemSchema = z.looseObject({
   name: z.string(),
   description: z.string(),

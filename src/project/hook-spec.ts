@@ -1,5 +1,5 @@
 import { ConfigError } from "../config.js";
-import { guardPath } from "./hook-adapter.js";
+import { compileHooks, type CompiledHooks } from "../hooks/compile.js";
 
 export const HOOK_TOOLS = ["codex", "gemini", "antigravity"] as const;
 export type HookTool = (typeof HOOK_TOOLS)[number];
@@ -12,106 +12,69 @@ export interface ShellHookSpec {
   readonly event?: "after_edit";
 }
 
+export interface HookSpecs {
+  readonly legacy: ShellHookSpec[];
+
+  readonly bundle: Omit<CompiledHooks, "legacy"> | null;
+  readonly sources: CompiledHooks["sources"];
+  readonly deprecations: readonly string[];
+}
+
 export function readHooks(
   path: string,
   root: string,
-  raw: unknown,
-): ShellHookSpec[] {
-  if (raw === undefined) {
-    return [];
-  }
-  const fail = (reason: string): never => {
-    throw new ConfigError(path, `[hooks] ${reason}`);
-  };
-  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
-    return fail("must be a table");
-  }
-  const table = raw as Record<string, unknown>;
-  if (
-    Object.keys(table).some((key) => key !== "shell" && key !== "edit") ||
-    !["shell", "edit"].some((key) => table[key] !== undefined) ||
-    ["shell", "edit"].some(
-      (key) => table[key] !== undefined && !Array.isArray(table[key]),
-    )
-  ) {
-    return fail(
-      "only [[hooks.shell]] and [[hooks.edit]] declarations are supported",
+  raw: Readonly<Record<string, unknown>>,
+  tools: ReadonlySet<string>,
+): HookSpecs {
+  let compiled: CompiledHooks;
+  try {
+    compiled = compileHooks(
+      {
+        hooks: raw["hooks"],
+        sessions: raw["sessions"],
+        git: raw["git"],
+        logging: raw["logging"],
+        host: raw["host"],
+      },
+      { root, tools },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new ConfigError(
+      path,
+      message.startsWith("[") ? message : `[hooks] ${message}`,
     );
   }
-  const names = new Set<string>();
-  const entries = (["shell", "edit"] as const).flatMap((kind) =>
-    ((table[kind] ?? []) as unknown[]).map((value) => ({ kind, value })),
-  );
-  return entries
-    .map(({ kind, value }): ShellHookSpec => {
-      if (value === null || typeof value !== "object" || Array.isArray(value)) {
-        return fail("shell entry must be a table");
+  const legacy = compiled.legacy.map((entry): ShellHookSpec => ({
+    name: entry.name,
+    command: entry.command,
+    targets: entry.targets as HookTool[],
+    timeoutMs: entry.timeoutMs,
+    ...(entry.event === "after_edit" ? { event: "after_edit" as const } : {}),
+  }));
+  const bundle = compiled.policy
+    ? {
+        policy: compiled.policy,
+        edits: compiled.edits,
+        files: compiled.files,
+        sources: compiled.sources,
       }
-      const entry = value as Record<string, unknown>;
-      if (
-        Object.keys(entry).some(
-          (key) => !["name", "command", "targets", "timeout_ms"].includes(key),
-        )
-      ) {
-        return fail("unknown shell entry field");
-      }
-      const name = entry["name"];
-      const command = entry["command"];
-      const targets = entry["targets"];
-      const timeoutMs = entry["timeout_ms"] ?? 15000;
-      if (
-        typeof name !== "string" ||
-        !/^[a-z0-9][a-z0-9-]*$/u.test(name) ||
-        names.has(name)
-      ) {
-        return fail("shell names must be unique lowercase names");
-      }
-      if (
-        !Array.isArray(command) ||
-        command.length === 0 ||
-        !command.every(
-          (part) =>
-            typeof part === "string" && part.length > 0 && !part.includes("\0"),
-        )
-      ) {
-        return fail("command must be a nonempty argument list");
-      }
-      if (
-        !Array.isArray(targets) ||
-        targets.length === 0 ||
-        !targets.every((tool) =>
-          (HOOK_TOOLS as readonly unknown[]).includes(tool),
-        ) ||
-        new Set(targets).size !== targets.length
-      ) {
-        return fail("targets must select unique supported shell adapters");
-      }
-      if (kind === "edit" && targets.some((tool) => tool !== "codex")) {
-        return fail("edit hooks currently support codex only");
-      }
-      if (
-        typeof timeoutMs !== "number" ||
-        !Number.isSafeInteger(timeoutMs) ||
-        timeoutMs < 100 ||
-        timeoutMs > 60000
-      ) {
-        return fail("timeout_ms must be an integer from 100 to 60000");
-      }
-      try {
-        guardPath(root, command as string[]);
-      } catch (error) {
-        return fail(
-          error instanceof Error ? error.message : "invalid guard path",
-        );
-      }
-      names.add(name);
-      return {
-        name,
-        command: command as string[],
-        targets: targets as HookTool[],
-        timeoutMs,
-        ...(kind === "edit" ? { event: "after_edit" as const } : {}),
-      };
-    })
-    .sort((a, b) => a.name.localeCompare(b.name, "en"));
+    : null;
+  return {
+    legacy,
+    bundle,
+    sources: compiled.sources,
+    deprecations: deprecations(raw["hooks"]),
+  };
+}
+
+// The pre-bundle tables still work but say what replaces them (a release-note deprecation).
+function deprecations(hooks: unknown): string[] {
+  const table = (hooks ?? {}) as Record<string, unknown>;
+  return ["shell", "edit"]
+    .filter((key) => table[key] !== undefined)
+    .map(
+      (key) =>
+        `[[hooks.${key}]] is deprecated; declare [[hooks.guards.custom]] with on = "${key === "shell" ? "before_shell" : "after_edit"}" and list its runtimes in [hooks] targets`,
+    );
 }

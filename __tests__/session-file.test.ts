@@ -50,9 +50,7 @@ it("creates the session directory and file closed to other users", () => {
 });
 
 it("narrows a session directory that already exists group-writable", () => {
-  // Measured on this host at 0775, so it is a state rather than a hypothesis.
-  // A private file inside a group-writable directory is still replaceable by
-  // anyone in the group, who never has to read it to substitute their own.
+  // Group-writable parent directories allow replacement even when the file itself is private.
   const root = home();
   const directory = globalDir(root);
   mkdirSync(directory, { recursive: true });

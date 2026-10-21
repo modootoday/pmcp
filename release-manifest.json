@@ -5,9 +5,19 @@
   "npmOrg": "modootoday",
   "registry": "https://registry.npmjs.org/",
   "access": "public",
-  "packages": ["@modootoday/pmcp"],
+  "packages": [
+    "@modootoday/pmcp",
+    "@modootoday/pmcp-linux-x64",
+    "@modootoday/pmcp-linux-arm64",
+    "@modootoday/pmcp-darwin-x64",
+    "@modootoday/pmcp-darwin-arm64"
+  ],
   "versions": {
-    "@modootoday/pmcp": "0.17.4"
+    "@modootoday/pmcp": "0.18.0",
+    "@modootoday/pmcp-linux-x64": "0.18.0",
+    "@modootoday/pmcp-linux-arm64": "0.18.0",
+    "@modootoday/pmcp-darwin-x64": "0.18.0",
+    "@modootoday/pmcp-darwin-arm64": "0.18.0"
   },
   "sourceAuthority": "modootoday/pmcp"
 }

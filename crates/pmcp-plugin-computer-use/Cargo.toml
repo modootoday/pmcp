@@ -1,0 +1,23 @@
+[package]
+name = "pmcp-plugin-computer-use"
+version = "0.18.0"
+edition = "2024"
+description = "An Xvfb desktop for coding agents over MCP: XTEST input and screenshots"
+publish = false
+
+[[bin]]
+name = "pmcp-desktop"
+path = "src/main.rs"
+
+[dependencies]
+pmcp-plugin-support = { path = "../pmcp-plugin-support", features = ["scope", "mcp", "approved"] }
+libc = "0.2.191"
+png = "0.18"
+serde_json = "1.0.154"
+tokio = { version = "1.53", features = ["rt-multi-thread"] }
+x11rb = { version = "0.13", features = ["xtest"] }
+
+[profile.release]
+opt-level = "s"
+lto = "thin"
+strip = true

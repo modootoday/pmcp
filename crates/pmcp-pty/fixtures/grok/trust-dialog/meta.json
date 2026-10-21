@@ -1,0 +1,4 @@
+{
+  "source": "synthetic",
+  "mirrors": "grok 1.0.62 binary strings @1743306, @1743428, @1743454 (no live capture)"
+}

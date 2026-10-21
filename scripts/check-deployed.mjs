@@ -32,7 +32,7 @@ function routes() {
   return found;
 }
 
-// CDN-injected scripts are reported separately from content changes.
+// Separate injected scripts because CDN changes do not imply a content change.
 const EXTERNAL_SCRIPT =
   /<script\b[^>]*\bsrc="https?:\/\/[^"]*"[^>]*>\s*<\/script>\n?/giu;
 
@@ -87,8 +87,11 @@ for (const [route, file] of [...routes()].sort()) {
     served: served.slice(at, at + 90),
   };
   const squeeze = (html) => html.replace(/\s+/gu, " ").trim();
-  if (squeeze(served) === squeeze(expected)) reformatted.push(divergence);
-  else differing.push(divergence);
+  if (squeeze(served) === squeeze(expected)) {
+    reformatted.push(divergence);
+    continue;
+  }
+  differing.push(divergence);
 }
 
 const report = {

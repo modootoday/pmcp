@@ -1,17 +1,13 @@
-/**
- * A command is a value: its name, what it takes, and what it does. Help is
- * generated from that rather than written twice, so a flag cannot exist in one
- * and not the other.
- */
+// Generate help from command metadata so documented flags cannot drift from accepted flags.
 
 import type { Ui } from "./ui.js";
 
 export interface OptionSpec {
   readonly name: string;
   readonly describe: string;
-  /** A flag with no value. */
+
   readonly boolean?: boolean;
-  /** May appear more than once; the parsed value is always an array. */
+
   readonly repeat?: boolean;
   readonly placeholder?: string;
 }
@@ -29,17 +25,28 @@ export interface CommandContext {
   readonly cwd: string;
 }
 
-export interface Command {
+// Keep help metadata separate so help and completion do not load command dependencies.
+export interface CommandSpec {
   readonly name: string;
   readonly describe: string;
   readonly usage: string;
   readonly options?: readonly OptionSpec[];
-  /**
-   * Exit code. 0 success, 1 the work failed, 2 the invocation was wrong.
-   * May be async: a destination can be a network. config() stays synchronous,
-   * which is a rule about the loader rather than about commands.
-   */
+}
+
+// Keep published exit meanings stable for callers that branch on them.
+export const EXIT = {
+  ok: 0,
+  failure: 1,
+  usage: 2,
+  missingOptional: 3,
+} as const;
+
+export interface Command extends CommandSpec {
   run(context: CommandContext): number | Promise<number>;
+}
+
+export interface CommandEntry extends CommandSpec {
+  load(): Promise<Command>;
 }
 
 export class ArgumentError extends Error {
@@ -49,11 +56,7 @@ export class ArgumentError extends Error {
   }
 }
 
-/**
- * Parses against the command's own option list, so an unknown flag is an error
- * rather than a silently ignored typo -- `--recover-code` must not look like it
- * worked.
- */
+// Reject unknown options so misspelled flags cannot silently select default behavior.
 export function parseArgs(
   argv: readonly string[],
   specs: readonly OptionSpec[] = [],
@@ -108,7 +111,7 @@ export function many(args: ParsedArgs, name: string): readonly string[] {
   return args.options.get(name) ?? [];
 }
 
-export function printCommandHelp(ui: Ui, command: Command): void {
+export function printCommandHelp(ui: Ui, command: CommandSpec): void {
   ui.heading(`pmcp ${command.name}`);
   ui.line(`  ${command.describe}`);
   ui.line();
@@ -127,7 +130,7 @@ export function printCommandHelp(ui: Ui, command: Command): void {
 
 export function printHelp(
   ui: Ui,
-  commands: readonly Command[],
+  commands: readonly CommandSpec[],
   notImplemented: readonly string[],
 ): void {
   ui.heading("pmcp — the skills your installed packages ship");
@@ -148,8 +151,7 @@ export function printHelp(
     ["-h, --help", "this, or help for one command"],
   ]);
   ui.line();
-  // Omitted when the list is empty: a heading with nothing under it reads as a
-  // formatting bug rather than as good news.
+  // Omit empty headings so help does not suggest that content is missing.
   if (notImplemented.length > 0) {
     ui.line(
       `  ${ui.paint(`not implemented yet: ${notImplemented.join(", ")}`, "dim")}`,

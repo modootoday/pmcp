@@ -1,0 +1,4 @@
+Do you trust the contents of this directory?
+  y  Yes, proceed
+  n  No, quit
+Enter or y to trust

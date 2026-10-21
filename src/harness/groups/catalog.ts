@@ -2,7 +2,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { Receipt } from "../contracts.js";
 import { GroupStore } from "./store.js";
-import { stateDirectory } from "../adapters/tmux/records.js";
+import { stateDirectory } from "../adapters/terminal/records.js";
 
 export function listGroups(): Receipt {
   const directory = stateDirectory();

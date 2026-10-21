@@ -1,0 +1,25 @@
+{
+  "busy": null,
+  "dialog": "question",
+  "input": null,
+  "input_empty": false,
+  "options": [
+    {
+      "key": "1",
+      "label": "First option"
+    },
+    {
+      "key": "2",
+      "label": "Second option"
+    },
+    {
+      "key": "3",
+      "label": "Type something."
+    },
+    {
+      "key": "4",
+      "label": "Chat about this"
+    }
+  ],
+  "selected": "1"
+}

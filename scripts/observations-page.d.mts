@@ -1,4 +1,4 @@
-/** The site builders are plain scripts; this is what the tests may call. */
+// Keep static types at the plain-script boundary so tests can check their calls.
 export interface LedgerObservation {
   readonly stage: string;
   readonly code: string;

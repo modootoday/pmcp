@@ -9,7 +9,7 @@ import {
   findResultSchema,
 } from "../src/tools/schemas.js";
 
-// The 0.8.3 output schemas as clients cached them: closed objects (additionalProperties false).
+// Cached 0.8.3 schemas remain closed, so extra output fields can break existing clients.
 const kind = z.enum(ASSET_KINDS);
 const v083 = {
   catalog: z.strictObject({

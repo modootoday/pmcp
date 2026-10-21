@@ -45,8 +45,8 @@ it("makes native supervision reachable through the CLI only", () => {
   expect(paths.has(resolve(source, "harness/application/invoke.ts"))).toBe(
     true,
   );
-  expect(paths.has(resolve(source, "harness/adapters/tmux/lifecycle.ts"))).toBe(
-    true,
-  );
-  expect(paths.has(resolve(source, "tui/application/invoke.ts"))).toBe(true);
+  expect(
+    paths.has(resolve(source, "harness/adapters/terminal/lifecycle.ts")),
+  ).toBe(true);
+  expect(paths.has(resolve(source, "tui/startup/entry.ts"))).toBe(true);
 });

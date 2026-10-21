@@ -22,7 +22,7 @@ import { startSession, stopSession } from "../sessions/service.js";
 import { object, text } from "../validation.js";
 import { openGroup } from "./context.js";
 import { isReadOnly } from "./effects.js";
-import { detachClients } from "../adapters/tmux/detach.js";
+import { detachClients } from "../adapters/terminal/detach.js";
 import { inspectAttachments } from "../observation/attachments.js";
 
 export async function runOperation(operation: Operation): Promise<Receipt> {

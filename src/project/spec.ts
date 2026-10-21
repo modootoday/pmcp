@@ -1,34 +1,30 @@
-/**
- * The projector's reading of pmcp.toml: which tools to write for, and the
- * per-asset settings that do not belong in the cross-tool sources under .agents/.
- */
-
 import { ConfigError, type ProjectConfig } from "../config.js";
 import { readMcp } from "./mcp-spec.js";
-import { readHooks, type ShellHookSpec } from "./hook-spec.js";
+import { readHooks, type HookSpecs, type ShellHookSpec } from "./hook-spec.js";
+import {
+  readMarketplaces,
+  type DeclaredMarketplace,
+} from "../marketplace/declared/index.js";
+import type { UiSettings } from "../ui/claude/reader/index.js";
+import { readUiClaude } from "./ui-claude.js";
+import { readPermissions, type PermissionSpec } from "./permissions.js";
+import { readHost, type HostSpec } from "./host-spec.js";
+import { TOOLS, type Tool } from "./tools.js";
 
-export const TOOLS = [
-  "claude",
-  "codex",
-  "gemini",
-  "grok",
-  "antigravity",
-  "opencode",
-] as const;
-export type Tool = (typeof TOOLS)[number];
+export { TOOLS, type Tool };
 
 export type Invocation = "any" | "user";
 
 export interface PackageRulesSpec {
-  /** Path of the rule file inside each package, e.g. `.agent/rules/PACKAGE.RULE.md`. */
   readonly file: string;
-  /** Subdirectory of `.claude/rules` the links go in. */
+
   readonly dir: string;
-  /** Leading path segments dropped when a link name is derived. */
+
   readonly strip: readonly string[];
 }
 
 export interface McpServerSpec {
+  readonly auth?: "native" | "pmcp";
   readonly mailbox?: boolean;
   readonly command?: string;
   readonly url?: string;
@@ -44,12 +40,16 @@ export interface McpServerSpec {
   readonly bearerTokenEnvVar?: string;
   readonly native?: Partial<Record<Tool, Readonly<Record<string, number>>>>;
   readonly targets?: readonly Tool[];
-  /** Tools the server should expose where a host can narrow them. */
+
   readonly tools?: readonly string[];
 }
 
 export interface ProjectSpec {
   readonly hooks?: readonly ShellHookSpec[];
+  readonly hookBundle?: HookSpecs["bundle"];
+  readonly featureSources?: HookSpecs["sources"];
+  // Configuration that still works but should move; printed by project and --check.
+  readonly deprecations?: readonly string[];
   readonly root: string;
   readonly tools: ReadonlySet<Tool>;
   readonly skills: Readonly<Record<string, { invocation: Invocation }>>;
@@ -58,6 +58,10 @@ export interface ProjectSpec {
   >;
   readonly packageRules: PackageRulesSpec | null;
   readonly mcp: Readonly<Record<string, McpServerSpec>>;
+  readonly marketplaces?: readonly DeclaredMarketplace[];
+  readonly uiClaude?: UiSettings;
+  readonly permissions?: PermissionSpec;
+  readonly host?: HostSpec;
 }
 
 const NAME = /^[a-z0-9][a-z0-9-]*$/u;
@@ -80,7 +84,7 @@ function strings(path: string, where: string, value: unknown): string[] {
 }
 
 function named(path: string, where: string, name: string): string {
-  // Names become file names and dotted keys in the lock, so they stay plain.
+  // Restrict names because they become both filenames and dotted lock keys.
   if (!NAME.test(name)) {
     throw new ConfigError(
       path,
@@ -159,7 +163,20 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
   }
 
   const mcp = readMcp(path, raw["mcp"]);
-  const hooks = readHooks(path, config.dir, raw["hooks"]);
+  const hooks = readHooks(path, config.dir, raw, tools);
+  const sessionHooks =
+    hooks.bundle?.policy?.guards.some((g) => g.id === "sessions.registry") ??
+    false;
+  const marketplaces = readMarketplaces(
+    raw["marketplaces"],
+    config.dir,
+    (m) => {
+      throw new ConfigError(path, m);
+    },
+  );
+  const uiClaude = readUiClaude(path, raw["ui"], sessionHooks);
+  const permissions = readPermissions(path, raw["permissions"]);
+  const host = readHost(path, raw["host"]);
 
   return {
     root: config.dir,
@@ -168,6 +185,15 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
     agents,
     packageRules,
     mcp,
-    ...(hooks.length > 0 ? { hooks } : {}),
+    ...(marketplaces.length > 0 ? { marketplaces } : {}),
+    ...(uiClaude ? { uiClaude } : {}),
+    ...(permissions ? { permissions } : {}),
+    ...(host ? { host } : {}),
+    ...(hooks.legacy.length > 0 ? { hooks: hooks.legacy } : {}),
+    ...(hooks.bundle ? { hookBundle: hooks.bundle } : {}),
+    ...(hooks.deprecations.length > 0
+      ? { deprecations: hooks.deprecations }
+      : {}),
+    featureSources: hooks.sources,
   };
 }

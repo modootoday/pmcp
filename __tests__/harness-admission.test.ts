@@ -19,6 +19,8 @@ beforeEach(() => {
   vi.resetAllMocks();
   directory = mkdtempSync(join(tmpdir(), "pmcp-admission-"));
   vi.stubEnv("XDG_STATE_HOME", join(directory, "state"));
+  // Any executable file stands in for pmcp-pty; admission only checks that one is there.
+  vi.stubEnv("PMCP_PTY_BIN", process.execPath);
   vi.mocked(locateExecutable).mockReturnValue("/tool");
 });
 
@@ -44,11 +46,22 @@ it.skipIf(process.platform !== "linux")(
   "refuses absent native tools without creating group state or contacting the manager",
   async () => {
     vi.mocked(locateExecutable).mockReturnValue(null);
-    await expect(create()).rejects.toThrow("native_host_tool_unavailable:tmux");
+    await expect(create()).rejects.toThrow(
+      "native_host_tool_unavailable:systemctl",
+    );
     expect(command).not.toHaveBeenCalled();
     expectNoGroupState();
   },
 );
+
+it("refuses a host without pmcp-pty before anything else", async () => {
+  vi.stubEnv("PMCP_PTY_BIN", join(directory, "no-such-pmcp-pty"));
+  await expect(create()).rejects.toThrow(
+    "native_host_tool_unavailable:pmcp-pty",
+  );
+  expect(command).not.toHaveBeenCalled();
+  expectNoGroupState();
+});
 
 it.skipIf(process.platform !== "linux")(
   "refuses an unreachable user manager without creating group state",

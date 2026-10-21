@@ -2,8 +2,8 @@ import { join } from "node:path";
 import type { Receipt } from "../../contracts.js";
 import { privateJson, readPrivateJson } from "../../groups/store.js";
 import { integer, object, text } from "../../validation.js";
-import { openBackend } from "../tmux/backend.js";
-import { budgetSlice } from "../tmux/records.js";
+import { openBackend } from "../terminal/backend.js";
+import { budgetSlice } from "../terminal/records.js";
 import { command } from "../process/command.js";
 import { unitActive } from "./units.js";
 import { resourceRunning } from "../docker/observation.js";
@@ -25,6 +25,8 @@ export async function budgetOperation(
     const maxActive = integer(operation.maxActive, "max_active", 1, 5);
     privateJson(backend.metadataPath, { ...metadata, budgetSlice: slice });
     privateJson(path, { owner: backend.owner, slice, memoryMb, maxActive });
+    // The memory cap is a systemd slice, so Linux only; elsewhere maxActive still holds.
+    if (process.platform !== "linux") return { ok: true, memoryCapped: false };
     command("systemctl", ["--user", "start", slice]);
     command("systemctl", [
       "--user",
@@ -47,8 +49,10 @@ export async function budgetOperation(
     throw new Error("foreign_budget_policy");
   if (operation.action === "cleanup") {
     backend.cleanup();
-    command("systemctl", ["--user", "stop", slice]);
-    command("systemctl", ["--user", "revert", slice]);
+    if (process.platform === "linux") {
+      command("systemctl", ["--user", "stop", slice]);
+      command("systemctl", ["--user", "revert", slice]);
+    }
     return { ok: true, budgetStopped: true };
   }
   if (operation.action === "stop") {
@@ -81,7 +85,8 @@ export async function budgetOperation(
       ? undefined
       : resourceClaim(spec.resource, backend.owner);
   const dockerPreparation = spec.dockerPreparation as
-    DockerPreparation | undefined;
+    | DockerPreparation
+    | undefined;
   const cpuQuota = resource?.cpuQuota ?? dockerPreparation?.cpuQuota;
   if (cpuQuota !== undefined) {
     const reservedCpu = backend

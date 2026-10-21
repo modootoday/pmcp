@@ -18,7 +18,6 @@ const ENTRIES = [
   entry("launch-email", "Write a product launch email"),
 ];
 
-// Two concepts, recognised in either language, stand in for a multilingual model.
 const concept = (text: string) =>
   /subtitle|字幕/.test(text) ? Float32Array.of(1, 0) : Float32Array.of(0, 1);
 const bilingual: Embedder = {

@@ -43,18 +43,13 @@ function credential(value: unknown): DistributionCredential {
   return item as unknown as DistributionCredential;
 }
 
-/** Every refusal the service explains, said back in the caller's terms. */
 const REFUSALS: Readonly<Record<number, string>> = {
   401: "sign in again before installing skills",
   402: "a subscription is needed to install these skills",
   403: "sign in again to approve skill downloads",
 };
 
-/**
- * Where the service says a refusal is resolved. Only the service knows the
- * price, and a copy of this client compiled with one would keep quoting it
- * after it changed, so nothing here states an amount.
- */
+// Use service-provided resolution URLs so clients do not retain stale pricing or remediation claims.
 function helpUrl(body: Record<string, unknown>): string | undefined {
   const error = body["error"];
   if (!error || typeof error !== "object") return undefined;
@@ -62,17 +57,13 @@ function helpUrl(body: Record<string, unknown>): string | undefined {
   if (!help || typeof help !== "object") return undefined;
   const url = (help as Record<string, unknown>)["subscribeUrl"];
   if (typeof url !== "string") return undefined;
-  // A refusal must not become a way to send someone anywhere.
+  // Validate resolution URLs so server errors cannot redirect users to unrelated origins.
   const parsed = URL.parse(url);
   if (!parsed || parsed.protocol !== "https:") return undefined;
   return parsed.host === "pmcp.build" ? parsed.href : undefined;
 }
 
-/**
- * The service names the request it refused, and that name is the only thing
- * that ties a report to a server log. Dropping it leaves the person with a
- * sentence and nobody able to look up what happened.
- */
+// Preserve request ids so users can correlate refusals with service logs.
 async function refusal(
   response: Response,
   fallback: string,
@@ -94,8 +85,7 @@ async function refusal(
     // A refusal without a body is still a refusal; the status carries it.
   }
   const said = REFUSALS[response.status] ?? `${fallback} (${response.status})`;
-  // Naming what was refused is the difference between a sentence about an
-  // account and a sentence about the thing the reader asked for.
+  // Identify the refused item so reports describe the requested operation rather than an entire account.
   const named = subjects.length > 0 ? `${said}: ${subjects.join(", ")}` : said;
   return new Error(
     [
@@ -143,9 +133,7 @@ export async function verifyRegistryIntegrity(
 ): Promise<Map<string, string>> {
   const verified = new Map<string, string>();
   for (const entry of entries) {
-    // The scope is shared with this organisation's other packages, so the
-    // check names the skill prefix: a credential for the scope must not be
-    // spent fetching something that is not a skill package.
+    // Restrict credentials to skill packages because the organization scope is shared with other products.
     if (!entry.packageName.startsWith(`${value.scope}/pmcp-`))
       throw new Error(
         "catalog delivery name is not a skill package for this credential",
@@ -220,7 +208,7 @@ export interface RegistryConfig {
   close(): void;
 }
 
-/** Token exists only in a mode-600 temporary npm config and is removed after install. */
+// Use a private temporary npm config so installation credentials do not persist in project files.
 export function temporaryRegistryConfig(
   value: DistributionCredential,
 ): RegistryConfig {

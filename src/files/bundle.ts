@@ -1,7 +1,4 @@
-/**
- * Every file of one skill as fetchable links, so a host can write the skill to a
- * local skills directory without routing its bytes through the model.
- */
+// Serve links so hosts can materialize skill files without copying their bytes through the model.
 
 import { readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";

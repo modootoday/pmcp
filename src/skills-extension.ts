@@ -1,7 +1,4 @@
-/**
- * The MCP Skills extension (SEP-2640): the entry builder and the skills/list and
- * skills/get methods. Kept as one import path for the package's public API.
- */
+// Keep one public extension import path so consumers need not depend on internal module layout.
 
 export {
   MAX_RESOURCES,

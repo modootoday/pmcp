@@ -19,6 +19,10 @@ export function canonicalSkillDirectory(root, productId, major) {
   let directory = root;
   for (const part of ["plugins", plugin, "skills"]) {
     directory = join(directory, part);
+    if (!existsSync(directory))
+      throw new Error(
+        `Canonical skill directory is missing: plugins/${plugin}`,
+      );
     const stats = lstatSync(directory);
     if (!stats.isDirectory() || stats.isSymbolicLink())
       throw new Error(
@@ -31,6 +35,19 @@ export function canonicalSkillDirectory(root, productId, major) {
   return join(directory, children[0].name);
 }
 
+// Prefer plugin ownership so a library skill is not loaded twice from generated documentation.
 export function hasCanonicalSkills(root) {
-  return existsSync(join(root, "plugins/pmcp/skills"));
+  return existsSync(join(root, "plugins"));
+}
+
+export function pmcpSkillDirectories(root) {
+  const directory = join(root, "skills");
+  if (!existsSync(directory))
+    throw new Error("The canonical pmcp skills directory skills/ is missing");
+  const children = readdirSync(directory, { withFileTypes: true });
+  if (children.some((child) => !child.isDirectory() || child.isSymbolicLink()))
+    throw new Error("skills/ may contain only regular skill directories");
+  if (children.length === 0)
+    throw new Error("The canonical pmcp skills directory skills/ is empty");
+  return children.map((child) => join(directory, child.name)).sort();
 }

@@ -1,0 +1,35 @@
+# Profile for tests/fixtures/fake_agent.py; every pattern is the fake's own output.
+[profiles.fake]
+argv0 = ["fake_agent.py"]
+# Spawned as python3, whose --version never says this, so observe must warn about drift.
+version = "fake 1.0"
+idle_ms = 300
+settle_ms = 150
+submit_delay_ms = 50
+
+[[profiles.fake.dialogs]]
+name = "exec"
+regex = 'Allow execution of'
+source = "tests/fixtures/fake_agent.py"
+
+[[profiles.fake.busy]]
+name = "working"
+regex = 'esc to cancel'
+source = "tests/fixtures/fake_agent.py"
+
+[[profiles.fake.spinner]]
+name = "frames"
+regex = '^[⠋⠙⠹⠸]'
+source = "tests/fixtures/fake_agent.py"
+
+[[profiles.fake.input_empty]]
+name = "prompt"
+regex = '(?m)^>$'
+source = "tests/fixtures/fake_agent.py"
+
+[profiles.fake.input]
+name = "prompt"
+regex = '^>(?: (?P<text>.*))?$'
+source = "tests/fixtures/fake_agent.py"
+
+[profiles.default]

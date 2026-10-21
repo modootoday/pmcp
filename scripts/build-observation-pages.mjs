@@ -1,14 +1,5 @@
 #!/usr/bin/env node
-/**
- * Writes the observation ledger page.
- *
- * Published whether or not a skill came out of the run, because a ledger of
- * only the packages we sell would be an advertisement. The wording lives in
- * `observations-page.mjs` so it can be exercised with a ledger that has
- * something in it; this file only decides where the bytes go.
- *
- * Run: node scripts/build-observation-pages.mjs [--check]
- */
+// Publish unsuccessful runs too so the ledger does not selectively advertise published skills.
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

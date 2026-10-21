@@ -1,0 +1,466 @@
+# Per-runtime screen profiles for pmcp-pty (read from the installed builds).
+# Patterns are Rust regexes run against the rendered screen (rows joined by newlines); busy,
+# spinner, input and input_empty rows never enter the clean transcript. source names where each
+# string was found: a file and line, a byte offset (@n, from grep -abo) in a binary, or a live
+# capture (a screen from a live run, kept outside this package). "unverified" marks strings
+# not yet seen on a live screen.
+# Dialogs whose name starts with auth- are login prompts: no answer policy may ever answer them.
+# version is the runtime version the patterns were read from; observe warns when it differs.
+# delivery is the turn channel tried first; every profile falls back to screen with guard idle.
+#
+# Gemini sources: @google/gemini-cli 0.64.0, bundle/interactiveCli-66E5CZDR.js (IC, the chunk
+# bundle/gemini-Q2GRYIAK.js imports) and chunk-MA35JFUP.js (MA); citations re-checked P4.
+
+[profiles.default]
+idle_ms = 1500
+submit_delay_ms = 80
+
+[profiles.gemini]
+argv0 = ["gemini"]
+version = "0.64.0"
+delivery = "screen"
+idle_ms = 1500
+submit_delay_ms = 120
+
+[[profiles.gemini.dialogs]]
+name = "folder-trust"
+regex = 'Do you trust the files in this folder\?'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:5901"
+
+[[profiles.gemini.dialogs]]
+name = "folder-trust-options"
+regex = "Trust folder \\(|Trust parent folder \\(|Don't trust"
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:5838,5843,5848"
+
+[[profiles.gemini.dialogs]]
+name = "tool-confirm-exec"
+regex = 'Allow execution of'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:12228,12305"
+
+[[profiles.gemini.dialogs]]
+name = "tool-confirm-edit"
+regex = 'Apply this change\?'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:12122"
+
+[[profiles.gemini.dialogs]]
+name = "tool-confirm-proceed"
+regex = 'Do you want to proceed\?'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:12283"
+
+[[profiles.gemini.dialogs]]
+name = "tool-confirm-options"
+regex = 'Allow once|No, suggest changes \(esc\)'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:11818,11844"
+
+[[profiles.gemini.dialogs]]
+name = "awaiting-confirmation"
+regex = 'Waiting for user confirmation\.\.\.'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:22807"
+
+[[profiles.gemini.dialogs]]
+name = "selection-list"
+regex = '\(Use Enter to select, Esc to close\)'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:6219"
+
+[[profiles.gemini.dialogs]]
+name = "auth-wait"
+regex = 'Waiting for (authentication|verification)\.\.\.'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:14449,15691"
+
+[[profiles.gemini.busy]]
+name = "responding"
+regex = '\(esc to cancel, \d'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:22900"
+
+[[profiles.gemini.input_empty]]
+name = "placeholder"
+regex = 'Type your (message or @path/to/file|shell command)'
+source = "gemini-cli 0.64.0 bundle/interactiveCli-66E5CZDR.js:21129,23862"
+
+[[profiles.gemini.dialogs]]
+name = "tool-confirm-more-options"
+regex = 'Allow for this session|Allow for all future sessions|Modify with external editor|Allow tool for this session|Allow all server tools'
+source = "gemini-cli 0.64.0 IC:11824,11863,11838,11934,11939"
+
+[[profiles.gemini.dialogs]]
+name = "auth-method"
+regex = 'How would you like to authenticate|Sign in with Google|Enter Gemini API Key'
+source = "gemini-cli 0.64.0 IC:14743,14744,14597,14929"
+
+[[profiles.gemini.spinner]]
+name = "status-timer"
+regex = '^ ?[⠀-⣿] .*\(esc to cancel, [^)]*\)'
+source = "gemini-cli 0.64.0 IC:22900; live capture, 2026-10-20"
+
+[[profiles.gemini.busy]]
+name = "hooks-running"
+regex = '(?m)^\s*\S?\s*Executing Hooks?: '
+source = "gemini-cli 0.64.0 IC:23276 and IC:34187 (label while activeHooks is non-empty); live capture, 2026-10-20 (turn refused busy during a session_start hook)"
+
+[[profiles.gemini.spinner]]
+name = "footer"
+regex = '\? for shortcuts|press tab twice for more|^ ?YOLO Ctrl\+Y\b|\d+ MCP servers? · \d+ skills?|^workspace \(/directory\)\s+branch\s+sandbox'
+source = "gemini-cli 0.64.0 IC:23361,22497; MA:81024-81039; live capture, 2026-10-20"
+
+[[profiles.gemini.spinner]]
+name = "footer-values"
+regex = '^\s*[~/]\S*\s{4,}\S'
+source = "gemini-cli 0.64.0 MA:81024-81039 (the value row under the footer header: path, branch, sandbox, model in wide columns); live capture, 2026-10-20, where it leaked into a turn reply"
+
+[[profiles.gemini.spinner]]
+name = "hidden-lines"
+regex = '\.\.\. first \d+ lines hidden \(Ctrl\+O to show\) \.\.\.'
+source = "live capture, 2026-10-20 (not a literal in IC)"
+
+[profiles.gemini.input]
+name = "draft"
+regex = '^ ?[>!] +(?P<text>\S.*?)\s*$'
+source = "gemini-cli 0.64.0 IC:22336 prefix characters; the placeholder row is input_empty, so check that first"
+
+[profiles.codex]
+argv0 = ["codex"]
+version = "codex-cli 0.163.0"
+# codex-queue reaches only a session on an app-server: spawn with delivery_setup gives the
+# session a private one (operator-approved option d); without it the driver reports
+# unavailable and turn falls back to the screen, so the shared daemon is never used.
+delivery = "codex-queue"
+idle_ms = 1500
+submit_delay_ms = 120
+
+[[profiles.codex.dialogs]]
+name = "trust-folder"
+regex = 'Trust this folder\?|Trust and continue|Open restricted'
+source = "codex 0.163.0 binary @247504129, @247504810"
+
+[[profiles.codex.dialogs]]
+name = "hooks-review"
+regex = 'Hooks need review|hooks? needs? review before|Trust all and continue'
+source = "codex 0.163.0 binary @247721500 region (tui startup_hooks_review.rs), @247344744"
+
+[[profiles.codex.dialogs]]
+name = "exec-approval"
+regex = 'Would you like to run the following command\?|Would you like to send input to (the existing )?terminal'
+source = "codex 0.163.0 binary @247667289, @247667340, @240546597"
+
+[[profiles.codex.dialogs]]
+name = "edit-approval"
+regex = 'Would you like to make the following edits\?'
+source = "codex 0.163.0 binary @247667231"
+
+[[profiles.codex.dialogs]]
+name = "permission-approval"
+regex = 'Would you like to grant these permissions\?|Do you want to approve network access|Approve app tool call\?|Yes, provide the requested info'
+source = "codex 0.163.0 binary @247667189, @240546644, @244451234, @247666700 region"
+
+[[profiles.codex.dialogs]]
+name = "auth-onboarding"
+regex = 'Sign in with ChatGPT|Provide your own API key|Sign in with Device Code|Finish signing in via your browser|Paste or type your API key'
+source = "codex 0.163.0 binary @247338664..247339584 (tui onboarding_screen.rs)"
+
+[[profiles.codex.busy]]
+name = "working"
+regex = 'esc to interrupt\)'
+source = "codex 0.163.0 binary @247358611 ' to interrupt)'; joined with the esc key span, unverified live"
+
+[[profiles.codex.busy]]
+name = "waiting-terminal"
+regex = 'Waiting for background terminal'
+source = "codex 0.163.0 binary @247655610"
+
+[[profiles.codex.input_empty]]
+name = "placeholder"
+regex = 'Ask Codex to do anything'
+source = "codex 0.163.0 binary @247544575, @247641693"
+
+# The placeholder is dim, so the dim-aware reading the guard uses sees only the bare mark.
+[[profiles.codex.input_empty]]
+name = "empty-composer"
+regex = '(?m)^\s*›\s*$'
+source = "live run 3 (--remote TUI), 2026-10-20"
+
+[profiles.codex.input]
+name = "composer"
+regex = '^\s*› (?P<text>\S.*?)\s*$'
+source = "codex 0.163.0 binary bottom_pane '›' (U+203A); live capture, 2026-10-20"
+
+[[profiles.codex.spinner]]
+name = "turn-summary"
+regex = '^\s*Worked for [0-9hms ]+ • \d{1,2}:\d{2}\s*$'
+source = "live capture, 2026-10-20"
+
+[[profiles.codex.spinner]]
+name = "status-line"
+regex = '· weekly \d+% left\s*$|\d+% context left'
+source = "live capture, 2026-10-20 (model · path · title · usage)"
+
+[[profiles.codex.spinner]]
+name = "footer-hints"
+regex = '← for agents · \? for shortcuts|\x{26A0} \d+ warnings? · f2 to view'
+source = "live capture, 2026-10-20"
+
+[[profiles.codex.spinner]]
+name = "banner-and-tips"
+regex = '^\s*>_ OpenAI Codex \(v[\d.]+\)|^\s*permissions: |^\s*(└\s*)?Tip: '
+source = "live capture, 2026-10-20"
+
+[profiles.opencode]
+argv0 = ["opencode"]
+version = "1.18.33"
+delivery = "http-prompt-async"
+idle_ms = 1500
+
+[[profiles.opencode.dialogs]]
+name = "permission"
+regex = 'Permission required|Allow once\s+Allow always\s+Reject'
+source = "opencode-ai 1.18.33 opencode.exe @107010373, @107010881"
+
+[[profiles.opencode.dialogs]]
+name = "permission-always-confirm"
+regex = 'allow the following patterns until OpenCode is restarted'
+source = "opencode-ai 1.18.33 opencode.exe @107005382"
+
+[[profiles.opencode.dialogs]]
+name = "permission-reject-reason"
+regex = 'Tell OpenCode what to do differently'
+source = "opencode-ai 1.18.33 opencode.exe @~107012000"
+
+[[profiles.opencode.dialogs]]
+name = "question"
+regex = 'Type your own answer|\(select all that apply\)'
+source = "opencode-ai 1.18.33 opencode.exe @107025317"
+
+[[profiles.opencode.dialogs]]
+name = "auth-connect"
+regex = 'Connect a provider|Select auth method|Waiting for authorization…|OAuth authorization failed'
+source = "opencode-ai 1.18.33 opencode.exe @106849920, @106858881, @106861167"
+
+[[profiles.opencode.busy]]
+name = "interrupt-hint"
+regex = 'esc (again to )?interrupt'
+source = "opencode-ai 1.18.33 opencode.exe @106971654; esc is the default keybind rendering, unverified live"
+
+[[profiles.opencode.busy]]
+name = "retrying"
+regex = '\[retrying (in \S+ )?attempt #\d+\]'
+source = "opencode-ai 1.18.33 opencode.exe @~106971200"
+
+[[profiles.opencode.spinner]]
+name = "blocks"
+regex = '^\s*[■⬝]{8}'
+source = "opencode-ai 1.18.33 opencode.exe @93665800 (8-cell block spinner)"
+
+[[profiles.opencode.spinner]]
+name = "footer-and-hints"
+regex = '⊙ \d+ MCP\b|/status\s*$|tab agents\s+ctrl\+p commands|^\s*\S?\s*Tip:? '
+source = "live capture, 2026-10-20 (path:branch footer, key hints and tip rows that a turn reply carried)"
+
+[[profiles.opencode.input_empty]]
+name = "placeholder"
+regex = 'Ask anything… "|Run a command… "'
+source = "opencode-ai 1.18.33 opencode.exe @106966276"
+
+[profiles.agy]
+argv0 = ["agy"]
+version = "1.4.3"
+delivery = "screen"
+idle_ms = 1500
+
+[[profiles.agy.dialogs]]
+name = "project-trust"
+regex = 'Do you trust the contents of this project\?|Yes, I trust this folder'
+source = "agy 1.4.3 binary @92461542, @91769843; live capture, 2026-10-20"
+
+[[profiles.agy.dialogs]]
+name = "run-command"
+regex = 'Run this command\?|Yes, run command|Requesting permission for:'
+source = "agy 1.4.3 binary @91270643, @91192178, @91875315; live capture, 2026-10-20"
+
+[[profiles.agy.dialogs]]
+name = "tool-permission"
+regex = 'Yes, allow (tool call|access|creation)|No, deny (permission|creation)'
+source = "agy 1.4.3 binary @91486483, @91270609, @91416971 (unverified live)"
+
+[[profiles.agy.dialogs]]
+name = "edit-proceed"
+regex = 'Do you want to proceed\?|Yes, accept this change'
+source = "agy 1.4.3 binary @91714383, @91714406 (unverified live)"
+
+[[profiles.agy.dialogs]]
+name = "auth-login"
+regex = 'Select login method:|Select Google Cloud sign-in method:|Other sign-in options|Starting OAuth authentication flow'
+source = "agy 1.4.3 binary @91554651, @92258340, @92190740; 'You are currently not signed in.' shows at every startup, so it is left out"
+
+[[profiles.agy.busy]]
+name = "working"
+regex = '(?m)^esc to cancel\b|(?m)^\s*[⠀-⣿]\s+(Generating|Running|Waiting)|Press esc to interrupt generation\.'
+source = "live capture, 2026-10-20; agy 1.4.3 binary @92190672. The esc footer also shows under a dialog, which status checks first"
+
+[[profiles.agy.spinner]]
+name = "footer"
+regex = '^(\? for shortcuts|esc to cancel)\s+.*·'
+source = "live capture, 2026-10-20"
+
+[[profiles.agy.spinner]]
+name = "thinking"
+regex = '^\s*[○▸] (Thought for [\d.]+s|Thinking\.\.\.)'
+source = "agy 1.4.3 binary @91270847; live capture, 2026-10-20 (both ○ and ▸ seen)"
+
+[[profiles.agy.spinner]]
+name = "banner"
+regex = 'Antigravity CLI \d|GCP Project:|\(Agent Platform\)|^Resume with -c \(or command below\):|^agy --conversation=\S+'
+source = "agy 1.4.3 binary @92700592; live capture, 2026-10-20"
+
+[[profiles.agy.input_empty]]
+name = "empty-box"
+regex = '(?m)^─{20,}\n>\s*\n─{20,}'
+source = "live capture, 2026-10-20"
+
+[profiles.agy.input]
+name = "box"
+regex = '(?m)^─{20,}\n> (?P<text>\S.*?)\s*\n─{20,}'
+source = "live capture, 2026-10-20; single-line drafts only"
+
+[profiles.grok]
+argv0 = ["grok"]
+version = "grok 1.0.62 (1474f9cbdd91) [stable]"
+delivery = "grok-leader-acp"
+idle_ms = 1500
+
+[[profiles.grok.dialogs]]
+name = "directory-trust"
+regex = 'Do you trust the contents of this directory\?|Enter or y to trust'
+source = "grok 1.0.62 binary @1743306, @1743454"
+
+[[profiles.grok.dialogs]]
+name = "tool-approval"
+regex = 'No, and tell Grok what to do differently|Yes, and don.t ask again for (bash commands|anything)|No, and don.t ask again for this command|Always allow: |Never allow: '
+source = "grok 1.0.62 binary @9280079..9280700 (permission/prompter.rs); 'Allow once' was the /settings menu, not the prompt"
+
+[[profiles.grok.dialogs]]
+name = "edit-approval"
+regex = 'Yes, allow all edits during this session'
+source = "grok 1.0.62 binary @9280184"
+
+[[profiles.grok.dialogs]]
+name = "auth-signin"
+regex = 'Sign in to Grok|Opening your browser to sign in|Open this URL in your browser to approve:|Sign-in failed'
+source = "grok 1.0.62 binary @1743173, @1743188, @1743269, @1743292"
+
+[[profiles.grok.busy]]
+name = "turn-running"
+regex = 'Enter:queue|send a message to interrupt|Press Ctrl\+c to cancel the turn'
+source = "grok 1.0.62 binary @1898710; ~/.grok/docs 03-keyboard-shortcuts.md:272,515, 20-background-tasks.md:198 (unverified live)"
+
+[[profiles.grok.spinner]]
+name = "turn-summary"
+regex = '^\s*(Worked for [0-9hms ]+|◆ Thought for [\d.]+s)\s*$'
+source = "live capture, 2026-10-20"
+
+[[profiles.grok.spinner]]
+name = "footer"
+regex = '^\s*Shift\+Tab:mode\s+│\s+Ctrl\+x:shortcuts|· (always-approve|ask|auto)\s*$|\d+K / \d+K │ \[Dashboard\]'
+source = "live capture, 2026-10-20"
+
+[[profiles.grok.spinner]]
+name = "notices"
+regex = '^\s*(\[stable\]|Clipboard may be unreachable\.|Run /doctor for details and fixes\.|Coming from Claude Code\? )'
+source = "live capture, 2026-10-20"
+
+[[profiles.grok.input_empty]]
+name = "empty-box"
+regex = '(?m)^\s*│ ❯\s*│\s*$'
+source = "live capture, 2026-10-20"
+
+[profiles.grok.input]
+name = "box"
+regex = '^\s*│ ❯ (?P<text>\S.*?)\s*│\s*$'
+source = "live capture, 2026-10-20"
+
+# Claude sources: ~/.local/share/claude/versions/2.1.304, one Bun ELF holding the plain JS bundle;
+# @n are byte offsets into it. Live captures from 2.1.303 and 2.1.304, 2026-10-19.
+[profiles.claude]
+argv0 = ["claude"]
+version = "2.1.304 (Claude Code)"
+delivery = "claude-inbox"
+idle_ms = 1500
+
+[[profiles.claude.dialogs]]
+name = "workspace-trust"
+regex = 'Yes, I trust this folder|Quick safety check: Is this a project you created or one you trust'
+source = "claude 2.1.304 @275081146, @275079400 (unverified live)"
+
+[[profiles.claude.dialogs]]
+name = "managed-settings-trust"
+regex = 'Yes, I trust these settings|Settings requiring approval:'
+source = "claude 2.1.304 @256603472 (unverified live)"
+
+[[profiles.claude.dialogs]]
+name = "tool-permission"
+regex = 'Do you want to proceed\?'
+source = "claude 2.1.304 @266691879"
+
+[[profiles.claude.dialogs]]
+name = "edit-approval"
+regex = 'Do you want to (make this edit to|create|overwrite|write to) '
+source = "claude 2.1.304 @269029652, @266991346"
+
+[[profiles.claude.dialogs]]
+name = "network-permission"
+regex = 'Do you want to allow this connection\?|Do you want to allow Claude to fetch this content\?'
+source = "claude 2.1.304 @268905257, @269065945"
+
+[[profiles.claude.dialogs]]
+name = "question"
+regex = 'Enter to select · ↑/↓ to navigate · Esc to cancel'
+source = "claude 2.1.304 @278904817; live capture, 2026-10-19 (options sit above this row)"
+
+[[profiles.claude.dialogs]]
+name = "auth-api-key"
+regex = 'Do you want to use this API key\?|Detected a custom API key in your environment'
+source = "claude 2.1.304 @274990259, @274990629"
+
+[[profiles.claude.dialogs]]
+name = "auth-login"
+regex = "Select login method:|Paste code here if prompted >|Browser didn't open\\? Use the url below to sign in|Login successful\\. Press Enter to continue"
+source = "claude 2.1.304 @263267596, @250479849, @263263325, @263275207"
+
+[[profiles.claude.dialogs]]
+name = "auth-logged-out"
+regex = '(Not logged in|Login expired|OAuth token revoked) · (Please run|Run) /login|Invalid API key · (Please run /login|Fix external API key)'
+source = "claude 2.1.304 @246846815, @246848112, @246848063 (status text, never answered)"
+
+[[profiles.claude.busy]]
+name = "interrupt-hint"
+regex = 'esc to interrupt'
+source = "claude 2.1.304 @263131209 (chord esc plus action interrupt); live capture, 2026-10-19"
+
+[[profiles.claude.busy]]
+name = "spinner-row"
+regex = "(?m)^\\s*[·\\x{2722}\\x{2733}*\\x{2736}\\x{273B}\\x{273D}]\\s+[A-Z][A-Za-z'-]*(…|\\.\\.\\.)(\\s+\\(.*\\))?\\s*$"
+source = "claude 2.1.304 glyphs @256302064, verbs @256240647, timer part @263128680 (unverified live; a single trailing dot is left out so reply bullets do not match)"
+
+[[profiles.claude.spinner]]
+name = "done-summary"
+regex = '^\s*✻ (Baked|Brewed|Churned|Cogitated|Cooked|Crunched|Sautéed|Worked) for \S+( · done .*)?\s*$'
+source = "claude 2.1.304 @266367416, @266379952; live capture, 2026-10-19"
+
+[[profiles.claude.spinner]]
+name = "mode-footer"
+regex = '^\s*⏵⏵ .*\(shift\+tab to cycle\)'
+source = "live capture, 2026-10-19"
+
+[[profiles.claude.spinner]]
+name = "empty-prompt"
+regex = '^\s*❯[\x{00A0} ]*$'
+source = "live capture of claude 2.1.303, 2026-10-19 (prompt glyph then U+00A0)"
+
+[[profiles.claude.input_empty]]
+name = "empty-box"
+# The space after the mark is optional: the dim-aware reading trims it with the placeholder.
+regex = '(?m)^─{3,}.*\n\s*[❯>](?:[\x{00A0} ]\s*(Try "[^"\n]*")?)?\s*\n─{3,}'
+source = "claude 2.1.304 placeholder @255719678; live captures, 2026-10-19 and 2026-10-20"
+
+[profiles.claude.input]
+name = "box"
+regex = '(?m)^─{3,}.*\n\s*[❯>][\x{00A0} ](?P<text>\S.*?)\s*$'
+source = "live captures, 2026-10-19 (first draft row only; the dim placeholder reads like a draft)"

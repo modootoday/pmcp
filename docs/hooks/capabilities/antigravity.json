@@ -1,0 +1,199 @@
+{
+  "runtime": "antigravity",
+  "version": "1.3.3",
+  "measuredAt": "2026-10-20T00:50:00Z",
+  "configuration": {
+    "hooks": ".agents/hooks.json in the workspace customization root (also the global customization root, and plugins/<name>/hooks.json). Top-level keys are hook names, each with optional enabled and per-event arrays.",
+    "trust": "none: project hooks ran in a fresh, never-opened directory with no trust prompt, interactive or headless",
+    "headless": "agy -p '<prompt>' --output-format json [--print-timeout <d>]. Tools needing the command permission are auto-denied in headless mode unless permissions.allow (user settings.json) allows them or --dangerously-skip-permissions is passed; a PreToolUse allow does not grant that permission.",
+    "mcp": "documented: mcp_config.json in a customization root (.agents/) or plugins/<name>/mcp_config.json; pmcp already projects .agents/plugins/pmcp-mcp. Not exercised in this run."
+  },
+  "events": {
+    "session_start": {
+      "native": "PreInvocation (invocationNum 0, initialNumSteps 1)",
+      "fires": true,
+      "notes": "no such event; PreInvocation with invocationNum 0 is the first hook of a run"
+    },
+    "prompt": {
+      "native": "PreInvocation",
+      "fires": true,
+      "fields": [
+        "conversationId",
+        "workspacePaths",
+        "transcriptPath",
+        "artifactDirectoryPath",
+        "modelName",
+        "invocationNum",
+        "initialNumSteps"
+      ],
+      "notes": "fires before every model call, not once per prompt; no prompt text in the payload"
+    },
+    "before_tool": {
+      "native": "PreToolUse",
+      "fires": true,
+      "fields": [
+        "conversationId",
+        "workspacePaths",
+        "transcriptPath",
+        "artifactDirectoryPath",
+        "modelName",
+        "stepIdx",
+        "toolCall"
+      ]
+    },
+    "after_tool": {
+      "native": "PostToolUse",
+      "fires": true,
+      "fields": [
+        "conversationId",
+        "workspacePaths",
+        "transcriptPath",
+        "artifactDirectoryPath",
+        "modelName",
+        "stepIdx",
+        "toolCall",
+        "error"
+      ],
+      "notes": "fires only for calls that ran; not for a hook-denied call; no tool output in the payload"
+    },
+    "after_model": {
+      "native": "PostInvocation",
+      "fires": true,
+      "fields": ["same as PreInvocation"]
+    },
+    "stop": {
+      "native": "Stop",
+      "fires": true,
+      "fields": [
+        "conversationId",
+        "workspacePaths",
+        "transcriptPath",
+        "artifactDirectoryPath",
+        "modelName",
+        "executionNum",
+        "terminationReason",
+        "error",
+        "fullyIdle"
+      ]
+    },
+    "session_end": {
+      "native": null,
+      "fires": false,
+      "notes": "no such event"
+    },
+    "notification": {
+      "native": null,
+      "fires": false,
+      "notes": "no such event"
+    }
+  },
+  "tools": {
+    "shell": {
+      "tool_name": "run_command",
+      "input": "toolCall.args.CommandLine, toolCall.args.Cwd (also WaitMsBeforeAsync, toolAction, toolSummary)"
+    },
+    "edit": {
+      "tool_name": "write_to_file (create)",
+      "input": "toolCall.args.TargetFile, CodeContent, Overwrite, Description"
+    }
+  },
+  "outputs": {
+    "deny": {
+      "event": "before_tool",
+      "support": "measured",
+      "shape": "{decision: deny, reason}; the step fails with 'tool call denied by pre-tool hook: <reason>' and the model reads the reason. Holds under --dangerously-skip-permissions."
+    },
+    "missing_decision": {
+      "support": "measured",
+      "notes": "A PreToolUse result without decision (for example {}) denies the call with an empty reason and stops that hook's handler chain. Run 1 lost every tool call this way: a recorder returning {} ran before the probe."
+    },
+    "allow": {
+      "support": "measured",
+      "notes": "decision allow lets the hook chain pass but does not grant the headless command permission (run 2: auto-denied, run ended with no output)"
+    },
+    "context": {
+      "support": "measured",
+      "delivered": ["session_start", "prompt", "stop"],
+      "shape": "PreInvocation/PostInvocation return injectSteps [{ephemeralMessage}] (also userMessage, toolCall); transcript step EPHEMERAL_MESSAGE, source SYSTEM_SDK",
+      "not_delivered": ["before_tool reason on allow"],
+      "native_delivered": [
+        "prompt (PreInvocation)",
+        "after_model (PostInvocation)",
+        "stop"
+      ],
+      "deferred": {
+        "before_tool": "stop (continue at executionNum 0); V2 antigravity-context-before-599fce53"
+      }
+    },
+    "stop_context": {
+      "support": "measured",
+      "notes": "Stop {decision: continue, reason} re-enters the loop and injects the reason as a SYSTEM_MESSAGE; executionNum counts re-entries (0, then 1). An unconditional continue would loop; policies must continue only when executionNum is 0. In the smoke run a continue left print mode waiting until --print-timeout."
+    },
+    "ask": {
+      "support": "documented",
+      "notes": "decision ask / force_ask prompt the user; headless cannot prompt"
+    }
+  },
+  "fields_absent": [
+    "session_id (conversationId instead)",
+    "cwd (workspacePaths and toolCall.args.Cwd instead)",
+    "hook_event_name (the event is known only from the configured key)",
+    "agent_type",
+    "prompt text"
+  ],
+  "timeouts": "handler timeout in seconds, default 30",
+  "trust": "none for workspace .agents/hooks.json",
+  "live": {
+    "version": "1.4.2",
+    "measuredAt": "2026-10-20T04:07:39.189Z",
+    "implementationCommits": ["cfcdf5a", "35f3c77"],
+    "deny": {
+      "support": "measured",
+      "scenarios": [
+        "antigravity-heredoc-bb1ebeb1",
+        "antigravity-stage-all-cd3d679e",
+        "antigravity-pause-521c0215",
+        "antigravity-lease-59a85a08"
+      ]
+    },
+    "context": {
+      "support": "measured",
+      "scenarios": {
+        "context-start": "antigravity-context-start-1cc194a9",
+        "context-prompt": "antigravity-context-prompt-fad83dcf",
+        "context-before": "antigravity-context-before-599fce53",
+        "broadcast": "antigravity-broadcast-152964dc"
+      },
+      "notes": "pause, broadcast and shared_checkout notices reached the model; held context arrived at the next delivering event"
+    },
+    "workflow": {
+      "support": "measured",
+      "scenarios": [
+        "antigravity-worktree-create-2205cf0e",
+        "antigravity-worktree-sync-3aa5f8a5",
+        "antigravity-deliver-b1048684",
+        "antigravity-deliver-race-ece6d671",
+        "antigravity-git-sync-1c9dc319"
+      ]
+    },
+    "cost": [
+      {
+        "event": "before_tool",
+        "addedMs": 22.7
+      },
+      {
+        "event": "prompt",
+        "addedMs": 19.1
+      }
+    ],
+    "turns": {
+      "support": "measured",
+      "finding": "agy 1.4.2 resets invocationNum for a later prompt in one conversation: 2 PreInvocation calls were dispatched at invocationNum 0, one per turn, so prompt policies run on every turn."
+    },
+    "scenarios": {
+      "passed": 13,
+      "failed": []
+    }
+  },
+  "binary": "agy"
+}

@@ -1,12 +1,10 @@
 import { ArgumentError, type Command } from "../cli/command.js";
-import { REMOTE_OPTIONS, remoteCatalog } from "./remote-options.js";
+import { remoteCatalog } from "./remote-options.js";
 import { sayStanding } from "./standing.js";
+import { previewSpec } from "./specs/remote.js";
 
 export const previewCommand: Command = {
-  name: "preview",
-  describe: "Show a skill's contents and a complete example",
-  usage: "pmcp preview <skill-package> [--json]",
-  options: REMOTE_OPTIONS,
+  ...previewSpec,
 
   async run(context) {
     const [requested, ...extra] = context.args.positional;

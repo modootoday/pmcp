@@ -102,9 +102,7 @@ describe("readCatalog", () => {
     expect(catalog().some((e) => e.package === "@acme/no-skills")).toBe(false);
   });
 
-  // find ranks descriptions. One without a description could only be found by
-  // already knowing its name, and listing it spends tokens on an entry that
-  // cannot answer.
+  // Description ranking cannot retrieve an entry that has no description.
   it("skips a skill with no description", () => {
     expect(catalog().some((e) => e.package === "@acme/undescribed")).toBe(
       false,
@@ -131,8 +129,7 @@ describe("readCatalog", () => {
     expect(scoped.length).toBeGreaterThan(0);
   });
 
-  // A nested node_modules holds an older copy of what the root already
-  // resolved, and the resolved one is what the consumer actually loads.
+  // Consumers load the root resolution rather than an older nested copy.
   it("keeps the first root's copy when two roots hold the same skill", () => {
     const nested = join(root, "nested-modules");
     makePackageAt(nested, "plain", "@acme/plain", {

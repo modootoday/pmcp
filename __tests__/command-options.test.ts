@@ -1,11 +1,7 @@
 import { expect, it } from "vitest";
 import { COMMANDS } from "../src/commands/index.js";
 
-/**
- * A command that spreads a shared option list and then declares one of the
- * same names again prints that flag twice in its own help, which reads as two
- * flags that differ. Nothing else notices: both entries are valid on their own.
- */
+// Duplicate option names remain valid to the parser but produce ambiguous help.
 it("declares each option once per command", () => {
   const repeated: string[] = [];
   for (const command of COMMANDS) {

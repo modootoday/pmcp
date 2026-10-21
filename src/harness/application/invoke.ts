@@ -1,5 +1,5 @@
 import { serialized } from "../adapters/process/serialized.js";
-import { attachNative } from "../adapters/tmux/attach.js";
+import { attachNative } from "../adapters/terminal/attach.js";
 import type { Operation, Receipt } from "../contracts.js";
 import { createGroup } from "../groups/service.js";
 import { listGroups } from "../groups/catalog.js";

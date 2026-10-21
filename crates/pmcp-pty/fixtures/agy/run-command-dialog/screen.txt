@@ -1,0 +1,9 @@
+Command
+────────────────────────────────────────────────────────────
+Requesting permission for:
+   ls -la
+Run this command?
+> 1. Yes, run command
+  2. No, cancel
+  ↑/↓ Navigate · tab Amend · ctrl+g edit/expand command
+esc to cancel                                        Model · high

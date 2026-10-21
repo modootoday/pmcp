@@ -46,9 +46,12 @@ it("uses bounded settings and no project file preparation", () => {
   expect(parseTui(parseArgs([], tuiOptions))).toMatchObject({
     action: "launch",
   });
-  expect(
-    parseTui(parseArgs(["--view", "owned.json"], tuiOptions)),
-  ).toMatchObject({ action: "open", viewFile: "owned.json" });
+  expect(() => parseArgs(["--view", "owned.json"], tuiOptions)).toThrow(
+    "unknown option --view",
+  );
+  expect(() => parseTui(parseArgs(["close"], tuiOptions))).toThrow(
+    "tui close was a tmux view operation and is removed",
+  );
 });
 
 it("finds the nearest config and resolves group paths relative to it", () => {

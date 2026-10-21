@@ -1,8 +1,4 @@
-/**
- * Terminal output in the shape prompts uses: a symbol, a colour, aligned
- * secondary text. Written here rather than depended on, because a server whose
- * whole install is under a hundred kilobytes should not add a UI library.
- */
+// Keep terminal formatting local so server installation does not require a UI library.
 
 export interface Stream {
   write(text: string): unknown;
@@ -12,14 +8,14 @@ export interface Stream {
 export interface UiOptions {
   readonly stdout?: Stream;
   readonly stderr?: Stream;
-  /** Force colour on or off. Otherwise a TTY and NO_COLOR decide. */
+
   readonly color?: boolean;
-  /** Suppress everything but errors. Data on stdout is never suppressed. */
+
   readonly quiet?: boolean;
   readonly env?: Readonly<Record<string, string | undefined>>;
 }
 
-/** Built from a char code so no raw escape byte lands in this source file. */
+// Construct escapes from character codes to keep raw control bytes out of source.
 const ESC = String.fromCharCode(27);
 
 const CODES = {
@@ -34,10 +30,7 @@ const CODES = {
 
 export type Colour = keyof typeof CODES;
 
-/**
- * Symbols are ASCII on purpose. The colour carries the state, and a glyph that
- * a terminal renders as a box carries nothing.
- */
+// Use ASCII symbols because unsupported glyphs can hide terminal status.
 const SYMBOL = {
   success: "+",
   error: "x",
@@ -79,7 +72,7 @@ export class Ui {
     return `${colours.map((c) => CODES[c]).join("")}${text}${CODES.reset}`;
   }
 
-  /** Data goes to stdout so it can be piped; everything else to stderr. */
+  // Separate diagnostics so redirected data stays machine-readable.
   data(text: string): void {
     this.out.write(text);
   }
@@ -92,8 +85,7 @@ export class Ui {
   message(kind: Kind, text: string, detail?: string): void {
     const mark = this.paint(SYMBOL[kind], KIND_COLOUR[kind], "bold");
     const tail = detail === undefined ? "" : ` ${this.paint(detail, "dim")}`;
-    // An error still speaks under --quiet: silencing a failure is not quiet,
-    // it is a program that did nothing and said nothing about it.
+    // Keep errors visible under quiet mode so failed operations remain observable.
     if (kind === "error" && this.quiet) {
       this.err.write(`${mark} ${text}${tail}\n`);
       return;
@@ -117,7 +109,6 @@ export class Ui {
     this.message("info", text, detail);
   }
 
-  /** Two aligned columns, as a help screen or a summary. */
   table(rows: ReadonlyArray<readonly [string, string]>, indent = "  "): void {
     const width = rows.reduce((n, [left]) => Math.max(n, left.length), 0);
     for (const [left, right] of rows) {

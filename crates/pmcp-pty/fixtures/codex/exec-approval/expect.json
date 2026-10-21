@@ -1,0 +1,21 @@
+{
+  "busy": null,
+  "dialog": "exec-approval",
+  "input": null,
+  "input_empty": false,
+  "options": [
+    {
+      "key": "1",
+      "label": "Yes, just this once"
+    },
+    {
+      "key": "2",
+      "label": "Yes, and don't ask again for this command in this session"
+    },
+    {
+      "key": "3",
+      "label": "No, and tell Codex what to do differently"
+    }
+  ],
+  "selected": "1"
+}

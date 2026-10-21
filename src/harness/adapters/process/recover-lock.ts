@@ -1,6 +1,6 @@
 import { existsSync, lstatSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
-import type { Backend } from "../tmux/backend.js";
+import type { Backend } from "../terminal/backend.js";
 import { readPrivateJson } from "../../groups/store.js";
 import { object, text } from "../../validation.js";
 import { controllerExited } from "./identity.js";

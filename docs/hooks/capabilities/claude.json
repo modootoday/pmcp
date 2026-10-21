@@ -1,0 +1,179 @@
+{
+  "runtime": "claude",
+  "version": "2.1.303",
+  "measuredAt": "2026-10-19T11:00:00Z",
+  "events": {
+    "session_start": {
+      "native": "SessionStart",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "hook_event_name",
+        "source"
+      ]
+    },
+    "prompt": {
+      "native": "UserPromptSubmit",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "prompt_id",
+        "permission_mode",
+        "hook_event_name",
+        "prompt"
+      ]
+    },
+    "before_tool": {
+      "native": "PreToolUse",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "prompt_id",
+        "permission_mode",
+        "effort",
+        "hook_event_name",
+        "tool_name",
+        "tool_input",
+        "tool_use_id"
+      ]
+    },
+    "after_tool": {
+      "native": "PostToolUse",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "prompt_id",
+        "permission_mode",
+        "effort",
+        "hook_event_name",
+        "tool_name",
+        "tool_input",
+        "tool_response",
+        "tool_use_id",
+        "duration_ms"
+      ]
+    },
+    "stop": {
+      "native": "Stop",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "prompt_id",
+        "permission_mode",
+        "effort",
+        "hook_event_name",
+        "stop_hook_active",
+        "last_assistant_message",
+        "background_tasks",
+        "session_crons"
+      ]
+    },
+    "session_end": {
+      "native": "SessionEnd",
+      "fires": true,
+      "fields": [
+        "session_id",
+        "transcript_path",
+        "cwd",
+        "prompt_id",
+        "hook_event_name",
+        "reason"
+      ]
+    },
+    "notification": {
+      "native": "Notification",
+      "fires": "not in print mode; interactive only"
+    }
+  },
+  "tools": {
+    "shell": {
+      "tool_name": "Bash",
+      "input": "tool_input.command, tool_input.description"
+    },
+    "edit": {
+      "tool_name": "Write | Edit | MultiEdit | NotebookEdit",
+      "input": "tool_input.file_path (notebook_path for NotebookEdit)"
+    }
+  },
+  "outputs": {
+    "deny": {
+      "event": "before_tool",
+      "support": "measured",
+      "shape": "hookSpecificOutput.permissionDecision = deny + permissionDecisionReason; the reason reaches the model"
+    },
+    "context": {
+      "support": "measured",
+      "delivered": [
+        "session_start",
+        "prompt",
+        "before_tool",
+        "after_tool",
+        "stop"
+      ],
+      "shape": "hookSpecificOutput.additionalContext; transcript attachment hook_additional_context and the next API request"
+    },
+    "stop_context": {
+      "support": "measured",
+      "notes": "additionalContext on Stop continues the conversation: one probe turn produced 9 Stop events. Policies may return Stop context only when stop_hook_active is false, at most once per turn."
+    },
+    "session_end_output": {
+      "support": "unsupported",
+      "notes": "SessionEnd context is not delivered (session is over); bookkeeping only"
+    },
+    "ask": {
+      "support": "documented",
+      "notes": "permissionDecision ask; not exercised in print mode"
+    }
+  },
+  "live": {
+    "version": "2.1.303",
+    "measuredAt": "2026-10-19T12:41:41.484Z",
+    "implementationCommits": ["880aa32"],
+    "deny": {
+      "support": "measured",
+      "scenarios": [
+        "claude-heredoc-1cedfb4f",
+        "claude-stage-all-87e8f03d",
+        "claude-pause-24e9c866",
+        "claude-lease-6d0384ea"
+      ]
+    },
+    "context": {
+      "support": "measured",
+      "delivered": {
+        "session_start": "claude-context-start-b1fb6ab1",
+        "prompt": "claude-context-prompt-16900ce9",
+        "before_tool": "claude-context-before-2b98be30"
+      },
+      "notes": "after_tool and stop context stay measured by the earlier probe; the live extension did not exercise them. The start and broadcast markers also reached a separate interactive Claude session through its hooks (reported by the person at that session)."
+    },
+    "stop": {
+      "support": "measured",
+      "notes": "Stop fires in live sessions; the live extension claims no Stop context, so the once-per-turn stop_context rule above stands"
+    },
+    "session_end_timeout": {
+      "support": "unqualified",
+      "notes": "no clamp observed; pmcp keeps the compiled timeout"
+    },
+    "ask": {
+      "support": "unqualified",
+      "notes": "interactive ask not exercised"
+    },
+    "scenarios": {
+      "passed": 13,
+      "failed": 0
+    }
+  },
+  "fields_absent": ["turn_id (Claude uses prompt_id)"],
+  "trust": "none for project settings hooks in print mode"
+}

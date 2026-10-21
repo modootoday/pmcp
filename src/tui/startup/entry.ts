@@ -1,6 +1,6 @@
 import { locateExecutable } from "../../harness/adapters/process/executable.js";
 import { runtimeExecutables } from "../../harness/runtimes/registry.js";
-import { invokeTui } from "../application/invoke.js";
+import { runTui } from "../rust.js";
 import { startupSettings, type StartupRequest } from "./config.js";
 import { readStartup, startupFile } from "./state.js";
 import { requireTerminal } from "./host.js";
@@ -71,13 +71,16 @@ export async function launchStartup(
       `PMCP main: ${settings.runtime} | ${settings.projectRoot}\n`,
     );
   }
-  const prepared = serializedStartup(request);
+  const prepared = await serializedStartup(request);
   if (prepared.ok !== true) return prepared;
-  return invokeTui({
-    action: "open",
-    viewFile: String(prepared.viewFile),
-    input: {},
-  });
+  const exitCode = await runTui(String(prepared.socket), String(prepared.main));
+  return {
+    schemaVersion: 1,
+    ok: exitCode === 0,
+    detached: true,
+    exitCode,
+    runtimeStopRequested: false,
+  };
 }
 
 function cancelledStart(): Receipt {

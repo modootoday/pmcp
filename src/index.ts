@@ -1,7 +1,7 @@
 export type { IntentCache, IntentCacheStats } from "./intent.js";
 export { normaliseIntent } from "./intent.js";
 
-// bun:sqlite. Import this subpath only from a bun runtime.
+// Keep SQLite out of this import path so Node consumers do not load Bun-only modules.
 export type { IntentCacheOptions } from "./cache.js";
 export { DEFAULT_INTENT_CACHE_LIMIT, openIntentCache } from "./cache.js";
 

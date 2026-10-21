@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import type { RecordStore } from "../adapters/tmux/records.js";
-import { budgetSlice, runtimeUnit } from "../adapters/tmux/records.js";
+import type { RecordStore } from "../adapters/terminal/records.js";
+import { budgetSlice, runtimeUnit } from "../adapters/terminal/records.js";
 import { GroupStore, privateJson, readPrivateJson } from "../groups/store.js";
 import { integer, object, strings, text } from "../validation.js";
 import { resourceClaim } from "../adapters/docker/claims.js";
@@ -117,15 +117,13 @@ export class LaunchJournal {
     )
       throw new Error("foreign_launch_proof");
     for (const [field, pattern] of [
-      ["paneId", /^%\d+$/],
-      ["windowId", /^@\d+$/],
-      ["tmuxSessionId", /^\$\d+$/],
-      ["serverIdentity", /^\d+:\d+$/],
+      ["ptySession", /^s\d+$/],
+      ["ptyInstance", /^\d+-\d+$/],
     ] as const) {
       if (!pattern.test(text(session[field], field)))
         throw new Error("invalid_launch_identity");
     }
-    integer(session.panePid, "pane_process", 1, Number.MAX_SAFE_INTEGER);
+    integer(session.pid, "session_process", 1, Number.MAX_SAFE_INTEGER);
     if (!/^\d+:\d+$/.test(text(value.runnerIdentity, "runner")))
       throw new Error("invalid_launch_runner");
     return value as unknown as LaunchProof;

@@ -1,0 +1,17 @@
+{
+  "busy": "working",
+  "dialog": "run-command",
+  "input": null,
+  "input_empty": false,
+  "options": [
+    {
+      "key": "1",
+      "label": "Yes, run command"
+    },
+    {
+      "key": "2",
+      "label": "No, cancel"
+    }
+  ],
+  "selected": "1"
+}

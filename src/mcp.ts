@@ -1,10 +1,4 @@
-/**
- * The catalog, spoken over MCP: the skill_* tools, skill:// resources, the
- * Skills extension and, when asked for, one prompt per skill.
- *
- * Thin on purpose: every decision is in createSkillTools and the modules under
- * tools/ and files/; this file only composes them on one server.
- */
+// Compose MCP operations from transport-independent tools so hosts can reuse the same catalog behavior.
 
 import { McpServer } from "@modelcontextprotocol/server";
 
@@ -28,17 +22,11 @@ import { registerReadTool } from "./tools/read.js";
 import { registerMailboxTools } from "./tools/mailbox.js";
 import type { MailboxService } from "./mailbox/service.js";
 
-/** Reported to the host on connect. */
 export const SERVER_NAME = "pmcp";
 
-export const SERVER_VERSION = "0.17.4";
+export const SERVER_VERSION = "0.18.0";
 
-/**
- * Registers the skill_* tools on a server.
- *
- * Exported separately from the stdio entry so a consumer already running an MCP
- * server can add these to it rather than starting a second process.
- */
+// Export registration separately so existing MCP hosts need not start another server process.
 export function registerSkillTools(
   server: McpServer,
   tools: SkillTools,
@@ -54,17 +42,12 @@ export function registerSkillTools(
 
 export interface SkillMcpOptions extends SkillServerOptions {
   readonly mailbox?: MailboxService;
-  /** One prompt per skill, for hosts that offer prompts as commands. Off by default. */
+
   readonly prompts?: boolean;
   readonly skillsExtension?: SkillsExtensionOptions;
 }
 
-/**
- * A server with everything registered.
- *
- * The catalog is read on first use rather than here, so a host that connects
- * and never asks pays nothing for the walk.
- */
+// Load the catalog lazily so connecting without requests does not pay for discovery.
 export function createSkillServer(options: SkillMcpOptions): McpServer {
   const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION });
   const tools = createSkillTools(options);

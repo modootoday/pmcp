@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 40
+    },
+    "license": {
+      "type": "string"
+    },
+    "compatibility": {
+      "type": "string"
+    },
+    "allowed-tools": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "locales": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z]{2}$"
+          }
+        },
+        "level": {
+          "type": "string",
+          "enum": ["L1", "L2", "L3", "L4", "L5"]
+        },
+        "domain": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "install": {
+          "type": "string",
+          "enum": ["default", "optional", "catalog-only"]
+        },
+        "requires": {
+          "type": "object",
+          "properties": {
+            "mcp": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "bin": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "env": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "gpu-gb": {
+              "type": "string"
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "provides": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "approval": {
+          "type": "string",
+          "enum": ["none", "scripts", "hooks"]
+        },
+        "output-license": {
+          "type": "string"
+        },
+        "pair": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verified-runtimes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "claude-code",
+              "codex-cli",
+              "gemini-cli",
+              "grok-cli",
+              "antigravity"
+            ]
+          },
+          "description": "Generated from recorded runtime evaluations; do not author by hand.",
+          "readOnly": true,
+          "uniqueItems": true
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["open", "free", "paid", "internal"],
+          "deprecated": true,
+          "description": "Inherited from marketplace metadata.tier; repeated skill tiers warn."
+        },
+        "server-tools": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "job_estimate",
+              "job_submit",
+              "job_status",
+              "job_result",
+              "job_cancel"
+            ]
+          }
+        }
+      },
+      "required": ["level", "domain", "install"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["name", "description", "metadata"],
+  "additionalProperties": {}
+}

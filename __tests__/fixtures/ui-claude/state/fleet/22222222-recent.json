@@ -1,0 +1,10 @@
+{
+  "session": "22222222-recent",
+  "alias": "desk-b",
+  "status": "waiting",
+  "waiting": "permission_prompt",
+  "branch": "worktree-b",
+  "worktree": "/repo/.claude/worktrees/b",
+  "updatedAt": "2026-10-19T11:50:00.000Z",
+  "behind": 2
+}

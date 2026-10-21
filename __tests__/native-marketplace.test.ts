@@ -77,7 +77,7 @@ describe("built-in public marketplace", () => {
       readCatalog({ roots: [], marketplaces: [publicRoot] }).filter(
         (entry) => entry.kind === undefined || entry.kind === "skill",
       ),
-    ).toHaveLength(136);
+    ).toHaveLength(142);
   });
   it("opts out through either flags or canonical configuration", () => {
     const root = temporary();
@@ -97,41 +97,30 @@ describe("built-in public marketplace", () => {
         (item) => item.name === `${entry.productId}-${entry.line.major}`,
       )!;
       const skill = readdirSync(join(plugin.directory, "skills"))[0]!;
-      expect(
-        readFileSync(join(plugin.directory, "skills", skill, "SKILL.md")),
-      ).toEqual(
-        readFileSync(
-          join(
-            publicRoot,
-            "docs/skills",
-            entry.productId,
-            String(entry.line.major),
-            "SKILL.md",
-          ),
-        ),
+      const download = join(
+        publicRoot,
+        "docs/skills",
+        entry.productId,
+        String(entry.line.major),
       );
       expect(
         readFileSync(
-          join(
-            publicRoot,
-            "docs/skills",
-            entry.productId,
-            String(entry.line.major),
-            "releases",
-            `${entry.delivery.version}.tgz`,
-          ),
+          join(plugin.directory, "skills", skill, "SKILL.md"),
+          "utf8",
         ),
-      ).toEqual(
-        readFileSync(
-          join(
-            publicRoot,
-            "docs/skills",
-            entry.productId,
-            String(entry.line.major),
-            "package.tgz",
-          ),
-        ),
+      ).toBe(readFileSync(join(download, "SKILL.md"), "utf8"));
+      // Deep equality over 136 tarballs took about 2 s under load; Buffer.equals is the same check.
+      const release = join(
+        download,
+        "releases",
+        `${entry.delivery.version}.tgz`,
       );
+      expect(
+        readFileSync(release).equals(
+          readFileSync(join(download, "package.tgz")),
+        ),
+        release,
+      ).toBe(true);
     }
   });
 });

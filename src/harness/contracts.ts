@@ -12,16 +12,16 @@ export interface DockerResource {
   privateProfile?: string;
 }
 
+// A session lives in the group's pmcp-pty daemon: its id there, the daemon instance that holds
+// it (a restarted daemon reuses ids, never instances) and the pid of the process it runs.
 export interface SessionRecord {
   id: string;
   owner: string;
   runtime: string;
   socket: string;
-  tmuxSessionId: string;
-  windowId: string;
-  paneId: string;
-  panePid: number;
-  serverIdentity: string;
+  ptySession: string;
+  ptyInstance: string;
+  pid: number;
   unit: string;
   memoryMb: number;
   cwd: string;

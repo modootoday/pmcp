@@ -8,12 +8,7 @@ import {
   stageTag,
 } from "../scripts/observations-page.mjs";
 
-/**
- * The live ledger starts empty, so the part of this page that could do harm is
- * the part that only renders once a package has done something. It is
- * exercised here rather than waiting for the first package to trigger it in
- * production.
- */
+// An empty live ledger cannot exercise populated observation rendering.
 
 const DISCLAIMER =
   "Each entry records what happened in one sandboxed run under the policy named beside it. It is not a judgement of the package, and the absence of an observation is not a finding of safety. Observations at the 'manifest' and 'install' stages are the package's own behaviour; an observation at an 'example-N' stage happened while running example code we wrote against the package, and may have been caused by that code rather than by the package.";
@@ -75,9 +70,7 @@ const ledger = {
 const html: string = renderLedger(ledger);
 
 it("says whose code did the thing it is reporting", () => {
-  // Measured 20260907: a probe example calling fetch produced a
-  // network-attempted row against left-pad, which had done nothing. Publishing
-  // that as the package's behaviour would be a false accusation.
+  // Probe-generated network attempts must not be attributed to the package under observation.
   const network = html.slice(html.indexOf("reaches-out"));
   expect(network.slice(0, network.indexOf("</section>"))).toContain(
     "our example",
@@ -93,7 +86,6 @@ it("carries the disclaimer the API served rather than one of its own", () => {
 });
 
 it("lists the package that was refused, not only the ones that verified", () => {
-  // A ledger of what sold would be an advertisement.
   expect(html).toContain("reaches-out");
   expect(html).toContain("an example did not run");
 });
@@ -104,8 +96,6 @@ it("does not print a range as though it were a version", () => {
 });
 
 it("describes runs and never reaches a verdict", () => {
-  // Every phrase the page can print about an observation, checked against the
-  // words that would turn a run into an accusation.
   const verdicts = ["malicious", "malware", "unsafe", "safe", "suspicious"];
   for (const meaning of Object.values(MEANS) as string[]) {
     for (const verdict of verdicts) expect(meaning).not.toContain(verdict);
@@ -119,8 +109,7 @@ it("keeps the quoted evidence beside every claim", () => {
 });
 
 it("treats an unknown stage as ours rather than the package's", () => {
-  // The safe default when the vocabulary grows: attributing our own code to a
-  // package is the error that cannot be taken back.
+  // Unknown origins must not default to attributing probe behavior to the package.
   expect(stageTag("something-new")).toContain("our example");
 });
 
@@ -142,7 +131,6 @@ it("renders the empty ledger as nothing examined, not as nothing found", () => {
     examinations: [],
   });
   expect(empty).toContain("Nothing has been examined yet");
-  // Asserted on the renderer, not on the built page: the ledger fills up, and
-  // a test that reads today's page is testing the data rather than the rule.
+  // Testing the renderer exercises populated data even when the published ledger is empty.
   expect(empty).not.toContain("Nothing was observed in this run");
 });

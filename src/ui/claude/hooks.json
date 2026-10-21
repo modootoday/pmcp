@@ -1,0 +1,4 @@
+{
+  "description": "pmcp sessions: the /pmcp pane, the band above the prompt, toasts, /pmcp pause, resume and broadcast, and a hold-and-ask on edits in another live session's checkout.",
+  "modules": ["./register.tsx"]
+}

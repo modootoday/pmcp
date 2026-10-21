@@ -1,0 +1,10 @@
+{
+  "session": "11111111-live",
+  "pid": 101,
+  "alias": "main-desk",
+  "status": "working",
+  "branch": "main",
+  "worktree": "/repo",
+  "lastAction": "Edit src/a.ts",
+  "updatedAt": "2026-10-19T09:00:00.000Z"
+}

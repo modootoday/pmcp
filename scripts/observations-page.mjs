@@ -1,19 +1,8 @@
 import { escape, page } from "./page.mjs";
 
-/**
- * Rendering the observation ledger.
- *
- * Separate from the script that writes it so the wording can be exercised with
- * a ledger that has something in it. The live ledger starts empty, and the
- * part of this page that could do harm is the part that only renders once a
- * package has done something.
- */
+// Separate rendering so nonempty ledgers can be tested without changing live evidence.
 
-/**
- * What each code means, in a sentence that describes the run rather than the
- * package. "Tried to reach the network" is a fact; "phones home" is a verdict,
- * and one run cannot support one.
- */
+// Describe observed runs without treating one result as a claim about the package.
 export const MEANS = {
   "install-scripts-declared":
     "declares a script that npm would run at install time",
@@ -32,8 +21,7 @@ const OUTCOME = {
   incomplete: "the run did not get far enough to judge",
 };
 
-// Only these two stages are the package on its own. The example code is ours,
-// so an observation from it is a fact about the run.
+// Example-stage failures describe our fixture, not the package in isolation.
 export const PACKAGE_STAGES = new Set(["manifest", "install"]);
 
 export const stageTag = (stage) =>

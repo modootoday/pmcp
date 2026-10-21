@@ -17,7 +17,8 @@ import { MailboxService } from "../mailbox/service.js";
 import { operationSchema } from "../mailbox/schemas.js";
 import { MailboxStore, restoreBackup } from "../mailbox/store.js";
 import { failure, MailboxError, type Binding } from "../mailbox/types.js";
-import { configFrom } from "./roots.js";
+import { configFrom } from "./config-from.js";
+import { mailboxSpec } from "./specs/mailbox.js";
 
 const allowed: Readonly<Record<string, readonly string[]>> = {
   init: ["config", "state-dir"],
@@ -40,53 +41,7 @@ function required(context: CommandContext, name: string): string {
 }
 
 export const mailboxCommand: Command = {
-  name: "mailbox",
-  describe: "Manage opt-in local peer mail and launcher credentials",
-  usage: "pmcp mailbox operation [--config <file>] [options]",
-  options: [
-    { name: "config", describe: "Project pmcp.toml", placeholder: "<file>" },
-    {
-      name: "state-dir",
-      describe: "Private mailbox state directory",
-      placeholder: "<dir>",
-    },
-    { name: "actor", describe: "Registered actor ID", placeholder: "<id>" },
-    {
-      name: "actor-file",
-      describe: "Private actor credential file",
-      placeholder: "<file>",
-    },
-    {
-      name: "binding-file",
-      describe: "Private existing attachment file",
-      placeholder: "<file>",
-    },
-    {
-      name: "parent-binding",
-      describe: "Live parent attachment for bounded child delegation",
-      placeholder: "<file>",
-    },
-    {
-      name: "input",
-      describe: "Operation input JSON or backup source",
-      placeholder: "<file>",
-    },
-    {
-      name: "output",
-      describe: "New export or backup destination",
-      placeholder: "<file>",
-    },
-    {
-      name: "scope-actor",
-      describe: "Limit export to one actor's correspondence",
-      placeholder: "<id>",
-    },
-    {
-      name: "operator",
-      describe: "Explicit local administrator intent",
-      boolean: true,
-    },
-  ],
+  ...mailboxSpec,
   async run(context) {
     const [verb, ...extra] = context.args.positional;
     const supported = verb ? allowed[verb] : undefined;

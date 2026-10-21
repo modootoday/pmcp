@@ -1,8 +1,4 @@
-/**
- * skill:// resources: every file of every skill the caller may see. The tools,
- * the Skills extension and resource links all resolve here, over the same
- * caller-filtered catalog, so nothing a caller cannot list can be read.
- */
+// Share caller-filtered resources so content cannot be read through an unlisted catalog entry.
 
 import { statSync } from "node:fs";
 
@@ -23,7 +19,6 @@ import {
 } from "./files/uri.js";
 import { assetRoot } from "./marketplace.js";
 
-/** The Skills extension's per-skill ceiling; one file never exceeds it either. */
 export const RESOURCE_READ_BUDGET = 16 * 1024 * 1024;
 
 const COMPLETION_LIMIT = 100;
@@ -40,7 +35,6 @@ function listing(entries: readonly SkillEntry[]) {
     }));
 }
 
-/** Skill names, then a skill's files, for a client completing {+path}. */
 function complete(value: string, entries: readonly SkillEntry[]): string[] {
   const owner = entries.find((entry) => value.startsWith(`${entry.name}/`));
   if (!owner) {

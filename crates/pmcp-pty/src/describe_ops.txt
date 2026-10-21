@@ -1,0 +1,24 @@
+describe|read||This contract: ops, codes, profiles and policy state.
+list|read|labels:object|Sessions, filtered by labels.
+observe|read|id:string!,lines:integer|Status, dialog, input box and clean tail of one session.
+wait|read|id:string!,until:array!,timeout_ms:integer|Block until idle, turn_end, dialog, exit, output or a text match.
+read|read|id:string!,since:integer,max_chars:integer|Clean transcript from a cursor.
+screen|read|id:string!|Raw screen rows.
+tail|read|id:string!,bytes:integer,strip:boolean|Last raw output bytes.
+state|read|id:string!|Process and screen state.
+attachers|read|id:string!|Who is attached.
+subscribe|read|id:string!|Stream session events (not a one-line reply).
+turn|write|id:string!,text:string!,timeout_ms:integer,wait_idle_ms:integer,target:object,expect:object|Deliver one prompt through the profile's channel and wait for its end.
+lease|write|id:string!,token:string,ttl_ms:integer,current:string,release:boolean|Hold or release the harness lease token.
+answer|write|id:string!,dialog:string!,option:string!,expect:object|Choose a dialog option the operator policy allows.
+spawn|write|argv:array!,name:string,cwd:string,env:object,keep_env:array,cols:integer,rows:integer,profile:string,labels:object,delivery_setup:boolean,ring_kb:integer|Start a runtime in a new PTY.
+write|write|id:string!,text:string!,submit:boolean,guard:string,wait_ms:integer,expect:object|Type text, guarded by idle.
+key|write|id:string!,key:string!,expect:object|Send one named key.
+resize|write|id:string!,cols:integer!,rows:integer!,expect:object|Resize the PTY.
+kill|write|id:string!,signal:string,expect:object|Stop a session's process tree.
+remove|write|id:string!|Forget an exited session.
+event|write|id:string!,kind:string!,message:string,session:string,expect:object|Turn signals from the runtime's hooks.
+record|write|id:string!,label:string!,redact:boolean|Save the screen as a fixture.
+detach|write|id:string!|Close every attach connection.
+attach|write|id:string!,cols:integer,rows:integer,read_only:boolean,resize:boolean,lease:string|Switch to raw terminal bytes.
+shutdown|write||Stop every session and the daemon.

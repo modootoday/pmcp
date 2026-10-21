@@ -36,7 +36,7 @@ function skillFiles(root: string): Map<string, string> {
   return found;
 }
 
-/** Must match the authoring side byte for byte, so it is written the same way. */
+// Match authoring bytes so verification hashes agree across producers and consumers.
 export function contentDigest(files: ReadonlyMap<string, string>): string {
   const hash = createHash("sha256");
   for (const path of [...files.keys()].sort()) {

@@ -1,7 +1,4 @@
-/**
- * skill:// URIs for skill files. The authority names this server's namespace and
- * resolves to nothing; the path is the catalog name, then the file inside it.
- */
+// The URI authority is a namespace, so clients must not resolve it as a network host.
 
 import type { SkillEntry } from "../catalog.js";
 
@@ -14,10 +11,7 @@ export const skillFileUri = (
   file = "SKILL.md",
 ): string => `${PREFIX}${entry.name}/${file}`;
 
-/**
- * The catalog entry and relative file a URI names, matched against the entries
- * the caller may see. Names contain slashes, so the longest matching name wins.
- */
+// Match the longest name because catalog names can themselves contain slashes.
 export function resolveSkillFileUri(
   uri: string,
   entries: readonly SkillEntry[],

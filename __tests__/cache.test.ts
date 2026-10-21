@@ -101,9 +101,7 @@ describe("openIntentCache", () => {
     cache.close();
   });
 
-  // Two models' distances are not comparable. Shared file, not two :memory:
-  // handles: those share nothing and the assertion would hold for a cache that
-  // ignored model_id entirely.
+  // A shared file exposes model-key collisions that separate in-memory databases would hide.
   it("does not return a row written by a different model", async () => {
     const path = join(dir, "model.sqlite");
     const first = (await openIntentCache({ path, modelId: "m1", dims: 3 }))!;
@@ -117,7 +115,7 @@ describe("openIntentCache", () => {
     second.close();
   });
 
-  // Left in place rather than deleted: a rollback makes it current again.
+  // Keeping stale entries allows a model rollback to reuse them.
   it("keeps the other model's row so a rollback can use it", async () => {
     const path = join(dir, "rollback.sqlite");
     const m1 = (await openIntentCache({ path, modelId: "m1", dims: 3 }))!;
@@ -153,8 +151,7 @@ describe("openIntentCache", () => {
     cache.close();
   });
 
-  // The reason this is a table rather than a Map: an MCP server exits with the
-  // session, and the next session must not pay for the same question again.
+  // Session restarts must not require embedding the same query again.
   it("survives closing and reopening the database", async () => {
     const path = join(dir, "persist.sqlite");
     const first = (await openIntentCache({ path, modelId: "m1", dims: 3 }))!;
@@ -181,7 +178,7 @@ describe("openIntentCache", () => {
     const cache = await open({ limit: 2, now: () => (clock += 1) });
     cache.put("first", vec(1, 0, 0));
     cache.put("second", vec(0, 1, 0));
-    cache.get("first"); // first is now the more recent of the two
+    cache.get("first");
     cache.put("third", vec(0, 0, 1));
 
     expect(cache.stats().rows).toBe(2);
@@ -191,9 +188,7 @@ describe("openIntentCache", () => {
     cache.close();
   });
 
-  // A cache that throws turns a missing optimisation into a failed search.
-  // The same null answers "this runtime has neither builtin", which is why
-  // opening is async and why it is tried rather than assumed.
+  // Unavailable caching must not turn a search optimization into a search failure.
   it("returns null rather than throwing when the path cannot be opened", async () => {
     expect(
       await openIntentCache({
@@ -208,9 +203,7 @@ describe("openIntentCache", () => {
     expect(DEFAULT_INTENT_CACHE_LIMIT).toBeGreaterThan(0);
   });
 
-  // The server is wired to run under node, so this is the binary that has to
-  // have a working cache. A single-runtime import would have made it null here
-  // and nobody would have noticed until they looked at the hit count.
+  // The server runs under Node, so a cache available only to Bun would silently miss this path.
   it("uses the builtin the running binary has", async () => {
     const cache = await open();
     expect(cache.stats().provider).toBe("node:sqlite");

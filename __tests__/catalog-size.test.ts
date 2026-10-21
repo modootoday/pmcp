@@ -3,12 +3,7 @@ import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { expect, it } from "vitest";
 
-/**
- * The index is downloaded whole so the question never leaves the machine.
- * That trade holds only while the index stays small, and the size at which it
- * stops holding is written down. Nothing measured it, so the threshold had no
- * way to fire.
- */
+// Downloading the entire index remains viable only while its compressed size stays bounded.
 const REDESIGN_AT_BYTES = 5_000_000;
 
 it("keeps the downloaded index under the size that would end this mechanism", () => {
@@ -20,8 +15,7 @@ it("keeps the downloaded index under the size that would end this mechanism", ()
   const entries = (JSON.parse(raw) as { entries: unknown[] }).entries.length;
   const perEntry = Math.round(gzip / entries);
 
-  // Reported rather than only asserted: the number that decides when this has
-  // to be redesigned is the cost per entry, and a bare pass never shows it.
+  // Reporting cost per entry makes the redesign threshold observable before it fails.
   console.log(
     JSON.stringify({
       entries,

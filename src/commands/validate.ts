@@ -5,24 +5,18 @@ import {
   type Finding,
 } from "../validate.js";
 
-import { CATALOG_OPTIONS, catalogOptionsFrom } from "./roots.js";
+import { catalogOptionsFrom, configFrom } from "./roots.js";
+import { validateSpec } from "./specs/catalog.js";
 
 export const validateCommand: Command = {
-  name: "validate",
-  describe:
-    "Check skills against the Agent Skills specification: given directories, or every skill the catalog reaches",
-  usage:
-    "pmcp validate [<skill-dir>...] [--root <dir>] [--marketplace <dir>] [--package <dir>] [--workspace <dir>] [--config <file> | --no-config] [--json]",
-  options: [
-    ...CATALOG_OPTIONS,
-    { name: "json", describe: "Emit JSON rather than a table.", boolean: true },
-  ],
+  ...validateSpec,
   run(context) {
     const dirs = context.args.positional;
+    const settings = configFrom(context)?.catalog.validation ?? {};
     const findings: Finding[] =
       dirs.length > 0
-        ? dirs.flatMap(validateSkillDir)
-        : validateCatalog(catalogOptionsFrom(context));
+        ? dirs.flatMap((dir) => validateSkillDir(dir, settings))
+        : validateCatalog(catalogOptionsFrom(context), settings);
     const errors = findings.filter((f) => f.level === "error").length;
 
     if (context.args.flags.has("json")) {
