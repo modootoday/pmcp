@@ -138,37 +138,19 @@ describe("pmcp sessions send, inbox, ack and reply", () => {
     ).toBe(1);
   });
 
-  it("checks selectors and resolves a desk path when sending", async (t) => {
+  it("checks selectors and resolves a worktree path when sending", async (t) => {
     const { root, run } = project(t);
     expect(
       (await run("sessions", "send", "--to", "team:x", "hi")).code,
     ).not.toBe(0);
-    const sent = JSON.parse(
-      (
-        await run(
-          "sessions",
-          "send",
-          "--json",
-          "--to",
-          "desk:.claude/worktrees/a",
-          "hi",
-        )
-      ).output,
-    );
-    expect(sent.to).toEqual([`desk:${join(root, ".claude/worktrees/a")}`]);
-    const named = JSON.parse(
-      (
-        await run(
-          "sessions",
-          "send",
-          "--json",
-          "--to",
-          "worktree:.claude/worktrees/a",
-          "hi",
-        )
-      ).output,
-    );
-    expect(named.to).toEqual([`worktree:${join(root, ".claude/worktrees/a")}`]);
+    // worktree:<path> is the documented selector; desk:<path> is the older spelling.
+    for (const kind of ["desk", "worktree"]) {
+      const to = `${kind}:.claude/worktrees/a`;
+      const sent = await run("sessions", "send", "--json", "--to", to, "hi");
+      expect(JSON.parse(sent.output).to).toEqual([
+        `${kind}:${join(root, ".claude/worktrees/a")}`,
+      ]);
+    }
   });
 
   it("sweeps expired messages with their markers", async (t) => {
