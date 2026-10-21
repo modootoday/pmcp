@@ -123,6 +123,12 @@ retry = 1
 pass = ["read", "edit-own-worktree"]
 ```
 
+The same applies when the hook as a whole fails (it cannot load its policy, read the
+session store or evaluate): the call is judged by its tool kind alone. A policy that
+no longer matches pmcp.lock is still refused, table or not. The runtime timeout pmcp
+projects covers every try plus the hook's startup, so the runtime never stops the hook
+before the table decides.
+
 Either way the call carries one line naming the guard and the cause, e.g.
 `pmcp hooks: sessions.leases failed (timeout 2000 ms); refused`.
 

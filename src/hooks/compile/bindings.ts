@@ -6,6 +6,7 @@ import { RUNTIMES } from "../runtimes/index.js";
 import type { NativeBinding } from "../runtimes/types.js";
 
 const BASE_TIMEOUT_SEC = 10;
+const STARTUP_MS = 3000;
 
 interface Listener {
   readonly events: readonly NeutralEvent[];
@@ -56,7 +57,11 @@ export function bindingsFor(
     tries,
     ...policy.custom.map((entry) => entry.timeoutMs),
   );
-  const timeoutSec = Math.max(BASE_TIMEOUT_SEC, Math.ceil(slowest / 1000) + 2);
+  // Startup (loading the bundle, reading the store) comes on top of the slowest evaluation.
+  const timeoutSec = Math.max(
+    BASE_TIMEOUT_SEC,
+    Math.ceil((slowest + STARTUP_MS) / 1000),
+  );
   return [...wanted].flatMap(([event, tools]) =>
     adapter.bindings(event, [...tools], timeoutSec),
   );

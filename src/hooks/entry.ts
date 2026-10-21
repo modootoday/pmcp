@@ -2,10 +2,15 @@
 
 import { dirname, resolve } from "node:path";
 
-import { readCompiled } from "./compiled.js";
 import { NEUTRAL_EVENTS, type NeutralEvent } from "./contract.js";
 import { dispatch } from "./dispatch.js";
-import { failClosed } from "./entry/fail-closed.js";
+import { failClosed, failedEntry, rawFailure } from "./entry/fail-closed.js";
+import {
+  PolicyIntegrityError,
+  readCompiled,
+  type CompiledPolicy,
+} from "./compiled.js";
+import type { HookInput } from "./contract.js";
 import { hookLogger } from "./entry/logger.js";
 import { stateDirAnswer } from "./entry/state-dir.js";
 import { readStdin, writeStdout } from "./entry/stdin.js";
@@ -41,14 +46,17 @@ export async function main(
     if (adapter.silent) writeStdout(adapter.silent(event));
     return 0;
   };
+  let compiled: CompiledPolicy | null = null;
+  let payload: unknown = null;
+  let input: HookInput | null = null;
   try {
-    const compiled = readCompiled(root);
-    const payload: unknown = JSON.parse(readStdin() || "{}");
+    compiled = readCompiled(root);
+    payload = JSON.parse(readStdin() || "{}");
     adapter = guestFor(projected, payload, compiled.targets);
     log = hookLogger(root, compiled, adapter.id, event);
     if (!compiled.targets.includes(adapter.id)) return pass();
     const native = adapter.nativeEvent(event);
-    const input = native ? adapter.normalize(native, payload, root) : null;
+    input = native ? adapter.normalize(native, payload, root) : null;
     if (!input) return pass();
     const run = log.child({ session: input.session.id });
     const stateDir = projectStateDir(root, compiled.stateDir);
@@ -83,6 +91,22 @@ export async function main(
     log.error("hook failed", {
       error: error instanceof Error ? error.message : String(error),
     });
+    const failure =
+      error instanceof PolicyIntegrityError
+        ? undefined
+        : (compiled?.failure ?? rawFailure(root));
+    if (failure) {
+      if (!input && payload !== null) {
+        try {
+          const native = adapter.nativeEvent(event);
+          input = native ? adapter.normalize(native, payload, root) : null;
+        } catch {
+          input = null;
+        }
+      }
+      writeStdout(failedEntry(adapter, event, root, input, failure, error));
+      return 0;
+    }
     writeStdout(failClosed(adapter, event, root, error));
     return 0;
   }

@@ -14,7 +14,13 @@ import {
   type RunDeps,
 } from "../../src/hooks/dispatch/run-policy.js";
 import { silentLogger } from "../../src/logging/logger.js";
-import { noGit, scratchStore } from "./helpers.js";
+import { compiled, fixture, noGit, scratchStore } from "./helpers.js";
+import { failedEntry, rawFailure } from "../../src/hooks/entry/fail-closed.js";
+import { bindingsFor } from "../../src/hooks/compile/bindings.js";
+import { RUNTIMES } from "../../src/hooks/runtimes/index.js";
+import { POLICY_FILE } from "../../src/hooks/compiled.js";
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
 // A guard that fails to evaluate is an infrastructure failure, not a verdict: with
 // [hooks.failure] it is retried, then a read or an edit in the session's own worktree passes
@@ -206,5 +212,86 @@ describe("[hooks.failure]", () => {
         deps(failure),
       ),
     ).toEqual({});
+  });
+});
+
+// The incident behind [hooks.failure] was the whole hook failing, not one guard.
+describe("[hooks.failure] when the hook entry itself fails", () => {
+  const claude = RUNTIMES.claude;
+  const call = (name: string) => {
+    const payload = fixture("claude", name);
+    return claude.normalize("PreToolUse", payload, payload["cwd"])!;
+  };
+  const crash = new Error("store unreadable\nat x");
+
+  it("passes a read with the warning and refuses a shell call, judged from the call alone", () => {
+    const read = JSON.parse(
+      failedEntry(
+        claude,
+        "before_tool",
+        repo,
+        call("PreToolUse.Read"),
+        failure,
+        crash,
+      ),
+    );
+    expect(JSON.stringify(read)).toContain(
+      "pmcp hooks: the hook failed (error: store unreadable); passed with a warning",
+    );
+    expect(JSON.stringify(read)).not.toContain("deny");
+    const bash = JSON.parse(
+      failedEntry(
+        claude,
+        "before_tool",
+        repo,
+        call("PreToolUse.Bash"),
+        failure,
+        crash,
+      ),
+    );
+    expect(JSON.stringify(bash)).toContain("deny");
+    expect(JSON.stringify(bash)).toContain(
+      "pmcp hooks: the hook failed (error: store unreadable); refused",
+    );
+    expect(
+      JSON.stringify(
+        JSON.parse(
+          failedEntry(claude, "before_tool", repo, null, failure, crash),
+        ),
+      ),
+    ).toContain("refused");
+  });
+
+  it("reads the table from policy.json without compiling it", () => {
+    const root = mkdtempSync(join(tmpdir(), "pmcp-raw-failure-"));
+    mkdirSync(dirname(join(root, POLICY_FILE)), { recursive: true });
+    writeFileSync(
+      join(root, POLICY_FILE),
+      JSON.stringify({ failure: { timeoutMs: 100, retry: 1, pass: ["read"] } }),
+    );
+    expect(rawFailure(root)).toEqual({
+      timeoutMs: 100,
+      retry: 1,
+      pass: ["read"],
+    });
+    writeFileSync(
+      join(root, POLICY_FILE),
+      JSON.stringify({ failure: { timeoutMs: 100, retry: 1, pass: ["bash"] } }),
+    );
+    expect(rawFailure(root)).toBeUndefined();
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it("projects a runtime timeout that outlasts every try plus startup", () => {
+    const policy = compiled(
+      [{ id: "shell.heredoc", mode: "deny", options: {} }],
+      {
+        failure: { timeoutMs: 10_000, retry: 1, pass: [] },
+      },
+    );
+    const timeouts = bindingsFor(policy, "claude").map(
+      (binding) => binding.timeoutSec,
+    );
+    expect(Math.min(...timeouts)).toBeGreaterThanOrEqual(23);
   });
 });

@@ -139,6 +139,11 @@ registry lets it through), as it always has.</p>
 timeout_ms = 2000
 retry = 1
 pass = [&quot;read&quot;, &quot;edit-own-worktree&quot;]</code></pre>
+<p>The same applies when the hook as a whole fails (it cannot load its policy, read the
+session store or evaluate): the call is judged by its tool kind alone. A policy that
+no longer matches pmcp.lock is still refused, table or not. The runtime timeout pmcp
+projects covers every try plus the hook&#39;s startup, so the runtime never stops the hook
+before the table decides.</p>
 <p>Either way the call carries one line naming the guard and the cause, e.g.
 <code>pmcp hooks: sessions.leases failed (timeout 2000 ms); refused</code>.</p>
 <h2 id="hookschecksafter_edit-and-hookscheckson_stop"><code>[hooks.checks.after_edit]</code> and <code>[hooks.checks.on_stop]</code></h2>
