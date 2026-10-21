@@ -109,7 +109,7 @@ OIDC token for a short-lived credential, so no npm token is stored anywhere.
 2. On npmjs.com, for each of the five packages above, open the package
    settings, Trusted Publisher, choose GitHub Actions and enter: organization
    or user `modootoday`, repository `pmcp`, workflow filename `release.yml`,
-   environment `npm`. A package must exist before a trusted publisher can be
+   environment `npm`, and tick the npm publish permission: five fields per package. A package must exist before a trusted publisher can be
    added, which the bootstrap above ensures.
 3. Optionally, in each package's publishing access, require two-factor
    authentication and disallow tokens, so the workflow is the only way to

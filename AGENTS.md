@@ -21,3 +21,8 @@ and check documentation is in CONTRIBUTING.md. Rust crates add crates/AGENTS.md.
   ship in the npm package.
 - Format with `bun run format` (prettier); `format:check` fails otherwise. Comments are
   English and say why, in at most three lines: longer ones are skipped and go stale.
+- Releases follow .github/RELEASING.md and the pmcp-release skill; never move or reuse a
+  pushed tag, and never publish by hand except the bootstrap. Users and the registry already
+  hold what a pushed tag named, so a retry under it ships different bytes under one version.
+- Edit skills in `.agents/skills/` and run `pmcp project`; `.claude/skills/` and `pmcp.lock`
+  are its output, and `pmcp project --check` fails on a hand edit.

@@ -1,6 +1,7 @@
 # Root allowlist: only these top-level entries can be committed.
 /*
 !/.agents/
+!/.claude/
 !/.claude-plugin/
 !/.github/
 !/.gitignore
@@ -23,6 +24,8 @@
 !/gemini-extension.json
 !/mcp.json
 !/package.json
+!/pmcp.lock
+!/pmcp.toml
 !/plugin.json
 !/plugins/
 !/release-manifest.json
@@ -49,17 +52,19 @@ target/
 !docs/skills/*/*/package.tgz
 !docs/skills/*/*/releases/*.tgz
 
-# Local agent and runtime state. This repository does not dogfood pmcp, so the runtime
-# projection directories pmcp writes elsewhere never belong here.
+# Local agent and runtime state. pmcp manages this repository's own skills (pmcp.toml), so
+# only the projected skills under .claude/skills and the sources under .agents/skills belong
+# here; every other runtime directory stays local.
 .pmcp/
-pmcp.lock
-.claude/
+.claude/*
+!.claude/skills/
 .codex/
 .gemini/
 .opencode/
 .grok/
 .agents/*
 !.agents/plugins/
+!.agents/skills/
 .agents/plugins/*
 !.agents/plugins/marketplace.json
 

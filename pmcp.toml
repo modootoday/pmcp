@@ -1,0 +1,4 @@
+# pmcp manages its own agent assets: the skills in .agents/skills project into each
+# tool's native location (pmcp project; check with pmcp project --check).
+[targets]
+tools = ["claude", "codex"]

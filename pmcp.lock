@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "pmcp_version": "0.18.2",
+  "outputs": [
+    {
+      "path": ".claude/skills/pmcp-release",
+      "kind": "link",
+      "target": "../../.agents/skills/pmcp-release"
+    }
+  ]
+}
