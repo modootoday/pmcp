@@ -1,6 +1,6 @@
 [package]
 name = "pmcp-pty"
-version = "0.18.3"
+version = "0.18.4"
 edition = "2024"
 description = "Small PTY host for supervised interactive coding-agent TUIs"
 publish = false
