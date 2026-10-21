@@ -117,7 +117,7 @@ mod tests {
 
     // Claude 2.1.305 drew the tip Try "how does <filepath> work?" dim, cell by cell; its closing
     // > was kept as a prompt mark, the box read as neither empty nor a draft, and a fresh
-    // session stayed "starting" (pilot live check, 2026-10-21).
+    // session stayed "starting" (live check, 2026-10-21).
     #[test]
     fn a_dim_mark_glyph_inside_the_placeholder_is_not_the_prompt() {
         let size = |n: u16| std::num::NonZeroU16::new(n).unwrap();

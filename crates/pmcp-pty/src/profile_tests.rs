@@ -159,7 +159,7 @@ fn a_bare_mark_is_an_empty_box_for_claude_and_codex() {
 
 // opencode drew nothing but a wrapper's line for seconds; with no input pattern that quiet screen
 // read as idle, a turn sent then was refused as "input box is not empty", and after a turn the
-// empty box (no placeholder) read as a draft (pilot live check, 2026-10-21).
+// empty box (no placeholder) read as a draft (live check, 2026-10-21).
 #[test]
 fn opencode_reads_its_box_and_is_not_ready_before_it() {
     let set = builtin();
@@ -198,7 +198,7 @@ fn opencode_reads_its_box_and_is_not_ready_before_it() {
 }
 
 // gemini's sign-in spinner has nothing to choose and ends by itself; reading it as a dialog made
-// callers stop for a person who could not help (pilot live checks, 2026-10-21).
+// callers stop for a person who could not help (live checks, 2026-10-21).
 #[test]
 fn gemini_signing_in_is_authenticating_not_a_dialog() {
     let set = builtin();

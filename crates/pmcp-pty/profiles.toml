@@ -270,7 +270,7 @@ regex = '(?m)(?:\A|^[^┃\n]*\n)[ \t]*┃[ \t]*\n(?:[ \t]*┃[ \t]*\n)*[ \t]*┃
 source = "live capture of opencode 1.18.33, 2026-10-21"
 
 # The box itself, so a screen without one (a wrapper's output before the TUI draws) is not
-# idle: live, a turn sent then was refused as "input box is not empty" (pilot, 2026-10-21).
+# idle: live, a turn sent then was refused as "input box is not empty" (live check, 2026-10-21).
 [profiles.opencode.input]
 name = "box"
 regex = '(?m)^[ \t]*┃[ \t]*\n[ \t]*┃  (?P<text>\S[^\n]*?)[ \t]*\n(?:[ \t]*┃[^\n]*\n)*?[ \t]*┃  \S+ · [^\n]*\n[ \t]*╹'

@@ -6,4 +6,4 @@
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ❯ Try "how does <filepath> work?"
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ⏵⏵ auto mode on (shift+tab to cycle) · ← 1 agent                                                  ✔ Update installed · Restart to update
+  ⏵⏵ auto mode on (shift+tab to cycle) · ← 1 agent                                                  Update installed · Restart to update
