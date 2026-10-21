@@ -34,7 +34,7 @@ function footer() {
     <div><strong>Learn</strong>${navigation([
       ["/guide/", "Getting started"],
       ["/project-configuration/", "Configuration"],
-      ["/examples/", "Skill example"],
+      ["/examples/", "Built-in skills"],
       ["/skills/", "Free package skills"],
     ])}</div>
     <div><strong>Build</strong>${navigation([
@@ -57,6 +57,7 @@ function documentBody(path, body) {
     documents.find((document) => document.route === path)?.title ??
     "Documentation";
   if (path.startsWith("/skills/")) title = "Free package skills";
+  if (path.startsWith("/examples/")) title = "Built-in skills";
   if (path === "/observations/") title = "Sandbox observations";
   const menu = documents.map((document) => [document.route, document.title]);
   return `<div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation">${navigation(menu, path)}</nav></details></aside>

@@ -33,6 +33,42 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/examples/agent-assets-migrate/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/examples/headless-agents-ci-scaffold/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/examples/marketplace-plugin-scaffold/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/examples/package-skill-catalog/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/examples/pmcp-browser/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/examples/pmcp-desktop/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/examples/pmcp-project-init/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/examples/pmcp-sessions-and-git/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/examples/skill-package-scaffold/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/git-workflow/</loc>
     <priority>0.8</priority>
   </url>

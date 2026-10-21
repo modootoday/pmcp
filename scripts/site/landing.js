@@ -7,9 +7,7 @@ const root = document.querySelector("[data-hero-workspace]");
 if (root) mountHero(root);
 if (document.querySelector("#intro"))
   mountHome(document.querySelector("#main"));
-for (const example of document.querySelectorAll(
-  "[data-examples], .examples-page",
-))
+for (const example of document.querySelectorAll("[data-examples]"))
   mountExamples(example);
 mountSkillCatalog(document.querySelector("#main"));
 window.addEventListener("pageshow", (event) => {

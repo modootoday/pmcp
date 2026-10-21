@@ -22,6 +22,8 @@ import {
   projectStyles,
 } from "./site/pages/paths.mjs";
 import { notFound } from "./site/pages/not-found.mjs";
+import { shippedExamples } from "./site/examples/catalog.mjs";
+import { exampleRoute } from "./site/examples/render.mjs";
 import { skillResources } from "./site/skills/sources.mjs";
 import {
   manualPageResources,
@@ -43,6 +45,7 @@ mkdirSync(output, { recursive: true });
 const routes = [
   "/",
   "/examples/",
+  ...shippedExamples(new URL("../", import.meta.url)).map(exampleRoute),
   "/observations/",
   ...skillRoutes(catalog.entries),
   ...documents.map((document) => document.route),

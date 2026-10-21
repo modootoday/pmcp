@@ -3,14 +3,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Skills pmcp ships — pmcp</title>
-  <meta name="description" content="What each skill shipped with pmcp is for, with a link to the instructions an agent reads." />
+  <meta name="description" content="The skills that ship with pmcp: what each is for, with a page per skill." />
   <link rel="canonical" href="https://pmcp.build/examples/" />
-  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="stylesheet" href="/assets/style.css?v=a9b6f4e4c875" />
   <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PMCP" />
   <meta property="og:title" content="Skills pmcp ships — pmcp" />
-  <meta property="og:description" content="What each skill shipped with pmcp is for, with a link to the instructions an agent reads." />
+  <meta property="og:description" content="The skills that ship with pmcp: what each is for, with a page per skill." />
   <meta property="og:url" content="https://pmcp.build/examples/" />
 </head><body><a class="skip" href="#main">Skip to content</a>
 <div id="frame"><div class="site"><header class="site-header">
@@ -22,95 +22,69 @@
 <a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
     <a class="button header-start" href="/guide/">Get started</a>
   </header>
-<main id="main"><section class="section examples-page"><h1>Skills pmcp ships.<br />What each one is for.</h1>
-    <p class="lede">These skills come with the npm package and with the pmcp plugin for Claude Code and Codex. An agent loads one when its task matches; your project's catalog also lists the skills its installed packages and plugins ship.</p>
-    <label class="search-box"><span>Find a skill</span><input type="search" data-example-search placeholder="Try dependencies or catalog" /></label>
-    <div class="results" data-example-results><a class="result" href="#agent-assets-migrate" data-example-result data-search="agent-assets-migrate move a repository's scattered agent files - claude.md, .cursorrules, .windsurfrules, copilot-instructions.md, .claude/skills, .claude/agents, .claude/commands, .gemini/agents and a root .agent/ folder - into one agents.md, .agents/ and pmcp.toml without losing a line, keeping historical citations as they are, and finishing with a clean pmcp project --check. use when consolidating agent instructions from several tools into one source, when adopting pmcp in a repository that already has agent files, or when agent files have drifted apart. not for a new empty repository or for trimming an oversized agents.md.">
-    <strong>agent-assets-migrate</strong><span>Move a repository's scattered agent files - CLAUDE.md, .cursorrules, .windsurfrules, copilot-instructions.md, .claude/skills, .claude/agents, .claude/commands, .gemini/agents and a root .agent/ folder - into one AGENTS.md, .agents/ and pmcp.toml without losing a line, keeping historical citations as they are, and finishing with a clean pmcp project --check. Use when consolidating agent instructions from several tools into one source, when adopting pmcp in a repository that already has agent files, or when agent files have drifted apart. Not for a new empty repository or for trimming an oversized AGENTS.md.</span><small>@modootoday/pmcp / skills/agent-assets-migrate/SKILL.md</small>
-  </a>
-<a class="result" href="#headless-agents-ci-scaffold" data-example-result data-search="headless-agents-ci-scaffold write a ci job that runs claude code, gemini cli, codex, grok build and antigravity headless against a project mcp server, giving each the permission setting it actually honours, asserting on the tool call rather than the exit code, and gating with pmcp project --check and pmcp doctor. use when adding agent clis to ci, when a headless agent run skips an mcp tool call, or when a permission flag seems to do nothing. not for interactive sessions or for writing the mcp server itself.">
-    <strong>headless-agents-ci-scaffold</strong><span>Write a CI job that runs Claude Code, Gemini CLI, Codex, Grok Build and Antigravity headless against a project MCP server, giving each the permission setting it actually honours, asserting on the tool call rather than the exit code, and gating with pmcp project --check and pmcp doctor. Use when adding agent CLIs to CI, when a headless agent run skips an MCP tool call, or when a permission flag seems to do nothing. Not for interactive sessions or for writing the MCP server itself.</span><small>@modootoday/pmcp / skills/headless-agents-ci-scaffold/SKILL.md</small>
-  </a>
-<a class="result" href="#marketplace-plugin-scaffold" data-example-result data-search="marketplace-plugin-scaffold package skills, commands, subagents, hooks and mcp servers as a plugin in a plugin marketplace laid out the way pmcp's catalog reads it - marketplace.json with a tier, plugin.json, skills/, commands/, agents/, hooks/hooks.json and .mcp.json - and confirm every asset is listed with pmcp list and pmcp validate. use when turning a folder of skills into a marketplace plugin, when a plugin's assets do not show up in a skill catalog, or when setting the tier of a marketplace. not for writing a single skill's content or for hosting the catalog over http.">
-    <strong>marketplace-plugin-scaffold</strong><span>Package skills, commands, subagents, hooks and MCP servers as a plugin in a plugin marketplace laid out the way pmcp's catalog reads it - marketplace.json with a tier, plugin.json, skills/, commands/, agents/, hooks/hooks.json and .mcp.json - and confirm every asset is listed with pmcp list and pmcp validate. Use when turning a folder of skills into a marketplace plugin, when a plugin's assets do not show up in a skill catalog, or when setting the tier of a marketplace. Not for writing a single skill's content or for hosting the catalog over HTTP.</span><small>@modootoday/pmcp / skills/marketplace-plugin-scaffold/SKILL.md</small>
-  </a>
-<a class="result" href="#package-skill-catalog" data-example-result data-search="package-skill-catalog find, check and load the right skill from a pmcp skill catalog instead of guessing, including version-appropriate instructions for installed public libraries, and install selected pmcp marketplace skills through a native runtime. use when a task might have a dedicated skill, when the pmcp tools (skill_find, skill_catalog, skill_describe, skill_call, skill_read, skill_bundle) are available, or when a search for a skill came back empty.">
-    <strong>package-skill-catalog</strong><span>Find, check and load the right skill from a PMCP skill catalog instead of guessing, including version-appropriate instructions for installed public libraries, and install selected PMCP marketplace skills through a native runtime. Use when a task might have a dedicated skill, when the PMCP tools (skill_find, skill_catalog, skill_describe, skill_call, skill_read, skill_bundle) are available, or when a search for a skill came back empty.</span><small>@modootoday/pmcp / skills/package-skill-catalog/SKILL.md</small>
-  </a>
-<a class="result" href="#pmcp-browser" data-example-result data-search="pmcp-browser browse public websites from a linux host through the pmcp-browser mcp server (navigate, snapshot, click, type, read, screenshot). use when a task needs a web page and no desktop browser is available. not for gui apps (use pmcp-desktop) or for sites behind a login.">
-    <strong>pmcp-browser</strong><span>Browse public websites from a Linux host through the pmcp-browser MCP server (navigate, snapshot, click, type, read, screenshot). Use when a task needs a web page and no desktop browser is available. Not for GUI apps (use pmcp-desktop) or for sites behind a login.</span><small>@modootoday/pmcp / skills/pmcp-browser/SKILL.md</small>
-  </a>
-<a class="result" href="#pmcp-desktop" data-example-result data-search="pmcp-desktop use an x11 desktop on a linux host through the pmcp-desktop mcp server (screenshot, click, type, key, scroll, launch an approved app). use when a task needs a gui app. not for web pages (use pmcp-browser).">
-    <strong>pmcp-desktop</strong><span>Use an X11 desktop on a Linux host through the pmcp-desktop MCP server (screenshot, click, type, key, scroll, launch an approved app). Use when a task needs a GUI app. Not for web pages (use pmcp-browser).</span><small>@modootoday/pmcp / skills/pmcp-desktop/SKILL.md</small>
-  </a>
-<a class="result" href="#pmcp-project-init" data-example-result data-search="pmcp-project-init set up a repository so every coding agent reads the same instructions, skills, subagents, rules and mcp servers - one agents.md with claude.md and gemini.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared mcp authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent cli needs. use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.">
-    <strong>pmcp-project-init</strong><span>Set up a repository so every coding agent reads the same instructions, skills, subagents, rules and MCP servers - one AGENTS.md with CLAUDE.md and GEMINI.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared MCP authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent CLI needs. Use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. Not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.</span><small>@modootoday/pmcp / skills/pmcp-project-init/SKILL.md</small>
-  </a>
-<a class="result" href="#pmcp-sessions-and-git" data-example-result data-search="pmcp-sessions-and-git work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, leave pause and broadcast to the user, wait out a lease, work in a linked worktree instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and linked worktrees, and read pmcp logs to explain a hook refusal. use when a pmcp hook refused or warned, when several agents share one repository, when asked to deliver work, or when a session reports a pause, lease or leftover edits. not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.">
-    <strong>pmcp-sessions-and-git</strong><span>Work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, leave pause and broadcast to the user, wait out a lease, work in a linked worktree instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and linked worktrees, and read pmcp logs to explain a hook refusal. Use when a pmcp hook refused or warned, when several agents share one repository, when asked to deliver work, or when a session reports a pause, lease or leftover edits. Not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.</span><small>@modootoday/pmcp / skills/pmcp-sessions-and-git/SKILL.md</small>
-  </a>
-<a class="result" href="#skill-package-scaffold" data-example-result data-search="skill-package-scaffold lay out one new skill folder that passes the agent skills specification - skill.md frontmatter within the limits pmcp validate enforces, references/, scripts/ and assets/ only where needed, and evals/ with a normal, an exception and a missing-information case - then gate it with pmcp validate. use when creating the folder for a new skill, when pmcp validate rejects a skill, or when a skill needs its first eval cases. not for deciding what the skill should teach or for packaging several skills as a plugin.">
-    <strong>skill-package-scaffold</strong><span>Lay out one new skill folder that passes the Agent Skills specification - SKILL.md frontmatter within the limits pmcp validate enforces, references/, scripts/ and assets/ only where needed, and evals/ with a normal, an exception and a missing-information case - then gate it with pmcp validate. Use when creating the folder for a new skill, when pmcp validate rejects a skill, or when a skill needs its first eval cases. Not for deciding what the skill should teach or for packaging several skills as a plugin.</span><small>@modootoday/pmcp / skills/skill-package-scaffold/SKILL.md</small>
-  </a></div><p data-example-empty hidden>No skill matches. Clear the search to see them all.</p>
-    <div class="examples-content"><article id="agent-assets-migrate" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>agent-assets-migrate</h2>
-    <p>Move a repository's scattered agent files - CLAUDE.md, .cursorrules, .windsurfrules, copilot-instructions.md, .claude/skills, .claude/agents, .claude/commands, .gemini/agents and a root .agent/ folder - into one AGENTS.md, .agents/ and pmcp.toml without losing a line, keeping historical citations as they are, and finishing with a clean pmcp project --check. Use when consolidating agent instructions from several tools into one source, when adopting pmcp in a repository that already has agent files, or when agent files have drifted apart. Not for a new empty repository or for trimming an oversized AGENTS.md.</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/agent-assets-migrate/SKILL.md">Read the instructions an agent gets</a></p>
-  </article>
-<article id="headless-agents-ci-scaffold" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>headless-agents-ci-scaffold</h2>
-    <p>Write a CI job that runs Claude Code, Gemini CLI, Codex, Grok Build and Antigravity headless against a project MCP server, giving each the permission setting it actually honours, asserting on the tool call rather than the exit code, and gating with pmcp project --check and pmcp doctor. Use when adding agent CLIs to CI, when a headless agent run skips an MCP tool call, or when a permission flag seems to do nothing. Not for interactive sessions or for writing the MCP server itself.</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/headless-agents-ci-scaffold/SKILL.md">Read the instructions an agent gets</a></p>
-  </article>
-<article id="marketplace-plugin-scaffold" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>marketplace-plugin-scaffold</h2>
-    <p>Package skills, commands, subagents, hooks and MCP servers as a plugin in a plugin marketplace laid out the way pmcp's catalog reads it - marketplace.json with a tier, plugin.json, skills/, commands/, agents/, hooks/hooks.json and .mcp.json - and confirm every asset is listed with pmcp list and pmcp validate. Use when turning a folder of skills into a marketplace plugin, when a plugin's assets do not show up in a skill catalog, or when setting the tier of a marketplace. Not for writing a single skill's content or for hosting the catalog over HTTP.</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/marketplace-plugin-scaffold/SKILL.md">Read the instructions an agent gets</a></p>
-  </article>
-<article id="package-skill-catalog" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>package-skill-catalog</h2>
-    <p>Find, check and load the right skill from a PMCP skill catalog instead of guessing, including version-appropriate instructions for installed public libraries, and install selected PMCP marketplace skills through a native runtime. Use when a task might have a dedicated skill, when the PMCP tools (skill_find, skill_catalog, skill_describe, skill_call, skill_read, skill_bundle) are available, or when a search for a skill came back empty.</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/package-skill-catalog/SKILL.md">Read the instructions an agent gets</a></p>
-  </article>
-<article id="pmcp-browser" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>pmcp-browser</h2>
-    <p>Browse public websites from a Linux host through the pmcp-browser MCP server (navigate, snapshot, click, type, read, screenshot). Use when a task needs a web page and no desktop browser is available. Not for GUI apps (use pmcp-desktop) or for sites behind a login.</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/pmcp-browser/SKILL.md">Read the instructions an agent gets</a></p>
-  </article>
-<article id="pmcp-desktop" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>pmcp-desktop</h2>
-    <p>Use an X11 desktop on a Linux host through the pmcp-desktop MCP server (screenshot, click, type, key, scroll, launch an approved app). Use when a task needs a GUI app. Not for web pages (use pmcp-browser).</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/pmcp-desktop/SKILL.md">Read the instructions an agent gets</a></p>
-  </article>
-<article id="pmcp-project-init" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>pmcp-project-init</h2>
-    <p>Set up a repository so every coding agent reads the same instructions, skills, subagents, rules and MCP servers - one AGENTS.md with CLAUDE.md and GEMINI.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared MCP authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent CLI needs. Use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. Not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/pmcp-project-init/SKILL.md">Read the instructions an agent gets</a></p>
-  </article>
-<article id="pmcp-sessions-and-git" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>pmcp-sessions-and-git</h2>
-    <p>Work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, leave pause and broadcast to the user, wait out a lease, work in a linked worktree instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and linked worktrees, and read pmcp logs to explain a hook refusal. Use when a pmcp hook refused or warned, when several agents share one repository, when asked to deliver work, or when a session reports a pause, lease or leftover edits. Not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/pmcp-sessions-and-git/SKILL.md">Read the instructions an agent gets</a></p>
-  </article>
-<article id="skill-package-scaffold" class="example-body docs-body">
-    <p class="eyebrow">Ships with @modootoday/pmcp and its plugin</p>
-    <h2>skill-package-scaffold</h2>
-    <p>Lay out one new skill folder that passes the Agent Skills specification - SKILL.md frontmatter within the limits pmcp validate enforces, references/, scripts/ and assets/ only where needed, and evals/ with a normal, an exception and a missing-information case - then gate it with pmcp validate. Use when creating the folder for a new skill, when pmcp validate rejects a skill, or when a skill needs its first eval cases. Not for deciding what the skill should teach or for packaging several skills as a plugin.</p>
-    <p><a href="https://github.com/modootoday/pmcp/blob/main/skills/skill-package-scaffold/SKILL.md">Read the instructions an agent gets</a></p>
-  </article></div>
-  </section></main><footer class="site-footer">
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">pmcp.toml reference</a>
+<a href="/hooks/">Hooks</a>
+<a href="/sessions/">Run several agents</a>
+<a href="/git-workflow/">Git workflow</a>
+<a href="/browser-and-desktop/">Browser and desktop</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/library-skills/">Library skills</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Built-in skills</p><h1>Skills pmcp ships</h1>
+    <p>These skills come with the npm package and with the pmcp plugin for Claude Code and Codex. An agent loads one when its task matches; your project's catalog also lists the skills its installed packages and plugins ship.</p>
+    <label class="search-box"><span>Find a skill</span><input data-skill-search type="search" placeholder="Try worktree, browser or catalog" hidden /><span id="skills-count" data-unit="skills" aria-live="polite">9 skills</span></label>
+    <div data-skill-catalog><div class="scroll"><table><thead><tr><th>Skill</th><th>What it is for</th></tr></thead><tbody><tr data-skill-row data-search="agent-assets-migrate move a repository's scattered agent files - claude.md, .cursorrules, .windsurfrules, copilot-instructions.md, .claude/skills, .claude/agents, .claude/commands, .gemini/agents and a root .agent/ folder - into one agents.md, .agents/ and pmcp.toml without losing a line, keeping historical citations as they are, and finishing with a clean pmcp project --check. use when consolidating agent instructions from several tools into one source, when adopting pmcp in a repository that already has agent files, or when agent files have drifted apart. not for a new empty repository or for trimming an oversized agents.md.">
+    <td><a href="/examples/agent-assets-migrate/">agent-assets-migrate</a></td>
+    <td>Move scattered agent files into AGENTS.md, .agents/ and pmcp.toml without losing a line.</td>
+    </tr>
+<tr data-skill-row data-search="headless-agents-ci-scaffold write a ci job that runs claude code, gemini cli, codex, grok build and antigravity headless against a project mcp server, giving each the permission setting it actually honours, asserting on the tool call rather than the exit code, and gating with pmcp project --check and pmcp doctor. use when adding agent clis to ci, when a headless agent run skips an mcp tool call, or when a permission flag seems to do nothing. not for interactive sessions or for writing the mcp server itself.">
+    <td><a href="/examples/headless-agents-ci-scaffold/">headless-agents-ci-scaffold</a></td>
+    <td>Run agent CLIs headless in CI with the permission setting each one actually honours.</td>
+    </tr>
+<tr data-skill-row data-search="marketplace-plugin-scaffold package skills, commands, subagents, hooks and mcp servers as a plugin in a plugin marketplace laid out the way pmcp's catalog reads it - marketplace.json with a tier, plugin.json, skills/, commands/, agents/, hooks/hooks.json and .mcp.json - and confirm every asset is listed with pmcp list and pmcp validate. use when turning a folder of skills into a marketplace plugin, when a plugin's assets do not show up in a skill catalog, or when setting the tier of a marketplace. not for writing a single skill's content or for hosting the catalog over http.">
+    <td><a href="/examples/marketplace-plugin-scaffold/">marketplace-plugin-scaffold</a></td>
+    <td>Lay out a plugin marketplace so pmcp lists every skill, agent, hook and MCP server.</td>
+    </tr>
+<tr data-skill-row data-search="package-skill-catalog find, check and load the right skill from a pmcp skill catalog instead of guessing, including version-appropriate instructions for installed public libraries, and install selected pmcp marketplace skills through a native runtime. use when a task might have a dedicated skill, when the pmcp tools (skill_find, skill_catalog, skill_describe, skill_call, skill_read, skill_bundle) are available, or when a search for a skill came back empty.">
+    <td><a href="/examples/package-skill-catalog/">package-skill-catalog</a></td>
+    <td>Find, check and load the right skill from a pmcp catalog instead of guessing.</td>
+    </tr>
+<tr data-skill-row data-search="pmcp-browser browse public websites from a linux host through the pmcp-browser mcp server (navigate, snapshot, click, type, read, screenshot). use when a task needs a web page and no desktop browser is available. not for gui apps (use pmcp-desktop) or for sites behind a login.">
+    <td><a href="/examples/pmcp-browser/">pmcp-browser</a></td>
+    <td>Browse public websites from a Linux host through the pmcp-browser MCP server.</td>
+    </tr>
+<tr data-skill-row data-search="pmcp-desktop use an x11 desktop on a linux host through the pmcp-desktop mcp server (screenshot, click, type, key, scroll, launch an approved app). use when a task needs a gui app. not for web pages (use pmcp-browser).">
+    <td><a href="/examples/pmcp-desktop/">pmcp-desktop</a></td>
+    <td>Use an X11 desktop on a Linux host through the pmcp-desktop MCP server.</td>
+    </tr>
+<tr data-skill-row data-search="pmcp-project-init set up a repository so every coding agent reads the same instructions, skills, subagents, rules and mcp servers - one agents.md with claude.md and gemini.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared mcp authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent cli needs. use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.">
+    <td><a href="/examples/pmcp-project-init/">pmcp-project-init</a></td>
+    <td>Set up a repository so every coding agent reads the same instructions and servers.</td>
+    </tr>
+<tr data-skill-row data-search="pmcp-sessions-and-git work alongside other agent sessions in a pmcp repository - read who is working and what is held with pmcp sessions status, leave pause and broadcast to the user, wait out a lease, work in a linked worktree instead of the shared main checkout, deliver commits through pmcp git deliver rather than git push, sync the main checkout and linked worktrees, and read pmcp logs to explain a hook refusal. use when a pmcp hook refused or warned, when several agents share one repository, when asked to deliver work, or when a session reports a pause, lease or leftover edits. not for writing pmcp.toml (set the project up first) or for repositories without pmcp hooks.">
+    <td><a href="/examples/pmcp-sessions-and-git/">pmcp-sessions-and-git</a></td>
+    <td>Work alongside other agent sessions: leases, linked worktrees and one delivery path.</td>
+    </tr>
+<tr data-skill-row data-search="skill-package-scaffold lay out one new skill folder that passes the agent skills specification - skill.md frontmatter within the limits pmcp validate enforces, references/, scripts/ and assets/ only where needed, and evals/ with a normal, an exception and a missing-information case - then gate it with pmcp validate. use when creating the folder for a new skill, when pmcp validate rejects a skill, or when a skill needs its first eval cases. not for deciding what the skill should teach or for packaging several skills as a plugin.">
+    <td><a href="/examples/skill-package-scaffold/">skill-package-scaffold</a></td>
+    <td>Lay out one skill folder that passes the Agent Skills specification, with eval cases.</td>
+    </tr></tbody></table></div><p data-skill-empty hidden>No matching skill. Clear the filter to see them all.</p></div></article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>
 <a href="/project-configuration/">Configuration</a>
-<a href="/examples/">Skill example</a>
+<a href="/examples/">Built-in skills</a>
 <a href="/skills/">Free package skills</a></div>
     <div><strong>Build</strong><a href="/commands/">CLI reference</a>
 <a href="/terminal-harness/">Native sessions</a>
@@ -120,5 +94,5 @@
 <a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
 <a href="/licence/">Licence</a></div>
     <p class="copyright">© 2026 modootoday.</p>
-  </footer></div></div><script type="module" src="/assets/landing/index-IM2SUDLL.js"></script>
+  </footer></div></div><script type="module" src="/assets/landing/index-SCGRPYEN.js"></script>
 </body></html>

@@ -4,7 +4,11 @@ import { join } from "node:path";
 import { commit, page } from "./page.mjs";
 import { documents } from "./site/docs/catalog.mjs";
 import { shippedExamples } from "./site/examples/catalog.mjs";
-import { renderExamples } from "./site/examples/render.mjs";
+import {
+  exampleRoute,
+  renderExample,
+  renderExamples,
+} from "./site/examples/render.mjs";
 import { renderHome } from "./site/home/render.mjs";
 
 const rootUrl = new URL("../", import.meta.url);
@@ -24,10 +28,15 @@ const entries = [
     path: "/examples/",
     title: "Skills pmcp ships — pmcp",
     description:
-      "What each skill shipped with pmcp is for, with a link to the instructions an agent reads.",
-    kind: "examples",
+      "The skills that ship with pmcp: what each is for, with a page per skill.",
     body: renderExamples(examples),
   },
+  ...examples.map((example) => ({
+    path: exampleRoute(example),
+    title: `${example.name} — pmcp`,
+    description: example.description,
+    body: renderExample(example),
+  })),
   ...documents
     .filter((document) => document.source.endsWith(".html"))
     .map((document) => ({

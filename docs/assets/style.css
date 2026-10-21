@@ -1362,3 +1362,7 @@ button {
     margin-top: 40px;
   }
 }
+/* A skill name in a catalog list keeps its hyphenated words on one line. */
+[data-skill-catalog] td:first-child a {
+  white-space: nowrap;
+}

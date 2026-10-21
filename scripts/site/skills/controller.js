@@ -12,7 +12,7 @@ export function mountSkillCatalog(root) {
       row.hidden = !row.dataset.search.includes(query);
       if (!row.hidden) visible += 1;
     }
-    count.textContent = `${visible} of ${rows.length} skill lines`;
+    count.textContent = `${visible} of ${rows.length} ${count.dataset.unit ?? "skill lines"}`;
     empty.hidden = visible !== 0;
   }
   input.value = new URL(location.href).searchParams.get("q") ?? "";

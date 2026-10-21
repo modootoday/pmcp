@@ -92,20 +92,28 @@ it("provides working content and all eight homepage sections without JavaScript"
   expect(home).not.toContain("window.openai");
 });
 
-// The page describes the shipped skills for people and links the file an agent reads; the
-// agent-facing body is not rendered as page copy.
-it("describes the real shipped skills instead of unpublished demonstration skills", () => {
-  const examples = readFileSync(join(output, "examples/index.html"), "utf8");
-  const source = readFileSync(
+// /examples/ lists the shipped skills like /skills/ lists packages: one row each, linking a detail
+// page that carries the description and the file an agent reads. Bodies stay on GitHub.
+it("lists the shipped skills and gives each its own page", () => {
+  const list = readFileSync(join(output, "examples/index.html"), "utf8");
+  const skills = readdirSync(join(root, "skills")).sort();
+  expect(list.match(/data-skill-row/gu)).toHaveLength(skills.length);
+  for (const name of skills) {
+    expect(list).toContain(`href="/pmcp/examples/${name}/"`);
+    const detail = readFileSync(
+      join(output, "examples", name, "index.html"),
+      "utf8",
+    );
+    expect(detail).toContain(`skills/${name}/SKILL.md`);
+    expect(detail).toContain("Read the instructions an agent gets");
+  }
+  const description = readFileSync(
     join(root, "skills/package-skill-catalog/SKILL.md"),
     "utf8",
-  );
-  expect(examples).toContain("package-skill-catalog");
-  expect(examples).toContain("skills/package-skill-catalog/SKILL.md");
-  expect(source).toContain("Installing a skill does not");
-  expect(examples).not.toContain("Installing a skill does not");
-  expect(examples).not.toContain("demo/release-review");
-  expect(examples).not.toContain("examples executed");
+  ).match(/^description: (.+)$/mu)![1]!;
+  expect(list).not.toContain(description);
+  expect(list).not.toContain("Installing a skill does not");
+  expect(list).not.toContain("demo/release-review");
 });
 
 it("rejects path traversal before replacing a prepared Pages artifact", () => {
