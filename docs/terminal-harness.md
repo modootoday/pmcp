@@ -103,10 +103,10 @@ host proxy rejects private addresses and undeclared destinations. The declared
 Node executable must exist inside the image. PMCP stages a digest-checked opaque
 bridge and provides proxy environment variables to the native process. It does
 not intercept TLS or interpret OAuth. A runtime that ignores proxy variables
-cannot reach the provider through this profile. Actual Codex 0.161.0 login and
-main/worker responses have been qualified; other vendors and token refresh need
-their own validation. These two hosts are an observed test scope, not a promise
-that all future Codex features use only them.
+cannot reach the provider through this profile. What has been measured through
+it is in [Compatibility](compatibility.md#installation-and-packaging); these two
+hosts are an observed test scope, not a promise that all future Codex features
+use only them.
 
 ### Keep authenticated roles independent
 
@@ -167,8 +167,9 @@ pmcp harness group list
 
 The JSON receipt provides the private groupFile and generation. Set GROUP_FILE
 and GENERATION to those values for the examples below. Group state lives below
-XDG_STATE_HOME/pmcp/harness, or ~/.local/state/pmcp/harness. The pmcp-pty socket path
-must fit within 100 bytes; an unusually long state root is refused.
+XDG_STATE_HOME/pmcp/harness, or ~/.local/state/pmcp/harness. pmcp keeps the group
+socket path within 100 bytes, below the 104 bytes macOS and 108 bytes Linux allow for a
+Unix socket path, so one state root works on both; an unusually long one is refused.
 
 Save `main-spec.json`:
 

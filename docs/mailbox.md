@@ -2,6 +2,17 @@
 
 [Back to the overview](../README.md)
 
+## Which mailbox?
+
+pmcp has two message systems; pick by who talks to whom.
+
+| You want                                                                                                              | Use                                                                               |
+| --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Agents working in one repository to message each other and you                                                        | `[sessions.mailbox]` and `pmcp sessions send` ([Run several agents](sessions.md)) |
+| Actors with their own credentials to exchange messages across projects or hosts, or a mailbox in your own application | this page: `pmcp mailbox` and the mailbox library                                 |
+
+They do not share messages, state or credentials.
+
 ## Optional local mailbox
 
 Mailbox is disabled by default. The six catalog tools stay read-only. A launcher

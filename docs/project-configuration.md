@@ -272,13 +272,6 @@ the hook guards stay its enforcement.
 
 ## Unified project MCP configuration
 
-Antigravity receives a native project plugin at .agents/plugins/pmcp-mcp with
-plugin.json and mcp_config.json. Projection removes only lock-owned entries
-from the earlier .agents/mcp_config.json artifact and backs up both layouts.
-Antigravity's global mcp list does not enumerate project plugin servers;
-validate the generated plugin with agy plugin validate.
-Its HTTP entries use serverUrl, accepted by the installed plugin validator.
-
 Declare each MCP server once in pmcp.toml. The projector writes the native
 project files for all selected runtimes. A server can narrow its targets:
 
@@ -356,6 +349,15 @@ Configuration references: [Codex](https://developers.openai.com/codex/config-ref
 [Gemini CLI](https://geminicli.com/docs/tools/mcp-server/),
 and [Grok Build](https://docs.x.ai/build/features/mcp-servers).
 
+### Antigravity
+
+Antigravity receives a native project plugin at `.agents/plugins/pmcp-mcp` with
+`plugin.json` and `mcp_config.json`. Projection removes only lock-owned entries
+from the earlier `.agents/mcp_config.json` artifact and backs up both layouts.
+Antigravity's global mcp list does not enumerate project plugin servers;
+validate the generated plugin with `agy plugin validate`.
+Its HTTP entries use `serverUrl`, accepted by the installed plugin validator.
+
 ## OpenCode project support
 
 Add opencode to targets.tools to project MCP entries into the project-root
@@ -373,9 +375,8 @@ OpenCode; explicitly limit those servers to other targets when needed.
 OpenCode discovers .agents/skills directly, so PMCP creates no skill copies or
 links. For invocation=user, projection sets permission.skill.<name> to deny:
 the model's skill list omits that name, while the native /<name> command still
-loads its original SKILL.md and accepts user arguments. This was qualified with
-OpenCode 1.18.33 using isolated native CLI calls and local scripted responses,
-without an external model call. It controls automatic skill selection, not
+loads its original SKILL.md and accepts user arguments (measured: see
+[Compatibility](compatibility.md#installation-and-packaging)). It controls automatic skill selection, not
 arbitrary file access. Native global skill discovery remains a user preference.
 
 pmcp doctor checks opencode debug skill and opencode mcp list without calling
@@ -645,7 +646,7 @@ publish = ["deploy", "secret put", "secret delete"]
 [hooks.guards.git.stage_all]
 
 [hooks.guards.git.gate_bypass_env]
-names = ["ALLOW_DIRECT_PUSH", "GATE_LOCK_HELD"]
+names = ["ALLOW_DIRECT_PUSH", "SKIP_GATE"]
 
 [[hooks.guards.custom]]
 name = "source-formatting"
@@ -695,7 +696,7 @@ install = ["npm", "ci"]
 install_when_changed = ["package-lock.json"]
 
 [git.worktrees]
-bootstrap = ["node", "scripts/worktree-bootstrap.mjs"]
+bootstrap = ["sh", "scripts/setup-worktree.sh"]
 link_from_main = [".env"]
 
 [git.worktrees.sync]

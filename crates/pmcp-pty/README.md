@@ -20,8 +20,9 @@ pmcp-pty profiles --profiles my-profiles.toml   # validate a profile file
 ```
 
 Every command takes `--socket <path>`; without it the socket is `$PMCP_PTY_SOCKET`, else
-`$XDG_RUNTIME_DIR/pmcp-pty.sock`. One daemon per user/scope. The socket path must fit `sun_path` (108 bytes on Linux), so
-prefer `$XDG_RUNTIME_DIR` over deep scratch directories.
+`$XDG_RUNTIME_DIR/pmcp-pty.sock`. One daemon per user/scope. The socket path must fit `sun_path` (108 bytes on Linux,
+104 on macOS), so prefer `$XDG_RUNTIME_DIR` over deep scratch directories; pmcp's harness
+keeps its group sockets within 100 bytes.
 
 ## Socket and trust model
 

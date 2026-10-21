@@ -44,6 +44,11 @@
 <a href="/licence/">Licence</a></nav></details></aside>
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Local mailbox</p><h1 id="local-mailbox">Local mailbox</h1>
 <p><a href="/">Back to the overview</a></p>
+<h2 id="which-mailbox">Which mailbox?</h2>
+<p>pmcp has two message systems; pick by who talks to whom.</p>
+<div class="scroll"><table><thead><tr><th>You want</th><th>Use</th></tr></thead><tbody><tr><td>Agents working in one repository to message each other and you</td><td><code>[sessions.mailbox]</code> and <code>pmcp sessions send</code> (<a href="/sessions/">Run several agents</a>)</td></tr>
+<tr><td>Actors with their own credentials to exchange messages across projects or hosts, or a mailbox in your own application</td><td>this page: <code>pmcp mailbox</code> and the mailbox library</td></tr></tbody></table></div>
+<p>They do not share messages, state or credentials.</p>
 <h2 id="optional-local-mailbox">Optional local mailbox</h2>
 <p>Mailbox is disabled by default. The six catalog tools stay read-only. A launcher
 that supplies a private actor credential adds five tools: mailbox_send,

@@ -37,14 +37,16 @@ prompts.
 
 ## Installation and packaging
 
-| Surface                     | Current qualification                                                                                                                               |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CLI and MCP on Linux amd64  | Published 0.15.0 passed clean Docker installation with npm on Debian/Alpine and Bun/pnpm on Debian; 60 installation and failure contracts           |
-| Optional terminal workspace | Linux pmcp-pty checks and a native Claude main with a Gemini worker (control, input, wake turns, recovery); other runtimes measured on tmux in 0.17 |
-| Public skill installation   | npm, Bun and pnpm 10.17.1; confirmation required, scripts disabled                                                                                  |
-| Native plugin export        | Claude, Codex, Gemini, Grok and agy formats; export does not install or activate a vendor plugin                                                    |
-| pnpm workspace installation | Selects the member, preserves root dependencies and updates the shared lockfile                                                                     |
-| Yarn skill installation     | Refused without changing project files; Yarn PnP is not supported                                                                                   |
+| Surface                        | Current qualification                                                                                                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| CLI and MCP on Linux amd64     | Published 0.15.0 passed clean Docker installation with npm on Debian/Alpine and Bun/pnpm on Debian; 60 installation and failure contracts                                      |
+| Optional terminal workspace    | Linux pmcp-pty checks and a native Claude main with a Gemini worker (control, input, wake turns, recovery); other runtimes measured on tmux in 0.17                            |
+| Public skill installation      | npm, Bun and pnpm 10.17.1; confirmation required, scripts disabled                                                                                                             |
+| Native plugin export           | Claude, Codex, Gemini, Grok and agy formats; export does not install or activate a vendor plugin                                                                               |
+| pnpm workspace installation    | Selects the member, preserves root dependencies and updates the shared lockfile                                                                                                |
+| Yarn skill installation        | Refused without changing project files; Yarn PnP is not supported                                                                                                              |
+| Docker profile for the harness | Codex 0.161.0 login and main/worker responses through the profile's proxy; other vendors and token refresh not measured                                                        |
+| OpenCode user-only skills      | OpenCode 1.18.33: `invocation = "user"` hides the skill from the model and keeps the `/<name>` command, measured with isolated CLI calls and scripted responses, no model call |
 
 Provider authentication, native children and vendor behavior have separate
 qualification scopes. An installed executable or exported manifest is not proof

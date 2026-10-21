@@ -109,7 +109,7 @@ encoder are ready. Semantic
 ranking (the `index` command, or the HTTP handler's `semantic` option) needs
 `@huggingface/transformers` installed separately; it is not part of the default
 installation. The default encoder is `Xenova/multilingual-e5-small` (MIT, about
-130 MB), so vectors indexed with the earlier English-only default are re-encoded.
+130 MB).
 
 The optional encoder also supports the ONNX Community EmbeddingGemma 300M and
 EmbeddingGemma 2 exports. It uses their projected sentence embeddings and task

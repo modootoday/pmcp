@@ -72,7 +72,9 @@ prompts.</p>
 <tr><td>Public skill installation</td><td>npm, Bun and pnpm 10.17.1; confirmation required, scripts disabled</td></tr>
 <tr><td>Native plugin export</td><td>Claude, Codex, Gemini, Grok and agy formats; export does not install or activate a vendor plugin</td></tr>
 <tr><td>pnpm workspace installation</td><td>Selects the member, preserves root dependencies and updates the shared lockfile</td></tr>
-<tr><td>Yarn skill installation</td><td>Refused without changing project files; Yarn PnP is not supported</td></tr></tbody></table></div>
+<tr><td>Yarn skill installation</td><td>Refused without changing project files; Yarn PnP is not supported</td></tr>
+<tr><td>Docker profile for the harness</td><td>Codex 0.161.0 login and main/worker responses through the profile&#39;s proxy; other vendors and token refresh not measured</td></tr>
+<tr><td>OpenCode user-only skills</td><td>OpenCode 1.18.33: <code>invocation = &quot;user&quot;</code> hides the skill from the model and keeps the <code>/&lt;name&gt;</code> command, measured with isolated CLI calls and scripted responses, no model call</td></tr></tbody></table></div>
 <p>Provider authentication, native children and vendor behavior have separate
 qualification scopes. An installed executable or exported manifest is not proof
 that every native feature works. The packed-package check, run before a

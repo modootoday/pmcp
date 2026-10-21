@@ -248,12 +248,6 @@ nothing is removed or refused. <code>pmcp project</code> also refuses to write w
 <p>Codex is never written: its native command rules are a separate feature, and
 the hook guards stay its enforcement.</p>
 <h2 id="unified-project-mcp-configuration">Unified project MCP configuration</h2>
-<p>Antigravity receives a native project plugin at .agents/plugins/pmcp-mcp with
-plugin.json and mcp_config.json. Projection removes only lock-owned entries
-from the earlier .agents/mcp_config.json artifact and backs up both layouts.
-Antigravity&#39;s global mcp list does not enumerate project plugin servers;
-validate the generated plugin with agy plugin validate.
-Its HTTP entries use serverUrl, accepted by the installed plugin validator.</p>
 <p>Declare each MCP server once in pmcp.toml. The projector writes the native
 project files for all selected runtimes. A server can narrow its targets:</p>
 <pre><code>[mcp.docs]
@@ -314,6 +308,13 @@ restoring any file that another process may have edited.</p>
 <a href="https://code.claude.com/docs/en/mcp">Claude Code</a>,
 <a href="https://geminicli.com/docs/tools/mcp-server/">Gemini CLI</a>,
 and <a href="https://docs.x.ai/build/features/mcp-servers">Grok Build</a>.</p>
+<h3 id="antigravity">Antigravity</h3>
+<p>Antigravity receives a native project plugin at <code>.agents/plugins/pmcp-mcp</code> with
+<code>plugin.json</code> and <code>mcp_config.json</code>. Projection removes only lock-owned entries
+from the earlier <code>.agents/mcp_config.json</code> artifact and backs up both layouts.
+Antigravity&#39;s global mcp list does not enumerate project plugin servers;
+validate the generated plugin with <code>agy plugin validate</code>.
+Its HTTP entries use <code>serverUrl</code>, accepted by the installed plugin validator.</p>
 <h2 id="opencode-project-support">OpenCode project support</h2>
 <p>Add opencode to targets.tools to project MCP entries into the project-root
 opencode.json. PMCP owns only its declared mcp entries and user-only skill
@@ -328,9 +329,8 @@ OpenCode; explicitly limit those servers to other targets when needed.</p>
 <p>OpenCode discovers .agents/skills directly, so PMCP creates no skill copies or
 links. For invocation=user, projection sets permission.skill.&lt;name&gt; to deny:
 the model&#39;s skill list omits that name, while the native /&lt;name&gt; command still
-loads its original SKILL.md and accepts user arguments. This was qualified with
-OpenCode 1.18.33 using isolated native CLI calls and local scripted responses,
-without an external model call. It controls automatic skill selection, not
+loads its original SKILL.md and accepts user arguments (measured: see
+<a href="/compatibility/#installation-and-packaging">Compatibility</a>). It controls automatic skill selection, not
 arbitrary file access. Native global skill discovery remains a user preference.</p>
 <p>pmcp doctor checks opencode debug skill and opencode mcp list without calling
 a model. Discovery does not imply automatic visibility or native tool invocation.
@@ -551,7 +551,7 @@ publish = [&quot;deploy&quot;, &quot;secret put&quot;, &quot;secret delete&quot;
 [hooks.guards.git.stage_all]
 
 [hooks.guards.git.gate_bypass_env]
-names = [&quot;ALLOW_DIRECT_PUSH&quot;, &quot;GATE_LOCK_HELD&quot;]
+names = [&quot;ALLOW_DIRECT_PUSH&quot;, &quot;SKIP_GATE&quot;]
 
 [[hooks.guards.custom]]
 name = &quot;source-formatting&quot;
@@ -601,7 +601,7 @@ install = [&quot;npm&quot;, &quot;ci&quot;]
 install_when_changed = [&quot;package-lock.json&quot;]
 
 [git.worktrees]
-bootstrap = [&quot;node&quot;, &quot;scripts/worktree-bootstrap.mjs&quot;]
+bootstrap = [&quot;sh&quot;, &quot;scripts/setup-worktree.sh&quot;]
 link_from_main = [&quot;.env&quot;]
 
 [git.worktrees.sync]
