@@ -35,11 +35,13 @@
 <a href="/terminal-workspace/">Terminal workspace</a>
 <a href="/authoring/">Authoring skills</a>
 <a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
-    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Project configuration</p><h1>Project configuration</h1>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Project configuration</p><h1 id="project-configuration">Project configuration</h1>
 <p><a href="/">Back to the overview</a></p>
-<h2>Project config</h2>
+<h2 id="project-config">Project config</h2>
 <p>A <code>pmcp.toml</code> at or above the working directory sets the catalog once, so a
 host entry needs no flags and works from any package in the repository:</p>
 <pre><code>[catalog]
@@ -62,7 +64,7 @@ deny_list = &quot;private-terms.txt&quot;</code></pre>
 <tr><td><code>deny_list</code></td><td>path</td><td>none</td><td>A file of terms, one per line (<code>#</code> starts a comment), that no file of a skill may contain, compared without case. Relative to <code>pmcp.toml</code>. A finding names the list line, never the term. A missing file is an error.</td></tr></tbody></table></div>
 <p>Both apply to named skill directories and, with no directory named, to every
 skill the catalog reaches.</p>
-<h2>Table index</h2>
+<h2 id="table-index">Table index</h2>
 <p>Every table pmcp reads, and where it is described. An unknown key inside one
 of these tables is an error unless noted; an unknown top-level table is
 ignored.</p>
@@ -80,7 +82,7 @@ ignored.</p>
 <tr><td><code>[ui.claude]</code></td><td><a href="#claude-session-panes">Claude session panes</a></td></tr>
 <tr><td><code>[tui]</code>, <code>[mailbox]</code></td><td><a href="/terminal-workspace/">Terminal workspace</a></td></tr>
 <tr><td><code>[host]</code>, <code>[[host.sessions]]</code>, <code>[[host.answers]]</code>, <code>[host.browser]</code>, <code>[host.desktop]</code>, <code>[[host.desktop.launch]]</code></td><td><a href="#sessions-pmcp-pty-hosts">Sessions pmcp-pty hosts</a></td></tr></tbody></table></div>
-<h2>Marketplaces</h2>
+<h2 id="marketplaces">Marketplaces</h2>
 <p><code>[marketplaces.&lt;name&gt;]</code> declares a plugin marketplace once for catalog search
 and for each agent tool:</p>
 <pre><code>[marketplaces.team]
@@ -102,7 +104,7 @@ directory), <code>github</code> (<code>owner/repo</code>, with an optional <code
 <code>catalog = true</code> needs a path or builtin source. Each plugin&#39;s <code>targets</code> is
 required and lists <code>claude</code> and/or <code>codex</code>. Without the table no marketplace is
 declared.</p>
-<h2>Native files for each agent tool</h2>
+<h2 id="native-files-for-each-agent-tool">Native files for each agent tool</h2>
 <p><code>pmcp project</code> writes what Claude Code, Codex, Gemini CLI, Grok Build and
 Antigravity read natively, from cross-tool sources under <code>.agents/</code>
 (<code>skills/&lt;name&gt;/SKILL.md</code>, <code>agents/&lt;name&gt;/agent.md</code>, <code>rules/*.md</code>) and the rest
@@ -141,7 +143,7 @@ A server that names <code>${PROJECT_ROOT}</code> is launched through <code>sh</c
 overwritten. <code>doctor</code> calls no model: it reads <code>claude mcp list</code>,
 <code>codex mcp list</code>, <code>gemini skills list</code>, <code>gemini mcp list</code> and
 <code>grok inspect --json</code>, and skips a tool that is not installed.</p>
-<h2>Sessions pmcp-pty hosts</h2>
+<h2 id="sessions-pmcp-pty-hosts">Sessions pmcp-pty hosts</h2>
 <p><code>[host]</code> names the sessions pmcp-pty runs for this project and the few dialog
 answers you allow it to give. <code>pmcp project</code> writes them to
 <code>.agents/pmcp-pty/host.json</code> (the sessions) and <code>.agents/pmcp-pty/policy.json</code>
@@ -181,7 +183,7 @@ stay project-relative, so the projected files hold no host path.
 <code>[host.browser]</code> and <code>[[host.desktop.launch]]</code> widen
 <a href="#browser-and-desktop-for-agents">pmcp-browser and pmcp-desktop</a> and act only
 from the approved copy too; a launch entry that starts a browser is an error.</p>
-<h3>Approving the host policy</h3>
+<h3 id="approving-the-host-policy">Approving the host policy</h3>
 <p>Run <code>pmcp harness host approve</code> in your own terminal after <code>pmcp project</code>. It
 prints the sessions, the answer rules, <code>mcp_write</code> and one sha256 over both
 projected files, and approves only when you type the first 8 hex digits of
@@ -203,7 +205,7 @@ accident and an agent that was told to approve; they are not a security
 boundary, since any process running as you can write the approvals directory
 directly. A real boundary needs the approvals stored under a different user or
 owned by root.</p>
-<h2>Browser and desktop for agents</h2>
+<h2 id="browser-and-desktop-for-agents">Browser and desktop for agents</h2>
 <p>Claude Code and Codex offer browser and computer use only through their
 desktop apps, not on a Linux server. Two MCP servers built from this
 repository cover that ground for every runtime pmcp projects to:</p>
@@ -238,7 +240,7 @@ nothing. <code>[host.browser] allow_private</code> and <code>[[host.desktop.laun
 into force only through <code>pmcp harness host approve</code>. Running the browser
 headed on the desktop&#39;s display also needs the managed Chromium policy that
 <code>pmcp-browser setup --plan</code> prints for you to install.</p>
-<h2>Claude permission rules</h2>
+<h2 id="claude-permission-rules">Claude permission rules</h2>
 <p><code>[permissions.claude]</code> declares Claude Code permission rules. <code>pmcp project</code>
 adds them to <code>permissions.allow</code>, <code>permissions.ask</code> and <code>permissions.deny</code> in
 <code>.claude/settings.json</code> when <code>claude</code> is in <code>[targets] tools</code>:</p>
@@ -272,7 +274,7 @@ nothing is removed or refused. <code>pmcp project</code> also refuses to write w
 <code>.claude/settings.json</code> changed while it was planning; run it again.</p>
 <p>Codex is never written: its native command rules are a separate feature, and
 the hook guards stay its enforcement.</p>
-<h2>Unified project MCP configuration</h2>
+<h2 id="unified-project-mcp-configuration">Unified project MCP configuration</h2>
 <p>Antigravity receives a native project plugin at .agents/plugins/pmcp-mcp with
 plugin.json and mcp_config.json. Projection removes only lock-owned entries
 from the earlier .agents/mcp_config.json artifact and backs up both layouts.
@@ -339,7 +341,7 @@ restoring any file that another process may have edited.</p>
 <a href="https://code.claude.com/docs/en/mcp">Claude Code</a>,
 <a href="https://geminicli.com/docs/tools/mcp-server/">Gemini CLI</a>,
 and <a href="https://docs.x.ai/build/features/mcp-servers">Grok Build</a>.</p>
-<h2>OpenCode project support</h2>
+<h2 id="opencode-project-support">OpenCode project support</h2>
 <p>Add opencode to targets.tools to project MCP entries into the project-root
 opencode.json. PMCP owns only its declared mcp entries and user-only skill
 permissions; existing provider, model, other servers and permission rules are
@@ -365,7 +367,7 @@ OpenCode does not run Claude project hooks automatically.</p>
 <p>See the <a href="https://opencode.ai/docs/mcp-servers/">OpenCode MCP configuration</a>,
 <a href="https://opencode.ai/docs/skills/">Agent Skills</a> and
 <a href="https://opencode.ai/docs/config/">configuration precedence</a>.</p>
-<h2>Shared remote MCP authentication</h2>
+<h2 id="shared-remote-mcp-authentication">Shared remote MCP authentication</h2>
 <p>Use <code>auth = &quot;pmcp&quot;</code> to let Claude, Codex, Gemini, Antigravity, Grok and
 OpenCode share one remote MCP login (only the Claude and Codex entries have run
 live):</p>
@@ -398,7 +400,7 @@ starting interactive login inside the MCP connection.</p>
 Codex receives environment-name references for <code>XDG_STATE_HOME</code> and any declared
 header environment variables. <code>auth = &quot;native&quot;</code> preserves existing entries,
 OAuth ownership and env_from behavior. Provider authentication remains native.</p>
-<h2>Hooks</h2>
+<h2 id="hooks">Hooks</h2>
 <p><code>pmcp project</code> compiles <code>[hooks]</code>, <code>[sessions]</code>, <code>[git]</code> and <code>[logging]</code> into
 <code>.agents/pmcp-hooks/policy.json</code>, copies the hook beside it as <code>hook.mjs</code> (a
 small loader) and <code>hook-body.mjs</code>, and registers <code>hook.mjs</code> in
@@ -428,12 +430,12 @@ logging falls back to its defaults rather than to no logging. The bundle is
 projected only when <code>[hooks]</code> declares guards or checks, a <code>[sessions.*]</code>
 feature table is declared, <code>[git.shared_checkout]</code> or <code>[git.worktrees.sync]</code> is
 declared, or <code>[git.mainline.deliver]</code> keeps <code>refuse_direct_push</code>.</p>
-<h3><code>[hooks]</code></h3>
+<h3 id="hooks-1"><code>[hooks]</code></h3>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>targets</code></td><td>list</td><td><code>[targets] tools</code> limited to <code>claude</code>, <code>codex</code></td><td>Runtimes that receive the hook bundle: <code>claude</code>, <code>codex</code>, <code>gemini</code>, <code>antigravity</code>, <code>grok</code>, <code>opencode</code>. The last four are used only when listed here.</td></tr>
 <tr><td><code>ask_fallback</code></td><td>string</td><td><code>&quot;deny&quot;</code></td><td>What an ask becomes on a runtime without ask (Codex, Gemini, Antigravity, Grok, OpenCode): <code>deny</code>, <code>warn</code>, or <code>refuse</code> to make projection fail while any guard may ask.</td></tr>
 <tr><td><code>error_log</code></td><td>bool or path</td><td><code>true</code></td><td><code>true</code> writes JSONL logs under the state directory&#39;s <code>logs/</code>; a project-relative path writes one file there instead; <code>false</code> turns hook logging off.</td></tr>
 <tr><td><code>emergency_off_file</code></td><td>path</td><td>none</td><td>While this file exists every guard passes. <code>~</code>, <code>$HOME/</code> and absolute paths are allowed; other paths are relative to the project.</td></tr></tbody></table></div>
-<h3><code>[hooks.guards.&lt;group&gt;.&lt;name&gt;]</code></h3>
+<h3 id="hooksguardsgroupname"><code>[hooks.guards.&lt;group&gt;.&lt;name&gt;]</code></h3>
 <p>Each built-in guard is one table. <code>mode</code> is the only key the option-less
 guards take; an unknown option is an error. Modes: <code>deny</code> and <code>ask</code> replace
 the guard&#39;s verdict with that mode, <code>warn</code> turns the reason into context the
@@ -468,7 +470,7 @@ and <code>no_verify</code> (boolean, default <code>true</code>).</li>
 <p>A mention is not a match: commands are parsed into steps, so
 <code>git commit -m &quot;never git push --no-verify&quot;</code> and <code>echo &#39;cat &lt;&lt;EOF&#39;</code> pass. A
 command the parser cannot read is judged by a conservative pattern instead.</p>
-<h3><code>[[hooks.guards.custom]]</code></h3>
+<h3 id="hooksguardscustom"><code>[[hooks.guards.custom]]</code></h3>
 <p>A project script under <code>.agents/guards/</code> that decides like a built-in guard.</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>name</code></td><td>string</td><td>required</td><td><code>^[a-z0-9][a-z0-9-]*$</code>, unique across custom, shell and edit entries.</td></tr>
 <tr><td><code>command</code></td><td>argv list</td><td>required</td><td>The first or second element is the script, which must exist inside <code>.agents/guards/</code>; its sha256 is pinned in <code>policy.json</code>.</td></tr>
@@ -477,7 +479,7 @@ command the parser cannot read is judged by a conservative pattern instead.</p>
 <tr><td><code>on</code></td><td>string</td><td><code>&quot;before_shell&quot;</code></td><td><code>before_shell</code> or <code>after_edit</code>.</td></tr></tbody></table></div>
 <p>The script receives the JSON contract described under
 <a href="#deprecated-shell-guards">Deprecated shell guards</a>. Custom guards have no <code>mode</code>.</p>
-<h3><code>[hooks.checks.after_edit]</code> and <code>[hooks.checks.on_stop]</code></h3>
+<h3 id="hookschecksafter_edit-and-hookscheckson_stop"><code>[hooks.checks.after_edit]</code> and <code>[hooks.checks.on_stop]</code></h3>
 <p>Checks report through context and never block; a check that cannot run is
 logged and stays quiet.</p>
 <div class="scroll"><table><thead><tr><th>Table</th><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>[hooks.checks.after_edit]</code></td><td><code>validator_glob</code></td><td>glob</td><td>required</td><td>Validator scripts inside the project; after an edit, only the validators whose directory owns an edited path run.</td></tr>
@@ -491,7 +493,7 @@ last projected this checkout on this machine (recorded in the state directory
 as <code>projector.json</code>), and only at the version <code>pmcp.lock</code> records. A pmcp on
 <code>PATH</code> is never used. When none matches, the session hears
 <code>projecting pmcp not available</code> once instead of a drift report.</p>
-<h3>Runtime support</h3>
+<h3 id="runtime-support">Runtime support</h3>
 <p>From the measured capability files in <code>docs/hooks/capabilities/</code> (Claude Code
 2.1.303, Codex 0.163.0, including live sessions). <code>pmcp doctor</code> prints the same
 table for your project, with Codex trust.</p>
@@ -558,7 +560,7 @@ registry. No trust step.</li>
 </ul>
 <p><code>auth = &quot;pmcp&quot;</code> MCP servers project through <code>pmcp project exec-mcp</code> for every
 runtime above.</p>
-<h2>Sessions</h2>
+<h2 id="sessions">Sessions</h2>
 <p>Sessions coordinate agents working in one repository and its worktrees. State
 lives in one directory shared by every checkout of the repository.</p>
 <div class="scroll"><table><thead><tr><th><code>[sessions]</code> key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>store</code></td><td>string</td><td><code>&quot;files&quot;</code></td><td>The only store.</td></tr>
@@ -571,7 +573,7 @@ lives in one directory shared by every checkout of the repository.</p>
 <tr><td><code>[sessions.roles.&lt;name&gt;]</code></td><td><code>agent_type</code> (default <code>&lt;name&gt;</code>, also matches <code>plugin:&lt;name&gt;</code>), <code>allow_edits</code> (default <code>false</code>), <code>allow_commands</code> (list of argv prefixes, default <code>[]</code>)</td><td>A subagent of that type may edit only if allowed and run only the listed commands. Claude only.</td></tr></tbody></table></div>
 <p>These tables have no <code>mode</code>, except pause. Without <code>[sessions.registry]</code> no
 session is recorded, and <code>[ui.claude]</code> refuses to project.</p>
-<h3><code>[sessions.mailbox]</code></h3>
+<h3 id="sessionsmailbox"><code>[sessions.mailbox]</code></h3>
 <p>Addressed messages between sessions, and between you and them. A missing table leaves
 the mailbox off; a declared one, even empty, turns it on.</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>enabled</code></td><td>bool</td><td><code>true</code></td><td><code>false</code> keeps the table but turns the mailbox off.</td></tr>
@@ -663,7 +665,7 @@ message to <code>all</code>, and the mailbox delivers it instead of
 are still written, so <code>pmcp sessions status</code>, the session list and the
 Claude Code session panes read broadcasts as before. <code>unbroadcast</code> withdraws those
 messages too.</p>
-<h2>Git workflow</h2>
+<h2 id="git-workflow">Git workflow</h2>
 <div class="scroll"><table><thead><tr><th><code>[git]</code> key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>enabled</code></td><td><code>&quot;auto&quot;</code>, true, false</td><td><code>&quot;auto&quot;</code></td><td><code>auto</code> turns the git features on when the project is a git checkout; <code>false</code> turns all of them off.</td></tr>
 <tr><td><code>remote</code></td><td>string</td><td><code>origin</code> if present, else the first remote</td><td></td></tr>
 <tr><td><code>mainline</code></td><td>string or table</td><td>the remote&#39;s HEAD branch, else <code>main</code></td><td>A string names the branch; a table (<code>[git.mainline]</code> with <code>branch</code>) also holds gate, deliver and sync.</td></tr></tbody></table></div>
@@ -704,7 +706,7 @@ the mainline: <code>install</code> (argv), <code>install_when_changed</code> (pa
 <p><code>[git.submodules]</code>: <code>follow = &quot;clean_pins&quot;</code> (the default when the table is
 present) moves submodules to the pinned commit when they are clean; <code>&quot;off&quot;</code>
 leaves them. Without the table submodules are not followed.</p>
-<h2>Logging</h2>
+<h2 id="logging">Logging</h2>
 <div class="scroll"><table><thead><tr><th><code>[logging]</code> key</th><th>Type</th><th>Default</th><th>Allowed</th></tr></thead><tbody><tr><td><code>level</code></td><td>string</td><td><code>&quot;info&quot;</code></td><td><code>error</code>, <code>warn</code>, <code>info</code>, <code>debug</code>, <code>trace</code></td></tr>
 <tr><td><code>format</code></td><td>string</td><td><code>&quot;jsonl&quot;</code></td><td><code>jsonl</code> only</td></tr>
 <tr><td><code>max_file_mb</code></td><td>number</td><td><code>20</code></td><td>greater than 0</td></tr>
@@ -713,7 +715,7 @@ leaves them. Without the table submodules are not followed.</p>
 <tr><td><code>components</code></td><td>table</td><td><code>{}</code></td><td><code>&lt;component&gt; = &quot;&lt;level&gt;&quot;</code></td></tr></tbody></table></div>
 <p>The <code>PMCP_LOG</code> environment variable overrides the level. <code>[hooks] error_log</code>
 switches hook logging on or off. Read the logs with <code>pmcp logs</code>.</p>
-<h2>Claude session panes</h2>
+<h2 id="claude-session-panes">Claude session panes</h2>
 <p><code>[ui.claude]</code> installs the session panes into Claude Code: <code>sessions_pane</code>,
 <code>status_band</code>, <code>commands</code> and <code>hold_foreign_edits</code>, all booleans defaulting to
 <code>true</code>. <code>hold_foreign_edits</code> asks before editing a file another live session
@@ -721,7 +723,7 @@ edited. It needs <code>[sessions.registry]</code>, and is written only when <cod
 in <code>[targets] tools</code>. Without the table nothing is installed. <code>pmcp doctor</code>
 shows the projected switches, or a failure until <code>pmcp project</code> writes them; it
 cannot tell whether a running Claude Code loaded the session panes.</p>
-<h2>A complete example</h2>
+<h2 id="a-complete-example">A complete example</h2>
 <p>A project with two runtimes, the full guard set, sessions, the git workflow and
 a team marketplace:</p>
 <pre><code>[catalog]
@@ -844,7 +846,7 @@ source = { github = &quot;example/team-marketplace&quot; }
 
 [marketplaces.team.plugins]
 review = { targets = [&quot;claude&quot;, &quot;codex&quot;] }</code></pre>
-<h2>Deprecated shell guards</h2>
+<h2 id="deprecated-shell-guards">Deprecated shell guards</h2>
 <p>Deprecated: <code>[[hooks.shell]]</code> and <code>[[hooks.edit]]</code> still work, and <code>pmcp project</code>
 warns. Declare <code>[[hooks.guards.custom]]</code> instead, with <code>on = &quot;before_shell&quot;</code> or
 <code>on = &quot;after_edit&quot;</code>, and list its runtimes in <code>[hooks] targets</code>: every runtime
@@ -875,7 +877,7 @@ guard code requires reprojection and native Codex hook review. Generated files
 contain no trust bypass. Grok can load Claude project hooks, so this first scope
 does not generate a second Grok guard. Hooks do not force pmcp catalog use,
 inject reminders or replace the runtime&#39;s execution sandbox.</p>
-<h2>Deprecated edit guards</h2>
+<h2 id="deprecated-edit-guards">Deprecated edit guards</h2>
 <p>Codex edit guards run after apply_patch through native PostToolUse hooks:</p>
 <pre><code>[[hooks.edit]]
 name = &quot;edit-policy&quot;
@@ -891,7 +893,7 @@ support Codex only, and names must be unique across shell and edit declarations.
 the generated native definition in /hooks. Peer entries and shell guards are
 preserved. Fingerprints and failure handling follow the shell-guard contract.
 See the <a href="https://learn.chatgpt.com/docs/hooks">native hooks documentation</a>.</p>
-<h2>Native memory metadata</h2>
+<h2 id="native-memory-metadata">Native memory metadata</h2>
 <pre><code>pmcp doctor --memory --json
 pmcp doctor --memory --tool codex</code></pre>
 <p>This explicit operation reports selected runtimes&#39; native memory configuration

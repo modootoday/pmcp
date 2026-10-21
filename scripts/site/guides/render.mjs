@@ -20,7 +20,21 @@ function resolveLink(href) {
   return fragment ? `${guide.route}#${fragment}` : guide.route;
 }
 
+// GitHub's heading anchors, so a fragment link works the same on GitHub, in the npm package
+// and on the site; a repeated heading gets -1, -2 as GitHub numbers it.
+export function headingId(text, seen) {
+  const base = text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s_-]/gu, "")
+    .trim()
+    .replace(/\s/gu, "-");
+  const count = seen.get(base) ?? 0;
+  seen.set(base, count + 1);
+  return count === 0 ? base : `${base}-${count}`;
+}
+
 export function renderGuide(markdown) {
+  const seen = new Map();
   const parser = new Marked({
     renderer: {
       html({ text }) {
@@ -29,9 +43,10 @@ export function renderGuide(markdown) {
       code({ text }) {
         return `<pre><code>${escape(text)}</code></pre>\n`;
       },
-      heading({ tokens, depth }) {
+      heading({ tokens, depth, text }) {
         const content = this.parser.parseInline(tokens);
-        return `<h${depth}>${content}</h${depth}>\n`;
+        const id = headingId(text, seen);
+        return `<h${depth} id="${escape(id)}">${content}</h${depth}>\n`;
       },
       table(token) {
         const cell = (entry, tag) =>

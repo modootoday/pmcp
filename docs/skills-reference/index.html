@@ -35,11 +35,13 @@
 <a href="/terminal-workspace/">Terminal workspace</a>
 <a href="/authoring/">Authoring skills</a>
 <a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
-    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Skills and MCP reference</p><h1>Skills and MCP reference</h1>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Skills and MCP reference</p><h1 id="skills-and-mcp-reference">Skills and MCP reference</h1>
 <p><a href="/">Back to the overview</a></p>
-<h2>Package skills</h2>
+<h2 id="package-skills">Package skills</h2>
 <p>Skills are discovered by filename, including <code>skills/</code>, <code>.agents/skills/</code>,
 <code>.agent/skills/</code>, <code>.claude/skills/</code>, <code>.gemini/skills/</code>, <code>.codex/skills/</code>, and
 <code>lib/skill/</code> layouts
@@ -89,7 +91,7 @@ Commands are listed as skills. The others are listed under their own kind and
 are left out of <code>skill_catalog</code> and <code>skill_find</code> unless <code>kind</code> asks for them
 (<code>agent</code>, <code>hook</code>, <code>mcp</code>, or <code>any</code>); <code>skill_describe</code>, <code>skill_read</code> and
 <code>skill_call</code> work on every kind.</p>
-<h2>Public native marketplace</h2>
+<h2 id="public-native-marketplace">Public native marketplace</h2>
 <p>The public repository&#39;s canonical sources are standard Agent Skills folders:
 <code>plugins/&lt;product-major&gt;/skills/&lt;skill-name&gt;/SKILL.md</code>. Each supported library
 major is a separate selectable plugin. The PMCP bridge has its own <code>pmcp</code> plugin.
@@ -118,13 +120,13 @@ changes the project and lockfile only after confirmation, with scripts disabled.
 <code>--provider hosted</code> remains a separate service path with its own access policy.
 Native plugin installation does not automatically version-match dependencies:
 select the appropriate major yourself. Non-npm library instructions remain manual.</p>
-<h2>Manually selected Python, Rust and Go library skills</h2>
+<h2 id="manually-selected-python-rust-and-go-library-skills">Manually selected Python, Rust and Go library skills</h2>
 <p>Public Pydantic, serde_json and Google UUID instructions are free to read and
 copy into a local collection. Register that collection explicitly; these libraries
 are not automatically matched from PyPI, Cargo or Go dependencies. Follow the
 <a href="/manual-library-skills/">manual library skills guide</a> for download paths and
 the existing CLI configuration workflow.</p>
-<h2>MCP Skills extension</h2>
+<h2 id="mcp-skills-extension">MCP Skills extension</h2>
 <p>The server also declares <code>io.modelcontextprotocol/skills</code> (SEP-2640): it
 answers <code>skills/list</code> and <code>skills/get</code> (both with <code>ttlMs</code> and <code>cacheScope</code>), with
 a sha256 digest and size per file. A skill qualifies when its frontmatter passes the

@@ -12,6 +12,6 @@
 - A verb with independent subcommands loads each one with its own dynamic import,
   as `project.ts` does for `exec-mcp`, which runs once per MCP server launch.
 - Exit codes come from `EXIT` in `cli/command.ts`; their published meaning is in
-  `docs/commands/index.html`.
+  `docs/commands.md` (Exit codes), which a new code or flag must update.
 - `index.ts`, `dispatch.ts` and `registry.ts` assemble; logic belongs in a command
   module or the domain it calls.

@@ -2,7 +2,7 @@
 
 pmcp is a TypeScript package (the CLI, MCP server and library, built with tsup) with five Rust
 crates under `crates/` for the native binaries. Rules that agents and people both follow when
-editing are in [AGENTS.md](AGENTS.md); this page is the procedure.
+editing are in `AGENTS.md` in the repository; this page is the procedure.
 
 ## Set up
 
@@ -68,4 +68,4 @@ Edit the source, then regenerate; the checks fail on a generated file edited by 
 ## Commits and releases
 
 Commit messages describe the change for a reader of the public history. Releases follow
-[.github/RELEASING.md](.github/RELEASING.md).
+[RELEASING.md](https://github.com/modootoday/pmcp/blob/main/.github/RELEASING.md).

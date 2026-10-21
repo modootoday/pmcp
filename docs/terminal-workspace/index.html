@@ -35,9 +35,11 @@
 <a href="/terminal-workspace/" aria-current="page">Terminal workspace</a>
 <a href="/authoring/">Authoring skills</a>
 <a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
-    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Terminal workspace</p><h1>Terminal workspace</h1>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Terminal workspace</p><h1 id="terminal-workspace">Terminal workspace</h1>
 <p>Use <code>pmcp tui</code> to view a main runtime and its workers in one terminal. The main
 conversation stays in its native interface. PMCP adds a worker dock, a
 coordination panel and explicit control switching. Provider login, folder trust
@@ -57,7 +59,7 @@ sets no quarantine flag. Signing is decided when direct downloads start. On
 Linux a working user systemd manager also caps
 each native session in its own scope; macOS runs sessions uncapped. Windows is
 not supported yet.</p>
-<h2>Open a workspace</h2>
+<h2 id="open-a-workspace">Open a workspace</h2>
 <p>From a supported interactive terminal, run <code>pmcp</code> or <code>pmcp tui</code>. The first
 launch lists installed runtimes, with a default in this order: Codex, Gemini,
 agy, Grok, Claude. Enter accepts that default; a number selects another runtime.
@@ -122,14 +124,14 @@ interactive hosts show help; they do not wait for JSON-RPC input.</p>
 Linux the systemd tools and user manager. It lists native executables found on
 PATH; an installed executable is not proof of authentication or successful
 native behavior.</p>
-<h2>Layout</h2>
+<h2 id="layout">Layout</h2>
 <p>At 120 columns by 32 rows or larger, main fills the left, workers appear on the
 right, and coordination occupies four bottom rows. Smaller terminals keep a
 full-width main; Ctrl-g then g shows the dock and coordination instead. The
 minimum is 40 by 12. A shown session keeps its own size, so watching never
 reflows a session someone else is driving; a session you control is resized to
 the main pane.</p>
-<h2>Observe and control</h2>
+<h2 id="observe-and-control">Observe and control</h2>
 <p>Press Ctrl-g, release it, then press a key:</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody><tr><td>m</td><td>Return to main, giving control back first</td></tr>
 <tr><td>w or 1–9</td><td>Observe a worker</td></tr>
@@ -154,7 +156,7 @@ seconds after the last keystroke.</p>
 <p>Failures stay in the status line and coordination panel until dismissed. PMCP
 never replays uncertain input. An input receipt or mailbox ACK does not
 establish model completion. Provider state remains unknown.</p>
-<h2>History and mailbox</h2>
+<h2 id="history-and-mailbox">History and mailbox</h2>
 <p>History shows the shown session&#39;s own output, bounded to 2000 lines and 64 KiB,
 scrolled with the arrow and page keys; Esc or q returns. It does not include
 shell history from before the runtime.</p>
@@ -163,7 +165,7 @@ mailbox CLI for an explicitly chosen observer actor. Run pmcp-tui with
 <code>--mailbox-config ./pmcp.toml --actor-file &quot;$OBSERVER_ACTOR_FILE&quot;</code> to enable it.
 It never reads bodies, marks messages read, acknowledges them, submits input or
 wakes a runtime. Use the <a href="/mailbox/">mailbox CLI</a> for those explicit actions.</p>
-<h2>Detach and recovery</h2>
+<h2 id="detach-and-recovery">Detach and recovery</h2>
 <p>Detach preserves processes and drafts. Reopening returns to read-only main
 observation. Leaving while in control gives the lease back; a crash leaves it to
 lapse within 30 seconds. Inspect before retrying, without replaying input:</p>

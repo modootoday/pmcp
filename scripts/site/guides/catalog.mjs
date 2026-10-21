@@ -1,5 +1,11 @@
 export const guides = [
   {
+    source: "getting-started.md",
+    route: "/guide/",
+    title: "Getting started",
+    description: "Install pmcp and connect the native runtime you already use.",
+  },
+  {
     source: "project-configuration.md",
     route: "/project-configuration/",
     title: "Project configuration",
@@ -60,5 +66,23 @@ export const guides = [
     title: "Terminal workspace",
     description:
       "View a native main runtime and its workers with read-only observation and explicit control.",
+  },
+  {
+    source: "commands.md",
+    route: "/commands/",
+    title: "Command reference",
+    description: "pmcp command flags, behaviour and exit codes.",
+  },
+  {
+    source: "compatibility.md",
+    route: "/compatibility/",
+    title: "Compatibility",
+    description: "Platforms, native runtimes and what each part of pmcp needs.",
+  },
+  {
+    source: "glossary.md",
+    route: "/glossary/",
+    title: "Glossary",
+    description: "The terms pmcp uses, each with the page that explains it.",
   },
 ];

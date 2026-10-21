@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Glossary — pmcp</title>
+  <meta name="description" content="The terms pmcp uses, each with the page that explains it." />
+  <link rel="canonical" href="https://pmcp.build/glossary/" />
+  <link rel="stylesheet" href="/assets/style.css?v=5137642c7d02" />
+  <link rel="icon" href="/assets/mark.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PMCP" />
+  <meta property="og:title" content="Glossary — pmcp" />
+  <meta property="og:description" content="The terms pmcp uses, each with the page that explains it." />
+  <meta property="og:url" content="https://pmcp.build/glossary/" />
+</head><body><a class="skip" href="#main">Skip to content</a>
+<div id="frame"><div class="site"><header class="site-header">
+    <a class="wordmark" href="/" aria-label="PMCP homepage">pmcp<span>_</span></a>
+    <nav aria-label="Main navigation"><a href="/#capabilities">Product</a>
+<a href="/skills/">Free skills</a>
+<a href="/examples/">Examples</a>
+<a href="/guide/">Docs</a>
+<a href="https://github.com/modootoday/pmcp">GitHub</a></nav>
+    <a class="button header-start" href="/guide/">Get started</a>
+  </header>
+<main id="main"><div class="docs-layout"><aside><details open><summary>Documentation</summary><nav aria-label="Documentation"><a href="/guide/">Getting started</a>
+<a href="/install/">Installation</a>
+<a href="/project-configuration/">Project configuration</a>
+<a href="/sessions/">Run several agents</a>
+<a href="/skills-reference/">Skills and MCP reference</a>
+<a href="/manual-library-skills/">Manual library skills</a>
+<a href="/embeddings/">Embedding models</a>
+<a href="/mailbox/">Local mailbox</a>
+<a href="/hosting/">HTTP hosting</a>
+<a href="/terminal-harness/">Native terminal control</a>
+<a href="/terminal-workspace/">Terminal workspace</a>
+<a href="/authoring/">Authoring skills</a>
+<a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/" aria-current="page">Glossary</a>
+<a href="/compare/">Working model</a>
+<a href="/licence/">Licence</a></nav></details></aside>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Glossary</p><h1 id="glossary">Glossary</h1>
+<p><a href="/">Back to the overview</a></p>
+<p>The words pmcp&#39;s documentation and messages use, each with the page that owns it.</p>
+<div class="scroll"><table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody><tr><td>skill</td><td>A <code>SKILL.md</code> an agent loads when its task matches: a description that decides when, and a body with the instructions. <a href="/skills-reference/">Skills reference</a></td></tr>
+<tr><td>catalog</td><td>The skills pmcp finds in installed packages, workspace packages and marketplaces; <code>skill_find</code> searches it. <a href="/guide/">Getting started</a></td></tr>
+<tr><td>marketplace</td><td>A collection of plugins that native runtimes install; pmcp ships a free public one. <a href="/skills-reference/">Skills reference</a></td></tr>
+<tr><td>projection</td><td>The native files <code>pmcp project</code> writes for each tool from <code>pmcp.toml</code> and <code>.agents/</code>; <code>pmcp.lock</code> records what it owns. <a href="/project-configuration/">Project configuration</a></td></tr>
+<tr><td>hook bundle</td><td>The guards, checks and session bookkeeping <code>[hooks]</code> compiles and every targeted runtime runs on its tool calls. <a href="/project-configuration/#hooks">Hooks</a></td></tr>
+<tr><td>session</td><td>One running agent conversation in the repository, as the hooks record it. <a href="/sessions/">Run several agents</a></td></tr>
+<tr><td>shared checkout</td><td>The repository&#39;s main checkout when linked worktrees exist; an edit left there blocks syncing it for every session.</td></tr>
+<tr><td>linked worktree</td><td>A separate checkout <code>pmcp git worktree create</code> makes for one agent. Messages address it as <code>worktree:&lt;path&gt;</code>; <code>desk:&lt;path&gt;</code> is an older spelling that still works. <a href="/project-configuration/#git-workflow">Git workflow</a></td></tr>
+<tr><td>mainline</td><td>The branch deliveries go to: <code>[git] mainline</code>, else the remote&#39;s HEAD branch, else <code>main</code>.</td></tr>
+<tr><td>delivery</td><td><code>pmcp git deliver</code>: replay commits onto the mainline, run the gate, push. &quot;Being delivered&quot; in a message means one is in progress.</td></tr>
+<tr><td>gate</td><td>The test command a delivery must pass, <code>[git.mainline.gate]</code>.</td></tr>
+<tr><td>lease</td><td>A hold on a file two sessions must not change at once, such as a lockfile; the listed commands wait while a delivery holds it.</td></tr>
+<tr><td>pause</td><td><code>pmcp sessions pause</code>: every other session&#39;s edits and mutating commands are refused until <code>resume</code>.</td></tr>
+<tr><td>broadcast</td><td>Text every running session receives once, as context.</td></tr>
+<tr><td>sessions mailbox</td><td>Addressed messages between the sessions of one repository, <code>pmcp sessions send</code>. <a href="/sessions/">Run several agents</a></td></tr>
+<tr><td>local mailbox</td><td>Messages between actors that hold their own credentials, <code>pmcp mailbox</code>, across projects and hosts. <a href="/mailbox/">Local mailbox</a></td></tr>
+<tr><td><code>operator</code></td><td>A name, not a role: the default sender of <code>pmcp sessions pause</code>, <code>broadcast</code> and <code>send</code> (<code>--by</code>), and a mailbox actor you may register. The docs call the person &quot;you&quot;.</td></tr>
+<tr><td>runtime id</td><td>How each table names a native runtime; the ids differ between tables. <a href="/compatibility/#native-runtimes">Compatibility</a></td></tr>
+<tr><td>main and worker</td><td>In a terminal workspace or harness group, the session you mainly talk to and the ones it delegates to. <a href="/terminal-workspace/">Terminal workspace</a></td></tr>
+<tr><td>harness group</td><td>The sessions one pmcp-pty daemon hosts for <code>pmcp tui</code> or <code>pmcp harness</code>, with a budget and a generation that changes when the group is replaced. <a href="/terminal-harness/">Native terminal control</a></td></tr>
+<tr><td>control</td><td>Holding the lease on a hosted session so only you type into it; program input waits until you release it.</td></tr>
+<tr><td>host (<code>[host]</code>)</td><td>The long-running sessions <code>pmcp harness host</code> runs from <code>pmcp.toml</code>, once you approve the projected policy. <a href="/project-configuration/#sessions-pmcp-pty-hosts">Sessions pmcp-pty hosts</a></td></tr>
+<tr><td>platform package</td><td><code>@modootoday/pmcp-&lt;os&gt;-&lt;cpu&gt;</code>, the npm package that carries the native binaries for one platform. <a href="/compatibility/">Compatibility</a></td></tr></tbody></table></div>
+</article></div></main><footer class="site-footer">
+    <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
+    <div><strong>Learn</strong><a href="/guide/">Getting started</a>
+<a href="/project-configuration/">Configuration</a>
+<a href="/examples/">Skill example</a>
+<a href="/skills/">Free package skills</a></div>
+    <div><strong>Build</strong><a href="/commands/">CLI reference</a>
+<a href="/terminal-harness/">Native sessions</a>
+<a href="/mailbox/">Mailbox</a>
+<a href="/authoring/">Ship a skill</a></div>
+    <div><strong>Project</strong><a href="https://github.com/modootoday/pmcp">GitHub</a>
+<a href="https://www.npmjs.com/package/@modootoday/pmcp">npm</a>
+<a href="/licence/">Licence</a></div>
+    <p class="copyright">© 2026 modootoday.</p>
+  </footer></div></div>
+</body></html>

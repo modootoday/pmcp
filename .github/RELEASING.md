@@ -7,6 +7,23 @@ environment. By hand (workflow_dispatch) it never publishes: mode `dry-run`
 builds and packs everything and deletes its draft release; mode `bootstrap`
 keeps the draft release `v<version>` with one binary archive per target.
 
+## Release checklist
+
+1. Version: set it in `package.json` (then `bun install` updates `bun.lock`),
+   `src/commands/version.ts`, `src/mcp.ts`, `release-manifest.json` and each
+   `crates/*/Cargo.toml` (then `cargo update -w` in each crate). Run
+   `bun run marketplace:build`: the plugin and extension manifests, including the
+   bridge's `npx @modootoday/pmcp@<version>`, follow `package.json`.
+2. `CHANGELOG.md`: turn Unreleased into the version, each line with its commit or
+   pull request, plus Upgrading and Known issues when they apply.
+3. Docs and site: `bun run site:build`, then `npm run docs:check`. Pushing to
+   main deploys pmcp.build (`pages.yml`); `bun run site:deployed` checks it.
+4. Checks: `npm run build`, `npm run typecheck`, `npm test`, and the Rust checks
+   in [CONTRIBUTING.md](../CONTRIBUTING.md) for every crate.
+5. Publish as below, then confirm npm serves it:
+   `npm view @modootoday/pmcp@<version> version` for the main package and each
+   platform package.
+
 ## Packages
 
 | Package                         | Binaries                                              |
@@ -58,7 +75,7 @@ workflow once more. That run reuses the release and its archives, and its
 publish job skips every package whose exact version is already on npm, logging
 each skip, so it neither fails nor republishes.
 
-## One-time setup (operator)
+## One-time setup (maintainer)
 
 Publishing uses npm Trusted Publishing: npm exchanges the publish job's GitHub
 OIDC token for a short-lived credential, so no npm token is stored anywhere.

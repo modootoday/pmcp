@@ -35,9 +35,11 @@
 <a href="/terminal-workspace/">Terminal workspace</a>
 <a href="/authoring/">Authoring skills</a>
 <a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
-    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Native terminal control</p><h1>Native terminal control</h1>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Native terminal control</p><h1 id="native-terminal-control">Native terminal control</h1>
 <p>Use <code>pmcp harness</code> to manage a main runtime and its workers through a local CLI.
 Each runtime keeps its own conversation interface, OAuth login, folder trust and
 tool permissions. The one exception is a session pmcp-pty hosts from a
@@ -58,7 +60,7 @@ state, automatic wake, authentication refresh or native children.</p>
 <p>Groups created by releases before pmcp-pty ran their sessions in tmux. They are
 not migrated: stop and clean them up with the older pmcp release that created
 them, then create a new group.</p>
-<h2>Check the host</h2>
+<h2 id="check-the-host">Check the host</h2>
 <pre><code>pmcp harness capabilities inspect
 pmcp harness doctor inspect</code></pre>
 <p>These commands report executable paths and required tools without starting a
@@ -72,7 +74,7 @@ The doctor report lists prerequisites and does not certify cgroup delegation.
 An ordinary isolated Docker container usually lacks this user manager and a
 writable delegated cgroup subtree. Container resource limits alone do not
 qualify the native session controls; they need the Linux or macOS host itself.</p>
-<h2>Choose native or Docker execution</h2>
+<h2 id="choose-native-or-docker-execution">Choose native or Docker execution</h2>
 <p>The default native profile starts executables on the host, Linux or macOS. The
 optional Docker profile needs Linux: it keeps the same host-side pmcp-pty and
 user-systemd controller, while each native executable runs in its own bounded
@@ -106,7 +108,7 @@ connection. Its Docker memory limit is therefore 64 MiB smaller. Leave additiona
 headroom in the group budget for its controller and pmcp-pty daemon.
 Session receipts include the owned container identity only for Docker execution.
 Unknown or changed container identity blocks cleanup and admission.</p>
-<h3>Allow provider connections explicitly</h3>
+<h3 id="allow-provider-connections-explicitly">Allow provider connections explicitly</h3>
 <p>Network-none containers are offline by default. To allow provider HTTPS, add an
 <code>egress</code> entry to the policy:</p>
 <pre><code>{
@@ -122,7 +124,7 @@ cannot reach the provider through this profile. Actual Codex 0.161.0 login and
 main/worker responses have been qualified; other vendors and token refresh need
 their own validation. These two hosts are an observed test scope, not a promise
 that all future Codex features use only them.</p>
-<h3>Keep authenticated roles independent</h3>
+<h3 id="keep-authenticated-roles-independent">Keep authenticated roles independent</h3>
 <p>Omitting <code>privateProfiles</code> creates a new empty profile for each launch. For
 explicit reuse, prepare distinct local directories owned by your UID with mode
 0700, outside the project and credential home. Add named grants to the policy:</p>
@@ -153,7 +155,7 @@ against a hostile host administrator.</p>
 <p>Keep private profiles when you stop a group if you intend to reuse their native
 login. Session termination does not log out the account or delete credentials.
 Do not publish these directories or add them to source control.</p>
-<h2>Create a group and its sessions</h2>
+<h2 id="create-a-group-and-its-sessions">Create a group and its sessions</h2>
 <p>Save this as <code>group-spec.json</code>, replacing the project path:</p>
 <pre><code>{
   &quot;projectRoot&quot;: &quot;/absolute/project/path&quot;,
@@ -190,7 +192,7 @@ leases do not isolate filesystem access from another process of the same UID.</p
 group registration are saved. The gate checks the group generation, runtime
 grant and role before starting the executable. A failed or interrupted start
 blocks further admission until you explicitly resolve it.</p>
-<h2>Observe or take control</h2>
+<h2 id="observe-or-take-control">Observe or take control</h2>
 <p>Set SESSION to a session ID from the receipt:</p>
 <pre><code>pmcp harness session inspect --group-file &quot;$GROUP_FILE&quot; --session &quot;$SESSION&quot;
 pmcp harness session read --group-file &quot;$GROUP_FILE&quot; --session &quot;$SESSION&quot;
@@ -221,7 +223,7 @@ renewal disconnects the client. It does not stop the runtime. pmcp-pty holds
 the same lease token, so while it is held it refuses a writable attachment or
 input without it, and a person typing in an attachment wins over program input
 for five seconds after the last keystroke.</p>
-<h2>Deliver input explicitly</h2>
+<h2 id="deliver-input-explicitly">Deliver input explicitly</h2>
 <p>Use mode cli when acquiring a lease for explicit command-line input.
 Save literal single-line UTF-8 text in prompt.txt:</p>
 <pre><code>pmcp harness input write --group-file &quot;$GROUP_FILE&quot; --generation &quot;$GENERATION&quot; --lease-file &quot;$LEASE_FILE&quot; --request-id task1-attempt1-draft --text-file prompt.txt
@@ -245,7 +247,7 @@ stop it by ID and explicitly start a replacement. Old request IDs are not
 transferred to the replacement, and sibling sessions retain their input.</p>
 <p>Input interrupt sends an explicit terminal Ctrl-c under the same lease.
 Cancellation, process termination and provider-side completion are distinct.</p>
-<h2>Coordinate through the existing mailbox</h2>
+<h2 id="coordinate-through-the-existing-mailbox">Coordinate through the existing mailbox</h2>
 <p>Use the existing <code>pmcp mailbox</code> commands for send, inbox, read and ack.
 Keep task and attempt IDs in your message body; send a result with replyToId
 pointing to its request. Main review reads the reply. Acknowledgment records
@@ -255,7 +257,7 @@ into a native menu. Follow the <a href="/mailbox/">mailbox guide</a> for actor c
 and launcher-bound runtime attachments.
 There is no automatic delivery loop. Native readiness and approval stay with
 you and the runtime; an input receipt does not establish prompt readiness.</p>
-<h3>Sessions pmcp-pty hosts</h3>
+<h3 id="sessions-pmcp-pty-hosts">Sessions pmcp-pty hosts</h3>
 <p><code>[host]</code> in pmcp.toml lists long-running sessions for one shared pmcp-pty host
 outside any group (see
 <a href="/project-configuration/#sessions-pmcp-pty-hosts">Sessions pmcp-pty hosts</a>).
@@ -288,7 +290,7 @@ never writes or enables a unit.</li>
 </ul>
 <p><code>up</code> and <code>down</code> use only the approved copy, so a session or answer an agent
 adds to pmcp.toml runs only after you approve it.</p>
-<h3>A manual request and review workflow</h3>
+<h3 id="a-manual-request-and-review-workflow">A manual request and review workflow</h3>
 <p>Mailbox actor names and harness session roles are separate. Creating a main or
 worker terminal does not register a mailbox actor or give it credentials. Use
 the mailbox guide to initialize the project and register <code>main</code>, <code>worker</code> and
@@ -325,7 +327,7 @@ and return the existing message; changed payloads are refused.</p>
 After reading it, you may send a separate acceptance reply as <code>operator</code>. ACK records
 receipt handling only. Neither result text, ACK nor acceptance automatically
 submits a terminal draft, transfers control or executes a command.</p>
-<h2>Pause, stop and recover</h2>
+<h2 id="pause-stop-and-recover">Pause, stop and recover</h2>
 <p>group pause prevents new sessions without interrupting running providers.
 group resume permits admission again. group configure takes a JSON input to
 adjust budgets or narrow runtime grants; it refuses reductions below active
@@ -349,7 +351,7 @@ uses session stop instead. If the start gate died before recording ownership,
 automatic cleanup is refused and admission remains blocked for administrative
 repair. Keep the private state directory as evidence; do not guess a session id
 or resend an uncertain request.</p>
-<h2>Layout planning</h2>
+<h2 id="layout-planning">Layout planning</h2>
 <pre><code>pmcp harness layout --columns 120 --rows 40</code></pre>
 <p>This pure command needs no terminal host, provider, project or network. It returns layout
 A at 120 columns and 32 rows or larger: a main pane, worker dock and bottom

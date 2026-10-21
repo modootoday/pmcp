@@ -35,9 +35,11 @@
 <a href="/terminal-workspace/">Terminal workspace</a>
 <a href="/authoring/">Authoring skills</a>
 <a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
-    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Run several agents</p><h1>Run several agents in one repository</h1>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Run several agents</p><h1 id="run-several-agents-in-one-repository">Run several agents in one repository</h1>
 <p><a href="/">Back to the overview</a></p>
 <p>Two agents editing one checkout overwrite each other, push half-finished work or reinstall
 dependencies under each other&#39;s feet. pmcp lets every agent session in a repository see the
@@ -45,12 +47,12 @@ others, and gives you the controls to coordinate them: a session list, a pause, 
 addressed messages, leases on shared files, linked worktrees and one delivery path to the
 mainline. Every part is opt-in through <code>pmcp.toml</code>; the keys are in the
 <a href="/project-configuration/#sessions">configuration guide</a>.</p>
-<h2>See who is working</h2>
+<h2 id="see-who-is-working">See who is working</h2>
 <pre><code>pmcp sessions status</code></pre>
 <p>It lists each live session (id, runtime, checkout and current tool), the pause, current
 broadcasts, held leases, and files edited but not yet delivered in the shared checkout.
 <code>pmcp status</code> adds projection drift and worktree ahead and behind counts.</p>
-<h2>Pause and broadcast</h2>
+<h2 id="pause-and-broadcast">Pause and broadcast</h2>
 <p>These are your controls; an agent reports the need for them and leaves the decision to you.</p>
 <pre><code>pmcp sessions pause &quot;release freeze&quot;
 pmcp sessions resume
@@ -61,7 +63,7 @@ pmcp sessions sweep   # drop records whose process is gone</code></pre>
 planning continue. A broadcast reaches each running session once, as context. <code>--by &lt;name&gt;</code>
 names who pauses or broadcasts; that session is exempt, and without it the sender is
 <code>operator</code>.</p>
-<h2>Send a message to one session</h2>
+<h2 id="send-a-message-to-one-session">Send a message to one session</h2>
 <p>With <code>[sessions.mailbox]</code> declared, address a session by id, alias, role or linked worktree:</p>
 <pre><code>pmcp sessions send --to alias:reviewer --subject review &quot;Please check the config change&quot;
 pmcp sessions send --to worktree:.claude/worktrees/docs --wake &quot;Rebase onto main&quot;
@@ -69,7 +71,7 @@ pmcp sessions inbox</code></pre>
 <p><code>--wake</code> also starts a turn in an idle recipient where the runtime allows it (Claude Code,
 opencode). This mailbox is for sessions of one repository; the <a href="/mailbox/">local mailbox</a>
 serves actors with their own credentials.</p>
-<h2>Keep agents out of each other&#39;s way</h2>
+<h2 id="keep-agents-out-of-each-others-way">Keep agents out of each other&#39;s way</h2>
 <ul>
 <li><strong>Leases.</strong> <code>[sessions.leases.&lt;name&gt;]</code> names a file two sessions must not change at once,
 such as a lockfile. While a delivery that touches it is in progress, the listed commands

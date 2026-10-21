@@ -35,11 +35,13 @@
 <a href="/terminal-workspace/">Terminal workspace</a>
 <a href="/authoring/">Authoring skills</a>
 <a href="/commands/">Command reference</a>
+<a href="/compatibility/">Compatibility</a>
+<a href="/glossary/">Glossary</a>
 <a href="/compare/">Working model</a>
 <a href="/licence/">Licence</a></nav></details></aside>
-    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Embedding models</p><h1>Embedding models</h1>
+    <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Embedding models</p><h1 id="embedding-models">Embedding models</h1>
 <p><a href="/">Back to the overview</a></p>
-<h2>Switching embedding models</h2>
+<h2 id="switching-embedding-models">Switching embedding models</h2>
 <p>List the built-in presets with <code>pmcp models</code> (or <code>pmcp models --json</code>). Select a
 model once in your project&#39;s <code>pmcp.toml</code>; both indexing and the stdio server use
 the same settings:</p>
@@ -113,7 +115,7 @@ const search = await prepareSearch(
 memory at startup rather than reading the CLI&#39;s persisted index. Model runtime
 settings are passed to each loader without changing global download or cache
 policy, so hosts can prepare different encoders in one process.</p>
-<h2>Runtime and licence</h2>
+<h2 id="runtime-and-licence">Runtime and licence</h2>
 <p>Node.js 22 or later, or Bun 1.3 or later. Ranking is lexical until an index and
 encoder are ready. Semantic
 ranking (the <code>index</code> command, or the HTTP handler&#39;s <code>semantic</code> option) needs

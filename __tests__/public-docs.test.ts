@@ -28,7 +28,7 @@ it("keeps generated human guides in step with the package Markdown", () => {
     { encoding: "utf8" },
   );
   expect(JSON.parse(output)).toMatchObject({
-    pages: 9,
+    pages: 13,
     changed: 0,
     mode: "check",
   });

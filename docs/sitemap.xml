@@ -17,11 +17,19 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://pmcp.build/compatibility/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://pmcp.build/embeddings/</loc>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://pmcp.build/examples/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pmcp.build/glossary/</loc>
     <priority>0.8</priority>
   </url>
   <url>
