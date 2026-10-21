@@ -131,3 +131,45 @@ async fn a_killed_chromium_is_reported_at_once_and_the_next_call_starts_fresh() 
     assert!(left.is_empty(), "a profile stayed behind");
     let _ = std::fs::remove_dir_all(&root);
 }
+
+// The other order: the socket breaks before the pid watcher looks, and the call failed with
+// the connection's own error ("oneshot canceled") instead of saying the browser went away.
+// It is a race, so several rounds of kill-then-call give it room to happen.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_call_on_a_just_killed_chromium_says_it_went_away_whichever_sees_it_first() {
+    let site = server("<title>Up</title><p>alive</p>");
+    let root = std::env::temp_dir().join(format!("pmcp-browser-race-{}", std::process::id()));
+    let policy = Arc::new(Policy::parse(&[format!("127.0.0.1:{site}")]).unwrap());
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let proxy_port = listener.local_addr().unwrap().port();
+    let blocked: Blocked = Default::default();
+    tokio::spawn(proxy::serve(listener, policy, blocked.clone()));
+    let profiles = root.join("profiles");
+    let launch = Launch {
+        chromium: Some(chromium().expect("pinned Chromium")),
+        profile: profiles.clone(),
+        downloads: root.join("downloads"),
+        proxy_port,
+        display: None,
+    };
+    let b = Browse::new(launch, blocked);
+    let url = format!("http://127.0.0.1:{site}/");
+    for round in 0..8 {
+        let (error, text) = reply(b.call("navigate", json!({ "url": url })).await);
+        assert!(!error && text.starts_with("Up"), "round {round}: {text}");
+        let main: Vec<u32> = chromes(&profiles)
+            .into_iter()
+            .filter(|(_, m)| *m)
+            .map(|(p, _)| p)
+            .collect();
+        assert_eq!(main.len(), 1, "round {round}: {main:?}");
+        unsafe { libc::kill(main[0] as i32, libc::SIGKILL) };
+        let (error, text) = reply(b.call("read_text", json!({})).await);
+        assert!(
+            error && text.contains("Chromium went away"),
+            "round {round}: {text}"
+        );
+    }
+    b.call("close", json!({})).await;
+    let _ = std::fs::remove_dir_all(&root);
+}

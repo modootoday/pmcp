@@ -6,6 +6,8 @@ use chromiumoxide::cdp::browser_protocol::input::{
     InsertTextParams, MouseButton,
 };
 use chromiumoxide::page::Page;
+
+use crate::fail::Fail;
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -17,11 +19,7 @@ pub enum Target {
     Point(f64, f64),
 }
 
-fn e(err: impl std::fmt::Display) -> String {
-    err.to_string()
-}
-
-pub fn target(args: &Value, refs: &HashMap<String, BackendNodeId>) -> Result<Target, String> {
+pub fn target(args: &Value, refs: &HashMap<String, BackendNodeId>) -> Result<Target, Fail> {
     if let Some(r) = args["ref"].as_str() {
         let id = refs
             .get(r)
@@ -37,15 +35,14 @@ pub fn target(args: &Value, refs: &HashMap<String, BackendNodeId>) -> Result<Tar
     }
 }
 
-async fn center(page: &Page, id: BackendNodeId) -> Result<(f64, f64), String> {
+async fn center(page: &Page, id: BackendNodeId) -> Result<(f64, f64), Fail> {
     let scroll = ScrollIntoViewIfNeededParams::builder()
         .backend_node_id(id)
         .build();
-    page.execute(scroll).await.map_err(e)?;
+    page.execute(scroll).await?;
     let model = page
         .execute(GetBoxModelParams::builder().backend_node_id(id).build())
-        .await
-        .map_err(e)?;
+        .await?;
     let quad = model.result.model.content.inner();
     if quad.len() < 8 {
         return Err("the element has no box on the page".into());
@@ -55,7 +52,7 @@ async fn center(page: &Page, id: BackendNodeId) -> Result<(f64, f64), String> {
     Ok((x, y))
 }
 
-async fn point(page: &Page, t: &Target) -> Result<(f64, f64), String> {
+async fn point(page: &Page, t: &Target) -> Result<(f64, f64), Fail> {
     match t {
         Target::Node(id) => center(page, *id).await,
         Target::Point(x, y) => Ok((*x, *y)),
@@ -63,9 +60,12 @@ async fn point(page: &Page, t: &Target) -> Result<(f64, f64), String> {
             let el = page
                 .find_element(s.as_str())
                 .await
-                .map_err(|err| format!("{s}: {err}"))?;
-            el.scroll_into_view().await.map_err(e)?;
-            let p = el.clickable_point().await.map_err(e)?;
+                .map_err(|err| match Fail::from(err) {
+                    Fail::Other(err) => Fail::Other(format!("{s}: {err}")),
+                    gone => gone,
+                })?;
+            el.scroll_into_view().await?;
+            let p = el.clickable_point().await?;
             Ok((p.x, p.y))
         }
     }
@@ -77,7 +77,7 @@ async fn mouse(
     x: f64,
     y: f64,
     count: i64,
-) -> Result<(), String> {
+) -> Result<(), Fail> {
     let p = DispatchMouseEventParams::builder()
         .r#type(kind)
         .x(x)
@@ -85,11 +85,11 @@ async fn mouse(
         .button(MouseButton::Left)
         .click_count(count)
         .build()?;
-    page.execute(p).await.map_err(e)?;
+    page.execute(p).await?;
     Ok(())
 }
 
-pub async fn click(page: &Page, t: &Target, count: i64) -> Result<(f64, f64), String> {
+pub async fn click(page: &Page, t: &Target, count: i64) -> Result<(f64, f64), Fail> {
     let (x, y) = point(page, t).await?;
     mouse(page, DispatchMouseEventType::MouseMoved, x, y, 0).await?;
     for n in 1..=count {
@@ -99,18 +99,17 @@ pub async fn click(page: &Page, t: &Target, count: i64) -> Result<(f64, f64), St
     Ok((x, y))
 }
 
-pub async fn type_into(page: &Page, t: &Target, text: &str) -> Result<(), String> {
+pub async fn type_into(page: &Page, t: &Target, text: &str) -> Result<(), Fail> {
     match t {
         Target::Node(id) => {
             page.execute(FocusParams::builder().backend_node_id(*id).build())
-                .await
-                .map_err(e)?;
+                .await?;
         }
         other => {
             click(page, other, 1).await?;
         }
     }
-    page.execute(InsertTextParams::new(text)).await.map_err(e)?;
+    page.execute(InsertTextParams::new(text)).await?;
     Ok(())
 }
 
@@ -133,7 +132,7 @@ const KEYS: &[(&str, &str, i64, &str)] = &[
 ];
 
 /// A key or chord such as Enter, ctrl+a or shift+Tab.
-pub async fn press(page: &Page, chord: &str) -> Result<(), String> {
+pub async fn press(page: &Page, chord: &str) -> Result<(), Fail> {
     let parts: Vec<&str> = chord.split('+').map(str::trim).collect();
     let (key, mods) = parts.split_last().ok_or("empty key")?;
     let mut modifiers = 0;
@@ -143,7 +142,7 @@ pub async fn press(page: &Page, chord: &str) -> Result<(), String> {
             "ctrl" | "control" => 2,
             "meta" | "cmd" => 4,
             "shift" => 8,
-            other => return Err(format!("unknown modifier {other}")),
+            other => return Err(format!("unknown modifier {other}").into()),
         };
     }
     let found = KEYS.iter().find(|k| k.0.eq_ignore_ascii_case(key));
@@ -163,7 +162,7 @@ pub async fn press(page: &Page, chord: &str) -> Result<(), String> {
                 },
             )
         }
-        None => return Err(format!("unknown key {key}")),
+        None => return Err(format!("unknown key {key}").into()),
     };
     for kind in [DispatchKeyEventType::KeyDown, DispatchKeyEventType::KeyUp] {
         let mut b = DispatchKeyEventParams::builder()
@@ -175,7 +174,7 @@ pub async fn press(page: &Page, chord: &str) -> Result<(), String> {
         if matches!(kind, DispatchKeyEventType::KeyDown) && !text.is_empty() {
             b = b.text(text.clone());
         }
-        page.execute(b.build()?).await.map_err(e)?;
+        page.execute(b.build()?).await?;
     }
     Ok(())
 }

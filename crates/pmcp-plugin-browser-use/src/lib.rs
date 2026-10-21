@@ -2,6 +2,7 @@
 pub mod act;
 pub mod catalog;
 pub mod checks;
+pub mod fail;
 pub mod ip;
 pub mod limits;
 pub mod procs;

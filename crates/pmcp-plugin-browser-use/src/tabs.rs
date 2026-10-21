@@ -1,3 +1,4 @@
+use crate::fail::Fail;
 use crate::session::{Session, web_url};
 use chromiumoxide::page::Page;
 use pmcp_plugin_support::mcp::Out;
@@ -10,7 +11,7 @@ fn e(err: impl std::fmt::Display) -> String {
 }
 
 /// tabs: list, new (with an optional url), select or close by index.
-pub async fn run(s: &mut Session, args: &Value) -> Result<Out, String> {
+pub async fn run(s: &mut Session, args: &Value) -> Result<Out, Fail> {
     let action = args["action"].as_str().unwrap_or("list");
     let index = args["index"].as_u64().map(|i| i as usize);
     match action {
@@ -19,37 +20,35 @@ pub async fn run(s: &mut Session, args: &Value) -> Result<Out, String> {
             if url != "about:blank" {
                 web_url(url)?;
             }
-            let page = s.browser.new_page(url).await.map_err(e)?;
+            let page = s.browser.new_page(url).await?;
             s.adopt(page).await?;
             tokio::time::sleep(crate::tools::SETTLE).await;
         }
         "select" | "close" => {
             let i = index.ok_or("index is required")?;
             if i >= s.pages.len() {
-                return Err(format!("no tab {i}; there are {}", s.pages.len()));
+                return Err(format!("no tab {i}; there are {}", s.pages.len()).into());
             }
             if action == "close" {
                 if s.pages.len() == 1 {
                     return Err("the last tab stays open; use close to end the browser".into());
                 }
                 let page = s.pages.remove(i);
-                page.close().await.map_err(e)?;
+                page.close().await?;
                 s.current = s.current.min(s.pages.len() - 1);
             } else {
                 s.current = i;
-                s.pages[i].activate().await.map_err(e)?;
+                s.pages[i].activate().await?;
             }
         }
         "list" => {}
         other => {
-            return Err(format!(
-                "unknown action {other}; use list, new, select or close"
-            ));
+            return Err(format!("unknown action {other}; use list, new, select or close").into());
         }
     }
     let mut lines = Vec::new();
     for (i, p) in s.pages.iter().enumerate() {
-        let url = p.url().await.map_err(e)?.unwrap_or_default();
+        let url = p.url().await?.unwrap_or_default();
         let mark = if i == s.current { "*" } else { " " };
         lines.push(format!("{mark}{i} {url}"));
     }
@@ -57,7 +56,7 @@ pub async fn run(s: &mut Session, args: &Value) -> Result<Out, String> {
 }
 
 /// Waits until the page shows a text or matches a selector, polling every 200 ms.
-pub async fn wait_for(page: &Page, args: &Value) -> Result<Out, String> {
+pub async fn wait_for(page: &Page, args: &Value) -> Result<Out, Fail> {
     let limit = Duration::from_millis(args["timeout_ms"].as_u64().unwrap_or(10_000).min(30_000));
     let check = match (args["text"].as_str(), args["selector"].as_str()) {
         (Some(t), _) => format!(
@@ -74,8 +73,7 @@ pub async fn wait_for(page: &Page, args: &Value) -> Result<Out, String> {
     loop {
         let found: bool = page
             .evaluate(check.as_str())
-            .await
-            .map_err(e)?
+            .await?
             .into_value()
             .map_err(e)?;
         if found {
@@ -85,7 +83,7 @@ pub async fn wait_for(page: &Page, args: &Value) -> Result<Out, String> {
             )));
         }
         if start.elapsed() > limit {
-            return Err(format!("not found within {} ms", limit.as_millis()));
+            return Err(format!("not found within {} ms", limit.as_millis()).into());
         }
         tokio::time::sleep(Duration::from_millis(200)).await;
     }

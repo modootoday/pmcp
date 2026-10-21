@@ -114,10 +114,7 @@ pub fn render(nodes: &[AxNode]) -> Snapshot {
     }
 }
 
-pub async fn take(page: &Page) -> Result<Snapshot, String> {
-    let tree = page
-        .execute(GetFullAxTreeParams::default())
-        .await
-        .map_err(|e| e.to_string())?;
+pub async fn take(page: &Page) -> Result<Snapshot, crate::fail::Fail> {
+    let tree = page.execute(GetFullAxTreeParams::default()).await?;
     Ok(render(&tree.result.nodes))
 }

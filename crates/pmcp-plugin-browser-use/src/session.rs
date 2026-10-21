@@ -5,7 +5,6 @@ use chromiumoxide::cdp::browser_protocol::browser::{
 use chromiumoxide::cdp::browser_protocol::network::{
     BlockPattern, EnableParams, SetBlockedUrLsParams,
 };
-use chromiumoxide::error::CdpError;
 use chromiumoxide::page::Page;
 use futures::StreamExt;
 use std::path::{Path, PathBuf};
@@ -100,8 +99,7 @@ impl Session {
         // events newer than chromiumoxide's protocol types fail to decode on a healthy one.
         let handler = tokio::spawn(async move {
             while let Some(item) = handler.next().await {
-                if let Err(CdpError::Ws(_) | CdpError::Io(_) | CdpError::ChannelSendError(_)) = item
-                {
+                if item.as_ref().is_err_and(crate::fail::lost) {
                     break;
                 }
             }
@@ -134,15 +132,13 @@ impl Session {
             .new_page("about:blank")
             .await
             .map_err(|e| e.to_string())?;
-        s.adopt(page).await?;
+        s.adopt(page).await.map_err(|e| e.to_string())?;
         Ok(s)
     }
 
     /// Every page this session hands out first gets the scheme block list.
-    pub async fn adopt(&mut self, page: Page) -> Result<(), String> {
-        page.execute(EnableParams::default())
-            .await
-            .map_err(|e| e.to_string())?;
+    pub async fn adopt(&mut self, page: Page) -> Result<(), crate::fail::Fail> {
+        page.execute(EnableParams::default()).await?;
         let patterns: Vec<BlockPattern> = BLOCKED
             .iter()
             .map(|p| BlockPattern::new(*p, true))
@@ -150,7 +146,7 @@ impl Session {
         let block = SetBlockedUrLsParams::builder()
             .url_patterns(patterns)
             .build();
-        page.execute(block).await.map_err(|e| e.to_string())?;
+        page.execute(block).await?;
         self.pages.push(page);
         self.current = self.pages.len() - 1;
         Ok(())
