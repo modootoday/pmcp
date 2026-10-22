@@ -12,6 +12,7 @@ export const worktreeSync: Action = (setup, _context, report) => {
     ctx,
     followSubmodules: config.submodules?.follow === "clean_pins",
     report,
+    ...(config.umask !== undefined ? { umask: config.umask } : {}),
     ...(install === undefined ? {} : { install }),
   });
   return result === "held" ? 1 : 0;

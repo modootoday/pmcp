@@ -43,6 +43,7 @@ export function readWorktreeSync(
     installWhen: git.sync?.installWhenChanged ?? [],
     noticePaths: sync.noticePaths,
     followSubmodules: git.submodules?.follow === "clean_pins",
+    ...(git.umask !== undefined ? { umask: git.umask } : {}),
   };
   return {
     id: "git.worktrees.sync",

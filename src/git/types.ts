@@ -78,6 +78,8 @@ export interface GitConfig {
   readonly submodules?: SubmodulesConfig;
   readonly stateDir?: string;
   readonly leases: readonly LeaseSpec[];
+  // [git] umask for checkout writes (sync, worktree sync, deliver); absent leaves the process's.
+  readonly umask?: number;
 }
 
 export interface GitContext {

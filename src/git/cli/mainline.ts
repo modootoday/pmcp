@@ -17,6 +17,7 @@ export const mainlineSync: Action = (setup, _context, report) => {
     sharedSubmodules,
     stateDir,
     report,
+    ...(setup.config.umask !== undefined ? { umask: setup.config.umask } : {}),
   });
 };
 
@@ -36,6 +37,7 @@ export const mainlineDeliver: Action = (setup, context, report) => {
         sharedSubmodules,
         stateDir,
         report,
+        ...(config.umask !== undefined ? { umask: config.umask } : {}),
       }) !== 0
     )
       report.warn(
@@ -55,6 +57,7 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     afterDeliver,
     recordDelivery: deliveryEvents(setup),
     pushPins: config.submodules?.push === "pins",
+    ...(config.umask !== undefined ? { umask: config.umask } : {}),
     ...(context.args.flags.has("json")
       ? {
           onReceipt: (receipt: DeliverReceipt) =>

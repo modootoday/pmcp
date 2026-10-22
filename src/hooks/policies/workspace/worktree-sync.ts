@@ -6,6 +6,7 @@ import { relative, resolve } from "node:path";
 import type { Decision, HookInput } from "../../contract.js";
 import { detect } from "../../../git/detect.js";
 import { gitText } from "../../../git/exec.js";
+import { withUmask } from "../../../git/modes.js";
 import { syncWorktree } from "../../../git/worktrees/sync.js";
 import type { GitContext, Reporter } from "../../../git/types.js";
 import { checkoutOf } from "../../../sessions/checkout.js";
@@ -22,6 +23,8 @@ export interface WorktreeSyncOptions {
   readonly installWhen: readonly string[];
   readonly noticePaths: readonly string[];
   readonly followSubmodules: boolean;
+  // [git] umask, for the move and the install it starts.
+  readonly umask?: number;
 }
 
 type Context = PolicyContext<WorktreeSyncOptions>;
@@ -67,12 +70,19 @@ function changed(
     .filter(Boolean);
 }
 
-function backgroundInstall(root: string, command: readonly string[]): void {
-  const child = spawn(command[0]!, command.slice(1), {
-    cwd: root,
-    detached: true,
-    stdio: "ignore",
-  });
+function backgroundInstall(
+  root: string,
+  command: readonly string[],
+  umask: number | undefined,
+): void {
+  // The child takes the umask at spawn, so it holds after this hook returns.
+  const child = withUmask(umask, () =>
+    spawn(command[0]!, command.slice(1), {
+      cwd: root,
+      detached: true,
+      stdio: "ignore",
+    }),
+  );
   child.on("error", () => undefined);
   child.unref();
 }
@@ -111,6 +121,7 @@ function move(input: HookInput, ctx: Context, git: GitContext): string[] {
     fetch,
     report,
     ...install,
+    ...(opts.umask !== undefined ? { umask: opts.umask } : {}),
   });
   if (result === "current") return [];
   if (result === "held")
@@ -120,7 +131,7 @@ function move(input: HookInput, ctx: Context, git: GitContext): string[] {
     opts.installAfterMove === "background" &&
     changed(git.root, before, opts.installWhen).length > 0
   ) {
-    backgroundInstall(git.root, opts.install);
+    backgroundInstall(git.root, opts.install, opts.umask);
     lines.push(`installing in the background: ${opts.install.join(" ")}`);
   }
   const rules = changed(git.root, before, opts.noticePaths);

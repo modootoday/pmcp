@@ -4,6 +4,12 @@ import { join } from "node:path";
 import { git, gitText } from "../exec.js";
 import { installIfStale, installSpec } from "../install.js";
 import { cherry } from "../landed.js";
+import {
+  reportModes,
+  restoreModes,
+  restoreSubmoduleModes,
+  withUmask,
+} from "../modes.js";
 import { followPins } from "../submodules.js";
 import type { GitContext, MainlineSyncConfig, Reporter } from "../types.js";
 import { resetKeepingIdenticalFiles } from "./identical-files.js";
@@ -16,6 +22,9 @@ export interface MainlineSyncOptions {
 
   readonly stateDir: string;
   readonly report: Reporter;
+  // [git] umask: the move and the install run under it, and rewritten tracked files get their
+  // index mode back.
+  readonly umask?: number;
 }
 
 const IN_PROGRESS = [
@@ -52,6 +61,10 @@ function install(options: MainlineSyncOptions): number {
 
 // Refuse unlanded commits so synchronization cannot discard another session's work.
 export function syncMainline(options: MainlineSyncOptions): number {
+  return withUmask(options.umask, () => syncOnce(options));
+}
+
+function syncOnce(options: MainlineSyncOptions): number {
   const { ctx, sync, report } = options;
   const blocked = refusal(ctx);
   if (blocked !== null) {
@@ -97,5 +110,10 @@ export function syncMainline(options: MainlineSyncOptions): number {
     ))
       report.info(line);
   }
+  if (options.umask !== undefined)
+    reportModes(report, [
+      ...restoreModes(ctx.root, head, target),
+      ...restoreSubmoduleModes(ctx.root, head, target),
+    ]);
   return install(options);
 }

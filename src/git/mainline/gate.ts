@@ -8,6 +8,7 @@ import {
 import { dirname, join } from "node:path";
 
 import { git, gitOk, gitText, runCommandLogged } from "../exec.js";
+import { reportModes, restoreModes, restoreSubmoduleModes } from "../modes.js";
 import type { Argv, Reporter } from "../types.js";
 
 export interface GateTree {
@@ -50,7 +51,12 @@ export function prepareGateTree(
   tree: string,
   tip: string,
   links: readonly string[],
+  report?: Reporter,
 ): string | null {
+  // With report, rewritten tracked files get their index mode back ([git] umask).
+  const before = existsSync(join(tree, ".git"))
+    ? gitText(tree, ["rev-parse", "-q", "--verify", "HEAD"]) || null
+    : null;
   if (!existsSync(join(tree, ".git"))) {
     git(mainRoot, ["worktree", "prune"]);
     mkdirSync(dirname(tree), { recursive: true });
@@ -73,6 +79,11 @@ export function prepareGateTree(
   }
   const problem = submodules(mainRoot, tree);
   if (problem !== null) return problem;
+  if (report)
+    reportModes(report, [
+      ...restoreModes(tree, before, tip),
+      ...(before ? restoreSubmoduleModes(tree, before, tip) : []),
+    ]);
   for (const name of links) {
     const source = join(mainRoot, name);
     const target = join(tree, name);
@@ -110,8 +121,15 @@ export function runGate(
   report: Reporter,
   lockEnv?: string,
   logDir: string = join(dirname(tree), "logs"),
+  restore = false,
 ): GateRun {
-  const problem = prepareGateTree(mainRoot, tree, tip, links);
+  const problem = prepareGateTree(
+    mainRoot,
+    tree,
+    tip,
+    links,
+    restore ? report : undefined,
+  );
   if (problem !== null) {
     report.warn(`the gate did not run: ${problem}`);
     return { code: 1, log: null };

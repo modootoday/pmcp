@@ -1,6 +1,12 @@
 import { git, gitText } from "../exec.js";
 import { installIfStale, type InstallSpec } from "../install.js";
 import { cherry, distance } from "../landed.js";
+import {
+  reportModes,
+  restoreModes,
+  restoreSubmoduleModes,
+  withUmask,
+} from "../modes.js";
 import { movableSubmodules, updateToPins } from "../submodules.js";
 import type { GitContext, Reporter } from "../types.js";
 
@@ -10,6 +16,9 @@ export interface WorktreeSyncOptions {
   readonly install?: InstallSpec;
   readonly fetch?: boolean;
   readonly report: Reporter;
+  // [git] umask: the move and the install run under it, and rewritten tracked files get their
+  // index mode back.
+  readonly umask?: number;
 }
 
 export type WorktreeSyncResult = "current" | "moved" | "held";
@@ -29,6 +38,10 @@ function heldBy(root: string, upstream: string, ahead: number): string | null {
 }
 
 export function syncWorktree(options: WorktreeSyncOptions): WorktreeSyncResult {
+  return withUmask(options.umask, () => syncOnce(options));
+}
+
+function syncOnce(options: WorktreeSyncOptions): WorktreeSyncResult {
   const { ctx, report } = options;
   if (!ctx.linked)
     throw new Error(
@@ -78,6 +91,11 @@ export function syncWorktree(options: WorktreeSyncOptions): WorktreeSyncResult {
     `moved ${before.slice(0, 10)} -> ${after.slice(0, 10)}, ${counted.behind} commit(s)`,
   );
   for (const line of updateToPins(ctx.root, submodules)) report.info(line);
+  if (options.umask !== undefined)
+    reportModes(report, [
+      ...restoreModes(ctx.root, before, after),
+      ...restoreSubmoduleModes(ctx.root, before, after),
+    ]);
   if (options.install !== undefined)
     installIfStale(ctx.root, options.install, report);
   return "moved";

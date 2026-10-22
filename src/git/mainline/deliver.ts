@@ -17,6 +17,7 @@ import {
   writeHolder,
 } from "./lock.js";
 import { pushPins } from "./pins.js";
+import { withUmask } from "../modes.js";
 import { waitForLeases } from "./lease-wait.js";
 import { replay } from "./replay.js";
 import type { SessionGate } from "./store.js";
@@ -47,6 +48,9 @@ export interface DeliverOptions {
   // Push submodule pins the delivered commits set before replaying them ([git.submodules] push).
   readonly pushPins?: boolean;
   readonly loadPollMs?: number;
+  // [git] umask for every checkout write (scratch replay, gate tree); the gate tree's rewritten
+  // tracked files also get their index mode back.
+  readonly umask?: number;
 }
 
 export interface DeliverReceipt {
@@ -122,6 +126,7 @@ function attempts(options: DeliverOptions): number {
         report,
         options.gate?.lockEnv,
         options.gate?.logDir,
+        options.umask !== undefined,
       );
       if (options.track) options.track.gate = { exit: run.code, log: run.log };
       if (run.code !== 0) {
@@ -262,7 +267,9 @@ export function deliver(options: DeliverOptions): number {
       options.report.warn(line);
     },
   };
-  const code = deliverOnce({ ...options, report, track });
+  const code = withUmask(options.umask, () =>
+    deliverOnce({ ...options, report, track }),
+  );
   options.onReceipt?.({
     ok: code === 0,
     code,

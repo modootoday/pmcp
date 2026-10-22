@@ -44,7 +44,9 @@ async function run(context: CommandContext): Promise<number> {
     info: (line) => context.ui.info(line),
     warn: (line) => context.ui.warn(line),
   };
-  return act(setup, context, report);
+  // Every checkout these commands write, a new worktree included, takes [git] umask.
+  const { withUmask } = await import("./modes.js");
+  return withUmask(setup.config.umask, () => act(setup, context, report));
 }
 
 export const gitCommand: Command = { ...gitSpec, run };

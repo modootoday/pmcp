@@ -12,6 +12,16 @@ import {
 } from "./config/tables.js";
 import type { GitConfig } from "./types.js";
 
+function umask(path: string, value: unknown): number | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string" || !/^0?[0-7]{3}$/u.test(value))
+    throw new ConfigError(
+      path,
+      `[git] umask must be an octal string such as "022", not ${JSON.stringify(value)}`,
+    );
+  return Number.parseInt(value, 8);
+}
+
 function enabled(path: string, value: unknown): "auto" | boolean {
   if (value === undefined || value === "auto") return "auto";
   if (typeof value === "boolean") return value;
@@ -32,6 +42,7 @@ export function readGitConfig(config: ProjectConfig): GitConfig | null {
     "worktrees",
     "shared_checkout",
     "submodules",
+    "umask",
   ]);
   const worktreeTable = child(path, root, "git", "worktrees");
   const named = typeof root["mainline"] === "string";
@@ -64,5 +75,8 @@ export function readGitConfig(config: ProjectConfig): GitConfig | null {
     stateDir:
       typeof stateDir === "string" ? expandPath(dir, stateDir) : undefined,
     leases: leases(path, sessions),
+    ...(root["umask"] !== undefined
+      ? { umask: umask(path, root["umask"]) }
+      : {}),
   };
 }

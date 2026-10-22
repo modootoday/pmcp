@@ -51,7 +51,8 @@
 are in the <a href="/project-configuration/">pmcp.toml reference</a>.</p>
 <div class="scroll"><table><thead><tr><th><code>[git]</code> key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>enabled</code></td><td><code>&quot;auto&quot;</code>, true, false</td><td><code>&quot;auto&quot;</code></td><td><code>auto</code> turns the git features on when the project is a git checkout; <code>false</code> turns all of them off.</td></tr>
 <tr><td><code>remote</code></td><td>string</td><td><code>origin</code> if present, else the first remote</td><td></td></tr>
-<tr><td><code>mainline</code></td><td>string or table</td><td>the remote&#39;s HEAD branch, else <code>main</code></td><td>A string names the branch; a table (<code>[git.mainline]</code> with <code>branch</code>) also holds gate, deliver and sync.</td></tr></tbody></table></div>
+<tr><td><code>mainline</code></td><td>string or table</td><td>the remote&#39;s HEAD branch, else <code>main</code></td><td>A string names the branch; a table (<code>[git.mainline]</code> with <code>branch</code>) also holds gate, deliver and sync.</td></tr>
+<tr><td><code>umask</code></td><td>octal string</td><td>none (the process&#39;s)</td><td>e.g. <code>&quot;022&quot;</code>. <code>pmcp git</code> commands and the session-start worktree move write checkouts under it: sync, worktree sync and create, deliver (its gate tree included) and the installs they run. Tracked files they rewrote also get their index mode back (0644, or 0755 for executables); untracked files are never touched.</td></tr></tbody></table></div>
 <p><code>[git.shared_checkout]</code> warns a session working in the main checkout of a
 repository that also has linked worktrees, tracks the files it edits there,
 and names leftovers not yet delivered, because they block syncing the shared main for
