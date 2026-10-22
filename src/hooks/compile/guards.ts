@@ -4,7 +4,14 @@ import { GUARDS } from "../policies/index.js";
 import { asTable, type Table } from "./types.js";
 import { compareIdentifiers } from "./order.js";
 
-const MODES: readonly Mode[] = ["deny", "ask", "warn", "off", "graded"];
+const MODES: readonly Mode[] = [
+  "deny",
+  "ask",
+  "warn",
+  "observe",
+  "off",
+  "graded",
+];
 const GROUPS = ["shell", "git"];
 
 function readGuard(id: string, raw: unknown): CompiledGuard | null {

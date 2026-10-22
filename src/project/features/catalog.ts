@@ -39,6 +39,7 @@ function guardOutputs(id: string, policy: CompiledPolicy | null): Output[] {
   if (mode === "ask") return ["ask"];
   if (mode === "graded") return ["deny", "ask"];
   if (mode === "warn") return ["context"];
+  if (mode === "observe") return [];
   return ["deny"];
 }
 

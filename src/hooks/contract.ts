@@ -81,4 +81,5 @@ export interface Decision {
   readonly feedback?: string;
 }
 
-export type Mode = "deny" | "ask" | "warn" | "off" | "graded";
+// observe evaluates and logs the guard but hands the runtime nothing: no verdict, no context.
+export type Mode = "deny" | "ask" | "warn" | "observe" | "off" | "graded";

@@ -500,7 +500,9 @@ messages too.</p>
 <tr><td><code>redact</code></td><td>list</td><td><code>[&quot;secret_values&quot;, &quot;prompt_text&quot;, &quot;env_values&quot;]</code></td><td>any subset</td></tr>
 <tr><td><code>components</code></td><td>table</td><td><code>{}</code></td><td><code>&lt;component&gt; = &quot;&lt;level&gt;&quot;</code></td></tr></tbody></table></div>
 <p>The <code>PMCP_LOG</code> environment variable overrides the level. <code>[hooks] error_log</code>
-switches hook logging on or off. Read the logs with <code>pmcp logs</code>.</p>
+switches hook logging on or off. Read the logs with <code>pmcp logs</code>. Guard verdicts are logged at
+<code>debug</code> from the <code>hooks.entry</code> component, so <code>components = { &quot;hooks.entry&quot; = &quot;debug&quot; }</code>
+records them without raising the rest; see <a href="/hooks/#hooksguardsgroupname">Hooks</a>.</p>
 <h2 id="claude-session-panes">Claude session panes</h2>
 <p><code>[ui.claude]</code> installs the session panes into Claude Code: <code>sessions_pane</code>,
 <code>status_band</code>, <code>commands</code> and <code>hold_foreign_edits</code>, all booleans defaulting to

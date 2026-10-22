@@ -53,20 +53,25 @@ Each built-in guard is one table. `mode` is the only key the option-less
 guards take; an unknown option is an error. Modes: `deny` and `ask` replace
 the guard's verdict with that mode, `warn` turns the reason into context the
 agent reads, `off` drops the guard, and `graded` keeps the guard's own split
-between ask and deny.
+between ask and deny. `observe` runs the guard and logs what it found but gives the runtime
+nothing, no verdict and no context, even when the guard fails; use it to run a guard
+beside a hook it will replace and compare. Every guard writes one debug log line per
+call: `policy`, `session`, `verdict` (what the call got) and, under `data`, `raw`
+(what the guard found: `allow`, `ask` or `deny`), `mode`, `tool` (the tool kind) and
+`native` (the runtime's tool name), never the command, the reason or the prompt.
 
-| Table                                      | Default mode | Modes                        | Refuses                                                                                                              |
-| ------------------------------------------ | ------------ | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `[hooks.guards.shell.in_place_edit]`       | deny         | deny, ask, warn, off         | `sed -i`, `perl -i`, `awk -i inplace`: edits without a diff.                                                         |
-| `[hooks.guards.shell.heredoc]`             | deny         | deny, ask, warn, off         | Heredocs and here-strings, whose body the shell expands silently.                                                    |
-| `[hooks.guards.shell.stdin_interpreter]`   | ask          | deny, ask, warn, off         | An interpreter reading its program from stdin (`python3 -`, `cat x.py \| python3`).                                  |
-| `[hooks.guards.shell.compose_teardown]`    | deny         | deny, ask, warn, off         | `docker compose down`, and `stop`, `rm` or `kill` with no service named: they hit every service.                     |
-| `[hooks.guards.shell.secret_exfiltration]` | graded       | deny, ask, warn, off, graded | Reading a credential asks; sending one over the network, or changing a live one, denies.                             |
-| `[hooks.guards.shell.host_approval]`       | deny         | deny, ask, warn, off         | `host approve`, and commands or edits touching the host approvals directory. On by itself when `[host]` is declared. |
-| `[hooks.guards.git.push_without_verify]`   | deny         | deny, ask, warn, off         | `git push --no-verify`.                                                                                              |
-| `[hooks.guards.git.forced_branch_move]`    | deny         | deny, ask, warn, off         | Forcing a branch that is checked out in another working tree.                                                        |
-| `[hooks.guards.git.gate_bypass_env]`       | deny         | deny, ask, warn, off         | Setting a named gate-bypass variable where it takes effect, and optionally `--no-verify` on any git command.         |
-| `[hooks.guards.git.stage_all]`             | deny         | deny, ask, warn, off         | `git add -A`, `git add .`, `git commit -a` and similar; stage explicit paths.                                        |
+| Table                                      | Default mode | Modes                                 | Refuses                                                                                                              |
+| ------------------------------------------ | ------------ | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `[hooks.guards.shell.in_place_edit]`       | deny         | deny, ask, warn, observe, off         | `sed -i`, `perl -i`, `awk -i inplace`: edits without a diff.                                                         |
+| `[hooks.guards.shell.heredoc]`             | deny         | deny, ask, warn, observe, off         | Heredocs and here-strings, whose body the shell expands silently.                                                    |
+| `[hooks.guards.shell.stdin_interpreter]`   | ask          | deny, ask, warn, observe, off         | An interpreter reading its program from stdin (`python3 -`, `cat x.py \| python3`).                                  |
+| `[hooks.guards.shell.compose_teardown]`    | deny         | deny, ask, warn, observe, off         | `docker compose down`, and `stop`, `rm` or `kill` with no service named: they hit every service.                     |
+| `[hooks.guards.shell.secret_exfiltration]` | graded       | deny, ask, warn, observe, off, graded | Reading a credential asks; sending one over the network, or changing a live one, denies.                             |
+| `[hooks.guards.shell.host_approval]`       | deny         | deny, ask, warn, observe, off         | `host approve`, and commands or edits touching the host approvals directory. On by itself when `[host]` is declared. |
+| `[hooks.guards.git.push_without_verify]`   | deny         | deny, ask, warn, observe, off         | `git push --no-verify`.                                                                                              |
+| `[hooks.guards.git.forced_branch_move]`    | deny         | deny, ask, warn, observe, off         | Forcing a branch that is checked out in another working tree.                                                        |
+| `[hooks.guards.git.gate_bypass_env]`       | deny         | deny, ask, warn, observe, off         | Setting a named gate-bypass variable where it takes effect, and optionally `--no-verify` on any git command.         |
+| `[hooks.guards.git.stage_all]`             | deny         | deny, ask, warn, observe, off         | `git add -A`, `git add .`, `git commit -a` and similar; stage explicit paths.                                        |
 
 Options:
 

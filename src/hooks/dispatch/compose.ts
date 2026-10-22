@@ -8,6 +8,7 @@ export function applyMode(
   decision: Decision,
   mode: Mode,
 ): Decision {
+  if (mode === "observe") return {};
   if (!decision.verdict || decision.verdict === "allow") return decision;
   if (mode === "off") return {};
   if (mode === "graded") return decision;

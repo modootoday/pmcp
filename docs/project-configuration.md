@@ -588,7 +588,9 @@ Worktrees, delivery to the mainline and main checkout sync: [Git workflow](git-w
 | `components`    | table  | `{}`                                             | `<component> = "<level>"`                 |
 
 The `PMCP_LOG` environment variable overrides the level. `[hooks] error_log`
-switches hook logging on or off. Read the logs with `pmcp logs`.
+switches hook logging on or off. Read the logs with `pmcp logs`. Guard verdicts are logged at
+`debug` from the `hooks.entry` component, so `components = { "hooks.entry" = "debug" }`
+records them without raising the rest; see [Hooks](hooks.md#hooksguardsgroupname).
 
 ## Claude session panes
 

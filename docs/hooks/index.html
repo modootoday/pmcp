@@ -88,17 +88,22 @@ declared, or <code>[git.mainline.deliver]</code> keeps <code>refuse_direct_push<
 guards take; an unknown option is an error. Modes: <code>deny</code> and <code>ask</code> replace
 the guard&#39;s verdict with that mode, <code>warn</code> turns the reason into context the
 agent reads, <code>off</code> drops the guard, and <code>graded</code> keeps the guard&#39;s own split
-between ask and deny.</p>
-<div class="scroll"><table><thead><tr><th>Table</th><th>Default mode</th><th>Modes</th><th>Refuses</th></tr></thead><tbody><tr><td><code>[hooks.guards.shell.in_place_edit]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>sed -i</code>, <code>perl -i</code>, <code>awk -i inplace</code>: edits without a diff.</td></tr>
-<tr><td><code>[hooks.guards.shell.heredoc]</code></td><td>deny</td><td>deny, ask, warn, off</td><td>Heredocs and here-strings, whose body the shell expands silently.</td></tr>
-<tr><td><code>[hooks.guards.shell.stdin_interpreter]</code></td><td>ask</td><td>deny, ask, warn, off</td><td>An interpreter reading its program from stdin (<code>python3 -</code>, <code>cat x.py | python3</code>).</td></tr>
-<tr><td><code>[hooks.guards.shell.compose_teardown]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>docker compose down</code>, and <code>stop</code>, <code>rm</code> or <code>kill</code> with no service named: they hit every service.</td></tr>
-<tr><td><code>[hooks.guards.shell.secret_exfiltration]</code></td><td>graded</td><td>deny, ask, warn, off, graded</td><td>Reading a credential asks; sending one over the network, or changing a live one, denies.</td></tr>
-<tr><td><code>[hooks.guards.shell.host_approval]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>host approve</code>, and commands or edits touching the host approvals directory. On by itself when <code>[host]</code> is declared.</td></tr>
-<tr><td><code>[hooks.guards.git.push_without_verify]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>git push --no-verify</code>.</td></tr>
-<tr><td><code>[hooks.guards.git.forced_branch_move]</code></td><td>deny</td><td>deny, ask, warn, off</td><td>Forcing a branch that is checked out in another working tree.</td></tr>
-<tr><td><code>[hooks.guards.git.gate_bypass_env]</code></td><td>deny</td><td>deny, ask, warn, off</td><td>Setting a named gate-bypass variable where it takes effect, and optionally <code>--no-verify</code> on any git command.</td></tr>
-<tr><td><code>[hooks.guards.git.stage_all]</code></td><td>deny</td><td>deny, ask, warn, off</td><td><code>git add -A</code>, <code>git add .</code>, <code>git commit -a</code> and similar; stage explicit paths.</td></tr></tbody></table></div>
+between ask and deny. <code>observe</code> runs the guard and logs what it found but gives the runtime
+nothing, no verdict and no context, even when the guard fails; use it to run a guard
+beside a hook it will replace and compare. Every guard writes one debug log line per
+call: <code>policy</code>, <code>session</code>, <code>verdict</code> (what the call got) and, under <code>data</code>, <code>raw</code>
+(what the guard found: <code>allow</code>, <code>ask</code> or <code>deny</code>), <code>mode</code>, <code>tool</code> (the tool kind) and
+<code>native</code> (the runtime&#39;s tool name), never the command, the reason or the prompt.</p>
+<div class="scroll"><table><thead><tr><th>Table</th><th>Default mode</th><th>Modes</th><th>Refuses</th></tr></thead><tbody><tr><td><code>[hooks.guards.shell.in_place_edit]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>sed -i</code>, <code>perl -i</code>, <code>awk -i inplace</code>: edits without a diff.</td></tr>
+<tr><td><code>[hooks.guards.shell.heredoc]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>Heredocs and here-strings, whose body the shell expands silently.</td></tr>
+<tr><td><code>[hooks.guards.shell.stdin_interpreter]</code></td><td>ask</td><td>deny, ask, warn, observe, off</td><td>An interpreter reading its program from stdin (<code>python3 -</code>, <code>cat x.py | python3</code>).</td></tr>
+<tr><td><code>[hooks.guards.shell.compose_teardown]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>docker compose down</code>, and <code>stop</code>, <code>rm</code> or <code>kill</code> with no service named: they hit every service.</td></tr>
+<tr><td><code>[hooks.guards.shell.secret_exfiltration]</code></td><td>graded</td><td>deny, ask, warn, observe, off, graded</td><td>Reading a credential asks; sending one over the network, or changing a live one, denies.</td></tr>
+<tr><td><code>[hooks.guards.shell.host_approval]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>host approve</code>, and commands or edits touching the host approvals directory. On by itself when <code>[host]</code> is declared.</td></tr>
+<tr><td><code>[hooks.guards.git.push_without_verify]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>git push --no-verify</code>.</td></tr>
+<tr><td><code>[hooks.guards.git.forced_branch_move]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>Forcing a branch that is checked out in another working tree.</td></tr>
+<tr><td><code>[hooks.guards.git.gate_bypass_env]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>Setting a named gate-bypass variable where it takes effect, and optionally <code>--no-verify</code> on any git command.</td></tr>
+<tr><td><code>[hooks.guards.git.stage_all]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>git add -A</code>, <code>git add .</code>, <code>git commit -a</code> and similar; stage explicit paths.</td></tr></tbody></table></div>
 <p>Options:</p>
 <ul>
 <li><code>[hooks.guards.shell.secret_exfiltration]</code>: <code>extra_secret_paths</code> (list of

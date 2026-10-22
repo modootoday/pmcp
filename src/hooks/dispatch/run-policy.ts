@@ -96,8 +96,15 @@ export async function runPolicy(
       }
     }
     const decision = applyMode(policy.id, raw, mode);
+    // What the guard found and what the call got, so a guard in warn or observe can be compared
+    // with the hook it shadows. Never the command, the reason or the prompt.
     log.debug("policy", {
-      verdict: decision.verdict,
+      raw: raw.verdict ?? "allow",
+      mode,
+      verdict: decision.verdict ?? "allow",
+      ...(input.tool
+        ? { tool: input.tool.kind, native: input.tool.native }
+        : {}),
       duration_ms: deps.now() - started,
     });
     return finish(decision);
@@ -105,7 +112,8 @@ export async function runPolicy(
     log.error("policy failed", {
       error: error instanceof Error ? error.message : String(error),
     });
-    if (policy.fail === "open") return finish({});
+    // An observed guard never decides, failed or not.
+    if (policy.fail === "open" || mode === "observe") return finish({});
     if (deps.failure) {
       const cause =
         error instanceof Timeout
