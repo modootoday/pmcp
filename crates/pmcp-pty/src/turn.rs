@@ -42,6 +42,38 @@ fn settle_into_idle(s: &Session, limit: Duration) {
     }
 }
 
+// How long to let a busy refusal stand before the idle wait looks again.
+const BUSY_RETRY: Duration = Duration::from_millis(50);
+
+fn busy_refusal(delivered: &Delivered) -> bool {
+    matches!(delivered, Delivered::Refused(r) if r.get("code") == Some(&json!("busy")))
+}
+
+// With wait_idle_ms the whole budget covers delivery too: the runtime can turn busy between the
+// idle wait and the delivery (a hook starting on its own), so a busy refusal waits for idle
+// again and retries until the budget is spent, and only then is returned.
+fn deliver_within<X>(
+    budget: Option<Duration>,
+    mut settle: impl FnMut(Duration),
+    mut attempt: impl FnMut() -> Result<(X, Delivered), String>,
+) -> Result<(X, Delivered), String> {
+    let until = budget.map(|b| {
+        settle(b);
+        Instant::now() + b
+    });
+    loop {
+        let (x, delivered) = attempt()?;
+        let left = until.map(|u| u.saturating_duration_since(Instant::now()));
+        match left {
+            Some(left) if !left.is_zero() && busy_refusal(&delivered) => {
+                std::thread::sleep(BUSY_RETRY.min(left));
+                settle(left.saturating_sub(BUSY_RETRY));
+            }
+            _ => return Ok((x, delivered)),
+        }
+    }
+}
+
 struct End {
     outcome: &'static str,
     by: &'static str,
@@ -62,13 +94,21 @@ fn end(outcome: &'static str, by: &'static str) -> Option<End> {
 pub fn turn(s: &Session, instance: &str, req: TurnReq, mut ctx: Ctx) -> Result<Value, Fail> {
     let start = Instant::now();
     let deadline = Duration::from_millis(req.timeout_ms.unwrap_or(TURN_DEFAULT_MS).min(MAX_MS));
-    if let Some(ms) = req.wait_idle_ms {
-        settle_into_idle(s, Duration::from_millis(ms.min(MAX_MS)));
-    }
-    let cursor = s.settle().transcript.next();
-    let base = ctx.signals.lock().unwrap_or_else(|e| e.into_inner()).seq;
     ctx.target = req.target.clone();
-    let receipt = match deliver(s, &req.text, &ctx).map_err(|e| Fail::new(Code::Exited, e))? {
+    let budget = req
+        .wait_idle_ms
+        .map(|ms| Duration::from_millis(ms.min(MAX_MS)));
+    let ((cursor, base), delivered) = deliver_within(
+        budget,
+        |left| settle_into_idle(s, left),
+        || {
+            let cursor = s.settle().transcript.next();
+            let base = ctx.signals.lock().unwrap_or_else(|e| e.into_inner()).seq;
+            Ok(((cursor, base), deliver(s, &req.text, &ctx)?))
+        },
+    )
+    .map_err(|e| Fail::new(Code::Exited, e))?;
+    let receipt = match delivered {
         Delivered::Sent(receipt) => receipt,
         Delivered::Refused(receipt) => {
             let code = receipt.get("code").cloned().unwrap_or(json!("guard"));
@@ -162,5 +202,71 @@ mod tests {
             vec!["you said: say hi", "done"]
         );
         assert_eq!(reply_lines(&lines, "not echoed"), lines);
+    }
+
+    fn busy() -> Delivered {
+        Delivered::Refused(json!({ "code": "busy", "reason": "runtime busy: working" }))
+    }
+
+    // Busy for the first `refusals` attempts, then accepted; counts attempts and idle waits.
+    fn run(budget: Option<Duration>, refusals: usize) -> (Delivered, usize, usize) {
+        let (mut tries, mut waits) = (0, 0);
+        let ((), delivered) = deliver_within(
+            budget,
+            |_| waits += 1,
+            || {
+                tries += 1;
+                Ok((
+                    (),
+                    if tries <= refusals {
+                        busy()
+                    } else {
+                        Delivered::Sent(json!({}))
+                    },
+                ))
+            },
+        )
+        .unwrap();
+        (delivered, tries, waits)
+    }
+
+    #[test]
+    fn a_busy_refusal_inside_the_wait_budget_waits_for_idle_and_delivers_again() {
+        let (delivered, tries, waits) = run(Some(Duration::from_secs(5)), 2);
+        assert!(matches!(delivered, Delivered::Sent(_)));
+        assert_eq!(tries, 3);
+        assert_eq!(waits, 3, "the first idle wait, then one before each retry");
+    }
+
+    #[test]
+    fn without_wait_idle_ms_a_busy_refusal_is_returned_at_once() {
+        let (delivered, tries, waits) = run(None, 1);
+        assert!(busy_refusal(&delivered));
+        assert_eq!((tries, waits), (1, 0));
+    }
+
+    #[test]
+    fn a_spent_budget_returns_the_busy_refusal() {
+        let start = Instant::now();
+        let (delivered, tries, _) = run(Some(Duration::from_millis(200)), usize::MAX);
+        assert!(busy_refusal(&delivered));
+        assert!(tries >= 2, "{tries}");
+        assert!(start.elapsed() < Duration::from_secs(2));
+    }
+
+    #[test]
+    fn other_refusals_are_never_retried() {
+        let (mut tries, mut waits) = (0, 0);
+        let ((), delivered) = deliver_within(
+            Some(Duration::from_secs(5)),
+            |_| waits += 1,
+            || {
+                tries += 1;
+                Ok(((), Delivered::Refused(json!({ "code": "dialog_open" }))))
+            },
+        )
+        .unwrap();
+        assert!(matches!(delivered, Delivered::Refused(_)));
+        assert_eq!((tries, waits), (1, 1));
     }
 }
