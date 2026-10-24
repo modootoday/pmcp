@@ -26,6 +26,8 @@ export const SERVER_NAME = "pmcp";
 
 export const SERVER_VERSION = "0.19.4";
 
+export const MAX_TOOL_INPUT_ELEMENTS = 10_000;
+
 // Export registration separately so existing MCP hosts need not start another server process.
 export function registerSkillTools(
   server: McpServer,
@@ -49,7 +51,10 @@ export interface SkillMcpOptions extends SkillServerOptions {
 
 // Load the catalog lazily so connecting without requests does not pay for discovery.
 export function createSkillServer(options: SkillMcpOptions): McpServer {
-  const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION });
+  const server = new McpServer(
+    { name: SERVER_NAME, version: SERVER_VERSION },
+    { maxToolInputElements: MAX_TOOL_INPUT_ELEMENTS },
+  );
   const tools = createSkillTools(options);
   registerSkillsExtension(server, tools.skills, options.skillsExtension);
   registerSkillResources(server, tools.skills);

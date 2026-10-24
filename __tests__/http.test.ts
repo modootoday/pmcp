@@ -36,8 +36,9 @@ async function rpc(
   h: ReturnType<typeof handler>,
   method: string,
   params: Record<string, unknown>,
-  auth = true,
+  auth: boolean | string = true,
 ) {
+  const authorization = auth === true ? BEARER : auth;
   const response = await h.fetch(
     new Request("http://localhost/mcp", {
       method: "POST",
@@ -45,7 +46,7 @@ async function rpc(
         "content-type": "application/json",
         accept: "application/json, text/event-stream",
         "mcp-protocol-version": "2025-06-18",
-        ...(auth ? { authorization: BEARER } : {}),
+        ...(authorization ? { authorization } : {}),
       },
       body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
     }),
@@ -106,5 +107,82 @@ describe("createSkillHttpHandler", () => {
     });
     expect(JSON.stringify(body)).toContain("open-skill");
     expect(JSON.stringify(body)).not.toContain("free-skill");
+  });
+
+  it("rejects excessive tool elements below the HTTP byte cap", async () => {
+    const arguments_ = { values: Array.from({ length: 10_001 }, () => 0) };
+    expect(Buffer.byteLength(JSON.stringify(arguments_))).toBeLessThan(
+      1024 * 1024,
+    );
+    const { status, body } = await rpc(handler(), "tools/call", {
+      name: "skill_catalog",
+      arguments: arguments_,
+    });
+    expect(status).toBe(200);
+    expect(body.result.isError).toBe(true);
+    expect(JSON.stringify(body.result.content)).toContain(
+      "maximum of 10000 elements",
+    );
+    expect(JSON.stringify(body.result.content)).not.toContain("free-skill");
+  });
+
+  it("isolates concurrent callers sharing a JSON-RPC id", async () => {
+    const h = createSkillHttpHandler({
+      roots: [],
+      loadCatalog: () => ENTRIES,
+      authorize: (request) => ({
+        id: request.headers.get("authorization") ?? "open",
+      }),
+      tiersFor: (caller) => [caller.id],
+    });
+    const [free, paid] = await Promise.all([
+      rpc(h, "tools/call", { name: "skill_catalog", arguments: {} }, "free"),
+      rpc(h, "tools/call", { name: "skill_catalog", arguments: {} }, "paid"),
+    ]);
+    expect(free.status).toBe(200);
+    expect(paid.status).toBe(200);
+    expect(JSON.stringify(free.body)).toContain("free-skill");
+    expect(JSON.stringify(free.body)).not.toContain("paid-skill");
+    expect(JSON.stringify(paid.body)).toContain("paid-skill");
+    expect(JSON.stringify(paid.body)).not.toContain("free-skill");
+  });
+
+  it("keeps concurrent responses separate through the same cached handler", async () => {
+    const h = createSkillHttpHandler({
+      roots: [],
+      loadCatalog: () => ENTRIES,
+      authorize: (request) => ({
+        id: request.headers.get("authorization") ?? "caller",
+      }),
+      tiersFor: () => ["open", "free", "paid"],
+    });
+    const [free, paid] = await Promise.all([
+      rpc(
+        h,
+        "tools/call",
+        {
+          name: "skill_find",
+          arguments: { intent: "free", filters: { tier: "free" } },
+        },
+        "client-free",
+      ),
+      rpc(
+        h,
+        "tools/call",
+        {
+          name: "skill_find",
+          arguments: { intent: "paid", filters: { tier: "paid" } },
+        },
+        "client-paid",
+      ),
+    ]);
+    expect(free.status).toBe(200);
+    expect(paid.status).toBe(200);
+    expect(free.body.id).toBe(1);
+    expect(paid.body.id).toBe(1);
+    expect(JSON.stringify(free.body)).toContain("free-skill");
+    expect(JSON.stringify(free.body)).not.toContain("paid-skill");
+    expect(JSON.stringify(paid.body)).toContain("paid-skill");
+    expect(JSON.stringify(paid.body)).not.toContain("free-skill");
   });
 });

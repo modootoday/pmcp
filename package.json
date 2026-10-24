@@ -104,7 +104,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.3.0",
     "zod": "^4.5.1",
     "semver": "7.8.5",
     "smol-toml": "1.9.0",
