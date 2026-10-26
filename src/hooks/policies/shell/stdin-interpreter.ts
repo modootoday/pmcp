@@ -7,8 +7,27 @@ const FALLBACK =
 const REASON =
   "This interpreter reads its program from stdin, so the command text does not contain it and whatever fed the pipe already expanded it. Write the script with the editor tool, then run it.";
 
-function programFromStdin(args: readonly string[]): boolean {
+// --version, -V, --help and the like print and exit before any program is read.
+const INFORMATIONAL = /^(?:-V+|--version|-h|-\?|--help(?:-[a-z]+)?)$/u;
+
+// Redirections stay in a step's words; neither the operator nor its target is an argument, so
+// `python3 < x.py` has no program argument and reads x.py as its program from stdin.
+const REDIRECT = /^\d*(?:<|>>?|&>)(.*)$/u;
+
+function withoutRedirects(args: readonly string[]): string[] {
+  const kept: string[] = [];
+  for (let at = 0; at < args.length; at += 1) {
+    const match = REDIRECT.exec(args[at]!);
+    if (!match) kept.push(args[at]!);
+    else if (match[1] === "") at += 1;
+  }
+  return kept;
+}
+
+function programFromStdin(words: readonly string[]): boolean {
+  const args = withoutRedirects(words);
   if (args.includes("-")) return true;
+  if (args.some((arg) => INFORMATIONAL.test(arg))) return false;
   return !args.some(
     (arg) => arg === "-c" || arg === "-m" || !arg.startsWith("-"),
   );

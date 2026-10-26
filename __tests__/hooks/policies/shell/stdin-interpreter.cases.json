@@ -3,7 +3,13 @@
     "printf '%s' \"$code\" | python3 -",
     "cat gen.py | python3",
     "curl -s $URL | python3 -u",
-    "sudo python3 -"
+    "sudo python3 -",
+    "python3 -",
+    "python3 < x.py",
+    "cat x | python3",
+    "python3 --version -",
+    "python3 <x.py",
+    "python3 2>/dev/null < x.py"
   ],
   "allowed": [
     "python3 tools/report.py --json",
@@ -12,6 +18,13 @@
     "python3 -m json.tool < f.json",
     "cat f | python3 -c 'import sys; print(1)'",
     "grep -rn python legacy --include=*.md",
-    "ls legacy/python"
+    "ls legacy/python",
+    "python3 --version",
+    "python3 -V",
+    "uv --version; python3 --version",
+    "mkdir -p out && python3 --version && uptime",
+    "python3 --help",
+    "python3 x.py < in.txt",
+    "python3 tools/report.py 2>/dev/null"
   ]
 }
