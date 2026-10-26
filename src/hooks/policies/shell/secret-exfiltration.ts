@@ -94,6 +94,31 @@ function dumpsEnvironment(step: ShellStep): boolean {
   );
 }
 
+// A credential-like path given as the value of a configuration option is handed to the program
+// as its config, not printed: npm-cli.js install --userconfig empty.npmrc reads nothing out.
+const CONFIG_OPTION = /^--(?:[\w-]*config|rcfile|[\w-]*rc)$/u;
+
+function configValues(argv: readonly string[]): string[] {
+  const values: string[] = [];
+  for (let at = 1; at < argv.length; at += 1) {
+    const [flag, inline] = argv[at]!.split(/=(.*)/su);
+    if (!CONFIG_OPTION.test(flag!)) continue;
+    if (inline !== undefined) values.push(argv[at]!, inline);
+    else if (argv[at + 1] !== undefined) values.push(argv[(at += 1)]!);
+  }
+  return values;
+}
+
+// File operands of a step, less the config option values (each removed once).
+function operandsOf(argv: readonly string[]): string[] {
+  const operands = [...fileOperands(argv)];
+  for (const value of configValues(argv)) {
+    const at = operands.indexOf(value);
+    if (at >= 0) operands.splice(at, 1);
+  }
+  return operands;
+}
+
 type Severity = "read" | "exfil";
 
 function severity(
@@ -108,7 +133,7 @@ function severity(
     return wire ? "exfil" : "read";
   if (steps.some(dumpsEnvironment)) return wire ? "exfil" : "read";
   const touched = real.filter((step) =>
-    fileOperands(step.argv).some((word) => names(word, options)),
+    operandsOf(step.argv).some((word) => names(word, options)),
   );
   if (touched.some((step) => isWire(step.argv[0]!))) return "exfil";
   if (!touched.some((step) => READERS.has(program(step.argv[0])))) return null;
