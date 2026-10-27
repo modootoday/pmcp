@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "pmcp_version": "0.19.8",
+  "pmcp_version": "0.19.9",
   "outputs": [
     {
       "path": ".claude/skills/pmcp-release",

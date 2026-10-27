@@ -445,7 +445,7 @@
     },
     {
       "name": "pmcp",
-      "version": "0.19.8",
+      "version": "0.19.9",
       "description": "Find package skills and use native runtime project configuration.",
       "source": "./plugins/pmcp"
     },

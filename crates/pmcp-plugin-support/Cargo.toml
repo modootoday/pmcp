@@ -1,6 +1,6 @@
 [package]
 name = "pmcp-plugin-support"
-version = "0.19.8"
+version = "0.19.9"
 edition = "2024"
 description = "Process-tree reaping, systemd scopes and MCP plumbing shared by pmcp-pty and the pmcp plugins"
 publish = false

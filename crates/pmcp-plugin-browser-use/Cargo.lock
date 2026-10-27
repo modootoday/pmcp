@@ -781,7 +781,7 @@ checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
 
 [[package]]
 name = "pmcp-plugin-browser-use"
-version = "0.19.8"
+version = "0.19.9"
 dependencies = [
  "chromiumoxide",
  "futures",
@@ -794,7 +794,7 @@ dependencies = [
 
 [[package]]
 name = "pmcp-plugin-support"
-version = "0.19.8"
+version = "0.19.9"
 dependencies = [
  "libc",
  "rmcp",
