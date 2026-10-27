@@ -49,7 +49,7 @@ export function selectPolicies(
   }));
   const custom = compiled.custom.map((entry) => ({
     policy: customPolicy(entry),
-    mode: "deny" as const,
+    mode: entry.mode ?? "deny",
     options: {},
   }));
   return [...guards, ...custom].filter((selected) => listens(selected, input));

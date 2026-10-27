@@ -26,7 +26,7 @@ export function policyRows(
         id: "custom." + entry.name,
         policy: customPolicy(entry),
         options: {},
-        mode: "deny" as const,
+        mode: entry.mode ?? "deny",
       }));
     return [...guards, ...custom].flatMap((entry) => {
       const events =

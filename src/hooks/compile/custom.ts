@@ -5,6 +5,7 @@ import { compareIdentifiers } from "./order.js";
 import {
   CUSTOM_TARGETS,
   type CustomEntry,
+  type CustomMode,
   type CustomTarget,
   type Table,
 } from "./types.js";
@@ -35,6 +36,14 @@ export function legacyEntries(
     throw new Error(
       `${unserved} custom guards need [hooks] targets that include ${unserved}`,
     );
+  // The shell adapter only refuses, so a softer mode there would be lost without a word.
+  for (const entry of entries) {
+    const shell = entry.targets.find((id) => !bundled.includes(id));
+    if (shell && (entry.mode ?? "deny") !== "deny")
+      throw new Error(
+        `custom guard ${entry.name}: mode = "${entry.mode}" needs the hook bundle for ${shell}; add ${shell} to [hooks] targets or use mode = "deny"`,
+      );
+  }
   if (enabled) {
     return entries
       .map((entry) => ({
@@ -68,14 +77,16 @@ export function pinnedEntries(
       ),
     }))
     .filter((entry) => entry.targets.length > 0)
-    .map((entry) => ({
+    .map(({ mode, ...entry }) => ({
       ...entry,
       guardSha256: guardHash(root, entry.command),
+      ...(mode !== "deny" && mode !== "off" ? { mode } : {}),
     }));
 }
 
-const FIELDS = ["name", "command", "targets", "timeout_ms", "on"];
+const FIELDS = ["name", "command", "targets", "timeout_ms", "on", "mode"];
 const EVENTS = ["before_shell", "after_edit"];
+const MODES: readonly CustomMode[] = ["deny", "ask", "warn", "observe", "off"];
 
 function readEntry(
   root: string,
@@ -126,6 +137,9 @@ function readEntry(
   }
   if (typeof event !== "string" || !EVENTS.includes(event))
     throw new Error(`on must be one of ${EVENTS.join(", ")}`);
+  const mode = entry["mode"] ?? "deny";
+  if (!MODES.includes(mode as CustomMode))
+    throw new Error(`mode must be one of ${MODES.join(", ")}`);
   guardScript(root, parts as string[]);
   return {
     name,
@@ -133,6 +147,7 @@ function readEntry(
     targets: list as CustomTarget[],
     timeoutMs,
     event: event as CustomEntry["event"],
+    mode: mode as CustomMode,
   };
 }
 
@@ -157,7 +172,7 @@ export function readCustom(
       if (names.has(entry.name))
         throw new Error("shell names must be unique lowercase names");
       names.add(entry.name);
-      found.push(entry);
+      if (entry.mode !== "off") found.push(entry);
     }
   }
   return found.sort((a, b) => compareIdentifiers(a.name, b.name));

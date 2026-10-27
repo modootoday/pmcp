@@ -78,9 +78,9 @@ export function compileHooks(
     ...readGuards(guardsTable),
     ...readChecks(hooks["checks"]),
   ];
-  const asks = guards.some(
-    (guard) => guard.mode === "ask" || guard.mode === "graded",
-  );
+  const asks =
+    guards.some((guard) => guard.mode === "ask" || guard.mode === "graded") ||
+    entries.some((entry) => entry.mode === "ask");
   const policy: CompiledPolicy = {
     contract: 2,
     targets: table.targets,

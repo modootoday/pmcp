@@ -12,7 +12,11 @@ export interface CustomEntry {
   readonly targets: readonly CustomTarget[];
   readonly timeoutMs: number;
   readonly event: "before_shell" | "after_edit";
+  // deny | ask | warn | observe; "off" entries are dropped when read.
+  readonly mode: CustomMode;
 }
+
+export type CustomMode = "deny" | "ask" | "warn" | "observe" | "off";
 
 export interface HooksTable {
   readonly enabled: boolean;

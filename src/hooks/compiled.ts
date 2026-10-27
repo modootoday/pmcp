@@ -37,6 +37,8 @@ export interface CompiledCustom {
   readonly targets: readonly RuntimeId[];
   readonly timeoutMs: number;
   readonly guardSha256: string;
+  // Absent means deny, so a policy.json from before modes keeps its meaning and its hash.
+  readonly mode?: Exclude<Mode, "graded" | "off">;
 }
 
 export interface CompiledPolicy {

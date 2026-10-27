@@ -113,9 +113,18 @@ A project script under `.agents/guards/` that decides like a built-in guard.
 | `targets`    | list      | required         | Any `[hooks] targets` runtime. A runtime in `[hooks] targets` runs it in the hook bundle; otherwise Codex, Gemini and Antigravity use the shell adapter, and Claude, Grok and OpenCode are an error. |
 | `timeout_ms` | integer   | `15000`          | 100 to 60000.                                                                                                                                                                                        |
 | `on`         | string    | `"before_shell"` | `before_shell` or `after_edit`.                                                                                                                                                                      |
+| `mode`       | string    | `"deny"`         | `deny`, `ask`, `warn`, `observe` or `off`, as for a built-in guard.                                                                                                                                  |
 
 The script receives the JSON contract described under
-[Deprecated shell guards](#deprecated-shell-guards). Custom guards have no `mode`.
+[Deprecated shell guards](#deprecated-shell-guards).
+
+`mode` means what it does for a built-in guard: the script runs and its refusal
+is a deny, an ask, a note in the session's context (`warn`), or only a log line
+(`observe`); `off` does not run it. The guard log records the script's own
+verdict as `raw` in every mode. Only the hook bundle applies a mode: a runtime
+the shell adapter serves (Codex, Gemini or Antigravity outside `[hooks]
+targets`) can only refuse, so a mode other than `deny` there is a configuration
+error naming the guard, the mode and the runtime.
 
 ## `[hooks.failure]`
 
