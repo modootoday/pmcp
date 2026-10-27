@@ -15,7 +15,11 @@ function api(origin: string, path: string): string {
   base.pathname = path;
   return base.href;
 }
-function credential(value: unknown): DistributionCredential {
+// A well-formed npm scope; the service names it, and installs stay within `${scope}/pmcp-`.
+const SCOPE = /^@[a-z0-9][a-z0-9._-]{0,213}$/u;
+
+// The credential must point at the registry of the service that issued it: `<origin>/npm/`.
+function credential(value: unknown, origin: string): DistributionCredential {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new Error("invalid distribution credential response");
   const row = value as Record<string, unknown>;
@@ -33,8 +37,8 @@ function credential(value: unknown): DistributionCredential {
   }
   const registry = new URL(item["registry"] as string);
   if (
-    registry.href !== "https://api.pmcp.build/npm/" ||
-    item["scope"] !== "@modootoday" ||
+    registry.href !== api(origin, "/npm/") ||
+    !SCOPE.test(item["scope"] as string) ||
     !/^pmcp_[A-Za-z0-9_-]{43}$/u.test(item["token"] as string) ||
     !Number.isFinite(Date.parse(item["expiresAt"] as string))
   ) {
@@ -49,8 +53,17 @@ const REFUSALS: Readonly<Record<number, string>> = {
   403: "sign in again to approve skill downloads",
 };
 
+// The service's own site: its API host, or that host without a leading "api." label.
+function serviceHosts(origin: string): Set<string> {
+  const host = new URL(origin).host;
+  return new Set([host, host.replace(/^api\./u, "")]);
+}
+
 // Use service-provided resolution URLs so clients do not retain stale pricing or remediation claims.
-function helpUrl(body: Record<string, unknown>): string | undefined {
+function helpUrl(
+  body: Record<string, unknown>,
+  origin: string,
+): string | undefined {
   const error = body["error"];
   if (!error || typeof error !== "object") return undefined;
   const help = (error as Record<string, unknown>)["help"];
@@ -60,13 +73,14 @@ function helpUrl(body: Record<string, unknown>): string | undefined {
   // Validate resolution URLs so server errors cannot redirect users to unrelated origins.
   const parsed = URL.parse(url);
   if (!parsed || parsed.protocol !== "https:") return undefined;
-  return parsed.host === "pmcp.build" ? parsed.href : undefined;
+  return serviceHosts(origin).has(parsed.host) ? parsed.href : undefined;
 }
 
 // Preserve request ids so users can correlate refusals with service logs.
 async function refusal(
   response: Response,
   fallback: string,
+  origin: string,
   subjects: readonly string[] = [],
 ): Promise<Error> {
   let requestId: string | undefined;
@@ -80,7 +94,7 @@ async function refusal(
     if (typeof value["requestId"] === "string" && value["requestId"] !== "") {
       requestId = value["requestId"];
     }
-    where = helpUrl(value);
+    where = helpUrl(value, origin);
   } catch {
     // A refusal without a body is still a refusal; the status carries it.
   }
@@ -117,9 +131,10 @@ export async function issueDistributionCredential(
     throw await refusal(
       response,
       "distribution credential request failed",
+      origin,
       subjects,
     );
-  return credential(await response.json());
+  return credential(await response.json(), origin);
 }
 
 export async function verifyRegistryIntegrity(
@@ -152,7 +167,11 @@ export async function verifyRegistryIntegrity(
       },
     });
     if (!response.ok)
-      throw await refusal(response, "registry metadata request failed");
+      throw await refusal(
+        response,
+        "registry metadata request failed",
+        new URL(value.registry).origin,
+      );
     const raw = await response.text();
     if (raw.length > 2 * 1024 * 1024)
       throw new Error("registry metadata exceeds the supported size");

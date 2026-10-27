@@ -131,6 +131,66 @@ it("repeats the request id the service named, so a report can be looked up", asy
   ).rejects.toThrow("subscription");
 });
 
+it("accepts the registry and scope of the service it asked, not only the default one", async () => {
+  const own = {
+    ...credential,
+    registry: "https://api.skills.example/npm/",
+    scope: "@example",
+  };
+  const issuing = (body: unknown) =>
+    (async () =>
+      Response.json(
+        { schemaVersion: 1, requestId: "t", credential: body },
+        { status: 201 },
+      )) as typeof fetch;
+  expect(
+    await issueDistributionCredential(
+      "x",
+      "https://api.skills.example",
+      issuing(own),
+    ),
+  ).toEqual(own);
+  // A registry on another host than the API the credential came from is refused.
+  await expect(
+    issueDistributionCredential(
+      "x",
+      "https://api.skills.example",
+      issuing(credential),
+    ),
+  ).rejects.toThrow("invalid distribution credential response");
+  await expect(
+    issueDistributionCredential(
+      "x",
+      "https://api.skills.example",
+      issuing({ ...own, scope: "example" }),
+    ),
+  ).rejects.toThrow("invalid distribution credential response");
+});
+
+it("names a resolution page on the asked service's own site", async () => {
+  const refused = (async () =>
+    Response.json(
+      {
+        requestId: "r-3",
+        error: {
+          code: "NOT_ENTITLED",
+          message: "no",
+          retryable: false,
+          help: { subscribeUrl: "https://skills.example/plans/" },
+        },
+      },
+      { status: 402 },
+    )) as typeof fetch;
+  const message = await refusalMessage(
+    issueDistributionCredential("x", "https://api.skills.example", refused),
+  );
+  expect(message).toContain("https://skills.example/plans/");
+  // The default service does not vouch for another service's pages.
+  expect(
+    await refusalMessage(issueDistributionCredential("x", undefined, refused)),
+  ).not.toContain("skills.example");
+});
+
 it("writes credentials only into a temporary mode-600 config and removes it", () => {
   const config = temporaryRegistryConfig(credential);
   try {
