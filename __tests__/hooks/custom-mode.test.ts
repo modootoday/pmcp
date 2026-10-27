@@ -24,10 +24,12 @@ function project(): string {
 }
 
 // Run through sh: executing a file just written can fail with ETXTBSY while other tests fork.
+// The longest timeout, so a loaded host does not turn the script's answer into a failure.
 const entry = (mode?: string) => ({
   name: "refuse",
   command: ["sh", ".agents/guards/refuse.sh"],
   targets: ["claude"],
+  timeout_ms: 60000,
   ...(mode === undefined ? {} : { mode }),
 });
 

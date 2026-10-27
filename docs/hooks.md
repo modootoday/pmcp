@@ -104,19 +104,74 @@ command the parser cannot read is judged by a conservative pattern instead.
 
 ## `[[hooks.guards.custom]]`
 
-A project script under `.agents/guards/` that decides like a built-in guard.
+A project command that decides like a built-in guard: a script under
+`.agents/guards/`, or an installed program pinned by its version.
 
-| Key          | Type      | Default          | Meaning                                                                                                                                                                                              |
-| ------------ | --------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`       | string    | required         | `^[a-z0-9][a-z0-9-]*$`, unique across custom, shell and edit entries.                                                                                                                                |
-| `command`    | argv list | required         | The first or second element is the script, which must exist inside `.agents/guards/`; its sha256 is pinned in `policy.json`.                                                                         |
-| `targets`    | list      | required         | Any `[hooks] targets` runtime. A runtime in `[hooks] targets` runs it in the hook bundle; otherwise Codex, Gemini and Antigravity use the shell adapter, and Claude, Grok and OpenCode are an error. |
-| `timeout_ms` | integer   | `15000`          | 100 to 60000.                                                                                                                                                                                        |
-| `on`         | string    | `"before_shell"` | `before_shell` or `after_edit`.                                                                                                                                                                      |
-| `mode`       | string    | `"deny"`         | `deny`, `ask`, `warn`, `observe` or `off`, as for a built-in guard.                                                                                                                                  |
+| Key          | Type      | Default          | Meaning                                                                                                                                                                                                                                                                                       |
+| ------------ | --------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`       | string    | required         | `^[a-z0-9][a-z0-9-]*$`, unique across custom, shell and edit entries.                                                                                                                                                                                                                         |
+| `command`    | argv list | required         | Without `version`, the first or second element is the script, which must exist inside `.agents/guards/`; its sha256 is pinned in `policy.json`. With `version`, the first element is the program, found on `PATH`.                                                                            |
+| `version`    | string    | none             | The version an installed program reports: `pmcp project`, `pmcp project --check` and `pmcp doctor` run `<program> --version` and refuse when the output does not contain it as a whole token (`1.2.3` matches `tool v1.2.3`, not `1.2.30`). A script under `.agents/guards/` cannot take one. |
+| `targets`    | list      | required         | Any `[hooks] targets` runtime. A runtime in `[hooks] targets` runs it in the hook bundle; otherwise Codex, Gemini and Antigravity use the shell adapter, and Claude, Grok and OpenCode are an error.                                                                                          |
+| `timeout_ms` | integer   | `15000`          | 100 to 60000.                                                                                                                                                                                                                                                                                 |
+| `on`         | string    | `"before_shell"` | `before_shell`, `after_edit`, `prompt`, `stop` or `session_start`.                                                                                                                                                                                                                            |
+| `mode`       | string    | `"deny"`         | `deny`, `ask`, `warn`, `observe` or `off`, as for a built-in guard.                                                                                                                                                                                                                           |
 
-The script receives the JSON contract described under
-[Deprecated shell guards](#deprecated-shell-guards).
+What a refusal (`mode = "deny"`) does depends on the event and the runtime; pmcp
+renders it as each runtime's hooks can take it, and where one cannot, the reason
+goes nowhere:
+
+| `on`            | Claude Code                          | Codex                                | Gemini, OpenCode      | Antigravity                        | Grok                                            |
+| --------------- | ------------------------------------ | ------------------------------------ | --------------------- | ---------------------------------- | ----------------------------------------------- |
+| `before_shell`  | refuses the call (`ask` asks)        | refuses the call                     | refuses the call      | refuses the call                   | refuses the call                                |
+| `after_edit`    | the reason as feedback               | the reason as feedback               | the reason as context | nothing                            | the reason as context                           |
+| `prompt`        | blocks the prompt, with the reason   | blocks the prompt, with the reason   | the reason as context | the reason as a message            | nothing                                         |
+| `stop`          | keeps the turn going with the reason | keeps the turn going with the reason | nothing               | continues the turn with the reason | the reason as context, which continues the turn |
+| `session_start` | the reason as context                | the reason as context                | the reason as context | the reason as a message            | the reason as context at its next tool call     |
+
+With `mode = "warn"` the reason reaches every runtime as context, at that event
+or, where the runtime takes none there, at the next event that carries context.
+A session cannot be refused at its start, so on `session_start` the modes
+`deny` and `ask` act as `warn`. `ask` asks only in Claude Code; elsewhere
+`[hooks] ask_fallback` decides. A turn kept going by `stop` is not kept going
+again by the stop that ends it.
+
+### The guard contract, `pmcp.guard.v1`
+
+The command gets one JSON object on stdin:
+
+```json
+{
+  "protocol": "pmcp.guard.v1",
+  "runtime": "claude",
+  "event": "before_shell",
+  "session": "<session id>",
+  "command": "<the shell command, or empty>",
+  "cwd": "<the session's directory>",
+  "paths": ["<the edited paths, after_edit>"],
+  "prompt": "<the prompt text, on prompt only>"
+}
+```
+
+It runs in the project root with only `PATH` and `LANG`, and answers on stdout
+with one JSON object and exit 0:
+
+```json
+{
+  "decision": "deny",
+  "reason": "why",
+  "findings": [{ "path": "src/a.ts", "line": 3, "message": "what is wrong" }]
+}
+```
+
+`decision` is `allow` or `deny`; `reason` and `findings` are optional, and
+`protocol`, when echoed, must be `pmcp.guard.v1`. Each finding needs `message`
+and may give `path` and `line` (a whole number from 1). Up to 20 findings are
+added to a refusal's reason, one `path:line: message` line each, and findings
+with `allow` reach the session as a note; either way the guard log records how
+many there were. Any other reply, a nonzero exit, or running past `timeout_ms`
+is a failed guard, which refuses. A guard written for the earlier contract, which
+had no `protocol`, `session`, `prompt` or `findings`, keeps working unchanged.
 
 `mode` means what it does for a built-in guard: the script runs and its refusal
 is a deny, an ask, a note in the session's context (`warn`), or only a log line
@@ -124,7 +179,13 @@ is a deny, an ask, a note in the session's context (`warn`), or only a log line
 verdict as `raw` in every mode. Only the hook bundle applies a mode: a runtime
 the shell adapter serves (Codex, Gemini or Antigravity outside `[hooks]
 targets`) can only refuse, so a mode other than `deny` there is a configuration
-error naming the guard, the mode and the runtime.
+error naming the guard, the mode and the runtime. The same holds for `on` other
+than `before_shell` or `after_edit` and for an installed program with `version`:
+the shell adapter runs neither, and keeps the earlier contract below.
+
+A command that needs to end a session's turn with a check of its own (tests, a
+linter, a generated-file check) is a custom guard with `on = "stop"` and
+`mode = "warn"`.
 
 ## `[hooks.report]`
 

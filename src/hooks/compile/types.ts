@@ -11,9 +11,12 @@ export interface CustomEntry {
   readonly command: readonly string[];
   readonly targets: readonly CustomTarget[];
   readonly timeoutMs: number;
-  readonly event: "before_shell" | "after_edit";
+  readonly event:
+    "before_shell" | "after_edit" | "stop" | "session_start" | "prompt";
   // deny | ask | warn | observe; "off" entries are dropped when read.
   readonly mode: CustomMode;
+  // An installed program named by command[0], pinned by what its --version prints.
+  readonly version?: string;
 }
 
 export type CustomMode = "deny" | "ask" | "warn" | "observe" | "off";

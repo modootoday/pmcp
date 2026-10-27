@@ -133,21 +133,67 @@ and <code>no_verify</code> (boolean, default <code>true</code>).</li>
 <code>git commit -m &quot;never git push --no-verify&quot;</code> and <code>echo &#39;cat &lt;&lt;EOF&#39;</code> pass. A
 command the parser cannot read is judged by a conservative pattern instead.</p>
 <h2 id="hooksguardscustom"><code>[[hooks.guards.custom]]</code></h2>
-<p>A project script under <code>.agents/guards/</code> that decides like a built-in guard.</p>
+<p>A project command that decides like a built-in guard: a script under
+<code>.agents/guards/</code>, or an installed program pinned by its version.</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>name</code></td><td>string</td><td>required</td><td><code>^[a-z0-9][a-z0-9-]*$</code>, unique across custom, shell and edit entries.</td></tr>
-<tr><td><code>command</code></td><td>argv list</td><td>required</td><td>The first or second element is the script, which must exist inside <code>.agents/guards/</code>; its sha256 is pinned in <code>policy.json</code>.</td></tr>
+<tr><td><code>command</code></td><td>argv list</td><td>required</td><td>Without <code>version</code>, the first or second element is the script, which must exist inside <code>.agents/guards/</code>; its sha256 is pinned in <code>policy.json</code>. With <code>version</code>, the first element is the program, found on <code>PATH</code>.</td></tr>
+<tr><td><code>version</code></td><td>string</td><td>none</td><td>The version an installed program reports: <code>pmcp project</code>, <code>pmcp project --check</code> and <code>pmcp doctor</code> run <code>&lt;program&gt; --version</code> and refuse when the output does not contain it as a whole token (<code>1.2.3</code> matches <code>tool v1.2.3</code>, not <code>1.2.30</code>). A script under <code>.agents/guards/</code> cannot take one.</td></tr>
 <tr><td><code>targets</code></td><td>list</td><td>required</td><td>Any <code>[hooks] targets</code> runtime. A runtime in <code>[hooks] targets</code> runs it in the hook bundle; otherwise Codex, Gemini and Antigravity use the shell adapter, and Claude, Grok and OpenCode are an error.</td></tr>
 <tr><td><code>timeout_ms</code></td><td>integer</td><td><code>15000</code></td><td>100 to 60000.</td></tr>
-<tr><td><code>on</code></td><td>string</td><td><code>&quot;before_shell&quot;</code></td><td><code>before_shell</code> or <code>after_edit</code>.</td></tr>
+<tr><td><code>on</code></td><td>string</td><td><code>&quot;before_shell&quot;</code></td><td><code>before_shell</code>, <code>after_edit</code>, <code>prompt</code>, <code>stop</code> or <code>session_start</code>.</td></tr>
 <tr><td><code>mode</code></td><td>string</td><td><code>&quot;deny&quot;</code></td><td><code>deny</code>, <code>ask</code>, <code>warn</code>, <code>observe</code> or <code>off</code>, as for a built-in guard.</td></tr></tbody></table></div>
-<p>The script receives the JSON contract described under
-<a href="#deprecated-shell-guards">Deprecated shell guards</a>.</p>
+<p>What a refusal (<code>mode = &quot;deny&quot;</code>) does depends on the event and the runtime; pmcp
+renders it as each runtime&#39;s hooks can take it, and where one cannot, the reason
+goes nowhere:</p>
+<div class="scroll"><table><thead><tr><th><code>on</code></th><th>Claude Code</th><th>Codex</th><th>Gemini, OpenCode</th><th>Antigravity</th><th>Grok</th></tr></thead><tbody><tr><td><code>before_shell</code></td><td>refuses the call (<code>ask</code> asks)</td><td>refuses the call</td><td>refuses the call</td><td>refuses the call</td><td>refuses the call</td></tr>
+<tr><td><code>after_edit</code></td><td>the reason as feedback</td><td>the reason as feedback</td><td>the reason as context</td><td>nothing</td><td>the reason as context</td></tr>
+<tr><td><code>prompt</code></td><td>blocks the prompt, with the reason</td><td>blocks the prompt, with the reason</td><td>the reason as context</td><td>the reason as a message</td><td>nothing</td></tr>
+<tr><td><code>stop</code></td><td>keeps the turn going with the reason</td><td>keeps the turn going with the reason</td><td>nothing</td><td>continues the turn with the reason</td><td>the reason as context, which continues the turn</td></tr>
+<tr><td><code>session_start</code></td><td>the reason as context</td><td>the reason as context</td><td>the reason as context</td><td>the reason as a message</td><td>the reason as context at its next tool call</td></tr></tbody></table></div>
+<p>With <code>mode = &quot;warn&quot;</code> the reason reaches every runtime as context, at that event
+or, where the runtime takes none there, at the next event that carries context.
+A session cannot be refused at its start, so on <code>session_start</code> the modes
+<code>deny</code> and <code>ask</code> act as <code>warn</code>. <code>ask</code> asks only in Claude Code; elsewhere
+<code>[hooks] ask_fallback</code> decides. A turn kept going by <code>stop</code> is not kept going
+again by the stop that ends it.</p>
+<h3 id="the-guard-contract-pmcpguardv1">The guard contract, <code>pmcp.guard.v1</code></h3>
+<p>The command gets one JSON object on stdin:</p>
+<pre><code>{
+  &quot;protocol&quot;: &quot;pmcp.guard.v1&quot;,
+  &quot;runtime&quot;: &quot;claude&quot;,
+  &quot;event&quot;: &quot;before_shell&quot;,
+  &quot;session&quot;: &quot;&lt;session id&gt;&quot;,
+  &quot;command&quot;: &quot;&lt;the shell command, or empty&gt;&quot;,
+  &quot;cwd&quot;: &quot;&lt;the session's directory&gt;&quot;,
+  &quot;paths&quot;: [&quot;&lt;the edited paths, after_edit&gt;&quot;],
+  &quot;prompt&quot;: &quot;&lt;the prompt text, on prompt only&gt;&quot;
+}</code></pre>
+<p>It runs in the project root with only <code>PATH</code> and <code>LANG</code>, and answers on stdout
+with one JSON object and exit 0:</p>
+<pre><code>{
+  &quot;decision&quot;: &quot;deny&quot;,
+  &quot;reason&quot;: &quot;why&quot;,
+  &quot;findings&quot;: [{ &quot;path&quot;: &quot;src/a.ts&quot;, &quot;line&quot;: 3, &quot;message&quot;: &quot;what is wrong&quot; }]
+}</code></pre>
+<p><code>decision</code> is <code>allow</code> or <code>deny</code>; <code>reason</code> and <code>findings</code> are optional, and
+<code>protocol</code>, when echoed, must be <code>pmcp.guard.v1</code>. Each finding needs <code>message</code>
+and may give <code>path</code> and <code>line</code> (a whole number from 1). Up to 20 findings are
+added to a refusal&#39;s reason, one <code>path:line: message</code> line each, and findings
+with <code>allow</code> reach the session as a note; either way the guard log records how
+many there were. Any other reply, a nonzero exit, or running past <code>timeout_ms</code>
+is a failed guard, which refuses. A guard written for the earlier contract, which
+had no <code>protocol</code>, <code>session</code>, <code>prompt</code> or <code>findings</code>, keeps working unchanged.</p>
 <p><code>mode</code> means what it does for a built-in guard: the script runs and its refusal
 is a deny, an ask, a note in the session&#39;s context (<code>warn</code>), or only a log line
 (<code>observe</code>); <code>off</code> does not run it. The guard log records the script&#39;s own
 verdict as <code>raw</code> in every mode. Only the hook bundle applies a mode: a runtime
 the shell adapter serves (Codex, Gemini or Antigravity outside <code>[hooks] targets</code>) can only refuse, so a mode other than <code>deny</code> there is a configuration
-error naming the guard, the mode and the runtime.</p>
+error naming the guard, the mode and the runtime. The same holds for <code>on</code> other
+than <code>before_shell</code> or <code>after_edit</code> and for an installed program with <code>version</code>:
+the shell adapter runs neither, and keeps the earlier contract below.</p>
+<p>A command that needs to end a session&#39;s turn with a check of its own (tests, a
+linter, a generated-file check) is a custom guard with <code>on = &quot;stop&quot;</code> and
+<code>mode = &quot;warn&quot;</code>.</p>
 <h2 id="hooksreport"><code>[hooks.report]</code></h2>
 <p>Read by <a href="/commands/#hooks"><code>pmcp hooks report</code></a> alone; it changes nothing in the
 hooks.</p>

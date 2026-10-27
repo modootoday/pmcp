@@ -1,5 +1,5 @@
 import type { CompiledPolicy } from "../compiled.js";
-import { POLICIES, customPolicy } from "../policies/index.js";
+import { POLICIES, customMode, customPolicy } from "../policies/index.js";
 import type { Mode, NeutralEvent, RuntimeId } from "../contract.js";
 import { sourceFor } from "./source.js";
 import { RUNTIMES } from "../runtimes/index.js";
@@ -26,7 +26,7 @@ export function policyRows(
         id: "custom." + entry.name,
         policy: customPolicy(entry),
         options: {},
-        mode: entry.mode ?? "deny",
+        mode: customMode(entry),
       }));
     return [...guards, ...custom].flatMap((entry) => {
       const events =

@@ -1,6 +1,6 @@
 import type { CompiledPolicy } from "../../hooks/compiled.js";
 import type { NeutralEvent } from "../../hooks/contract.js";
-import { FEATURES, GUARDS } from "../../hooks/policies/index.js";
+import { customEvent, FEATURES, GUARDS } from "../../hooks/policies/index.js";
 
 export type Output = "deny" | "ask" | "context" | "feedback";
 
@@ -71,12 +71,17 @@ export function featureCatalog(policy: CompiledPolicy | null): FeatureNeeds[] {
       fields: [],
     },
   ];
+  // A shell guard refuses, an edit guard gives feedback, the other events take its note.
+  const outputFor = (event: string): Output =>
+    event === "before_shell"
+      ? "deny"
+      : event === "after_edit"
+        ? "feedback"
+        : "context";
   const custom = (policy?.custom ?? []).map((entry) => ({
     id: `custom.${entry.name}`,
-    events: [
-      entry.event === "after_edit" ? "after_tool" : "before_tool",
-    ] as NeutralEvent[],
-    outputs: [entry.event === "after_edit" ? "feedback" : "deny"] as Output[],
+    events: [customEvent(entry.event)] as NeutralEvent[],
+    outputs: [outputFor(entry.event)] as Output[],
     fields: [],
   }));
   return [...features, ...guards, ...checks, ...custom];

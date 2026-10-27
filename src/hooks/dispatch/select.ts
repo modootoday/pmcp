@@ -1,6 +1,6 @@
 import type { CompiledPolicy } from "../compiled.js";
 import type { HookInput } from "../contract.js";
-import { customPolicy, POLICIES } from "../policies/index.js";
+import { customMode, customPolicy, POLICIES } from "../policies/index.js";
 import type { Policy } from "../policies/types.js";
 import type { Selected } from "./run-policy.js";
 
@@ -49,7 +49,7 @@ export function selectPolicies(
   }));
   const custom = compiled.custom.map((entry) => ({
     policy: customPolicy(entry),
-    mode: entry.mode ?? "deny",
+    mode: customMode(entry),
     options: {},
   }));
   return [...guards, ...custom].filter((selected) => listens(selected, input));

@@ -33,10 +33,13 @@ export interface CompiledGuard {
 export interface CompiledCustom {
   readonly name: string;
   readonly command: readonly string[];
-  readonly event: "before_shell" | "after_edit";
+  readonly event:
+    "before_shell" | "after_edit" | "stop" | "session_start" | "prompt";
   readonly targets: readonly RuntimeId[];
   readonly timeoutMs: number;
-  readonly guardSha256: string;
+  // A script under .agents/guards/ is pinned by its hash, an installed program by its version.
+  readonly guardSha256?: string;
+  readonly version?: string;
   // Absent means deny, so a policy.json from before modes keeps its meaning and its hash.
   readonly mode?: Exclude<Mode, "graded" | "off">;
 }

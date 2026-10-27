@@ -56,4 +56,4 @@ export const POLICIES: Readonly<Record<PolicyId, Policy<any>>> = {
   ...byId([afterEdit, onStop]),
 };
 
-export { customPolicy } from "./custom.js";
+export { customEvent, customMode, customPolicy } from "./custom.js";

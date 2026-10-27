@@ -1,6 +1,6 @@
 import type { CompiledCustom } from "../compiled.js";
 import { RUNTIME_IDS, type RuntimeId } from "../contract.js";
-import { guardHash, guardScript } from "../policies/custom.js";
+import { guardHash, guardScript, namesScript } from "../policies/custom.js";
 import { compareIdentifiers } from "./order.js";
 import {
   CUSTOM_TARGETS,
@@ -36,12 +36,23 @@ export function legacyEntries(
     throw new Error(
       `${unserved} custom guards need [hooks] targets that include ${unserved}`,
     );
-  // The shell adapter only refuses, so a softer mode there would be lost without a word.
+  // The shell adapter only refuses a shell call or an edit, and only runs a pinned script, so
+  // anything more there would be lost without a word.
   for (const entry of entries) {
     const shell = entry.targets.find((id) => !bundled.includes(id));
-    if (shell && (entry.mode ?? "deny") !== "deny")
+    if (!shell) continue;
+    const fix = `add ${shell} to [hooks] targets`;
+    if ((entry.mode ?? "deny") !== "deny")
       throw new Error(
-        `custom guard ${entry.name}: mode = "${entry.mode}" needs the hook bundle for ${shell}; add ${shell} to [hooks] targets or use mode = "deny"`,
+        `custom guard ${entry.name}: mode = "${entry.mode}" needs the hook bundle for ${shell}; ${fix} or use mode = "deny"`,
+      );
+    if (entry.event !== "before_shell" && entry.event !== "after_edit")
+      throw new Error(
+        `custom guard ${entry.name}: on = "${entry.event}" needs the hook bundle for ${shell}; ${fix}`,
+      );
+    if (entry.version !== undefined)
+      throw new Error(
+        `custom guard ${entry.name}: an installed program needs the hook bundle for ${shell}; ${fix}`,
       );
   }
   if (enabled) {
@@ -77,15 +88,31 @@ export function pinnedEntries(
       ),
     }))
     .filter((entry) => entry.targets.length > 0)
-    .map(({ mode, ...entry }) => ({
+    .map(({ mode, version, ...entry }) => ({
       ...entry,
-      guardSha256: guardHash(root, entry.command),
+      ...(version === undefined
+        ? { guardSha256: guardHash(root, entry.command) }
+        : { version }),
       ...(mode !== "deny" && mode !== "off" ? { mode } : {}),
     }));
 }
 
-const FIELDS = ["name", "command", "targets", "timeout_ms", "on", "mode"];
-const EVENTS = ["before_shell", "after_edit"];
+const FIELDS = [
+  "name",
+  "command",
+  "targets",
+  "timeout_ms",
+  "on",
+  "mode",
+  "version",
+];
+const EVENTS = [
+  "before_shell",
+  "after_edit",
+  "stop",
+  "session_start",
+  "prompt",
+];
 const MODES: readonly CustomMode[] = ["deny", "ask", "warn", "observe", "off"];
 
 function readEntry(
@@ -140,7 +167,16 @@ function readEntry(
   const mode = entry["mode"] ?? "deny";
   if (!MODES.includes(mode as CustomMode))
     throw new Error(`mode must be one of ${MODES.join(", ")}`);
-  guardScript(root, parts as string[]);
+  const version = entry["version"];
+  if (version !== undefined) {
+    // An installed program: checked against its --version when projecting, not hashed.
+    if (typeof version !== "string" || !/^\S+$/u.test(version))
+      throw new Error("version must be the version the program reports");
+    if (namesScript(parts as string[]))
+      throw new Error(
+        "version is for an installed program; a script under .agents/guards/ is pinned by its hash",
+      );
+  } else guardScript(root, parts as string[]);
   return {
     name,
     command: parts as string[],
@@ -148,6 +184,7 @@ function readEntry(
     timeoutMs,
     event: event as CustomEntry["event"],
     mode: mode as CustomMode,
+    ...(version !== undefined ? { version: version as string } : {}),
   };
 }
 

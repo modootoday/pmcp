@@ -10,6 +10,7 @@ import { writeNative } from "./apply/native.js";
 import { replaceable } from "./apply/replaceable.js";
 import { backupBeforeWrite } from "./apply/safeguard.js";
 import type { ProjectResult } from "./apply/types.js";
+import { guardVersionProblems } from "./guard-versions.js";
 import { permissionConflicts } from "./permissions.js";
 import type { ProjectSpec } from "./spec.js";
 
@@ -31,9 +32,11 @@ export function project(
     return { code: 3, problems: refused, outputs: outputs.length, pruned: 0 };
   }
   // A hand-edited owned permission is operator intent, so it is reported and never repaired.
+  // An installed guard program at another version than reviewed is refused the same way.
   const conflicts = [
     ...permissionConflicts(spec),
     ...changedSincePlan(spec.root, basis),
+    ...guardVersionProblems(spec),
   ];
   if (conflicts.length > 0) {
     return { code: 3, problems: conflicts, outputs: outputs.length, pruned: 0 };
