@@ -13,6 +13,7 @@ import { composeTeardown } from "./shell/compose-teardown.js";
 import { heredoc } from "./shell/heredoc.js";
 import { hostApproval } from "./shell/host-approval.js";
 import { inPlaceEdit } from "./shell/in-place-edit.js";
+import { runawayRegex } from "./shell/runaway-regex.js";
 import { secretExfiltration } from "./shell/secret-exfiltration.js";
 import { stdinInterpreter } from "./shell/stdin-interpreter.js";
 import type { Policy, PolicyId } from "./types.js";
@@ -30,6 +31,7 @@ export const GUARDS: Readonly<Record<PolicyId, Policy<any>>> = byId([
   composeTeardown,
   hostApproval,
   secretExfiltration,
+  runawayRegex,
   pushWithoutVerify,
   forcedBranchMove,
   gateBypassEnv,

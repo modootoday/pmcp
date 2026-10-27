@@ -10,6 +10,7 @@ const SIMPLE = [
   ["shell.heredoc", "heredoc"],
   ["shell.compose_teardown", "compose-teardown"],
   ["shell.host_approval", "host-approval"],
+  ["shell.runaway_regex", "runaway-regex"],
 ] as const;
 
 describe.each(RUNTIMES)("shell guards on %s payloads", (runtime) => {

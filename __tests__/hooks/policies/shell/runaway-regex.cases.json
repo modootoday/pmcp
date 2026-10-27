@@ -1,0 +1,30 @@
+{
+  "blocked": [
+    "grep -o '\\[hook\\] Summary.\\{0,2500\\}' big.output",
+    "grep -E 'x.{0,1000}y' log.txt",
+    "egrep '(ab){500}' log.txt",
+    "cat big.log | grep -oP 'id=\\d{300}'",
+    "grep -e ok -e 'x\\{1000\\}' log.txt",
+    "grep --regexp='a\\{0,4000\\}' log.txt",
+    "git grep -E 'a{1,999}'",
+    "grep -P '(a+)+$' input.txt",
+    "grep -P '(.*)*x' input.txt",
+    "grep -cP '((ab)*c)+' input.txt"
+  ],
+  "allowed": [
+    "grep -o '\\[hook\\] Summary.\\{0,200\\}' big.output",
+    "grep -n '\\[hook\\] Summary' big.output",
+    "timeout 20 grep -o '\\[hook\\] Summary.\\{0,2500\\}' big.output",
+    "echo \"grep -o '.\\{0,2500\\}' big.output\"",
+    "git commit -m \"avoid grep -o '.\\{0,2500\\}'\"",
+    "rg -o '.{0,2500}' big.output",
+    "grep -F '.\\{0,2500\\}' notes.txt",
+    "grep 'x{5000}' notes.txt",
+    "grep -A 3000 -B 3000 needle big.output",
+    "grep -P '(ab)+c' input.txt",
+    "grep -P '(a|b)*' input.txt",
+    "grep -P '[(a+)]+' input.txt",
+    "grep -o -E '.*foo.*' big.output",
+    "grep -f patterns.txt big.output"
+  ]
+}

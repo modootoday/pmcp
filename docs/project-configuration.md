@@ -653,6 +653,9 @@ binary = "secrets-cli"
 read = ["read", "env get"]
 publish = ["deploy", "secret put", "secret delete"]
 
+[hooks.guards.shell.runaway_regex]
+threshold = 255
+
 [hooks.guards.git.push_without_verify]
 
 [hooks.guards.git.forced_branch_move]

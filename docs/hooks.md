@@ -60,18 +60,19 @@ call: `policy`, `session`, `verdict` (what the call got) and, under `data`, `raw
 (what the guard found: `allow`, `ask` or `deny`), `mode`, `tool` (the tool kind) and
 `native` (the runtime's tool name), never the command, the reason or the prompt.
 
-| Table                                      | Default mode | Modes                                 | Refuses                                                                                                              |
-| ------------------------------------------ | ------------ | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `[hooks.guards.shell.in_place_edit]`       | deny         | deny, ask, warn, observe, off         | `sed -i`, `perl -i`, `awk -i inplace`: edits without a diff.                                                         |
-| `[hooks.guards.shell.heredoc]`             | deny         | deny, ask, warn, observe, off         | Heredocs and here-strings, whose body the shell expands silently.                                                    |
-| `[hooks.guards.shell.stdin_interpreter]`   | ask          | deny, ask, warn, observe, off         | An interpreter reading its program from stdin (`python3 -`, `cat x.py \| python3`).                                  |
-| `[hooks.guards.shell.compose_teardown]`    | deny         | deny, ask, warn, observe, off         | `docker compose down`, and `stop`, `rm` or `kill` with no service named: they hit every service.                     |
-| `[hooks.guards.shell.secret_exfiltration]` | graded       | deny, ask, warn, observe, off, graded | Reading a credential asks; sending one over the network, or changing a live one, denies.                             |
-| `[hooks.guards.shell.host_approval]`       | deny         | deny, ask, warn, observe, off         | `host approve`, and commands or edits touching the host approvals directory. On by itself when `[host]` is declared. |
-| `[hooks.guards.git.push_without_verify]`   | deny         | deny, ask, warn, observe, off         | `git push --no-verify`.                                                                                              |
-| `[hooks.guards.git.forced_branch_move]`    | deny         | deny, ask, warn, observe, off         | Forcing a branch that is checked out in another working tree.                                                        |
-| `[hooks.guards.git.gate_bypass_env]`       | deny         | deny, ask, warn, observe, off         | Setting a named gate-bypass variable where it takes effect, and optionally `--no-verify` on any git command.         |
-| `[hooks.guards.git.stage_all]`             | deny         | deny, ask, warn, observe, off         | `git add -A`, `git add .`, `git commit -a` and similar; stage explicit paths.                                        |
+| Table                                      | Default mode | Modes                                 | Refuses                                                                                                                                                                                                                                                          |
+| ------------------------------------------ | ------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[hooks.guards.shell.in_place_edit]`       | deny         | deny, ask, warn, observe, off         | `sed -i`, `perl -i`, `awk -i inplace`: edits without a diff.                                                                                                                                                                                                     |
+| `[hooks.guards.shell.heredoc]`             | deny         | deny, ask, warn, observe, off         | Heredocs and here-strings, whose body the shell expands silently.                                                                                                                                                                                                |
+| `[hooks.guards.shell.stdin_interpreter]`   | ask          | deny, ask, warn, observe, off         | An interpreter reading its program from stdin (`python3 -`, `cat x.py \| python3`).                                                                                                                                                                              |
+| `[hooks.guards.shell.compose_teardown]`    | deny         | deny, ask, warn, observe, off         | `docker compose down`, and `stop`, `rm` or `kill` with no service named: they hit every service.                                                                                                                                                                 |
+| `[hooks.guards.shell.secret_exfiltration]` | graded       | deny, ask, warn, observe, off, graded | Reading a credential asks; sending one over the network, or changing a live one, denies.                                                                                                                                                                         |
+| `[hooks.guards.shell.host_approval]`       | deny         | deny, ask, warn, observe, off         | `host approve`, and commands or edits touching the host approvals directory. On by itself when `[host]` is declared.                                                                                                                                             |
+| `[hooks.guards.shell.runaway_regex]`       | deny         | deny, ask, warn, observe, off         | A grep pattern that can hold a core for minutes: a repetition count over the threshold (`\{0,2500\}`, `{0,2500}` with `-E` or `-P`), or a `-P` group quantified inside a quantifier such as `(a+)+`. ripgrep (`rg`) matches in linear time and is never refused. |
+| `[hooks.guards.git.push_without_verify]`   | deny         | deny, ask, warn, observe, off         | `git push --no-verify`.                                                                                                                                                                                                                                          |
+| `[hooks.guards.git.forced_branch_move]`    | deny         | deny, ask, warn, observe, off         | Forcing a branch that is checked out in another working tree.                                                                                                                                                                                                    |
+| `[hooks.guards.git.gate_bypass_env]`       | deny         | deny, ask, warn, observe, off         | Setting a named gate-bypass variable where it takes effect, and optionally `--no-verify` on any git command.                                                                                                                                                     |
+| `[hooks.guards.git.stage_all]`             | deny         | deny, ask, warn, observe, off         | `git add -A`, `git add .`, `git commit -a` and similar; stage explicit paths.                                                                                                                                                                                    |
 
 Options:
 
@@ -86,6 +87,15 @@ Options:
   in `extra_secret_paths`. Only a file a command reads counts: a search
   pattern, a sed or awk script, a jq filter or `-e` code that mentions `.env`
   does not.
+- `[hooks.guards.shell.runaway_regex]`: `threshold` (the largest repetition
+  count allowed, 1 to 32767, default `255`), `allow_timeout` (default `true`: a
+  grep run under `timeout <n>` is bounded and passes) and
+  `only_matching_wildcards` (default `false`: also refuse `-o` with more than
+  one `.*`, which is slow on long lines but often harmless). It reads `grep`,
+  `egrep`, `zgrep` and `git grep`; `fgrep` and `-F` patterns are literal. The
+  refusal suggests `grep -n` to find the line and `sed -n 'N,+K p'` to print
+  around it, `rg`, a smaller count, or `timeout 20`. A command the parser cannot
+  read passes.
 - `[hooks.guards.git.gate_bypass_env]`: `names` (variable names, default `[]`)
   and `no_verify` (boolean, default `true`).
 
