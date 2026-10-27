@@ -13,7 +13,7 @@ export const STALE_MS = 30 * 60 * 1000;
 
 const LEASE_NAME = /^[a-z0-9][a-z0-9_-]*$/u;
 
-// Preserve the existing lockfile lease filename so delivery and hook readers remain compatible.
+// The lease file name is part of the shared formats (docs/git-workflow.md); never change it.
 export function leaseFile(name: string): string {
   if (!LEASE_NAME.test(name)) throw new Error(`invalid lease name ${name}`);
   return `${name}-lease.json`;

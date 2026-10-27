@@ -2,9 +2,10 @@ import { dirname, isAbsolute, join } from "node:path";
 
 import { expandPath } from "./paths.js";
 
-// A lease kept outside the state dir, where another tool coordinating the same lockfile reads
-// it: [sessions.leases.<name>] file, and events for the delivery records. ${gate_dir}/ means
-// the directory of the gate tree, so both follow a [git.mainline.gate] tree_env override.
+// A lease kept outside the state dir, where any tool coordinating the same paths can read it
+// (docs/git-workflow.md, Shared file formats): [sessions.leases.<name>] file, and events for
+// the delivery records. ${gate_dir}/ means the directory of the gate tree, so both follow a
+// [git.mainline.gate] tree_env override.
 
 export interface LeaseFiles {
   readonly file?: string;
