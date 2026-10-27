@@ -95,8 +95,8 @@ gates as well needs one of two set-ups.
 - `gate = "pre-push"` makes that hook the gate: pmcp takes the lock, replays and
   retries, runs no `[git.mainline.gate] command` (declaring one is an error),
   and pushes with `lock_env` set to `1`, so a hook that takes the same lock does
-  not wait on pmcp. The push output is the gate log, and a refused push is a
-  failed gate.
+  not wait on pmcp. The push output streams to the terminal as it comes and is
+  kept as the gate log, and a refused push is a failed gate.
 - `gate = "command"` (the default) keeps pmcp's command as the gate.
   `push_env` (a table of variable names to strings, default `{}`) adds variables
   to the push alone in either mode, so a hook can recognise a delivery that was

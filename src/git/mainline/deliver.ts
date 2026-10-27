@@ -1,7 +1,7 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { loadavg } from "node:os";
-import { git, gitText, runCommand } from "../exec.js";
+import { git, gitText, runCommand, runCommandLogged } from "../exec.js";
 import { isAncestor, touchedPaths, undelivered } from "../landed.js";
 import type {
   DeliverConfig,
@@ -108,13 +108,10 @@ function push(options: DeliverOptions, tip: string, preHook: boolean) {
     options.gate?.logDir ?? join(dirname(gateTree(options.tree).tree), "logs");
   const log = gateLog(dir, tip);
   report.info(`the pre-push hook gates ${tip.slice(0, 10)}; gate log: ${log}`);
-  const pushed = git(ctx.root, args, env);
-  const output = `${pushed.stdout}${pushed.stderr}`;
-  writeFileSync(log, output);
-  process.stderr.write(output);
-  if (options.track)
-    options.track.gate = { exit: pushed.status, log, by: "pre-push" };
-  return pushed;
+  // Streamed as it comes, like a gate command, and kept whole in the log.
+  const status = runCommandLogged(["git", ...args], ctx.root, log, env);
+  if (options.track) options.track.gate = { exit: status, log, by: "pre-push" };
+  return { status, stdout: "", stderr: "" };
 }
 
 // Hold one lock across replay, gate and push so competing deliveries cannot interleave.
