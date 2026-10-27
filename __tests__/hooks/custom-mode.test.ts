@@ -1,4 +1,4 @@
-import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -18,15 +18,15 @@ function project(): string {
   const script = join(root, ".agents/guards/refuse.sh");
   writeFileSync(
     script,
-    '#!/bin/sh\necho \'{"decision":"deny","reason":"refused by the project"}\'\n',
+    'echo \'{"decision":"deny","reason":"refused by the project"}\'\n',
   );
-  chmodSync(script, 0o755);
   return root;
 }
 
+// Run through sh: executing a file just written can fail with ETXTBSY while other tests fork.
 const entry = (mode?: string) => ({
   name: "refuse",
-  command: [".agents/guards/refuse.sh"],
+  command: ["sh", ".agents/guards/refuse.sh"],
   targets: ["claude"],
   ...(mode === undefined ? {} : { mode }),
 });

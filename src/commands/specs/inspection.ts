@@ -27,7 +27,7 @@ export const initSpec: CommandSpec = {
 export const hooksSpec: CommandSpec = {
   name: "hooks",
   describe:
-    "List compiled policies, simulate a native hook without a runtime, or summarise guard logs",
+    "List compiled policies or simulate a native hook without a runtime",
   usage:
     "pmcp hooks list | test --runtime claude|codex --event <event> [--command <text> | --path <path> | --tool <name>] [--session-state <file>] [--json] | test --fixtures <file> [--json] | report [--since <when>] [--switch-check <guard>] [--json]",
   options: [

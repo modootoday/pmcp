@@ -75,9 +75,27 @@ async function capture(argv: readonly string[]) {
   return { code, out: out.join(""), err: err.join("") };
 }
 
+// Options added since, each a new row after the one named; no existing row changes.
+const ADDED_OPTIONS: Readonly<Record<string, readonly [string, string]>> = {
+  project: [
+    "  --check                 Write nothing; exit 2 when an output drifted, went stale or is undeclared.\n",
+    "  --smoke                 With --check, also run the [hooks.test] fixtures through the projected hooks.\n",
+  ],
+};
+
+function withAddedOptions(name: string, text: string): string {
+  const added = ADDED_OPTIONS[name];
+  if (!added) return text;
+  expect(text).toContain(added[0]);
+  return text.replace(added[0], added[0] + added[1]);
+}
+
 it("prints every 0.17.4 command help byte for byte, tui without its views", async () => {
   for (const [name, pinned] of Object.entries(baseline.commands)) {
-    const text = name === "tui" ? withoutTuiViews(pinned) : pinned;
+    const text = withAddedOptions(
+      name,
+      name === "tui" ? withoutTuiViews(pinned) : pinned,
+    );
     for (const flag of ["--help", "-h"]) {
       const result = await capture([name, flag]);
       expect(result).toEqual({ code: 0, out: "", err: text });
