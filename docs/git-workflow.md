@@ -36,7 +36,9 @@ loses nothing: `on_session_start` (`"fetch_and_move"` default, `"move"`,
 `"off"`), `between_prompts` (`"move_if_light"` default, `"off"`: move only when
 no install is needed), `install_after_move` (`"off"` default, `"background"`,
 `"foreground"`) and `notice_paths` (paths whose change is announced to the
-session). Installs never block a session.
+session). Installs never block a session. A worktree is not moved while the
+workspace is paused or while any lease is held (every `[sessions.leases.<name>]`,
+or the implicit `lockfile` lease), and the session is told which.
 
 `[git.mainline.gate]`: `command` (argv; no gate when missing), `tree` (the
 gate's worktree, default `<state dir>/gate/tree`; a relative path is relative to

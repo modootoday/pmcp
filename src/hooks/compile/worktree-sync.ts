@@ -1,5 +1,6 @@
 import type { ProjectConfig } from "../../config.js";
 import { readGitConfig } from "../../git/config.js";
+import { leaseSpecs } from "../../git/setup.js";
 import type { CompiledGuard } from "../compiled.js";
 import type { WorktreeSyncOptions } from "../policies/workspace/worktree-sync.js";
 
@@ -43,6 +44,7 @@ export function readWorktreeSync(
     installWhen: git.sync?.installWhenChanged ?? [],
     noticePaths: sync.noticePaths,
     followSubmodules: git.submodules?.follow === "clean_pins",
+    leases: leaseSpecs(git).map((spec) => spec.name),
     ...(git.umask !== undefined ? { umask: git.umask } : {}),
   };
   return {

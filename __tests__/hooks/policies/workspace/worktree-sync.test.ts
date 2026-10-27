@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { describe, expect, it, type TestContext } from "vitest";
 
 import { RUNTIMES } from "../../../../src/hooks/runtimes/index.js";
+import { readWorktreeSync } from "../../../../src/hooks/compile/worktree-sync.js";
 import type { WorktreeSyncOptions } from "../../../../src/hooks/policies/workspace/worktree-sync.js";
 import {
   compiled,
@@ -104,6 +105,50 @@ describe("git.worktrees.sync", () => {
     });
     expect(out.context?.[0]).toMatch(/changed bun\.lock/u);
     expect(git(desk, "log", "-1", "--format=%s")).toBe("init");
+  });
+
+  it("holds a worktree while any configured lease is held, whatever its name", async (t) => {
+    const { desk, advance } = workspace(t);
+    advance("c.txt");
+    const store = scratchStore();
+    store.leases.take("deps", { subject: "update the parser" });
+    const held = compiled([
+      guard("git.worktrees.sync", "warn", {
+        ...OPTIONS,
+        leases: ["lockfile", "deps"],
+      } as unknown as Record<string, unknown>),
+    ]);
+    const out = await decide(event("SessionStart", desk), held, { store });
+    expect(out.context?.[0]).toMatch(
+      /was not moved: a change under lease deps is being delivered \(update the parser\)/u,
+    );
+    expect(git(desk, "log", "-1", "--format=%s")).toBe("init");
+  });
+
+  it("compiles every declared lease name into the options, or the implicit lockfile lease", () => {
+    const declared = readWorktreeSync(
+      {
+        git: { worktrees: { sync: {} } },
+        sessions: {
+          leases: {
+            deps: { path: "package-lock.json", blocks: [["npm", "install"]] },
+            schema: { path: "schema.sql", blocks: [["migrate"]] },
+          },
+        },
+      },
+      "/repo",
+    );
+    expect(declared?.options["leases"]).toEqual(["deps", "schema"]);
+    const implicit = readWorktreeSync(
+      {
+        git: {
+          worktrees: { sync: {} },
+          mainline: { sync: { install_when_changed: ["package-lock.json"] } },
+        },
+      },
+      "/repo",
+    );
+    expect(implicit?.options["leases"]).toEqual(["lockfile"]);
   });
 
   it("never moves the main checkout, and holds every desk during a pause", async (t) => {

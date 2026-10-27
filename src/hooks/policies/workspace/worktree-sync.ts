@@ -23,6 +23,8 @@ export interface WorktreeSyncOptions {
   readonly installWhen: readonly string[];
   readonly noticePaths: readonly string[];
   readonly followSubmodules: boolean;
+  // Every configured lease name; a policy file without the list predates it and held only "lockfile".
+  readonly leases?: readonly string[];
   // [git] umask, for the move and the install it starts.
   readonly umask?: number;
 }
@@ -52,10 +54,12 @@ function blocked(input: HookInput, ctx: Context): string | null {
   const pause = ctx.store.pause.read();
   if (pause && pause.by !== input.session.id)
     return `the workspace is paused (${pause.reason})`;
-  const lease = ctx.store.leases.read("lockfile");
-  return lease
-    ? `a lockfile change is being delivered (${lease.subject})`
-    : null;
+  for (const name of ctx.options.leases ?? ["lockfile"]) {
+    const lease = ctx.store.leases.read(name);
+    if (lease)
+      return `a change under lease ${name} is being delivered (${lease.subject})`;
+  }
+  return null;
 }
 
 function changed(
