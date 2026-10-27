@@ -13,6 +13,12 @@ must read `sessions/<session>.json` instead. pmcp still reads `fleet/`, and of t
 uses the one updated last, so a hook bundle from before 0.20 sharing the state directory
 keeps being followed until `pmcp project` runs there again.
 
+**`pmcp project --check` also fails on a broken hook entry pmcp does not own.** A command
+in `.claude/settings*.json`, `.codex/hooks.json` or a tracked plugin's `hooks.json` that
+names a missing script, or a script run directly that is not executable or has no `#!`
+line, now makes `--check` exit 2 and `pmcp doctor` report a failure. Fix the entry, or the
+script; [Hooks](hooks.md#native-hook-entries-pmcp-does-not-own) lists what is checked.
+
 The rest is new, not removed:
 
 - A commit that only moves submodule pins, each to a commit the mainline's pin already
@@ -25,9 +31,21 @@ The rest is new, not removed:
   log still keeps all of it.
 - The `pmcp git deliver --json` receipt gains `sync`, the main checkout's sync after the
   delivery, and `replayed`, the tip of the last replay.
-- `pmcp git deliver --no-push` replays and gates, then stops.
-
-See [Git workflow](git-workflow.md).
+- `pmcp git deliver --no-push` replays and gates, then stops. See
+  [Git workflow](git-workflow.md).
+- `[[hooks.guards.custom]]` takes `mode` like a built-in guard (the default `deny` is
+  0.20's behaviour), `on = "prompt"`, `"stop"` or `"session_start"`, and an installed
+  program pinned by `version` instead of a script. Its request gains `protocol`
+  (`pmcp.guard.v1`), `session` and, on `prompt`, `prompt`; its reply may add `findings`.
+  A guard that reads only the earlier fields keeps working. See
+  [Hooks](hooks.md#hooksguardscustom).
+- `pmcp hooks report` summarises the guard log; `[hooks.report] exclude_sessions` leaves
+  sessions out.
+- `pmcp hooks test --fixtures <file>`, and `pmcp project --check --smoke` with
+  `[hooks.test] fixtures`, run cases through the projected hooks.
+- `[budget]` limits the root and package instruction files, the skills and the tracked
+  paths; `pmcp project --check` enforces it and `pmcp status` shows it. See
+  [Budget](project-configuration.md#budget).
 
 ## From 0.19 to 0.20
 

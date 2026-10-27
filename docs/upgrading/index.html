@@ -54,6 +54,11 @@ deprecated <code>fleet/</code> in the state directory; 0.21 stops. A tool that s
 must read <code>sessions/&lt;session&gt;.json</code> instead. pmcp still reads <code>fleet/</code>, and of two copies
 uses the one updated last, so a hook bundle from before 0.20 sharing the state directory
 keeps being followed until <code>pmcp project</code> runs there again.</p>
+<p><strong><code>pmcp project --check</code> also fails on a broken hook entry pmcp does not own.</strong> A command
+in <code>.claude/settings*.json</code>, <code>.codex/hooks.json</code> or a tracked plugin&#39;s <code>hooks.json</code> that
+names a missing script, or a script run directly that is not executable or has no <code>#!</code>
+line, now makes <code>--check</code> exit 2 and <code>pmcp doctor</code> report a failure. Fix the entry, or the
+script; <a href="/hooks/#native-hook-entries-pmcp-does-not-own">Hooks</a> lists what is checked.</p>
 <p>The rest is new, not removed:</p>
 <ul>
 <li>A commit that only moves submodule pins, each to a commit the mainline&#39;s pin already
@@ -66,9 +71,22 @@ default <code>&quot;from_main&quot;</code> is 0.20&#39;s behaviour.</li>
 log still keeps all of it.</li>
 <li>The <code>pmcp git deliver --json</code> receipt gains <code>sync</code>, the main checkout&#39;s sync after the
 delivery, and <code>replayed</code>, the tip of the last replay.</li>
-<li><code>pmcp git deliver --no-push</code> replays and gates, then stops.</li>
+<li><code>pmcp git deliver --no-push</code> replays and gates, then stops. See
+<a href="/git-workflow/">Git workflow</a>.</li>
+<li><code>[[hooks.guards.custom]]</code> takes <code>mode</code> like a built-in guard (the default <code>deny</code> is
+0.20&#39;s behaviour), <code>on = &quot;prompt&quot;</code>, <code>&quot;stop&quot;</code> or <code>&quot;session_start&quot;</code>, and an installed
+program pinned by <code>version</code> instead of a script. Its request gains <code>protocol</code>
+(<code>pmcp.guard.v1</code>), <code>session</code> and, on <code>prompt</code>, <code>prompt</code>; its reply may add <code>findings</code>.
+A guard that reads only the earlier fields keeps working. See
+<a href="/hooks/#hooksguardscustom">Hooks</a>.</li>
+<li><code>pmcp hooks report</code> summarises the guard log; <code>[hooks.report] exclude_sessions</code> leaves
+sessions out.</li>
+<li><code>pmcp hooks test --fixtures &lt;file&gt;</code>, and <code>pmcp project --check --smoke</code> with
+<code>[hooks.test] fixtures</code>, run cases through the projected hooks.</li>
+<li><code>[budget]</code> limits the root and package instruction files, the skills and the tracked
+paths; <code>pmcp project --check</code> enforces it and <code>pmcp status</code> shows it. See
+<a href="/project-configuration/#budget">Budget</a>.</li>
 </ul>
-<p>See <a href="/git-workflow/">Git workflow</a>.</p>
 <h2 id="from-019-to-020">From 0.19 to 0.20</h2>
 <p>0.20 removes defaults that suited one kind of project rather than pmcp&#39;s users in general.
 Each one stays available as configuration; add the lines below to <code>pmcp.toml</code> to keep what
