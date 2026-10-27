@@ -87,6 +87,7 @@ describe("shell classify", () => {
     expect(classifyWith("node tools/release/land.mjs")?.lockTouching).toBe(
       false,
     );
+    expect(classify("bun run git:land abc1234")?.lockTouching).toBe(false);
   });
 
   it("finds gate bypasses where they take effect, not where they are named", () => {

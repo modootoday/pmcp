@@ -28,12 +28,6 @@ function touchesLock(
   scripts: readonly RegExp[],
 ): boolean {
   if (words[0] === "bun" && BUN_INSTALLS.has(words[1] ?? "")) return true;
-  if (
-    words[0] === "bun" &&
-    words[1] === "run" &&
-    /^git:(land|sync)$/u.test(words[2] ?? "")
-  )
-    return true;
   return runsScript(words, scripts);
 }
 
