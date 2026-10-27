@@ -17,9 +17,7 @@ export interface SecretOptions {
 // Exclude checked-in templates and public keys so secret-path rules do not block public inputs.
 const SECRET_PATHS = [
   /(?:^|[^\w.-])\.env(?:\.(?!example\b|sample\b|template\b|dist\b)[\w.-]+)?(?![\w.-])/iu,
-  /(?:^|[^\w.-])\.env\.d(?:\/|\b)/iu,
   /\.dev\.vars(?:\.json)?\b/iu,
-  /\.bak\.\d{8,}/u,
   /\b(?:id_rsa|id_ed25519|id_ecdsa)\b(?!\.pub)/u,
   /\.(?:pem|p12|pfx)\b/iu,
   // Known credential files only: a name that merely contains "secret" (a test fixture, a
@@ -48,8 +46,7 @@ const ENV_DUMPS = [
   ["export", "-p"],
   ["declare", "-x"],
 ];
-const FALLBACK_PATH =
-  /(?:^|[^\w.-])\.env(?![.\w-])|(?:^|[^\w.-])\.env\.d(?:\/|\b)|\.dev\.vars(?:\.json)?\b|\.bak\.\d{8,}/u;
+const FALLBACK_PATH = /(?:^|[^\w.-])\.env(?![.\w-])|\.dev\.vars(?:\.json)?\b/u;
 const FALLBACK_USE =
   /(?:^|[;&|(]|&&)\s*(?:sudo\s+)?(?:cat|head|tail|less|grep|rg|jq|base64|cp|curl|wget|nc|scp|rsync)\b/u;
 const NO_VALUES =
