@@ -64,6 +64,7 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     leases: leaseSpecs(config),
     store: filesSessionGate(setup.stateDir, setup.leaseFiles),
     duringPause: context.args.flags.has("during-pause"),
+    noPush: context.args.flags.has("no-push"),
     afterDeliver,
     recordDelivery: deliveryEvents(setup),
     pushPins: config.submodules?.push === "pins",

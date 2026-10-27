@@ -20,5 +20,10 @@ export const gitSpec: CommandSpec = {
       describe: "Deliver although the sessions are paused",
       boolean: true,
     },
+    {
+      name: "no-push",
+      describe: "Replay and gate, then stop without pushing",
+      boolean: true,
+    },
   ],
 };

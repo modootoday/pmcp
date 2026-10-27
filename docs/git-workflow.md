@@ -106,13 +106,16 @@ Every delivery push also carries `PMCP_GIT_DELIVER=1`. In command mode the lock
 variable reaches the push only if `push_env` names it.
 
 `pmcp git deliver --json` prints one receipt on stdout when it ends, progress
-staying on stderr: `{ok, code, delivered, upstream, attempts, gate, leases,
-sync, reason?}`, where `delivered` is the upstream commit it pushed (or `null`),
+staying on stderr: `{ok, code, delivered, upstream, attempts, replayed, gate,
+leases, sync, reason?}`, where `delivered` is the upstream commit it pushed (or
+`null`), `replayed` the tip of its last replay onto the upstream (or `null`),
 `gate` is `{exit, log, by}` for the last gate run (or `null`; `by` is
-`"command"` or `"pre-push"`), `leases` the leases it took, `sync` is
-`{from, to, code, reason?}` for the main checkout's sync after the delivery (or
-`null` when none ran: its HEAD before and after, the exit code of
-`pmcp git sync`, and its last warning) and `reason` the last refusal or failure.
+`"command"` or `"pre-push"`), `leases` the leases it took, `sync` the main
+checkout's sync after the delivery (or `null` when none ran) as
+`{from, to, code, reason?}`: the main checkout's HEAD before and after, the exit
+code `pmcp git sync` would have, and its last warning; and `reason` is the last
+refusal or failure. `--no-push` stops after the gate, so its receipt has
+`replayed` and `gate` but `delivered` and `sync` are `null`.
 Exit codes: `0` delivered or nothing to deliver, even when the sync after it was
 refused; `1` refused, a lease or the gate lock held too long, a replay
 conflict, the gate failed, the push failed or it gave up after `attempts`; `2`

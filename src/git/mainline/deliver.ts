@@ -54,6 +54,8 @@ export interface DeliverOptions {
   // [git] umask for every checkout write (scratch replay, gate tree); the gate tree's rewritten
   // tracked files also get their index mode back.
   readonly umask?: number;
+  // Replay and gate, then stop: no pin, mainline or sync moves (pmcp git deliver --no-push).
+  readonly noPush?: boolean;
 }
 
 export interface DeliverReceipt {
@@ -63,6 +65,8 @@ export interface DeliverReceipt {
   readonly delivered: string | null;
   readonly upstream: string;
   readonly attempts: number;
+  // The tip of the last replay onto the upstream, or null when nothing was replayed.
+  readonly replayed: string | null;
   // The last gate run, and whether pmcp's command or the repository's pre-push hook ran it.
   readonly gate: {
     readonly exit: number;
@@ -78,6 +82,7 @@ export interface DeliverReceipt {
 interface Track {
   attempts: number;
   gate: DeliverReceipt["gate"];
+  replayed: string | null;
   delivered: string | null;
   leases: string[];
   sync: SyncResult | null;
@@ -148,6 +153,7 @@ function attempts(options: DeliverOptions): number {
       report.warn(replayed.error);
       return 1;
     }
+    if (options.track) options.track.replayed = replayed.tip;
     const preHook = options.deliver.gate === "pre-push";
     const command = preHook ? undefined : options.gate?.command;
     if (command !== undefined) {
@@ -168,6 +174,12 @@ function attempts(options: DeliverOptions): number {
         report.warn("the gate failed; nothing was pushed");
         return 1;
       }
+    }
+    if (options.noPush) {
+      report.info(
+        `replayed ${replayed.tip.slice(0, 10)}; --no-push, so nothing was pushed`,
+      );
+      return 0;
     }
     const pushed = push(options, replayed.tip, preHook);
     if (pushed.status === 0) {
@@ -269,7 +281,7 @@ function underLock(options: DeliverOptions): number {
   });
   try {
     if (!loadAllows(options)) return 1;
-    if (options.pushPins && !pinsPushed(options)) return 1;
+    if (options.pushPins && !options.noPush && !pinsPushed(options)) return 1;
     return attempts(options);
   } finally {
     removeHolder(lock);
@@ -296,6 +308,7 @@ export function deliver(options: DeliverOptions): number {
   const track: Track = {
     attempts: 0,
     gate: null,
+    replayed: null,
     delivered: null,
     leases: [],
     sync: null,
@@ -317,6 +330,7 @@ export function deliver(options: DeliverOptions): number {
     delivered: track.delivered,
     upstream: options.ctx.upstream,
     attempts: track.attempts,
+    replayed: track.replayed,
     gate: track.gate,
     leases: track.leases,
     sync: track.sync,
@@ -328,6 +342,12 @@ export function deliver(options: DeliverOptions): number {
 // Keep leased paths protected through the push and follow-up installation.
 function deliverOnce(options: DeliverOptions): number {
   const { ctx, report } = options;
+  if (options.noPush && options.deliver.gate === "pre-push") {
+    report.warn(
+      '--no-push cannot gate with gate = "pre-push": the push is the gate; nothing ran',
+    );
+    return 2;
+  }
   const refusal = blocked(options);
   if (refusal !== null) {
     report.warn(refusal);
@@ -339,9 +359,12 @@ function deliverOnce(options: DeliverOptions): number {
   }
   const commits = undelivered(ctx.root, ctx.upstream, options.named);
   const touched = touchedPaths(ctx.root, commits);
-  const leased = options.leases.filter((spec) =>
-    spec.paths.some((path) => touched.has(path)),
-  );
+  // Nothing installs after a run that does not push, so it takes no lease.
+  const leased = options.noPush
+    ? []
+    : options.leases.filter((spec) =>
+        spec.paths.some((path) => touched.has(path)),
+      );
   const last = commits.at(-1) ?? "HEAD";
   const lease = {
     pid: process.pid,
@@ -361,7 +384,7 @@ function deliverOnce(options: DeliverOptions): number {
       report.info(`took lease ${spec.name}`);
     }
     const code = underLock(options);
-    if (code !== 0) return code;
+    if (code !== 0 || options.noPush) return code;
     const synced = options.afterDeliver?.() ?? null;
     if (options.track) options.track.sync = synced;
     if (taken.length > 0)

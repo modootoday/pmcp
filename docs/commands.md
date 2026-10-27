@@ -173,7 +173,7 @@ Read this project's JSONL logs from the state directory, or the file `[hooks] er
 pmcp git worktree create review [--base <ref>]
 pmcp git worktree list
 pmcp git worktree sync
-pmcp git deliver [<commit>...] [--during-pause] [--json]
+pmcp git deliver [<commit>...] [--during-pause] [--no-push] [--json]
 pmcp git sync
 ```
 
@@ -182,7 +182,7 @@ The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs
 - `worktree create <alias>` makes a linked worktree under `[git.worktrees] root` on a new branch from the upstream (or `--base`), links the configured files from the main checkout, runs `bootstrap`, and prints the path.
 - `worktree list` prints alias, branch, behind/ahead and path for the main checkout and each linked worktree.
 - `worktree sync` moves the current worktree onto the mainline when that loses nothing; exit 1 when it is held back.
-- `deliver` fetches, replays the named commits (default: the ones the upstream lacks) onto the mainline, runs the gate in its own tree under a lock, and pushes; it replays again if the mainline moved. A delivery that touches a leased path holds that lease until it has pushed and installed, and it refuses during a pause unless `--during-pause` or `during_pause = "allow"`. Exit 0 delivered or nothing to deliver, 1 refused, gate failed or attempts exhausted, 2 fetch failed.
+- `deliver` fetches, replays the named commits (default: the ones the upstream lacks) onto the mainline, runs the gate in its own tree under a lock, and pushes; it replays again if the mainline moved. A delivery that touches a leased path holds that lease until it has pushed and installed, and it refuses during a pause unless `--during-pause` or `during_pause = "allow"`. `--no-push` replays and runs the gate command, then stops: it takes no lease and pushes, syncs and notifies nothing, and it refuses `gate = "pre-push"`, where the push is the gate. Exit 0 delivered, gated with `--no-push`, or nothing to deliver; 1 refused, gate failed or attempts exhausted; 2 fetch failed or `--no-push` with the pre-push gate.
 - `sync` moves the main checkout to the mainline, installs when a listed file changed, and follows clean submodule pins. Exit 0 moved or already equal, 1 when local work would be lost, 2 when blocked (undelivered edits) or the fetch failed.
 
 ## completion
