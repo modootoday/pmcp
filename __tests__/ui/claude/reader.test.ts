@@ -43,7 +43,7 @@ describe("session state reader", () => {
       reason: "rebasing main",
       since: "2026-10-19T11:55:00.000Z",
     });
-    expect(snapshot.lease?.subject).toBe("bun.lock: add zod");
+    expect(snapshot.lease?.subject).toBe("lockfile: add a parser");
     expect(snapshot.broadcast?.text).toBe("main is frozen until noon");
   });
 
@@ -66,6 +66,15 @@ describe("session state reader", () => {
       "33333333-gone",
     );
     expect(snapshot.lease).toBeNull();
+  });
+
+  it("shows a lease of any configured name, the live one held longest", async () => {
+    const snapshot = await readSessionState(
+      nodeFiles(new Set([4242])),
+      options("leases"),
+    );
+    // schema-lease.json is older but its holder died; Not-A-lease.json is no lease name.
+    expect(snapshot.lease?.subject).toBe("package-lock.json: add a parser");
   });
 
   it("treats malformed state files as absent", async () => {

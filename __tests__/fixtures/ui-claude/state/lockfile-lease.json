@@ -1,5 +1,5 @@
 {
   "pid": 4242,
-  "subject": "bun.lock: add zod",
+  "subject": "lockfile: add a parser",
   "since": "2026-10-19T11:40:00.000Z"
 }

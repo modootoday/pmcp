@@ -3,11 +3,12 @@ import {
   asLease,
   asPause,
   asRecord,
-  leaseFile,
+  isLeaseFile,
   recordLive,
   STATE_FILES,
 } from "../sessions/format";
 import type {
+  Lease,
   ReadOptions,
   SessionRecord,
   SessionSnapshot,
@@ -19,7 +20,6 @@ export { STALE_MS } from "../sessions/format";
 export const STATE_PATHS = {
   records: STATE_FILES.records,
   pause: STATE_FILES.pause,
-  lease: leaseFile("lockfile"),
   broadcast: STATE_FILES.broadcast,
 } as const;
 
@@ -61,16 +61,31 @@ export async function readRecords(
   return records;
 }
 
+// Every live lease in the state directory, whatever its name; the one held longest is shown.
+export async function readLease(
+  files: StateFiles,
+  options: ReadOptions,
+): Promise<Lease | null> {
+  const names = await files.list(options.stateDir).catch(() => [] as string[]);
+  let held: Lease | null = null;
+  for (const name of names.filter(isLeaseFile).sort()) {
+    const lease = asLease(await readJson(files, `${options.stateDir}/${name}`));
+    if (!lease || !(await isAlive(files, lease.pid))) continue;
+    if (!held || Date.parse(lease.since ?? "") < Date.parse(held.since ?? ""))
+      held = lease;
+  }
+  return held;
+}
+
 export async function readSessionState(
   files: StateFiles,
   options: ReadOptions,
 ): Promise<SessionSnapshot> {
   const at = (name: string) => `${options.stateDir}/${name}`;
-  const lease = asLease(await readJson(files, at(STATE_PATHS.lease)));
   return {
     records: await readRecords(files, options),
     pause: asPause(await readJson(files, at(STATE_PATHS.pause))),
-    lease: lease && (await isAlive(files, lease.pid)) ? lease : null,
+    lease: await readLease(files, options),
     broadcast: asBroadcast(await readJson(files, at(STATE_PATHS.broadcast))),
   };
 }

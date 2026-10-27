@@ -19,6 +19,14 @@ export function leaseFile(name: string): string {
   return `${name}-lease.json`;
 }
 
+// A file leaseFile could have named, so a reader can find every lease without the configuration.
+export function isLeaseFile(file: string): boolean {
+  return (
+    file.endsWith("-lease.json") &&
+    LEASE_NAME.test(file.slice(0, -"-lease.json".length))
+  );
+}
+
 type Fields = Record<string, unknown>;
 
 const text = (value: unknown): value is string => typeof value === "string";
