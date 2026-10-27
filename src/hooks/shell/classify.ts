@@ -37,9 +37,41 @@ function touchesLock(
   return runsScript(words, scripts);
 }
 
+// Beyond git and the package managers, what counts as changing shared state is project data:
+// [sessions.pause] commands (argv prefixes) and script_names (package script names run with
+// `<package manager> run`) replace these defaults.
+export const DEFAULT_MUTATING_COMMANDS: readonly (readonly string[])[] = [
+  ...[...DOCKER_MUTATING].map((verb) => ["docker", verb]),
+  ...[...WRANGLER_MUTATING].map((verb) => ["wrangler", verb]),
+];
+export const DEFAULT_MUTATING_SCRIPT_NAMES: readonly string[] = [
+  "^git:",
+  "^docker:",
+  "^deploy",
+  "^release",
+  "^publish",
+];
+
+export interface MutatingRules {
+  // node scripts that change the checkout.
+  readonly scripts: readonly RegExp[];
+  readonly commands: readonly (readonly string[])[];
+  readonly scriptNames: readonly RegExp[];
+}
+
+export const DEFAULT_MUTATING_RULES: MutatingRules = {
+  scripts: [],
+  commands: DEFAULT_MUTATING_COMMANDS,
+  scriptNames: DEFAULT_MUTATING_SCRIPT_NAMES.map(
+    (source) => new RegExp(source, "u"),
+  ),
+};
+
+const RUNNERS = new Set(["bun", "npm", "pnpm", "yarn"]);
+
 export function mutates(
   words: readonly string[],
-  scripts: readonly RegExp[] = [],
+  rules: MutatingRules = DEFAULT_MUTATING_RULES,
 ): boolean {
   const [name = "", sub = ""] = words;
   if (name === "git") {
@@ -49,13 +81,14 @@ export function mutates(
       call.sub === "worktree" && ["add", "remove", "move"].includes(call.next)
     );
   }
-  if (touchesLock(words, scripts)) return true;
-  if (name === "bun" && sub === "run")
-    return /^(git:|docker:|deploy|release|publish)/u.test(words[2] ?? "");
+  if (touchesLock(words, rules.scripts)) return true;
+  if (RUNNERS.has(name) && sub === "run")
+    return rules.scriptNames.some((pattern) => pattern.test(words[2] ?? ""));
   if (["npm", "pnpm", "yarn"].includes(name)) return PACKAGE_MUTATING.has(sub);
-  if (name === "docker") return DOCKER_MUTATING.has(sub);
-  if (name === "wrangler") return WRANGLER_MUTATING.has(sub);
-  return false;
+  return rules.commands.some(
+    (prefix) =>
+      prefix.length > 0 && prefix.every((word, at) => words[at] === word),
+  );
 }
 
 export interface Classified {
@@ -80,7 +113,9 @@ export function classify(
     words[0] === "export" &&
     words.some((word) => bypassVariables.includes(word.split("=")[0]!));
   return {
-    mutating: real.some((entry) => mutates(entry.argv, scripts)),
+    mutating: real.some((entry) =>
+      mutates(entry.argv, { ...DEFAULT_MUTATING_RULES, scripts }),
+    ),
     lockTouching: real.some((entry) => touchesLock(entry.argv, scripts)),
     bypass: commands.some(
       (entry) =>

@@ -92,6 +92,41 @@ describe.each(BOTH)("sessions.pause on %s payloads", (runtime) => {
     );
   });
 
+  it("refuses the default deploy commands and package scripts of every package manager", async () => {
+    const store = paused();
+    for (const command of [
+      "docker compose up -d",
+      "wrangler deploy",
+      "bun run deploy:web",
+      "npm run release",
+    ])
+      expect(
+        (await runShell(runtime, policy, command, undefined, store)).verdict,
+        command,
+      ).toBe("deny");
+    expect(
+      (await runShell(runtime, policy, "npm run test", undefined, store))
+        .verdict,
+    ).toBeUndefined();
+  });
+
+  it("takes commands and script_names from [sessions.pause], replacing the defaults", async () => {
+    const store = paused();
+    const own = compiled([
+      guard("sessions.pause", "deny", {
+        commands: [["terraform", "apply"]],
+        script_names: ["^ship"],
+      }),
+    ]);
+    const verdict = async (command: string) =>
+      (await runShell(runtime, own, command, undefined, store)).verdict;
+    expect(await verdict("terraform apply -auto-approve")).toBe("deny");
+    expect(await verdict("pnpm run ship")).toBe("deny");
+    expect(await verdict("docker compose up -d")).toBeUndefined();
+    expect(await verdict("bun run deploy")).toBeUndefined();
+    expect(await verdict("git push origin HEAD")).toBe("deny");
+  });
+
   it("lets reads and commands that only mention a mutating step through", async () => {
     const store = paused();
     expect(

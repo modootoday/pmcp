@@ -1,5 +1,10 @@
 import type { HookInput } from "../../contract.js";
-import { mutates } from "../../shell/classify.js";
+import {
+  DEFAULT_MUTATING_COMMANDS,
+  DEFAULT_MUTATING_SCRIPT_NAMES,
+  mutates,
+  type MutatingRules,
+} from "../../shell/classify.js";
 import type { Pause } from "../../../sessions/types.js";
 import { realSteps } from "../_shared.js";
 import {
@@ -10,13 +15,14 @@ import {
   type PolicyContext,
 } from "../types.js";
 
-const MUTATING =
-  /\b(git\s+(commit|push|merge|rebase|reset|checkout|switch|cherry-pick|revert|am|stash|tag|clean|restore|rm|mv|worktree\s+(add|remove|move))|bun\s+(install|i|add|remove|rm|update|link)\b|(npm|pnpm|yarn)\s+(install|i|add|remove|publish|ci)\b|docker\s+(compose|build|push|run|rm|stop|restart)|wrangler\s+(deploy|publish|secret))\b/u;
+// Text fallback for unreadable shell syntax: git and package-manager verbs; commands and scripts
+// come from the options.
+const BUILT_IN =
+  /\b(git\s+(commit|push|merge|rebase|reset|checkout|switch|cherry-pick|revert|am|stash|tag|clean|restore|rm|mv|worktree\s+(add|remove|move))|bun\s+(install|i|add|remove|rm|update|link)\b|(npm|pnpm|yarn)\s+(install|i|add|remove|publish|ci)\b)\b/u;
 
-interface PauseOptions {
-  // A project's own scripts that change the checkout, run with node (pmcp.toml data).
-  readonly scripts: readonly RegExp[];
-}
+const escape = (word: string) => word.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+
+type PauseOptions = MutatingRules;
 
 function changes(input: HookInput, options: PauseOptions): boolean {
   const tool = input.tool;
@@ -25,12 +31,44 @@ function changes(input: HookInput, options: PauseOptions): boolean {
   if (!tool.steps) {
     const command = tool.command ?? "";
     return (
-      MUTATING.test(command) || options.scripts.some((s) => s.test(command))
+      BUILT_IN.test(command) ||
+      options.commands.some((prefix) =>
+        new RegExp(`\\b${prefix.map(escape).join("\\s+")}\\b`, "u").test(
+          command,
+        ),
+      ) ||
+      options.scripts.some((s) => s.test(command))
     );
   }
-  return realSteps(tool.steps).some((step) =>
-    mutates(step.argv, options.scripts),
-  );
+  return realSteps(tool.steps).some((step) => mutates(step.argv, options));
+}
+
+function patterns(raw: Record<string, unknown>, key: string): RegExp[] | null {
+  const list = stringList(raw, key);
+  if (list === undefined) return null;
+  return list.map((source) => {
+    try {
+      return new RegExp(source, "u");
+    } catch {
+      throw new Error(`${key}: ${source} is not a regular expression`);
+    }
+  });
+}
+
+function prefixes(raw: Record<string, unknown>): string[][] | null {
+  const value = raw["commands"];
+  if (value === undefined) return null;
+  if (
+    !Array.isArray(value) ||
+    !value.every(
+      (prefix) =>
+        Array.isArray(prefix) &&
+        prefix.length > 0 &&
+        prefix.every((word) => typeof word === "string" && word !== ""),
+    )
+  )
+    throw new Error("commands must be a list of argv prefixes");
+  return value as string[][];
 }
 
 // Accept session ids and aliases because operators may identify their own pause by either.
@@ -52,17 +90,16 @@ export const pause: Policy<PauseOptions> = {
   fail: "closed",
   defaultMode: "deny",
   options(raw) {
-    onlyKeys(raw, ["refuses", "scripts"]);
+    onlyKeys(raw, ["refuses", "scripts", "commands", "script_names"]);
     if (raw["refuses"] !== undefined && raw["refuses"] !== "mutating")
       throw new Error("refuses must be mutating");
-    const scripts = (stringList(raw, "scripts") ?? []).map((source) => {
-      try {
-        return new RegExp(source, "u");
-      } catch {
-        throw new Error(`scripts: ${source} is not a regular expression`);
-      }
-    });
-    return { scripts };
+    return {
+      scripts: patterns(raw, "scripts") ?? [],
+      commands: prefixes(raw) ?? DEFAULT_MUTATING_COMMANDS,
+      scriptNames:
+        patterns(raw, "script_names") ??
+        DEFAULT_MUTATING_SCRIPT_NAMES.map((source) => new RegExp(source, "u")),
+    };
   },
   evaluate(input, ctx) {
     const current = ctx.store.pause.read();
