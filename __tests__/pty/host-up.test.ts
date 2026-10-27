@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it, type TestContext } from "vitest";
 
 import { ensureDaemon, unitText } from "../../src/harness/host/daemon.js";
-import { ptyBinary } from "../../src/project/host.js";
+import { hostPolicy, ptyBinary, readHost } from "../../src/project/host.js";
 import { hostDown, hostUp, type HostRun } from "../../src/harness/host/up.js";
 
 type Req = Record<string, unknown>;
@@ -216,5 +216,19 @@ describe("pmcp harness host up and down", () => {
       `ExecStart=${bin} daemon --socket /run/u/pmcp-pty.sock --host /s/host-approvals/abc`,
     );
     expect(text).toContain("MemoryMax=4G");
+    expect(
+      unitText("/s", "/d", { PMCP_PTY_BIN: bin }, "12G").split("\n"),
+    ).toContain("MemoryMax=12G");
+  });
+
+  it("reads [host] memory_max in systemd's size syntax and keeps it out of the approved policy", () => {
+    const host = readHost("pmcp.toml", { memory_max: "512M" })!;
+    expect(host.memoryMax).toBe("512M");
+    expect(JSON.stringify(hostPolicy(host))).not.toContain("512M");
+    expect(readHost("pmcp.toml", {})!.memoryMax).toBeUndefined();
+    for (const bad of ["4GB", "0G", "lots", 4])
+      expect(() => readHost("pmcp.toml", { memory_max: bad })).toThrow(
+        "memory_max must be a size",
+      );
   });
 });

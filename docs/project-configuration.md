@@ -164,6 +164,7 @@ the way to run sessions there.
 [host]
 roots = ["."]        # every session cwd must be under one of these
 mcp_write = false    # pty_turn and pty_lease over pmcp harness mcp
+memory_max = "4G"    # MemoryMax of the host's systemd scope and printed unit (default 4G)
 
 [[host.sessions]]
 name = "lead"            # lowercase, digits and -; unique

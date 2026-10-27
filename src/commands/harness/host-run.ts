@@ -49,7 +49,9 @@ export async function runHostVerb(
 ): Promise<number> {
   if (verb === "unit") {
     const dir = approvalDir(spec.root, context.env);
-    context.ui.data(unitText(socketOf(context), dir, context.env));
+    context.ui.data(
+      unitText(socketOf(context), dir, context.env, spec.host?.memoryMax),
+    );
     return 0;
   }
   const run = approvedRun(spec, context);
@@ -63,7 +65,14 @@ export async function runHostVerb(
   const log = join(dirname(run.journal), "host-daemon.log");
   const daemon = await ensureDaemon(
     run.call,
-    () => startDaemon(socket, run.approvedDir, context.env, log),
+    () =>
+      startDaemon(
+        socket,
+        run.approvedDir,
+        context.env,
+        log,
+        spec.host?.memoryMax,
+      ),
     log,
   );
   const steps = await hostUp(run);

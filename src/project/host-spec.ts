@@ -47,6 +47,8 @@ export interface HostSpec {
   readonly roots: readonly string[];
   readonly browser: HostBrowser;
   readonly desktop: HostDesktop;
+  // MemoryMax for the pmcp-pty host's scope and printed unit, in systemd's size syntax.
+  readonly memoryMax?: string;
 }
 
 const NAME = /^[a-z0-9][a-z0-9-]{0,47}$/u;
@@ -212,7 +214,14 @@ export function readHost(path: string, raw: unknown): HostSpec | undefined {
     "roots",
     "browser",
     "desktop",
+    "memory_max",
   ]);
+  const memoryMax = root["memory_max"];
+  if (
+    memoryMax !== undefined &&
+    (typeof memoryMax !== "string" || !/^[1-9]\d*[KMGT]$/u.test(memoryMax))
+  )
+    fail(path, '[host] memory_max must be a size such as "4G" or "512M"');
   const roots =
     root["roots"] === undefined
       ? ["."]
@@ -239,5 +248,13 @@ export function readHost(path: string, raw: unknown): HostSpec | undefined {
   const answers = list("answers").map((a, i) => answer(path, i, a));
   const browser = readHostBrowser(path, root["browser"]);
   const desktop = readHostDesktop(path, root["desktop"]);
-  return { sessions, answers, mcpWrite, roots, browser, desktop };
+  return {
+    sessions,
+    answers,
+    mcpWrite,
+    roots,
+    browser,
+    desktop,
+    ...(memoryMax !== undefined ? { memoryMax: memoryMax as string } : {}),
+  };
 }

@@ -8,7 +8,8 @@ import { missingBinary } from "../../native/binary.js";
 import { ptyBinary } from "../../project/host.js";
 import type { Call } from "./up.js";
 
-const MEMORY_MAX = "4G";
+// [host] memory_max, when pmcp.toml does not set it.
+export const DEFAULT_MEMORY_MAX = "4G";
 
 export interface DaemonState {
   readonly started: boolean;
@@ -33,6 +34,7 @@ export function startDaemon(
   approvedDir: string,
   env: Readonly<Record<string, string | undefined>>,
   log: string,
+  memoryMax = DEFAULT_MEMORY_MAX,
 ): void {
   const bin = binary(env);
   if (spawnSync("systemd-run", ["--version"], { stdio: "ignore" }).status !== 0)
@@ -45,7 +47,7 @@ export function startDaemon(
     "--collect",
     `--unit=${unitName(approvedDir)}`,
     "-p",
-    `MemoryMax=${MEMORY_MAX}`,
+    `MemoryMax=${memoryMax}`,
     bin,
     "daemon",
     "--socket",
@@ -110,6 +112,7 @@ export function unitText(
   socket: string,
   approvedDir: string,
   env: Readonly<Record<string, string | undefined>>,
+  memoryMax = DEFAULT_MEMORY_MAX,
 ): string {
   return [
     "[Unit]",
@@ -117,7 +120,7 @@ export function unitText(
     "",
     "[Service]",
     `ExecStart=${binary(env)} daemon --socket ${socket} --host ${approvedDir}`,
-    `MemoryMax=${MEMORY_MAX}`,
+    `MemoryMax=${memoryMax}`,
     "KillMode=control-group",
     "Restart=on-failure",
     "",
