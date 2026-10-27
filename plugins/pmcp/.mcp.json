@@ -3,7 +3,7 @@
     "pmcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@modootoday/pmcp@0.19.9", "serve"]
+      "args": ["-y", "@modootoday/pmcp@0.20.0", "serve"]
     }
   }
 }
