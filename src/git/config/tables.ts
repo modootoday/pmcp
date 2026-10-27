@@ -115,6 +115,7 @@ export function mainlineSync(path: string, source: Table): MainlineSyncConfig {
     "refuse_with_unlanded",
     "stamp",
     "stamp_hash",
+    "after_deliver",
   ]);
   const installWhenChanged = read.list("install_when_changed");
   const stamp = read.string("stamp");
@@ -137,6 +138,11 @@ export function mainlineSync(path: string, source: Table): MainlineSyncConfig {
     installWhenChanged,
     keepIdenticalFiles: read.bool("keep_identical_files", true),
     refuseWithUnlanded: read.bool("refuse_with_unlanded", true),
+    afterDeliver: read.oneOf<"from_main" | "always" | "off">(
+      "after_deliver",
+      ["from_main", "always", "off"],
+      "from_main",
+    ),
     ...(stamp !== undefined
       ? {
           stamp: {

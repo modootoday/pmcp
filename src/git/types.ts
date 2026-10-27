@@ -53,6 +53,9 @@ export interface MainlineSyncConfig {
   readonly installWhenChanged: readonly string[];
   readonly keepIdenticalFiles: boolean;
   readonly refuseWithUnlanded: boolean;
+  // Which deliveries sync the main checkout once delivered: one run in it ("from_main", also
+  // when absent), any, including one from a linked worktree ("always"), or none ("off").
+  readonly afterDeliver?: "from_main" | "always" | "off";
   // A stamp shared with another tool; absent, pmcp keeps its own in the state dir.
   readonly stamp?: { readonly path: string; readonly hash: "pmcp" | "plain" };
 }

@@ -1,7 +1,8 @@
 import { deliver, type DeliverReceipt } from "../mainline/deliver.js";
 import { deliveryEvents } from "../mainline/delivery-events.js";
 import { filesSessionGate } from "../mainline/store.js";
-import { syncMainline } from "../mainline/sync.js";
+import { detect } from "../detect.js";
+import { syncMainline, syncMainlineResult } from "../mainline/sync.js";
 import { gateTreePath, leaseSpecs } from "../setup.js";
 import { off, type Action } from "./types.js";
 
@@ -25,24 +26,33 @@ export const mainlineDeliver: Action = (setup, context, report) => {
   const { config, ctx, stateDir } = setup;
   const settings = config.deliver ?? off("git.mainline.deliver");
   const sync = config.sync;
+  // The main checkout, when this delivery syncs it: [git.mainline.sync] after_deliver.
+  const mainCheckout = () => {
+    const when = sync?.afterDeliver ?? "from_main";
+    if (sync === undefined || when === "off") return null;
+    if (!ctx.linked) return ctx;
+    if (when !== "always") return null;
+    return detect(ctx.mainRoot, { remote: ctx.remote, mainline: ctx.mainline });
+  };
   const afterDeliver = () => {
-    if (sync === undefined || ctx.linked) return;
+    const main = mainCheckout();
+    if (sync === undefined || main === null) return null;
     const followSubmodules = config.submodules?.follow === "clean_pins";
     const sharedSubmodules = config.submodules?.shared ?? [];
-    if (
-      syncMainline({
-        ctx,
-        sync,
-        followSubmodules,
-        sharedSubmodules,
-        stateDir,
-        report,
-        ...(config.umask !== undefined ? { umask: config.umask } : {}),
-      }) !== 0
-    )
+    const synced = syncMainlineResult({
+      ctx: main,
+      sync,
+      followSubmodules,
+      sharedSubmodules,
+      stateDir,
+      report,
+      ...(config.umask !== undefined ? { umask: config.umask } : {}),
+    });
+    if (synced.code !== 0)
       report.warn(
-        "delivered; only the main checkout did not catch up, run pmcp git sync after the refusal above is cleared",
+        "delivered; only the main checkout did not catch up, run pmcp git sync there after the refusal above is cleared",
       );
+    return synced;
   };
   return deliver({
     ctx,

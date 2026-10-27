@@ -22,6 +22,7 @@ import { withUmask } from "../modes.js";
 import { waitForLeases } from "./lease-wait.js";
 import { replay } from "./replay.js";
 import type { SessionGate } from "./store.js";
+import type { SyncResult } from "./sync.js";
 
 export interface DeliverOptions {
   readonly ctx: GitContext;
@@ -36,7 +37,8 @@ export interface DeliverOptions {
   readonly duringPause?: boolean;
   readonly leasePollMs?: number;
   // Hold leases through follow-up installation so peers cannot observe a partially installed lockfile change.
-  readonly afterDeliver?: () => void;
+  // The sync it ran, if any, goes into the receipt.
+  readonly afterDeliver?: () => SyncResult | null;
   // Called once delivered and after afterDeliver, with the leases this delivery took.
   readonly recordDelivery?: (delivery: Delivery) => void;
   // The outcome as data, once deliver returns (pmcp git deliver --json prints it).
@@ -68,6 +70,8 @@ export interface DeliverReceipt {
     readonly by: "command" | "pre-push";
   } | null;
   readonly leases: readonly string[];
+  // The main checkout's sync after the delivery, or null when none ran.
+  readonly sync: SyncResult | null;
   readonly reason?: string;
 }
 
@@ -76,6 +80,7 @@ interface Track {
   gate: DeliverReceipt["gate"];
   delivered: string | null;
   leases: string[];
+  sync: SyncResult | null;
 }
 
 export interface Delivery {
@@ -288,7 +293,13 @@ function blocked(options: DeliverOptions): string | null {
 }
 
 export function deliver(options: DeliverOptions): number {
-  const track: Track = { attempts: 0, gate: null, delivered: null, leases: [] };
+  const track: Track = {
+    attempts: 0,
+    gate: null,
+    delivered: null,
+    leases: [],
+    sync: null,
+  };
   let reason: string | undefined;
   const report: Reporter = {
     info: (line) => options.report.info(line),
@@ -308,6 +319,7 @@ export function deliver(options: DeliverOptions): number {
     attempts: track.attempts,
     gate: track.gate,
     leases: track.leases,
+    sync: track.sync,
     ...(code !== 0 && reason ? { reason } : {}),
   });
   return code;
@@ -350,7 +362,8 @@ function deliverOnce(options: DeliverOptions): number {
     }
     const code = underLock(options);
     if (code !== 0) return code;
-    options.afterDeliver?.();
+    const synced = options.afterDeliver?.() ?? null;
+    if (options.track) options.track.sync = synced;
     if (taken.length > 0)
       options.recordDelivery?.({
         leases: taken,

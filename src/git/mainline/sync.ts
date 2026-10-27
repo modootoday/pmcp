@@ -64,6 +64,30 @@ export function syncMainline(options: MainlineSyncOptions): number {
   return withUmask(options.umask, () => syncOnce(options));
 }
 
+// One sync as data: the main checkout's HEAD before and after, the exit code, and the last
+// warning when there was one.
+export interface SyncResult {
+  readonly from: string;
+  readonly to: string;
+  readonly code: number;
+  readonly reason?: string;
+}
+
+export function syncMainlineResult(options: MainlineSyncOptions): SyncResult {
+  let reason: string | undefined;
+  const report: Reporter = {
+    info: (line) => options.report.info(line),
+    warn: (line) => {
+      reason = line;
+      options.report.warn(line);
+    },
+  };
+  const head = () => gitText(options.ctx.root, ["rev-parse", "HEAD"]);
+  const from = head();
+  const code = syncMainline({ ...options, report });
+  return { from, to: head(), code, ...(reason ? { reason } : {}) };
+}
+
 function syncOnce(options: MainlineSyncOptions): number {
   const { ctx, sync, report } = options;
   const blocked = refusal(ctx);

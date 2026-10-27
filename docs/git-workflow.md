@@ -107,18 +107,26 @@ variable reaches the push only if `push_env` names it.
 
 `pmcp git deliver --json` prints one receipt on stdout when it ends, progress
 staying on stderr: `{ok, code, delivered, upstream, attempts, gate, leases,
-reason?}`, where `delivered` is the upstream commit it pushed (or `null`), `gate`
-is `{exit, log, by}` for the last gate run (or `null`; `by` is `"command"` or
-`"pre-push"`), `leases` the leases it took
-and `reason` the last refusal or failure. Exit codes: `0` delivered or nothing
-to deliver; `1` refused, a lease or the gate lock held too long, a replay
+sync, reason?}`, where `delivered` is the upstream commit it pushed (or `null`),
+`gate` is `{exit, log, by}` for the last gate run (or `null`; `by` is
+`"command"` or `"pre-push"`), `leases` the leases it took, `sync` is
+`{from, to, code, reason?}` for the main checkout's sync after the delivery (or
+`null` when none ran: its HEAD before and after, the exit code of
+`pmcp git sync`, and its last warning) and `reason` the last refusal or failure.
+Exit codes: `0` delivered or nothing to deliver, even when the sync after it was
+refused; `1` refused, a lease or the gate lock held too long, a replay
 conflict, the gate failed, the push failed or it gave up after `attempts`; `2`
 fetch failed or no configuration.
 
 `[git.mainline.sync]` enables `pmcp git sync`, which moves the main checkout to
 the mainline: `install` (argv), `install_when_changed` (paths; when no
 `[sessions.leases]` are declared, these become an implicit `lockfile` lease),
-`keep_identical_files` and `refuse_with_unlanded` (booleans, default `true`).
+`keep_identical_files` and `refuse_with_unlanded` (booleans, default `true`) and
+`after_deliver`. With the table present, a delivery syncs the main checkout once it is
+delivered, holding its leases through the install: `after_deliver = "from_main"`
+(the default) does so only for a delivery run in the main checkout, `"always"`
+also for one run in a linked worktree, and `"off"` never. Every refusal of
+`pmcp git sync` still applies, and a refused sync leaves the delivery a success.
 
 After a successful install, sync records the hash it installed in a stamp and
 installs again only when that hash changes. By default the stamp is pmcp's own,
