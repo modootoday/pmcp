@@ -71,7 +71,9 @@ loses nothing: <code>on_session_start</code> (<code>&quot;fetch_and_move&quot;</
 <code>&quot;off&quot;</code>), <code>between_prompts</code> (<code>&quot;move_if_light&quot;</code> default, <code>&quot;off&quot;</code>: move only when
 no install is needed), <code>install_after_move</code> (<code>&quot;off&quot;</code> default, <code>&quot;background&quot;</code>,
 <code>&quot;foreground&quot;</code>) and <code>notice_paths</code> (paths whose change is announced to the
-session). Installs never block a session.</p>
+session). Installs never block a session. A worktree is not moved while the
+workspace is paused or while any lease is held (every <code>[sessions.leases.&lt;name&gt;]</code>,
+or the implicit <code>lockfile</code> lease), and the session is told which.</p>
 <p><code>[git.mainline.gate]</code>: <code>command</code> (argv; no gate when missing), <code>tree</code> (the
 gate&#39;s worktree, default <code>&lt;state dir&gt;/gate/tree</code>; a relative path is relative to
 the main checkout, like <code>state_dir</code>), <code>lock_wait_seconds</code>
@@ -85,7 +87,7 @@ checking every 15 seconds for up to <code>load_wait_seconds</code> (default <cod
 fails without running the gate; once started, a gate is never retried.</p>
 <p>One delivery gates at a time: pmcp takes an exclusive <code>flock</code> on the file <code>lock</code>
 beside the gate tree (<code>&lt;dir of tree&gt;/lock</code>), so another tool that takes the same
-file with <code>flock</code> (a workspace land script) and pmcp never gate together. With
+file with <code>flock</code> (a project&#39;s own landing script, say) and pmcp never gate together. With
 <code>lock_env</code> set, pmcp sets that variable to <code>1</code> for the gate command and its
 children, and a <code>pmcp git deliver</code> started with it already <code>1</code> runs under its
 caller&#39;s lock instead of waiting for it. <code>tree_env</code> names a variable that, when
@@ -95,12 +97,13 @@ While a delivery holds the lock it keeps <code>holder.json</code> beside it,
 <code>{tip, subject, checkout, pid, startedAt}</code>, so a tool waiting on the same lock
 can say whose gate it waits for; the file is removed on release.</p>
 <p>A lease is <code>&lt;state dir&gt;/&lt;name&gt;-lease.json</code> unless <code>[sessions.leases.&lt;name&gt;] file</code>
-places it elsewhere, for another tool that coordinates the same lockfile; both
-read and write <code>{pid, subject, cwd, since}</code>, and a record whose process is gone
-counts as free. With <code>events</code> set, each delivery that changed the leased paths
+places it elsewhere, where any tool coordinating the same paths can read and
+write it; a record whose process is gone counts as free. With <code>events</code> set, each delivery that changed the leased paths
 appends one line there: <code>{at, subject, commit, hash, installed, lease}</code>, where
 <code>commit</code> is the delivered upstream, <code>hash</code> the leased files&#39; hash in the main
-checkout after sync, and <code>installed</code> whether sync&#39;s install ran for that hash.</p>
+checkout after sync, and <code>installed</code> whether sync&#39;s install ran for that hash.
+The fields of every shared file are listed under
+<a href="#shared-file-formats">Shared file formats</a>.</p>
 <p><code>[git.mainline.deliver]</code> enables <code>pmcp git deliver</code>, which replays commits onto
 the fetched mainline, runs the gate, and pushes one delivery at a time:
 <code>attempts</code> (default <code>3</code>), <code>refuse_direct_push</code> (default <code>true</code>: a hook refuses
@@ -130,8 +133,8 @@ its name. Delivery events record the same hash and whether the stamp matches it.
 <p><code>[git.submodules]</code>: <code>follow = &quot;clean_pins&quot;</code> (the default when the table is
 present) moves submodules to the pinned commit when they are clean; <code>&quot;off&quot;</code>
 leaves them. Without the table submodules are not followed.
-<code>shared</code> lists submodules other sessions also edit in the main checkout (a
-brand app, for example): those move to the new pin even with uncommitted edits, as
+<code>shared</code> lists submodules other sessions also edit in the main checkout (an
+app kept in its own repository, for example): those move to the new pin even with uncommitted edits, as
 long as no edited or untracked file is one the pin changes. When one is, the
 submodule stays on the old pin and sync names the files; pmcp never restores,
 stashes or discards them.</p>
@@ -141,6 +144,17 @@ needs nothing. Otherwise exactly the pinned commit is pushed to the submodule&#3
 branch (<code>branch</code> in <code>.gitmodules</code>, else <code>main</code>) as a fast-forward, never a later
 commit; if that branch has moved past the pin&#39;s base, delivery stops before
 anything else moves.</p>
+<h2 id="shared-file-formats">Shared file formats</h2>
+<p>Delivery and sync coordinate through plain files, so any tool, a project&#39;s own
+scripts included, can wait on, read or write the same state. These are pmcp&#39;s
+formats: within a release line fields are only added, never renamed, retyped or
+removed, and readers ignore fields they do not know. Times are UTC ISO 8601
+strings, and JSON files are written whole through a rename.</p>
+<div class="scroll"><table><thead><tr><th>File</th><th>Where</th><th>Content</th></tr></thead><tbody><tr><td><code>lock</code></td><td>beside the gate tree</td><td>Empty; held with <code>flock -x</code> for the whole of one delivery&#39;s gate.</td></tr>
+<tr><td><code>holder.json</code></td><td>beside <code>lock</code></td><td><code>{tip, subject, checkout, pid, startedAt}</code>: the commit being gated (full hash), its subject, the checkout delivering it, the holding process and when it took the lock. Removed by its writer before the lock is released, and only when <code>pid</code> is its own.</td></tr>
+<tr><td><code>&lt;name&gt;-lease.json</code></td><td>the state directory, or <code>[sessions.leases.&lt;name&gt;] file</code></td><td><code>{pid, subject, since, cwd?}</code>. A lease whose <code>pid</code> is not alive is free; whoever takes it next replaces the file.</td></tr>
+<tr><td>lease events</td><td><code>[sessions.leases.&lt;name&gt;] events</code></td><td>JSON Lines, one per delivery that changed the leased paths: <code>{at, subject, commit, hash, installed, lease}</code>, with <code>commit</code> the delivered upstream (10 characters), <code>hash</code> the leased files&#39; hash in the main checkout after sync, and <code>installed</code> whether sync&#39;s install ran for that hash.</td></tr>
+<tr><td>install stamp</td><td><code>[git.mainline.sync] stamp</code>, else pmcp&#39;s state directory</td><td>One line: the hash last installed. With <code>stamp_hash = &quot;plain&quot;</code> it is the sha256 hex of the single <code>install_when_changed</code> file&#39;s bytes; with <code>&quot;pmcp&quot;</code>, a hash of every listed path and its name.</td></tr></tbody></table></div>
 </article></div></main><footer class="site-footer">
     <div><a class="wordmark" href="/">pmcp<span>_</span></a><p>Native tools. Shared possibilities.</p><p>Source available under Elastic License 2.0.</p></div>
     <div><strong>Learn</strong><a href="/guide/">Getting started</a>
