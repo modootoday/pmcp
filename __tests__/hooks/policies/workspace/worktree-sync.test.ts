@@ -164,6 +164,8 @@ describe("git.worktrees.sync", () => {
     const store = scratchStore();
     store.pause.write({ by: "operator", reason: "incident" });
     const out = await decide(event("SessionStart", desk), policy, { store });
-    expect(out.context?.[0]).toMatch(/was not moved: the workspace is paused/u);
+    expect(out.context?.[0]).toMatch(
+      /^Worktree .+ was not moved: the workspace is paused/u,
+    );
   });
 });

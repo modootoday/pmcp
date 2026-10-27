@@ -129,7 +129,7 @@ function move(input: HookInput, ctx: Context, git: GitContext): string[] {
   });
   if (result === "current") return [];
   if (result === "held")
-    return lines.map((line) => `Desk ${git.root}: ${line}`);
+    return lines.map((line) => `Worktree ${git.root}: ${line}`);
   if (
     opts.install &&
     opts.installAfterMove === "background" &&
@@ -143,7 +143,7 @@ function move(input: HookInput, ctx: Context, git: GitContext): string[] {
     lines.push(
       `These rule files changed with the move; re-read them before going on: ${rules.join(", ")}`,
     );
-  return lines.map((line) => `Desk ${git.root}: ${line}`);
+  return lines.map((line) => `Worktree ${git.root}: ${line}`);
 }
 
 export const worktreeSync: Policy<WorktreeSyncOptions> = {
@@ -162,7 +162,7 @@ export const worktreeSync: Policy<WorktreeSyncOptions> = {
     const reason = blocked(input, ctx);
     if (reason)
       return input.event === "session_start"
-        ? { context: [`Desk ${git.root} was not moved: ${reason}.`] }
+        ? { context: [`Worktree ${git.root} was not moved: ${reason}.`] }
         : pass;
     const lines = move(input, ctx, git);
     return lines.length > 0 ? { context: lines } : pass;

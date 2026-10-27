@@ -39,7 +39,7 @@ export function renderStatus(
     (row) => (row.behind ?? 0) > 0 || (row.ahead ?? 0) > 0,
   );
   context.ui.line(
-    "Desks: " +
+    "Linked worktrees: " +
       report.worktrees.length +
       "; " +
       drifted.length +
