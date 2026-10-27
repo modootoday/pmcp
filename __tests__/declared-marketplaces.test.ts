@@ -165,6 +165,7 @@ describe("[marketplaces] projection", () => {
       statusBand: false,
       commands: true,
       holdForeignEdits: true,
+      worktreeRoot: ".claude/worktrees",
     });
     const bare = fixture('[targets]\ntools = ["claude"]\n[ui.claude]\n');
     expect(() => spec(bare)).toThrow("needs the session hooks");
