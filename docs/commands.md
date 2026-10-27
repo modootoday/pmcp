@@ -44,6 +44,13 @@ Session state is isolated in a temporary directory, then removed. Commands and p
 
 `--session-state` accepts a JSON object with optional `records` (session records with valid 8–64 character IDs), `pause` (by, reason, since), `leases` (name to pid, subject, since, optional cwd), and `broadcast` (id, by, text, since). Pause and broadcast may be null. Existing liveness and unseen-broadcast rules apply. This file and the real session store remain unchanged.
 
+```sh
+pmcp hooks report [--since 2d] [--json]
+pmcp hooks report --switch-check shell.heredoc [--since 2d] [--json]
+```
+
+`report` summarises the guard lines the hook bundle writes to the project log at debug level (`[logging] level = "debug"`, or `PMCP_LOG=debug`). For each guard and runtime it counts the runs, what the guard found before its mode (`raw`: allow, deny, ask) and what the call got, the modes seen, the sessions, and the p50, p95 and longest durations. Sessions matching a `[hooks.report] exclude_sessions` regex (replays, smoke runs) are left out and counted. `--since` takes a duration such as `10m`, `2h` or `3d`, or an ISO time. `--switch-check <guard>` lists instead the calls that guard found something in and let through, because it was in `observe` or `warn`: what `deny` would have refused. The log holds no command, prompt or transcript text, so neither does the report. `--json` prints `{version, since?, lines, sessions, excluded, guards}`, or `{version, guard, refused}` with `--switch-check`.
+
 ## Read command JSON schemas
 
 These opt-in snapshots write one JSON object and a newline to stdout, with `version: 1`. No color or human summary is mixed into stdout. Errors remain on stderr. Without the flag, existing human output is retained, including MCP status's original unversioned object and logs' JSONL stream. Schemas are named in [schemas.json](https://pmcp.build/commands/schemas.json); each entry under `schemas` uses the shared root `$defs`. Consumers must allow unknown fields inside session, decision and log records. Tokens are never part of an auth status object.

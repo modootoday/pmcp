@@ -27,12 +27,23 @@ export const initSpec: CommandSpec = {
 export const hooksSpec: CommandSpec = {
   name: "hooks",
   describe:
-    "List compiled policies or simulate a native hook without a runtime",
+    "List compiled policies, simulate a native hook without a runtime, or summarise guard logs",
   usage:
-    "pmcp hooks list | test --runtime claude|codex --event <event> [--command <text> | --path <path> | --tool <name>] [--session-state <file>] [--json]",
+    "pmcp hooks list | test --runtime claude|codex --event <event> [--command <text> | --path <path> | --tool <name>] [--session-state <file>] [--json] | report [--since <when>] [--switch-check <guard>] [--json]",
   options: [
     configOption,
     jsonOption,
+    {
+      name: "since",
+      describe:
+        "Report only log lines from this long ago (10m, 2h, 3d) or this ISO time.",
+      placeholder: "<when>",
+    },
+    {
+      name: "switch-check",
+      describe: "List the calls this guard found something in but let through.",
+      placeholder: "<guard>",
+    },
     {
       name: "runtime",
       describe: "Native runtime to inspect.",

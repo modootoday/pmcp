@@ -126,6 +126,15 @@ the shell adapter serves (Codex, Gemini or Antigravity outside `[hooks]
 targets`) can only refuse, so a mode other than `deny` there is a configuration
 error naming the guard, the mode and the runtime.
 
+## `[hooks.report]`
+
+Read by [`pmcp hooks report`](commands.md#hooks) alone; it changes nothing in the
+hooks.
+
+| Key                | Type | Default | Meaning                                                                           |
+| ------------------ | ---- | ------- | --------------------------------------------------------------------------------- |
+| `exclude_sessions` | list | `[]`    | Regexes; guard log lines of a session id matching one are left out of the report. |
+
 ## `[hooks.failure]`
 
 What a guard that fails to evaluate means for the call: it threw, or it ran past
