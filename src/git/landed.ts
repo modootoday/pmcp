@@ -1,4 +1,5 @@
 import { git, gitText } from "./exec.js";
+import { pinsSuperseded } from "./superseded.js";
 
 export interface CherryLines {
   readonly carried: readonly string[];
@@ -16,7 +17,11 @@ export function cherry(
   const missing: string[] = [];
   for (const line of listed.split("\n")) {
     if (line.startsWith("- ")) carried.push(line.slice(2));
-    if (line.startsWith("+ ")) missing.push(line.slice(2));
+    if (!line.startsWith("+ ")) continue;
+    const sha = line.slice(2).split(" ")[0] ?? "";
+    // A pin the upstream already reaches is landed, though no patch there matches it.
+    if (pinsSuperseded(cwd, upstream, sha)) carried.push(line.slice(2));
+    else missing.push(line.slice(2));
   }
   return { carried, missing };
 }
@@ -40,7 +45,8 @@ export function undelivered(
     ]);
     if (!sha) throw new Error(`${ref} is not a commit`);
     const listed = git(cwd, ["cherry", upstream, sha, `${sha}^`]).stdout;
-    if (listed.startsWith("+ ")) shas.push(sha);
+    if (listed.startsWith("+ ") && !pinsSuperseded(cwd, upstream, sha))
+      shas.push(sha);
   }
   return shas;
 }

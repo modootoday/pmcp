@@ -81,6 +81,14 @@ through delivery), `during_pause` (`"refuse"` default or `"allow"`),
 `lease_wait_seconds` (default `3600`), `notify` (argv run after a
 delivery), `gate` and `push_env`.
 
+A commit is already on the mainline when `git cherry` finds the same patch there,
+or when it only moves submodule pins, each to a commit that the mainline's pin for
+that path equals or contains. Containment is read in the submodule's checkout,
+else in the repository git keeps for it, and without either the commit counts as
+missing. Delivery skips such a commit; `pmcp git sync` and worktree sync move past
+it as a landed duplicate, so another session's newer pin never makes a replay
+conflict or a sync refusal.
+
 The push of a delivery runs the repository's own hooks, so a pre-push hook that
 gates as well needs one of two set-ups.
 
