@@ -69,7 +69,7 @@ specification. Without it, only the specification is checked.</p>
 profile = &quot;catalog-v1&quot;        # or &quot;library&quot;
 deny_list = &quot;private-terms.txt&quot;
 tiers = [&quot;open&quot;, &quot;free&quot;, &quot;paid&quot;, &quot;internal&quot;]</code></pre>
-<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>profile</code></td><td>string</td><td>none</td><td><code>catalog-v1</code>: the marketplace catalog rules (metadata, tier, trigger wording, ASCII in the open tier, locales); the marketplace&#39;s tier applies, else the skill&#39;s own <code>metadata.tier</code>, else <code>open</code>. <code>library</code>: the manual library skill metadata schema.</td></tr>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>profile</code></td><td>string</td><td>none</td><td><code>catalog-v1</code>: general marketplace catalog rules (strict metadata, name equal to the directory, tier inheritance, ASCII descriptions, approval for scripts, locales); the marketplace&#39;s tier applies, else the skill&#39;s own <code>metadata.tier</code>, else <code>open</code>. <code>library</code>: the manual library skill metadata schema.</td></tr>
 <tr><td><code>deny_list</code></td><td>path</td><td>none</td><td>A file of terms, one per line (<code>#</code> starts a comment), that no file of a skill may contain, compared without case. Relative to <code>pmcp.toml</code>. A finding names the list line, never the term. A missing file is an error.</td></tr>
 <tr><td><code>tiers</code></td><td>list</td><td><code>[&quot;open&quot;, &quot;free&quot;, &quot;paid&quot;, &quot;internal&quot;]</code></td><td>The tier names this catalog uses, lowest first, in kebab case. <code>catalog-v1</code> reports a tier outside the list as <code>tier.unknown</code>; its tier-specific rules know only the four default names. The metadata schema itself takes any kebab-case name.</td></tr></tbody></table></div>
 <p>Both apply to named skill directories and, with no directory named, to every
@@ -605,6 +605,8 @@ allow_commands = [[&quot;pmcp&quot;, &quot;git&quot;, &quot;deliver&quot;], [&qu
 
 [git]
 remote = &quot;origin&quot;
+
+[git.shared_checkout]
 
 [git.mainline]
 branch = &quot;main&quot;

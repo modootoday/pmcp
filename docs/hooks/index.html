@@ -72,8 +72,7 @@ unwritable without changing a decision; <code>PMCP_HOOK_COMPILE_CACHE=off</code>
 compile cache off.</p>
 <p>Every feature is opt-in: a table that is missing turns its feature off, and a
 declared table, even an empty one, turns it on. The exceptions are documented
-where they apply: <code>[git]</code> features detect git (<code>enabled = &quot;auto&quot;</code>),
-<code>[git.shared_checkout]</code> is on in any git checkout once the bundle exists, and
+where they apply: declared <code>[git]</code> features detect git (<code>enabled = &quot;auto&quot;</code>), and
 logging falls back to its defaults rather than to no logging. The bundle is
 projected only when <code>[hooks]</code> declares guards or checks, a <code>[sessions.*]</code>
 feature table is declared, <code>[git.shared_checkout]</code> or <code>[git.worktrees.sync]</code> is

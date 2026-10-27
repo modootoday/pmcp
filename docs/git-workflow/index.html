@@ -58,8 +58,8 @@ repository that also has linked worktrees, tracks the files it edits there,
 and names leftovers not yet delivered, because they block syncing the shared main for
 everyone. Keys: <code>enabled</code> (<code>&quot;auto&quot;</code> default, following <code>[git] enabled</code>, or a
 boolean), <code>warn_on_session</code>, <code>track_edits</code>, <code>warn_claimants</code> (booleans, default
-<code>true</code>). It is on in any git checkout without a table, once something else
-enables the hook bundle.</p>
+<code>true</code>). Like every feature it is opt-in: declare the table, even empty, to
+turn it on.</p>
 <p><code>[git.worktrees]</code> configures the linked worktrees <code>pmcp git worktree</code> creates:</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th></tr></thead><tbody><tr><td><code>root</code></td><td>string</td><td><code>&quot;.claude/worktrees&quot;</code></td></tr>
 <tr><td><code>branch_prefix</code></td><td>string</td><td><code>&quot;worktree-&quot;</code></td></tr>

@@ -48,6 +48,36 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-019-to-020">From 0.19 to 0.20</h2>
+<p>0.20 removes defaults that suited one kind of project rather than pmcp&#39;s users in general.
+Each one stays available as configuration; add the lines below to <code>pmcp.toml</code> to keep what
+0.19 did, then run <code>pmcp project</code>.</p>
+<p><strong>The shared-checkout notice is opt-in.</strong> 0.19 turned <code>[git.shared_checkout]</code> on in any git
+checkout once the hook bundle existed. Declare it to keep the notice:</p>
+<pre><code>[git.shared_checkout]</code></pre>
+<p><strong>Dated <code>.bak</code> files are no longer secret paths by default.</strong> 0.19 treated a file named like
+<code>config.bak.20261027</code> as a credential. If yours hold credentials:</p>
+<pre><code>[hooks.guards.shell.secret_exfiltration]
+extra_secret_paths = ['\.bak\.\d{8,}']</code></pre>
+<p><code>.env.&lt;name&gt;</code> directories (<code>.env.d/</code>, <code>.env.local/</code>) are still caught as <code>.env</code> variants.</p>
+<p><strong><code>bun run git:land</code> and <code>bun run git:sync</code> are no longer lockfile operations by name.</strong> The
+shell classifier had them built in. A project&#39;s own landing or sync script is data:</p>
+<ul>
+<li>a package script run with <code>bun</code>, <code>npm</code>, <code>pnpm</code> or <code>yarn run</code> is matched by
+<code>[sessions.pause] script_names</code>, whose default <code>&quot;^git:&quot;</code> still covers <code>git:*</code> scripts;</li>
+<li>a script run with <code>node</code> is matched by <code>[sessions.pause] scripts</code>, for example
+<code>scripts = [&#39;tools/release/(land|sync)\.mjs$&#39;]</code>.</li>
+</ul>
+<p><strong><code>catalog-v1</code> validates general catalog rules only.</strong> <code>pmcp validate</code> with
+<code>[catalog.validation] profile = &quot;catalog-v1&quot;</code> no longer reports <code>description.trigger</code>,
+<code>keywords.ascii</code>, <code>output-license.required</code>, <code>server-tools.forbidden</code>,
+<code>server-tools.required</code> or <code>server-tools.order</code>. <code>metadata.server-tools</code> is an optional list of
+any tool names. A catalog that relies on those rules runs its own check beside
+<code>pmcp validate</code>.</p>
+<p><strong>Deliveries can leave gating to the repository&#39;s pre-push hook.</strong> This is new, not a
+removal. <code>[git.mainline.deliver] gate = &quot;pre-push&quot;</code> and <code>push_env</code> are described in
+<a href="/git-workflow/">Git workflow</a>. A delivery&#39;s push now always carries <code>PMCP_GIT_DELIVER=1</code>, and
+the <code>--json</code> receipt&#39;s <code>gate</code> gains <code>by</code>.</p>
 <h2 id="from-017-to-018">From 0.17 to 0.18</h2>
 <p>0.18 replaces tmux with pmcp&#39;s own terminal host, so it does not read tmux groups or views.
 Stop what 0.17 started before you upgrade, with the 0.17 release that created it:</p>
