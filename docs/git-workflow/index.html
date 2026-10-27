@@ -111,14 +111,21 @@ the fetched mainline, runs the gate, and pushes one delivery at a time:
 through delivery), <code>during_pause</code> (<code>&quot;refuse&quot;</code> default or <code>&quot;allow&quot;</code>),
 <code>lease_wait_seconds</code> (default <code>3600</code>), <code>notify</code> (argv run after a
 delivery), <code>gate</code> and <code>push_env</code>.</p>
+<p>A commit is already on the mainline when <code>git cherry</code> finds the same patch there,
+or when it only moves submodule pins, each to a commit that the mainline&#39;s pin for
+that path equals or contains. Containment is read in the submodule&#39;s checkout,
+else in the repository git keeps for it, and without either the commit counts as
+missing. Delivery skips such a commit; <code>pmcp git sync</code> and worktree sync move past
+it as a landed duplicate, so another session&#39;s newer pin never makes a replay
+conflict or a sync refusal.</p>
 <p>The push of a delivery runs the repository&#39;s own hooks, so a pre-push hook that
 gates as well needs one of two set-ups.</p>
 <ul>
 <li><code>gate = &quot;pre-push&quot;</code> makes that hook the gate: pmcp takes the lock, replays and
 retries, runs no <code>[git.mainline.gate] command</code> (declaring one is an error),
 and pushes with <code>lock_env</code> set to <code>1</code>, so a hook that takes the same lock does
-not wait on pmcp. The push output is the gate log, and a refused push is a
-failed gate.</li>
+not wait on pmcp. The push output streams to the terminal as it comes and is
+kept as the gate log, and a refused push is a failed gate.</li>
 <li><code>gate = &quot;command&quot;</code> (the default) keeps pmcp&#39;s command as the gate.
 <code>push_env</code> (a table of variable names to strings, default <code>{}</code>) adds variables
 to the push alone in either mode, so a hook can recognise a delivery that was
@@ -127,17 +134,28 @@ already gated and step aside.</li>
 <p>Every delivery push also carries <code>PMCP_GIT_DELIVER=1</code>. In command mode the lock
 variable reaches the push only if <code>push_env</code> names it.</p>
 <p><code>pmcp git deliver --json</code> prints one receipt on stdout when it ends, progress
-staying on stderr: <code>{ok, code, delivered, upstream, attempts, gate, leases, reason?}</code>, where <code>delivered</code> is the upstream commit it pushed (or <code>null</code>), <code>gate</code>
-is <code>{exit, log, by}</code> for the last gate run (or <code>null</code>; <code>by</code> is <code>&quot;command&quot;</code> or
-<code>&quot;pre-push&quot;</code>), <code>leases</code> the leases it took
-and <code>reason</code> the last refusal or failure. Exit codes: <code>0</code> delivered or nothing
-to deliver; <code>1</code> refused, a lease or the gate lock held too long, a replay
+staying on stderr: <code>{ok, code, delivered, upstream, attempts, replayed, gate, leases, sync, reason?}</code>, where <code>delivered</code> is the upstream commit it pushed (or
+<code>null</code>), <code>replayed</code> the tip of its last replay onto the upstream (or <code>null</code>),
+<code>gate</code> is <code>{exit, log, by}</code> for the last gate run (or <code>null</code>; <code>by</code> is
+<code>&quot;command&quot;</code> or <code>&quot;pre-push&quot;</code>), <code>leases</code> the leases it took, <code>sync</code> the main
+checkout&#39;s sync after the delivery (or <code>null</code> when none ran) as
+<code>{from, to, code, reason?}</code>: the main checkout&#39;s HEAD before and after, the exit
+code <code>pmcp git sync</code> would have, and its last warning; and <code>reason</code> is the last
+refusal or failure. <code>--no-push</code> stops after the gate, so its receipt has
+<code>replayed</code> and <code>gate</code> but <code>delivered</code> and <code>sync</code> are <code>null</code>.
+Exit codes: <code>0</code> delivered or nothing to deliver, even when the sync after it was
+refused; <code>1</code> refused, a lease or the gate lock held too long, a replay
 conflict, the gate failed, the push failed or it gave up after <code>attempts</code>; <code>2</code>
 fetch failed or no configuration.</p>
 <p><code>[git.mainline.sync]</code> enables <code>pmcp git sync</code>, which moves the main checkout to
 the mainline: <code>install</code> (argv), <code>install_when_changed</code> (paths; when no
 <code>[sessions.leases]</code> are declared, these become an implicit <code>lockfile</code> lease),
-<code>keep_identical_files</code> and <code>refuse_with_unlanded</code> (booleans, default <code>true</code>).</p>
+<code>keep_identical_files</code> and <code>refuse_with_unlanded</code> (booleans, default <code>true</code>) and
+<code>after_deliver</code>. With the table present, a delivery syncs the main checkout once it is
+delivered, holding its leases through the install: <code>after_deliver = &quot;from_main&quot;</code>
+(the default) does so only for a delivery run in the main checkout, <code>&quot;always&quot;</code>
+also for one run in a linked worktree, and <code>&quot;off&quot;</code> never. Every refusal of
+<code>pmcp git sync</code> still applies, and a refused sync leaves the delivery a success.</p>
 <p>After a successful install, sync records the hash it installed in a stamp and
 installs again only when that hash changes. By default the stamp is pmcp&#39;s own,
 in its state directory. <code>stamp</code> puts it at a path another tool also reads

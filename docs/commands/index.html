@@ -135,14 +135,14 @@ pmcp logs --follow</code></pre>
 <pre><code>pmcp git worktree create review [--base &lt;ref&gt;]
 pmcp git worktree list
 pmcp git worktree sync
-pmcp git deliver [&lt;commit&gt;...] [--during-pause] [--json]
+pmcp git deliver [&lt;commit&gt;...] [--during-pause] [--no-push] [--json]
 pmcp git sync</code></pre>
 <p>The git workflow configured by <a href="/git-workflow/"><code>[git]</code></a>. Each subcommand needs its table; without it the command exits 1 and names the missing table.</p>
 <ul>
 <li><code>worktree create &lt;alias&gt;</code> makes a linked worktree under <code>[git.worktrees] root</code> on a new branch from the upstream (or <code>--base</code>), links the configured files from the main checkout, runs <code>bootstrap</code>, and prints the path.</li>
 <li><code>worktree list</code> prints alias, branch, behind/ahead and path for the main checkout and each linked worktree.</li>
 <li><code>worktree sync</code> moves the current worktree onto the mainline when that loses nothing; exit 1 when it is held back.</li>
-<li><code>deliver</code> fetches, replays the named commits (default: the ones the upstream lacks) onto the mainline, runs the gate in its own tree under a lock, and pushes; it replays again if the mainline moved. A delivery that touches a leased path holds that lease until it has pushed and installed, and it refuses during a pause unless <code>--during-pause</code> or <code>during_pause = &quot;allow&quot;</code>. Exit 0 delivered or nothing to deliver, 1 refused, gate failed or attempts exhausted, 2 fetch failed.</li>
+<li><code>deliver</code> fetches, replays the named commits (default: the ones the upstream lacks) onto the mainline, runs the gate in its own tree under a lock, and pushes; it replays again if the mainline moved. A delivery that touches a leased path holds that lease until it has pushed and installed, and it refuses during a pause unless <code>--during-pause</code> or <code>during_pause = &quot;allow&quot;</code>. <code>--no-push</code> replays and runs the gate command, then stops: it takes no lease and pushes, syncs and notifies nothing, and it refuses <code>gate = &quot;pre-push&quot;</code>, where the push is the gate. Exit 0 delivered, gated with <code>--no-push</code>, or nothing to deliver; 1 refused, gate failed or attempts exhausted; 2 fetch failed or <code>--no-push</code> with the pre-push gate.</li>
 <li><code>sync</code> moves the main checkout to the mainline, installs when a listed file changed, and follows clean submodule pins. Exit 0 moved or already equal, 1 when local work would be lost, 2 when blocked (undelivered edits) or the fetch failed.</li>
 </ul>
 <h2 id="completion">completion</h2>

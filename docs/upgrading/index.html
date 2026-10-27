@@ -48,6 +48,27 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-020-to-021">From 0.20 to 0.21</h2>
+<p><strong>Session records are written to <code>sessions/</code> alone.</strong> 0.20 also wrote each record to the
+deprecated <code>fleet/</code> in the state directory; 0.21 stops. A tool that still reads <code>fleet/</code>
+must read <code>sessions/&lt;session&gt;.json</code> instead. pmcp still reads <code>fleet/</code>, and of two copies
+uses the one updated last, so a hook bundle from before 0.20 sharing the state directory
+keeps being followed until <code>pmcp project</code> runs there again.</p>
+<p>The rest is new, not removed:</p>
+<ul>
+<li>A commit that only moves submodule pins, each to a commit the mainline&#39;s pin already
+equals or contains, now counts as delivered. <code>pmcp git deliver</code> skips it, and
+<code>pmcp git sync</code> and worktree sync move past it instead of refusing.</li>
+<li><code>[git.mainline.sync] after_deliver = &quot;always&quot;</code> also syncs the main checkout after a
+delivery run in a linked worktree; <code>&quot;off&quot;</code> turns the sync after a delivery off. The
+default <code>&quot;from_main&quot;</code> is 0.20&#39;s behaviour.</li>
+<li>With <code>gate = &quot;pre-push&quot;</code> the push output streams to the terminal as it comes; the gate
+log still keeps all of it.</li>
+<li>The <code>pmcp git deliver --json</code> receipt gains <code>sync</code>, the main checkout&#39;s sync after the
+delivery, and <code>replayed</code>, the tip of the last replay.</li>
+<li><code>pmcp git deliver --no-push</code> replays and gates, then stops.</li>
+</ul>
+<p>See <a href="/git-workflow/">Git workflow</a>.</p>
 <h2 id="from-019-to-020">From 0.19 to 0.20</h2>
 <p>0.20 removes defaults that suited one kind of project rather than pmcp&#39;s users in general.
 Each one stays available as configuration; add the lines below to <code>pmcp.toml</code> to keep what

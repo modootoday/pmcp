@@ -5,6 +5,30 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.20 to 0.21
+
+**Session records are written to `sessions/` alone.** 0.20 also wrote each record to the
+deprecated `fleet/` in the state directory; 0.21 stops. A tool that still reads `fleet/`
+must read `sessions/<session>.json` instead. pmcp still reads `fleet/`, and of two copies
+uses the one updated last, so a hook bundle from before 0.20 sharing the state directory
+keeps being followed until `pmcp project` runs there again.
+
+The rest is new, not removed:
+
+- A commit that only moves submodule pins, each to a commit the mainline's pin already
+  equals or contains, now counts as delivered. `pmcp git deliver` skips it, and
+  `pmcp git sync` and worktree sync move past it instead of refusing.
+- `[git.mainline.sync] after_deliver = "always"` also syncs the main checkout after a
+  delivery run in a linked worktree; `"off"` turns the sync after a delivery off. The
+  default `"from_main"` is 0.20's behaviour.
+- With `gate = "pre-push"` the push output streams to the terminal as it comes; the gate
+  log still keeps all of it.
+- The `pmcp git deliver --json` receipt gains `sync`, the main checkout's sync after the
+  delivery, and `replayed`, the tip of the last replay.
+- `pmcp git deliver --no-push` replays and gates, then stops.
+
+See [Git workflow](git-workflow.md).
+
 ## From 0.19 to 0.20
 
 0.20 removes defaults that suited one kind of project rather than pmcp's users in general.
