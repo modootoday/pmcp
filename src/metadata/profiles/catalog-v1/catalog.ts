@@ -36,15 +36,6 @@ export function referenceFindings(
   }
   return out;
 }
-export function installDefaultFindings(
-  metadatas: { install?: string }[],
-  tier: Tier,
-): string[] {
-  const count = metadatas.filter((m) => m.install === "default").length;
-  return tier === "open" && count > 5
-    ? [`${count} skills use install default; the open tier allows 5`]
-    : [];
-}
 export function unregisteredFindings(
   dirs: string[],
   registered: string[],
@@ -62,18 +53,6 @@ export function trackedResultsFindings(files: string[]): string[] {
     .map(
       (f) =>
         `${f} is tracked by git; eval results stay local and are gitignored`,
-    );
-}
-export function pluginNamingFindings(tier: Tier, names: string[]): string[] {
-  return names
-    .filter((n) =>
-      tier === "free"
-        ? !n.endsWith("-plus")
-        : tier === "open" && n.endsWith("-plus"),
-    )
-    .map(
-      (n) =>
-        `plugin ${n} must ${tier === "open" ? "not " : ""}end in -plus in the ${tier} tier`,
     );
 }
 export function duplicatePluginFindings(

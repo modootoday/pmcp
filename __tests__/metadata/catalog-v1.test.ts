@@ -4,10 +4,8 @@ import {
   parseFrontmatter,
   skillFindings,
   referenceFindings,
-  installDefaultFindings,
   unregisteredFindings,
   trackedResultsFindings,
-  pluginNamingFindings,
   duplicatePluginFindings,
   descriptionDriftFindings,
   gatedNameFindings,
@@ -36,26 +34,8 @@ describe("catalog-v1", () => {
       "description.ascii",
       { front: { ...base, description: base.description + "\uD55C" } },
     ],
-    [
-      "description.trigger",
-      {
-        front: {
-          ...base,
-          description:
-            "This description is long enough but has no use trigger.",
-        },
-      },
-    ],
-    ["keywords.ascii", { front: withMeta({ keywords: ["\uD55C\uAE00"] }) }],
-    ["output-license.required", { front: withMeta({ domain: "asset-image" }) }],
     ["approval.required", { hasScripts: true }],
     ["pair.tier", { front: withMeta({ pair: [] }) }],
-    ["server-tools.forbidden", { front: withMeta({ "server-tools": [] }) }],
-    ["server-tools.required", { tier: "paid" }],
-    [
-      "server-tools.order",
-      { tier: "paid", body: "job_submit then job_estimate" },
-    ],
     [
       "install.default",
       { tier: "free", front: withMeta({ install: "default" }) },
@@ -65,6 +45,31 @@ describe("catalog-v1", () => {
     expect(skillFindings(skill(overrides)).some((f) => f.rule === rule)).toBe(
       true,
     );
+  });
+  it("holds no one catalog's editorial or commercial rules", () => {
+    const fired = (overrides: Partial<CatalogSkill>) =>
+      skillFindings(skill(overrides)).map((f) => f.rule);
+    expect(
+      fired({
+        front: {
+          ...base,
+          description:
+            "This description is long enough and says nothing about triggers.",
+        },
+      }),
+    ).toEqual([]);
+    expect(fired({ front: withMeta({ keywords: ["한글"] }) })).toEqual([]);
+    expect(fired({ front: withMeta({ domain: "asset-image" }) })).toEqual([]);
+    expect(
+      fired({ front: withMeta({ "server-tools": ["render", "status"] }) }),
+    ).toEqual([]);
+    expect(
+      fired({
+        tier: "paid",
+        front: withMeta({ approval: "none" }),
+        body: "job_submit then job_estimate",
+      }),
+    ).toEqual([]);
   });
   it("applies tier exceptions and paid requirements", () => {
     expect(
@@ -113,12 +118,6 @@ describe("catalog-v1", () => {
       gatedNameFindings("higher higher-ish", catalog, new Set()),
     ).toHaveLength(1);
     expect(gatedNameFindings("higher-ish", catalog, new Set())).toEqual([]);
-    expect(
-      installDefaultFindings(
-        Array.from({ length: 6 }, () => ({ install: "default" })),
-        "open",
-      ),
-    ).toHaveLength(1);
   });
   it("ports plugin registration, naming, duplicate, drift and tracked result rules", () => {
     expect(unregisteredFindings(["a", "b"], ["a"])).toHaveLength(1);
@@ -128,8 +127,6 @@ describe("catalog-v1", () => {
         "plugins/a/evals/case.json",
       ]),
     ).toHaveLength(1);
-    expect(pluginNamingFindings("free", ["a", "a-plus"])).toHaveLength(1);
-    expect(pluginNamingFindings("open", ["a", "a-plus"])).toHaveLength(1);
     expect(
       duplicatePluginFindings(["a"], new Map([["paid", ["a"]]])),
     ).toHaveLength(1);

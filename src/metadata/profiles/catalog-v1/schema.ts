@@ -6,20 +6,14 @@ import {
   skillMetadataCore,
 } from "../../schema.js";
 
-export const SERVER_TOOLS = [
-  "job_estimate",
-  "job_submit",
-  "job_status",
-  "job_result",
-  "job_cancel",
-] as const;
 export const catalogMetadata = z.strictObject({
   ...skillMetadataCore.shape,
   level: skillMetadataCore.shape.level.unwrap(),
   domain: kebab,
   install: skillMetadataCore.shape.install.unwrap(),
   requires: requires.strict().optional(),
-  "server-tools": z.array(z.enum(SERVER_TOOLS)).optional(),
+  // Server-side tools the skill calls, named by the catalog that serves them.
+  "server-tools": z.array(z.string().min(1)).optional(),
 });
 export const catalogV1 = skillFrontmatter
   .extend({

@@ -153,13 +153,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": [
-              "job_estimate",
-              "job_submit",
-              "job_status",
-              "job_result",
-              "job_cancel"
-            ]
+            "minLength": 1
           }
         }
       },
