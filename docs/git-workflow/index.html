@@ -109,11 +109,27 @@ the fetched mainline, runs the gate, and pushes one delivery at a time:
 <code>attempts</code> (default <code>3</code>), <code>refuse_direct_push</code> (default <code>true</code>: a hook refuses
 <code>git push</code> from any checkout of this repository, so the mainline moves only
 through delivery), <code>during_pause</code> (<code>&quot;refuse&quot;</code> default or <code>&quot;allow&quot;</code>),
-<code>lease_wait_seconds</code> (default <code>3600</code>) and <code>notify</code> (argv run after a
-delivery).</p>
+<code>lease_wait_seconds</code> (default <code>3600</code>), <code>notify</code> (argv run after a
+delivery), <code>gate</code> and <code>push_env</code>.</p>
+<p>The push of a delivery runs the repository&#39;s own hooks, so a pre-push hook that
+gates as well needs one of two set-ups.</p>
+<ul>
+<li><code>gate = &quot;pre-push&quot;</code> makes that hook the gate: pmcp takes the lock, replays and
+retries, runs no <code>[git.mainline.gate] command</code> (declaring one is an error),
+and pushes with <code>lock_env</code> set to <code>1</code>, so a hook that takes the same lock does
+not wait on pmcp. The push output is the gate log, and a refused push is a
+failed gate.</li>
+<li><code>gate = &quot;command&quot;</code> (the default) keeps pmcp&#39;s command as the gate.
+<code>push_env</code> (a table of variable names to strings, default <code>{}</code>) adds variables
+to the push alone in either mode, so a hook can recognise a delivery that was
+already gated and step aside.</li>
+</ul>
+<p>Every delivery push also carries <code>PMCP_GIT_DELIVER=1</code>. In command mode the lock
+variable reaches the push only if <code>push_env</code> names it.</p>
 <p><code>pmcp git deliver --json</code> prints one receipt on stdout when it ends, progress
 staying on stderr: <code>{ok, code, delivered, upstream, attempts, gate, leases, reason?}</code>, where <code>delivered</code> is the upstream commit it pushed (or <code>null</code>), <code>gate</code>
-is <code>{exit, log}</code> for the last gate run (or <code>null</code>), <code>leases</code> the leases it took
+is <code>{exit, log, by}</code> for the last gate run (or <code>null</code>; <code>by</code> is <code>&quot;command&quot;</code> or
+<code>&quot;pre-push&quot;</code>), <code>leases</code> the leases it took
 and <code>reason</code> the last refusal or failure. Exit codes: <code>0</code> delivered or nothing
 to deliver; <code>1</code> refused, a lease or the gate lock held too long, a replay
 conflict, the gate failed, the push failed or it gave up after <code>attempts</code>; <code>2</code>

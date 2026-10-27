@@ -126,6 +126,8 @@ it("drops ahead commits that landed as copies and moves to the upstream", () => 
       attempts: 3,
       refuseDirectPush: true,
       duringPause: "refuse",
+      gate: "command",
+      pushEnv: {},
       leaseWaitSeconds: 3600,
     },
     tree: join(origin.base, "state/gate/tree"),

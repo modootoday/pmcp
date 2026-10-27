@@ -30,6 +30,8 @@ function run(origin: Remote, command: string[]) {
       attempts: 1,
       refuseDirectPush: true,
       duringPause: "refuse",
+      gate: "command",
+      pushEnv: {},
       leaseWaitSeconds: 1,
     },
     gate: { command, lockWaitSeconds: 60 },

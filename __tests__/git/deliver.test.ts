@@ -60,6 +60,8 @@ function options(
       attempts: 3,
       refuseDirectPush: true,
       duringPause: "refuse",
+      gate: "command",
+      pushEnv: {},
       leaseWaitSeconds: 3600,
     },
     tree: join(origin.base, "state/gate/tree"),
@@ -198,6 +200,8 @@ it("refuses after lease_wait_seconds and names the holder's subject and pid", ()
       attempts: 3,
       refuseDirectPush: true,
       duringPause: "refuse" as const,
+      gate: "command" as const,
+      pushEnv: {},
       leaseWaitSeconds: 1,
     };
     const code = deliver(

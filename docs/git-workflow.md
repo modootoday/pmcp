@@ -78,13 +78,30 @@ the fetched mainline, runs the gate, and pushes one delivery at a time:
 `attempts` (default `3`), `refuse_direct_push` (default `true`: a hook refuses
 `git push` from any checkout of this repository, so the mainline moves only
 through delivery), `during_pause` (`"refuse"` default or `"allow"`),
-`lease_wait_seconds` (default `3600`) and `notify` (argv run after a
-delivery).
+`lease_wait_seconds` (default `3600`), `notify` (argv run after a
+delivery), `gate` and `push_env`.
+
+The push of a delivery runs the repository's own hooks, so a pre-push hook that
+gates as well needs one of two set-ups.
+
+- `gate = "pre-push"` makes that hook the gate: pmcp takes the lock, replays and
+  retries, runs no `[git.mainline.gate] command` (declaring one is an error),
+  and pushes with `lock_env` set to `1`, so a hook that takes the same lock does
+  not wait on pmcp. The push output is the gate log, and a refused push is a
+  failed gate.
+- `gate = "command"` (the default) keeps pmcp's command as the gate.
+  `push_env` (a table of variable names to strings, default `{}`) adds variables
+  to the push alone in either mode, so a hook can recognise a delivery that was
+  already gated and step aside.
+
+Every delivery push also carries `PMCP_GIT_DELIVER=1`. In command mode the lock
+variable reaches the push only if `push_env` names it.
 
 `pmcp git deliver --json` prints one receipt on stdout when it ends, progress
 staying on stderr: `{ok, code, delivered, upstream, attempts, gate, leases,
 reason?}`, where `delivered` is the upstream commit it pushed (or `null`), `gate`
-is `{exit, log}` for the last gate run (or `null`), `leases` the leases it took
+is `{exit, log, by}` for the last gate run (or `null`; `by` is `"command"` or
+`"pre-push"`), `leases` the leases it took
 and `reason` the last refusal or failure. Exit codes: `0` delivered or nothing
 to deliver; `1` refused, a lease or the gate lock held too long, a replay
 conflict, the gate failed, the push failed or it gave up after `attempts`; `2`

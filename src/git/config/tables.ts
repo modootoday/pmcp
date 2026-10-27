@@ -93,6 +93,8 @@ export function deliver(path: string, source: Table): DeliverConfig {
     "during_pause",
     "lease_wait_seconds",
     "notify",
+    "gate",
+    "push_env",
   ]);
   return {
     attempts: read.int("attempts", 3),
@@ -100,6 +102,8 @@ export function deliver(path: string, source: Table): DeliverConfig {
     duringPause: read.oneOf("during_pause", ["refuse", "allow"], "refuse"),
     leaseWaitSeconds: read.int("lease_wait_seconds", 3600),
     notify: read.argv("notify"),
+    gate: read.oneOf("gate", ["command", "pre-push"], "command"),
+    pushEnv: read.envMap("push_env"),
   };
 }
 

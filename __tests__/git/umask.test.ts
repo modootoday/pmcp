@@ -168,6 +168,8 @@ it("deliver checks the gate tree out under the umask and restores its modes", ()
       attempts: 1,
       refuseDirectPush: true,
       duringPause: "refuse",
+      gate: "command",
+      pushEnv: {},
       leaseWaitSeconds: 1,
     },
     gate: { command: ["true"], lockWaitSeconds: 5 } as never,

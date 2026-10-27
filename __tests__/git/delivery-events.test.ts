@@ -34,6 +34,8 @@ it("tells recordDelivery which leases a delivery took, and names its holder whil
       attempts: 1,
       refuseDirectPush: true,
       duringPause: "refuse",
+      gate: "command",
+      pushEnv: {},
       leaseWaitSeconds: 1,
     },
     gate: {

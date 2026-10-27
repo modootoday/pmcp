@@ -51,6 +51,8 @@ function run(origin: Remote) {
       attempts: 1,
       refuseDirectPush: true,
       duringPause: "refuse",
+      gate: "command",
+      pushEnv: {},
       leaseWaitSeconds: 1,
     },
     tree: join(origin.base, "state/gate/tree"),

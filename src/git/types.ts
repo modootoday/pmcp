@@ -42,6 +42,10 @@ export interface DeliverConfig {
   readonly duringPause: "refuse" | "allow";
   readonly leaseWaitSeconds: number;
   readonly notify?: Argv;
+  // Who gates: pmcp's [git.mainline.gate] command, or the repository's own pre-push hook.
+  readonly gate: "command" | "pre-push";
+  // Extra variables for the push alone, so a repository hook can recognise a delivery.
+  readonly pushEnv: Readonly<Record<string, string>>;
 }
 
 export interface MainlineSyncConfig {

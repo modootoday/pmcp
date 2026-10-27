@@ -78,6 +78,18 @@ export class Reader {
     if (value.length === 0) return undefined;
     return value;
   }
+
+  // A table of environment variable names to string values.
+  envMap(key: string): Readonly<Record<string, string>> {
+    const value = this.table[key] ?? {};
+    if (value === null || typeof value !== "object" || Array.isArray(value))
+      this.fail(key, "a table of variable names to strings");
+    for (const [name, text] of Object.entries(value)) {
+      if (!/^[A-Z_][A-Z0-9_]{0,127}$/u.test(name) || typeof text !== "string")
+        this.fail(key, "a table of variable names (A-Z, 0-9, _) to strings");
+    }
+    return value as Record<string, string>;
+  }
 }
 
 export function table(

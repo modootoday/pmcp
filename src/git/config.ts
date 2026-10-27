@@ -62,6 +62,15 @@ export function readGitConfig(config: ProjectConfig): GitConfig | null {
   const mainSyncTable = child(path, mainline, "git.mainline", "sync");
   const submoduleTable = child(path, root, "git", "submodules");
   const stateDir = sessions?.["state_dir"];
+  // One gate per attempt: the pre-push hook gates, so pmcp runs no command of its own.
+  if (
+    deliverTable?.["gate"] === "pre-push" &&
+    gateTable?.["command"] !== undefined
+  )
+    throw new ConfigError(
+      path,
+      '[git.mainline.deliver] gate = "pre-push" leaves gating to the pre-push hook; remove [git.mainline.gate] command',
+    );
   return {
     enabled: on,
     remote: read.string("remote"),

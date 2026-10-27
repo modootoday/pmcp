@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { loadavg } from "node:os";
 import { git, gitText, runCommand } from "../exec.js";
 import { isAncestor, touchedPaths, undelivered } from "../landed.js";
@@ -9,7 +10,7 @@ import type {
   LeaseSpec,
   Reporter,
 } from "../types.js";
-import { gateTree, runGate } from "./gate.js";
+import { gateLog, gateTree, runGate } from "./gate.js";
 import {
   acquireHostLock,
   readHolder,
@@ -60,7 +61,12 @@ export interface DeliverReceipt {
   readonly delivered: string | null;
   readonly upstream: string;
   readonly attempts: number;
-  readonly gate: { readonly exit: number; readonly log: string | null } | null;
+  // The last gate run, and whether pmcp's command or the repository's pre-push hook ran it.
+  readonly gate: {
+    readonly exit: number;
+    readonly log: string | null;
+    readonly by: "command" | "pre-push";
+  } | null;
   readonly leases: readonly string[];
   readonly reason?: string;
 }
@@ -84,6 +90,31 @@ function subject(cwd: string, sha: string): string {
 
 function fetch(ctx: GitContext): boolean {
   return git(ctx.root, ["fetch", "-q", ctx.remote, ctx.mainline]).status === 0;
+}
+
+// The push carries PMCP_GIT_DELIVER=1 and push_env. When the repository's pre-push hook is the
+// gate it also carries lock_env=1, since pmcp holds that lock, and its output is the gate log.
+function push(options: DeliverOptions, tip: string, preHook: boolean) {
+  const { ctx, report } = options;
+  const lockEnv = options.gate?.lockEnv;
+  const env = {
+    ...options.deliver.pushEnv,
+    ...(preHook && lockEnv ? { [lockEnv]: "1" } : {}),
+    PMCP_GIT_DELIVER: "1",
+  };
+  const args = ["push", ctx.remote, `${tip}:refs/heads/${ctx.mainline}`];
+  if (!preHook) return git(ctx.root, args, env);
+  const dir =
+    options.gate?.logDir ?? join(dirname(gateTree(options.tree).tree), "logs");
+  const log = gateLog(dir, tip);
+  report.info(`the pre-push hook gates ${tip.slice(0, 10)}; gate log: ${log}`);
+  const pushed = git(ctx.root, args, env);
+  const output = `${pushed.stdout}${pushed.stderr}`;
+  writeFileSync(log, output);
+  process.stderr.write(output);
+  if (options.track)
+    options.track.gate = { exit: pushed.status, log, by: "pre-push" };
+  return pushed;
 }
 
 // Hold one lock across replay, gate and push so competing deliveries cannot interleave.
@@ -115,7 +146,8 @@ function attempts(options: DeliverOptions): number {
       report.warn(replayed.error);
       return 1;
     }
-    const command = options.gate?.command;
+    const preHook = options.deliver.gate === "pre-push";
+    const command = preHook ? undefined : options.gate?.command;
     if (command !== undefined) {
       const run = runGate(
         ctx.mainRoot,
@@ -128,19 +160,14 @@ function attempts(options: DeliverOptions): number {
         options.gate?.logDir,
         options.umask !== undefined,
       );
-      if (options.track) options.track.gate = { exit: run.code, log: run.log };
+      if (options.track)
+        options.track.gate = { exit: run.code, log: run.log, by: "command" };
       if (run.code !== 0) {
         report.warn("the gate failed; nothing was pushed");
         return 1;
       }
     }
-    const pushed = git(
-      ctx.root,
-      ["push", ctx.remote, `${replayed.tip}:refs/heads/${ctx.mainline}`],
-      {
-        PMCP_GIT_DELIVER: "1",
-      },
-    );
+    const pushed = push(options, replayed.tip, preHook);
     if (pushed.status === 0) {
       if (options.track) options.track.delivered = replayed.tip;
       report.info(`delivered ${replayed.tip.slice(0, 10)} to ${ctx.upstream}`);
@@ -148,9 +175,15 @@ function attempts(options: DeliverOptions): number {
     }
     fetch(ctx);
     if (isAncestor(ctx.root, ctx.upstream, replayed.tip)) {
-      report.warn(
-        `the push failed for a reason other than a newer ${ctx.upstream}:\n${pushed.stderr.trim()}`,
-      );
+      // In pre-push mode a refused push is the gate's verdict; its output is in the log.
+      if (preHook)
+        report.warn(
+          `the pre-push gate failed (exit ${pushed.status}); nothing was pushed; full gate log: ${options.track?.gate?.log}`,
+        );
+      else
+        report.warn(
+          `the push failed for a reason other than a newer ${ctx.upstream}:\n${pushed.stderr.trim()}`,
+        );
       return 1;
     }
     report.info(`${ctx.upstream} moved while the gate ran; replaying again`);

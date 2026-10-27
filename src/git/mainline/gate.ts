@@ -95,7 +95,7 @@ export function prepareGateTree(
 const KEEP_LOGS = 20;
 
 // <UTC>-<tip>.log, so the names sort by time; only the newest KEEP_LOGS stay.
-function gateLog(dir: string, tip: string): string {
+export function gateLog(dir: string, tip: string): string {
   mkdirSync(dir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/gu, "-");
   const logs = readdirSync(dir)
