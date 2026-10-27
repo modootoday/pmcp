@@ -4,6 +4,7 @@ import {
   asPause,
   asRecord,
   isLeaseFile,
+  latestRecord,
   recordLive,
   STATE_FILES,
 } from "../../../sessions/format";
@@ -49,22 +50,25 @@ export async function readRecords(
   files: StateFiles,
   options: ReadOptions,
 ): Promise<SessionRecord[]> {
-  // sessions/ first; the deprecated fleet/ adds records written before 0.20.
-  const seen = new Set<string>();
-  const records: SessionRecord[] = [];
+  // sessions/ and the deprecated fleet/: each session once, the copy updated last.
+  const found = new Map<string, (SessionRecord | null)[]>();
   for (const folder of [STATE_PATHS.records, STATE_FILES.legacyRecords]) {
     const directory = `${options.stateDir}/${folder}`;
     const names = await files.list(directory).catch(() => [] as string[]);
-    for (const name of names.filter((item) => item.endsWith(".json")).sort()) {
-      if (seen.has(name)) continue;
-      const record = asRecord(await readJson(files, `${directory}/${name}`));
-      if (!record) continue;
-      seen.add(name);
-      const pidAlive = await isAlive(files, record.pid);
-      if (recordLive(record, options.now, pidAlive)) records.push(record);
-    }
+    for (const name of names.filter((item) => item.endsWith(".json")))
+      found.set(name, [
+        ...(found.get(name) ?? []),
+        asRecord(await readJson(files, `${directory}/${name}`)),
+      ]);
   }
-  return records.sort((a, b) => a.session.localeCompare(b.session));
+  const records: SessionRecord[] = [];
+  for (const name of [...found.keys()].sort()) {
+    const record = latestRecord(found.get(name)!);
+    if (!record) continue;
+    const pidAlive = await isAlive(files, record.pid);
+    if (recordLive(record, options.now, pidAlive)) records.push(record);
+  }
+  return records;
 }
 
 // Every live lease in the state directory, whatever its name; the one held longest is shown.

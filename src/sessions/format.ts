@@ -14,6 +14,18 @@ export const STATE_FILES = {
 
 export const STALE_MS = 30 * 60 * 1000;
 
+// Of a session's copies (sessions/ and fleet/), the one updated last; the first wins a tie.
+export function latestRecord(
+  copies: readonly (SessionRecord | null)[],
+): SessionRecord | null {
+  const time = (record: SessionRecord) =>
+    Date.parse(record.updatedAt ?? record.startedAt ?? "") || 0;
+  let latest: SessionRecord | null = null;
+  for (const copy of copies)
+    if (copy && (!latest || time(copy) > time(latest))) latest = copy;
+  return latest;
+}
+
 const LEASE_NAME = /^[a-z0-9][a-z0-9_-]*$/u;
 
 // The lease file name is part of the shared formats (docs/git-workflow.md); never change it.

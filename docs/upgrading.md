@@ -45,8 +45,10 @@ any tool names. A catalog that relies on those rules runs its own check beside
 
 **Session records move from `fleet/` to `sessions/` in the state directory.** 0.20 writes
 every record to both `sessions/<session>.json` and the deprecated `fleet/<session>.json`, and
-reads `sessions/` first, then a record only `fleet/` holds. A tool that reads `fleet/` keeps
-working through 0.20; move it to `sessions/` before 0.21, which stops writing `fleet/`. A mail
+reads both, using the copy updated last, so an older pmcp sharing the state directory (a hook
+bundle not yet projected again) is followed. A tool that reads `fleet/` keeps working through
+0.20; move it to `sessions/` and run `pmcp project` everywhere before 0.21, which stops
+writing `fleet/`. A mail
 recipient's linked worktree is now `worktree` throughout; `desk:<path>` is still accepted as a
 spelling of `worktree:<path>`.
 

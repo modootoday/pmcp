@@ -2,7 +2,7 @@ import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 import { checkoutOf } from "../checkout.js";
-import { asRecord, STATE_FILES } from "../format.js";
+import { asRecord, latestRecord, STATE_FILES } from "../format.js";
 import { isLive } from "../liveness.js";
 import type { LiveRecord, SessionRecord, SessionStore } from "../types.js";
 import { readJson, writeJson } from "./json.js";
@@ -14,8 +14,8 @@ export function filesRegistry(
   dir: string,
   staleMs: number,
 ): SessionStore["registry"] {
-  // sessions/ is read first; the deprecated fleet/ holds records written before 0.20 and keeps
-  // a copy of every record for readers that have not moved yet.
+  // Every record is kept in sessions/ and in the deprecated fleet/. A pmcp before 0.20 sharing
+  // this directory updates fleet/ alone, so of two copies the one updated last is the record.
   const dirs = [STATE_FILES.records, STATE_FILES.legacyRecords].map((name) =>
     join(dir, name),
   );
@@ -23,15 +23,12 @@ export function filesRegistry(
     dirs.map((records) => join(records, `${session}.json`));
   const get = (session: string) => {
     if (!SESSION_ID.test(session)) return null;
-    for (const path of pathsOf(session)) {
-      const record = asRecord(readJson(path));
-      if (record) return record;
-    }
-    return null;
+    return latestRecord(
+      pathsOf(session).map((path) => asRecord(readJson(path))),
+    );
   };
   const list = (now = Date.now()): LiveRecord[] => {
-    const seen = new Set<string>();
-    const records: SessionRecord[] = [];
+    const found = new Map<string, (SessionRecord | null)[]>();
     for (const folder of dirs) {
       let names: string[] = [];
       try {
@@ -39,18 +36,16 @@ export function filesRegistry(
       } catch {
         continue;
       }
-      for (const name of names) {
-        if (seen.has(name)) continue;
-        const record = asRecord(readJson(join(folder, name)));
-        if (!record) continue;
-        seen.add(name);
-        records.push(record);
-      }
+      for (const name of names)
+        found.set(name, [
+          ...(found.get(name) ?? []),
+          asRecord(readJson(join(folder, name))),
+        ]);
     }
-    return records.map((record) => ({
-      ...record,
-      live: isLive(record, now, staleMs),
-    }));
+    return [...found.values()]
+      .map(latestRecord)
+      .filter((record): record is SessionRecord => record !== null)
+      .map((record) => ({ ...record, live: isLive(record, now, staleMs) }));
   };
   const remove = (session: string) => {
     if (!SESSION_ID.test(session)) return;
