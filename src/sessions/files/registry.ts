@@ -14,11 +14,11 @@ export function filesRegistry(
   dir: string,
   staleMs: number,
 ): SessionStore["registry"] {
-  // Every record is kept in sessions/ and in the deprecated fleet/. A pmcp before 0.20 sharing
-  // this directory updates fleet/ alone, so of two copies the one updated last is the record.
-  const dirs = [STATE_FILES.records, STATE_FILES.legacyRecords].map((name) =>
-    join(dir, name),
-  );
+  // Records are written to sessions/ and read from it and the deprecated fleet/. A pmcp before
+  // 0.20 sharing this directory updates fleet/ alone, so of two copies the one updated last is
+  // the record.
+  const records = join(dir, STATE_FILES.records);
+  const dirs = [records, join(dir, STATE_FILES.legacyRecords)];
   const pathsOf = (session: string) =>
     dirs.map((records) => join(records, `${session}.json`));
   const get = (session: string) => {
@@ -70,8 +70,8 @@ export function filesRegistry(
         next["worktree"] = checkout?.root ?? "";
         next["branch"] = checkout?.branch ?? "";
       }
-      // Both copies, the new path first; each write is a temporary file and a rename.
-      for (const path of pathsOf(session)) writeJson(path, next);
+      // A temporary file and a rename. A fleet/ copy stays for the older writer that keeps it.
+      writeJson(join(records, `${session}.json`), next);
       return next as SessionRecord;
     },
     sweep(now = Date.now()) {

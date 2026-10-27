@@ -32,13 +32,13 @@ describe("files store", () => {
     ).toMatchObject({ by: "operator", reason: "incident" });
     expect(existsSync(join(state, "broadcast.json"))).toBe(true);
     expect(existsSync(join(state, "broadcast-history.jsonl"))).toBe(true);
-    // A new write lands in sessions/ and, for readers of the deprecated path, in fleet/.
-    for (const folder of ["sessions", "fleet"])
-      expect(
-        JSON.parse(
-          readFileSync(join(state, folder, "abcd1234-session.json"), "utf8"),
-        ),
-      ).toMatchObject({ session: "abcd1234-session", alias: "kit" });
+    // A new write lands in sessions/ alone; the deprecated fleet/ is no longer written.
+    expect(
+      JSON.parse(
+        readFileSync(join(state, "sessions/abcd1234-session.json"), "utf8"),
+      ),
+    ).toMatchObject({ session: "abcd1234-session", alias: "kit" });
+    expect(existsSync(join(state, "fleet"))).toBe(false);
   });
 
   it("reads a record written before 0.20 that only fleet/ holds, and lists each session once", (t) => {
@@ -75,26 +75,27 @@ describe("files store", () => {
     const store = createFilesStore(state);
     store.registry.upsert("mix0mix0-session", { cwd: state, alias: "kit" });
     // The older writer adds a field and a later updatedAt to its own copy only.
+    const current = join(state, "sessions/mix0mix0-session.json");
+    const ours = JSON.parse(readFileSync(current, "utf8"));
+    const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
+    writeFileSync(current, JSON.stringify({ ...ours, updatedAt: ago(60_000) }));
+    mkdirSync(join(state, "fleet"), { recursive: true });
     const legacy = join(state, "fleet/mix0mix0-session.json");
-    const older = JSON.parse(readFileSync(legacy, "utf8"));
     writeFileSync(
       legacy,
-      JSON.stringify({
-        ...older,
-        seenBroadcast: 7,
-        updatedAt: new Date(Date.now() + 60_000).toISOString(),
-      }),
+      JSON.stringify({ ...ours, seenBroadcast: 7, updatedAt: ago(1_000) }),
     );
     expect(store.registry.get("mix0mix0-session")?.seenBroadcast).toBe(7);
     expect(store.registry.list()[0]?.seenBroadcast).toBe(7);
-    // A newer write starts from that copy, so nothing the older writer added is lost.
+    // A newer write starts from that copy, so nothing the older writer added is lost; it goes
+    // to sessions/ and leaves the older writer's copy as it was.
     store.registry.upsert("mix0mix0-session", { lastAction: "edit" });
-    for (const folder of ["sessions", "fleet"])
-      expect(
-        JSON.parse(
-          readFileSync(join(state, folder, "mix0mix0-session.json"), "utf8"),
-        ),
-      ).toMatchObject({ seenBroadcast: 7, lastAction: "edit" });
+    expect(JSON.parse(readFileSync(current, "utf8"))).toMatchObject({
+      seenBroadcast: 7,
+      lastAction: "edit",
+    });
+    expect(JSON.parse(readFileSync(legacy, "utf8")).lastAction).toBeUndefined();
+    expect(store.registry.get("mix0mix0-session")?.lastAction).toBe("edit");
   });
 
   it("keeps only the configured number of broadcasts and withdraws them all", (t) => {

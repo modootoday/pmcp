@@ -4,8 +4,8 @@ import type { Broadcast, Lease, Pause, SessionRecord } from "./types";
 
 export const STATE_FILES = {
   records: "sessions",
-  // The records' former directory. Deprecated: 0.20 still writes every record there too and
-  // reads it when sessions/ lacks one; 0.21 stops writing it.
+  // The records' former directory. Deprecated: read beside sessions/ but no longer written; a
+  // pmcp before 0.20 sharing the state directory still writes there.
   legacyRecords: "fleet",
   pause: "pause.json",
   broadcast: "broadcast.json",
