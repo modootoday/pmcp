@@ -139,7 +139,10 @@ it("holds the lockfile lease through the push and the follow-up sync when the co
   const code = deliver(
     options(origin, {
       store: recordingStore(events),
-      afterDeliver: () => events.push("after"),
+      afterDeliver: () => {
+        events.push("after");
+        return null;
+      },
     }),
   );
   expect(code).toBe(0);

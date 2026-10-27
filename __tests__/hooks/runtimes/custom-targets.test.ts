@@ -10,6 +10,7 @@ const entry = (targets: CustomEntry["targets"]): CustomEntry =>
     targets,
     timeoutMs: 500,
     event: "before_shell",
+    mode: "deny",
   }) as CustomEntry;
 
 describe("custom guard targets are served by the bundle or the shell adapter, never neither", () => {
