@@ -17,6 +17,7 @@ import { sessionsDoctor } from "./sessions.js";
 import { hostDoctor, hostEnvDoctor, ptyBinaryDoctor } from "../host.js";
 import { hostApprovalDoctor } from "../host-approval.js";
 import { pluginBinaryDoctor } from "../mcp-spec/plugin-binary.js";
+import { describeHookProblem, unmanagedHooks } from "../unmanaged-hooks.js";
 export function doctor(spec: ProjectSpec, options: DoctorOptions): Finding[] {
   const check = project(spec, { check: true });
   const findings: Finding[] = [
@@ -29,6 +30,23 @@ export function doctor(spec: ProjectSpec, options: DoctorOptions): Finding[] {
           detail: check.problems.slice(0, 5).join("; "),
         },
   ];
+  // Only when there is such an entry, so a project without one keeps its doctor output.
+  const unmanaged = unmanagedHooks(spec.root, options.env ?? process.env);
+  if (unmanaged.checked > 0)
+    findings.push(
+      unmanaged.problems.length === 0
+        ? {
+            tool: "project",
+            check: "native hooks pmcp does not own",
+            status: "ok",
+          }
+        : {
+            tool: "project",
+            check: "native hooks pmcp does not own",
+            status: "fail",
+            detail: unmanaged.problems.map(describeHookProblem).join("; "),
+          },
+    );
   findings.push(...sessionsDoctor(spec, options));
   findings.push(...hostDoctor(spec));
   if (spec.host) findings.push(hostApprovalDoctor(spec.root));

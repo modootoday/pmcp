@@ -219,7 +219,7 @@ pmcp doctor
 pmcp doctor --memory
 ```
 
-Inspect native configuration and prerequisites. The optional memory report shows enabled state and paths; it does not read memory contents or synchronize personal memory. [Doctor scope and runtime compatibility](project-configuration.md).
+Inspect native configuration and prerequisites, including [native hook entries pmcp does not own](hooks.md#native-hook-entries-pmcp-does-not-own), which `project --check` also checks. The optional memory report shows enabled state and paths; it does not read memory contents or synchronize personal memory. [Doctor scope and runtime compatibility](project-configuration.md).
 
 ## validate
 

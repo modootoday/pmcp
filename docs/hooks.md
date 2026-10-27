@@ -215,6 +215,24 @@ as `projector.json`), and only at the version `pmcp.lock` records. A pmcp on
 `PATH` is never used. When none matches, the session hears
 `projecting pmcp not available` once instead of a drift report.
 
+## Native hook entries pmcp does not own
+
+Hook entries a project or a tool wrote itself run beside pmcp's, and a broken one
+fails every call it matches. `pmcp project --check` (exit 2) and `pmcp doctor`
+check each such entry in `.claude/settings.json`, `.claude/settings.local.json`,
+`.codex/hooks.json`, and the `hooks/hooks.json` (or the manifest's `hooks` path)
+of each plugin whose `.claude-plugin/plugin.json` is tracked by git. Entries that
+run `.agents/pmcp-hooks/` are pmcp's and are not checked here.
+
+The command's first simple command is read, never run. A leading `NAME=value`
+is skipped; `$CLAUDE_PROJECT_DIR` is the project root, `${CLAUDE_PLUGIN_ROOT}` the
+plugin's directory (an error outside a plugin), and `~` and `$HOME` the home
+directory. A program run directly must be an existing file that is executable
+and starts with `#!`; a script given to an interpreter (`node`, `bun`, `deno`,
+`tsx`, `python`, `python3`, `bash`, `sh`, `zsh`, `dash`, `ruby`, `perl`) must
+exist. A bare program name found on `PATH`, inline code (`node -e`) and a path
+built from another variable are not checked.
+
 ## Runtime support
 
 From the measured capability files in `docs/hooks/capabilities/` (Claude Code

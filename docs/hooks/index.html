@@ -138,9 +138,43 @@ command the parser cannot read is judged by a conservative pattern instead.</p>
 <tr><td><code>command</code></td><td>argv list</td><td>required</td><td>The first or second element is the script, which must exist inside <code>.agents/guards/</code>; its sha256 is pinned in <code>policy.json</code>.</td></tr>
 <tr><td><code>targets</code></td><td>list</td><td>required</td><td>Any <code>[hooks] targets</code> runtime. A runtime in <code>[hooks] targets</code> runs it in the hook bundle; otherwise Codex, Gemini and Antigravity use the shell adapter, and Claude, Grok and OpenCode are an error.</td></tr>
 <tr><td><code>timeout_ms</code></td><td>integer</td><td><code>15000</code></td><td>100 to 60000.</td></tr>
-<tr><td><code>on</code></td><td>string</td><td><code>&quot;before_shell&quot;</code></td><td><code>before_shell</code> or <code>after_edit</code>.</td></tr></tbody></table></div>
+<tr><td><code>on</code></td><td>string</td><td><code>&quot;before_shell&quot;</code></td><td><code>before_shell</code> or <code>after_edit</code>.</td></tr>
+<tr><td><code>mode</code></td><td>string</td><td><code>&quot;deny&quot;</code></td><td><code>deny</code>, <code>ask</code>, <code>warn</code>, <code>observe</code> or <code>off</code>, as for a built-in guard.</td></tr></tbody></table></div>
 <p>The script receives the JSON contract described under
-<a href="#deprecated-shell-guards">Deprecated shell guards</a>. Custom guards have no <code>mode</code>.</p>
+<a href="#deprecated-shell-guards">Deprecated shell guards</a>.</p>
+<p><code>mode</code> means what it does for a built-in guard: the script runs and its refusal
+is a deny, an ask, a note in the session&#39;s context (<code>warn</code>), or only a log line
+(<code>observe</code>); <code>off</code> does not run it. The guard log records the script&#39;s own
+verdict as <code>raw</code> in every mode. Only the hook bundle applies a mode: a runtime
+the shell adapter serves (Codex, Gemini or Antigravity outside <code>[hooks] targets</code>) can only refuse, so a mode other than <code>deny</code> there is a configuration
+error naming the guard, the mode and the runtime.</p>
+<h2 id="hooksreport"><code>[hooks.report]</code></h2>
+<p>Read by <a href="/commands/#hooks"><code>pmcp hooks report</code></a> alone; it changes nothing in the
+hooks.</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>exclude_sessions</code></td><td>list</td><td><code>[]</code></td><td>Regexes; guard log lines of a session id matching one are left out of the report.</td></tr></tbody></table></div>
+<h2 id="hookstest"><code>[hooks.test]</code></h2>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>fixtures</code></td><td>path</td><td>none</td><td>The cases <code>pmcp project --check --smoke</code> runs; relative to the directory holding <code>pmcp.toml</code>.</td></tr></tbody></table></div>
+<p>A fixtures file is JSON: <code>{cases, failure?}</code>. Each case is
+<code>{name, guard, command, cwd?, expect}</code>, where <code>guard</code> is the guard the case is
+about (<code>shell.heredoc</code>, <code>custom.&lt;name&gt;</code>), <code>cwd = &quot;linked-worktree&quot;</code> runs it from a
+scratch repository with a branch checked out in a linked worktree, and <code>expect</code>
+is <code>allow</code>, <code>deny</code> or <code>ask</code> for every runtime, or a table of runtime to one of
+them (a runtime left out does not run the case). <code>failure</code>, when present, must
+equal the projected <code>[hooks.failure]</code> (<code>{timeoutMs, retry, pass}</code>).</p>
+<p><code>pmcp hooks test --fixtures &lt;file&gt;</code> and <code>pmcp project --check --smoke</code> run each
+case through the projected <code>.agents/pmcp-hooks/hook.mjs</code>, once per <code>[hooks] targets</code> runtime that answers a shell call, with that runtime&#39;s own payload. The
+command is classified by the guards, never run; state goes to a throwaway
+<code>XDG_STATE_HOME</code>, and <code>GIT_*</code> variables are removed, so a run from inside a git
+hook does not look at the repository being committed. Findings:</p>
+<ul>
+<li>a decision that differs from <code>expect</code>, or a hook that fails or times out;</li>
+<li>coverage: every guard that can refuse (<code>deny</code>, <code>ask</code> or <code>graded</code>, including
+custom guards on <code>before_shell</code>) needs, per runtime, one case it refuses and
+one it lets through;</li>
+<li><code>[hooks.failure]</code> differing from the fixtures&#39; <code>failure</code>;</li>
+<li>a target whose native hook entry is missing, and a run in which no case ran.</li>
+</ul>
+<p><code>hooks test --fixtures</code> exits 0 with no finding and 1 otherwise; <code>project --check --smoke</code> exits 2 on a finding, as for drift.</p>
 <h2 id="hooksfailure"><code>[hooks.failure]</code></h2>
 <p>What a guard that fails to evaluate means for the call: it threw, or it ran past
 <code>timeout_ms</code>. A guard&#39;s own deny is a verdict and is never affected. Without the
@@ -174,6 +208,21 @@ last projected this checkout on this machine (recorded in the state directory
 as <code>projector.json</code>), and only at the version <code>pmcp.lock</code> records. A pmcp on
 <code>PATH</code> is never used. When none matches, the session hears
 <code>projecting pmcp not available</code> once instead of a drift report.</p>
+<h2 id="native-hook-entries-pmcp-does-not-own">Native hook entries pmcp does not own</h2>
+<p>Hook entries a project or a tool wrote itself run beside pmcp&#39;s, and a broken one
+fails every call it matches. <code>pmcp project --check</code> (exit 2) and <code>pmcp doctor</code>
+check each such entry in <code>.claude/settings.json</code>, <code>.claude/settings.local.json</code>,
+<code>.codex/hooks.json</code>, and the <code>hooks/hooks.json</code> (or the manifest&#39;s <code>hooks</code> path)
+of each plugin whose <code>.claude-plugin/plugin.json</code> is tracked by git. Entries that
+run <code>.agents/pmcp-hooks/</code> are pmcp&#39;s and are not checked here.</p>
+<p>The command&#39;s first simple command is read, never run. A leading <code>NAME=value</code>
+is skipped; <code>$CLAUDE_PROJECT_DIR</code> is the project root, <code>${CLAUDE_PLUGIN_ROOT}</code> the
+plugin&#39;s directory (an error outside a plugin), and <code>~</code> and <code>$HOME</code> the home
+directory. A program run directly must be an existing file that is executable
+and starts with <code>#!</code>; a script given to an interpreter (<code>node</code>, <code>bun</code>, <code>deno</code>,
+<code>tsx</code>, <code>python</code>, <code>python3</code>, <code>bash</code>, <code>sh</code>, <code>zsh</code>, <code>dash</code>, <code>ruby</code>, <code>perl</code>) must
+exist. A bare program name found on <code>PATH</code>, inline code (<code>node -e</code>) and a path
+built from another variable are not checked.</p>
 <h2 id="runtime-support">Runtime support</h2>
 <p>From the measured capability files in <code>docs/hooks/capabilities/</code> (Claude Code
 2.1.303, Codex 0.163.0, including live sessions). <code>pmcp doctor</code> prints the same

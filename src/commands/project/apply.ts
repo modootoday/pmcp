@@ -5,6 +5,10 @@ import { project } from "../../project/apply.js";
 import { addEntry, findEntry, removeAsset } from "../../project/edit.js";
 import { recordProjector } from "../../project/projector.js";
 import type { ProjectSpec } from "../../project/spec.js";
+import {
+  describeHookProblem,
+  unmanagedHookProblems,
+} from "../../project/unmanaged-hooks.js";
 import { configFrom } from "../config-from.js";
 import { printSmoke, runSmoke } from "../hooks/smoke.js";
 import { catalogFrom } from "../roots.js";
@@ -69,6 +73,13 @@ export function projectOrCheck(context: CommandContext): number {
     return 2;
   }
   context.ui.success(`${result.outputs} outputs match`);
+  // Hook entries pmcp does not own are not drift, but a broken one fails every call it matches.
+  const broken = unmanagedHookProblems(spec.root, context.env);
+  for (const problem of broken)
+    context.ui.error(
+      `native hook entry pmcp does not own: ${describeHookProblem(problem)}`,
+    );
+  if (broken.length > 0) return 2;
   return smoke ? smokeCheck(context, spec) : 0;
 }
 
