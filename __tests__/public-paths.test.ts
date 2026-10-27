@@ -30,7 +30,7 @@ it("knows the shapes it refuses", () => {
       ".spec/plans/x.md",
       "apps/web/.spec/sots/a.sot.md",
       "docs/decisions/2026-ci.md",
-      "notes/ADR-PKG-090-x.md",
+      "notes/ADR-OPS-7-x.md",
       "docs/git-workflow.md",
       "src/hooks/policies/shell/regex-cost.ts",
       "docs/hooks/adrenaline.md",
@@ -40,6 +40,6 @@ it("knows the shapes it refuses", () => {
     ".spec/plans/x.md",
     "apps/web/.spec/sots/a.sot.md",
     "docs/decisions/2026-ci.md",
-    "notes/ADR-PKG-090-x.md",
+    "notes/ADR-OPS-7-x.md",
   ]);
 });
