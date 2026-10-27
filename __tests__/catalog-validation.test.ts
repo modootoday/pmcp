@@ -98,10 +98,34 @@ describe("[catalog.validation]", () => {
     ).toContain("deny_list file not found");
   });
 
+  it("checks a skill's tier against [catalog.validation] tiers, the default four otherwise", () => {
+    const tiered = (toml: string) => {
+      const dir = project(toml);
+      const skill = join(dir, "tiered");
+      mkdirSync(skill, { recursive: true });
+      writeFileSync(
+        join(skill, "SKILL.md"),
+        "---\nname: tiered\ndescription: Tiered skill. Use when testing tiers.\nmetadata:\n  tier: community\n---\n\nbody\n",
+      );
+      const settings = readConfig(join(dir, "pmcp.toml")).catalog.validation;
+      return reasons(validateSkillDir(skill, settings));
+    };
+    expect(tiered('[catalog.validation]\nprofile = "catalog-v1"\n')).toContain(
+      "tier.unknown: tier community is not one of open, free, paid, internal ([catalog.validation] tiers)",
+    );
+    const own = tiered(
+      '[catalog.validation]\nprofile = "catalog-v1"\ntiers = ["community", "partner"]\n',
+    );
+    expect(own.filter((reason) => reason.startsWith("tier."))).toEqual([]);
+  });
+
   it.each([
     ['profile = "strict"', "profile must be catalog-v1 or library"],
     ['deny = "x"', "unknown key [catalog.validation] deny"],
     ["deny_list = 3", "deny_list must be a path"],
+    ["tiers = []", "tiers must be a list of distinct kebab-case names"],
+    ['tiers = ["Open"]', "tiers must be a list of distinct kebab-case names"],
+    ['tiers = ["a", "a"]', "tiers must be a list of distinct kebab-case names"],
   ])("rejects %s", (line, message) => {
     const dir = project(`[catalog.validation]\n${line}\n`);
     expect(() => readConfig(join(dir, "pmcp.toml"))).toThrow(message);

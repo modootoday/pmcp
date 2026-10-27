@@ -15,7 +15,7 @@ function selected(
   tier?: string,
 ): Finding[] {
   return [
-    ...profileFindings(skillMd, settings.profile, tier),
+    ...profileFindings(skillMd, settings.profile, tier, settings.tiers),
     ...denyListFindings(skillMd, settings.denyList),
   ];
 }

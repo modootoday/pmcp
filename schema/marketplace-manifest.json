@@ -54,12 +54,8 @@
       "properties": {
         "tier": {
           "type": "string",
-          "enum": [
-            "open",
-            "free",
-            "paid",
-            "internal"
-          ]
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "A tier name in kebab case; the default set is open, free, paid and internal."
         },
         "description": {
           "type": "string",

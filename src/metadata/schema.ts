@@ -1,6 +1,9 @@
 import { z } from "zod";
 
+// The default tier set ([catalog.validation] tiers), lowest first; the catalog-v1 rules that
+// depend on a tier know only these names.
 export const TIERS = ["open", "free", "paid", "internal"] as const;
+export type Tier = (typeof TIERS)[number];
 export const RUNTIMES = [
   "claude-code",
   "codex-cli",
@@ -8,13 +11,16 @@ export const RUNTIMES = [
   "grok-cli",
   "antigravity",
 ] as const;
-export const tier = z.enum(TIERS);
-export type Tier = z.infer<typeof tier>;
 export const runtime = z.enum(RUNTIMES);
 export const version = z
   .string()
   .regex(/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/);
 export const kebab = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+// A catalog names its own tiers; validation checks them against [catalog.validation] tiers.
+export const tier = kebab.meta({
+  description:
+    "A tier name in kebab case; the default set is open, free, paid and internal.",
+});
 const strings = z.array(z.string());
 export const requires = z.looseObject({
   mcp: strings.optional(),

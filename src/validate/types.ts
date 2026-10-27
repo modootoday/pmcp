@@ -12,4 +12,6 @@ export interface ValidationSettings {
   readonly profile?: ValidationProfile;
   /** Absolute path of a file listing terms no skill may contain, one per line. */
   readonly denyList?: string;
+  /** The tier names a catalog may use, lowest first; catalog-v1 checks against them. */
+  readonly tiers?: readonly string[];
 }

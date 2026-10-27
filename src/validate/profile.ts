@@ -52,12 +52,38 @@ function library(skillMd: string): Finding[] {
   }));
 }
 
+// A tier outside the configured set is one finding; the profile's tier rules are not run on it.
+function unknownTier(
+  skillMd: string,
+  tier: string | undefined,
+  tiers: readonly string[],
+): Finding[] {
+  const own = (
+    frontmatterObject(readFileSync(skillMd, "utf8")) as {
+      metadata?: { tier?: unknown };
+    }
+  ).metadata?.tier;
+  const named = tier ?? own;
+  if (typeof named !== "string" || tiers.includes(named)) return [];
+  return [
+    {
+      path: skillMd,
+      reason: `tier.unknown: tier ${named} is not one of ${tiers.join(", ")} ([catalog.validation] tiers)`,
+      level: "error",
+    },
+  ];
+}
+
 export function profileFindings(
   skillMd: string,
   profile: ValidationProfile | undefined,
   tier?: string,
+  tiers: readonly string[] = TIERS,
 ): Finding[] {
-  if (profile === "catalog-v1") return catalogV1(skillMd, tier);
+  if (profile === "catalog-v1") {
+    const unknown = unknownTier(skillMd, tier, tiers);
+    return unknown.length > 0 ? unknown : catalogV1(skillMd, tier);
+  }
   if (profile === "library") return library(skillMd);
   return [];
 }

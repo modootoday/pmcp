@@ -145,14 +145,9 @@
         },
         "tier": {
           "type": "string",
-          "enum": [
-            "open",
-            "free",
-            "paid",
-            "internal"
-          ],
-          "deprecated": true,
-          "description": "Inherited from marketplace metadata.tier; repeated skill tiers warn."
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "Inherited from marketplace metadata.tier; repeated skill tiers warn.",
+          "deprecated": true
         }
       },
       "additionalProperties": {},

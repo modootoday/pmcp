@@ -29,10 +29,12 @@ describe("metadata contracts", () => {
       pluginManifest.parse({ name: "x", mcpServers: { server: {} } }),
     ).toHaveProperty("mcpServers");
   });
-  it("has one runtime and tier vocabulary and no medium", () => {
-    for (const tier of TIERS)
+  it("has one runtime vocabulary and takes any kebab-case tier name", () => {
+    // Which names a catalog allows is [catalog.validation] tiers, not the schema.
+    for (const tier of [...TIERS, "community"])
       expect(skillMetadataCore.safeParse({ tier }).success).toBe(true);
-    expect(skillMetadataCore.safeParse({ tier: "medium" }).success).toBe(false);
+    for (const tier of ["Medium", "paid tier", ""])
+      expect(skillMetadataCore.safeParse({ tier }).success).toBe(false);
     expect(
       skillMetadataCore.safeParse({ "verified-runtimes": [...RUNTIMES] })
         .success,
@@ -68,7 +70,7 @@ describe("metadata contracts", () => {
       marketplaceManifest.safeParse({
         name: "x",
         plugins: [],
-        metadata: { tier: "medium" },
+        metadata: { tier: "Medium" },
       }).success,
     ).toBe(false);
   });
