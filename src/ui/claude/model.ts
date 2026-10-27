@@ -68,11 +68,22 @@ export function byKind(a: SessionRecord, b: SessionRecord): number {
   return labelOf(a).localeCompare(labelOf(b));
 }
 
-// A desk is named by its directory: detached linked worktrees have no branch to show.
-export function placeOf(record: SessionRecord): string {
+// The linked worktree directory directly under the worktree root that holds path, or "".
+// Without a root (settings projected before it was written) the default root is matched.
+export function linkedWorktreeOf(path: string, worktreeRoot?: string): string {
+  if (!worktreeRoot)
+    return /^(.*\/\.claude\/worktrees\/[^/]+)(?:\/|$)/u.exec(path)?.[1] ?? "";
+  const root = worktreeRoot.replace(/\/+$/u, "");
+  if (!path.startsWith(`${root}/`)) return "";
+  const name = path.slice(root.length + 1).split("/")[0];
+  return name ? `${root}/${name}` : "";
+}
+
+// A linked worktree is named by its directory: detached ones have no branch to show.
+export function placeOf(record: SessionRecord, worktreeRoot?: string): string {
   const worktree = record.worktree ?? "";
-  const desk = /\/\.claude\/worktrees\/([^/]+)\/?$/u.exec(worktree)?.[1];
-  if (desk) return desk;
+  const linked = linkedWorktreeOf(worktree.replace(/\/+$/u, ""), worktreeRoot);
+  if (linked) return linked.split("/").pop()!;
   if (record.branch) return record.branch;
   return worktree.replace(/\/+$/u, "").split("/").pop() || "-";
 }

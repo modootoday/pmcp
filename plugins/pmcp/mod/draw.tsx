@@ -33,7 +33,10 @@ export async function drawPane($: any, e: any): Promise<any> {
   const columns = Math.max(20, Number(e.props?.bodyColumns ?? 80));
   const now = state.now;
   const nameWidth = Math.max(4, ...records.map((r) => labelOf(r).length));
-  const placeWidth = Math.max(5, ...records.map((r) => placeOf(r).length));
+  const placeWidth = Math.max(
+    5,
+    ...records.map((r) => placeOf(r, state.settings?.worktreeRoot).length),
+  );
   const fixed = 2 + nameWidth + 1 + 8 + placeWidth + 1 + MARKS + 5;
   const actionWidth = Math.max(0, columns - fixed);
   const mark = bandMark(state.snapshot);
@@ -93,7 +96,11 @@ export async function drawPane($: any, e: any): Promise<any> {
                 {labelOf(record).padEnd(nameWidth)}{" "}
               </Text>
               <Text color={look.color}>{look.word.padEnd(8)}</Text>
-              <Text dimColor>{placeOf(record).padEnd(placeWidth)} </Text>
+              <Text dimColor>
+                {placeOf(record, state.settings?.worktreeRoot).padEnd(
+                  placeWidth,
+                )}{" "}
+              </Text>
               <Text color="warning">{marksOf(record).padEnd(MARKS)}</Text>
               <Text dimColor>
                 {ageOf(record.updatedAt, now).padStart(4)}{" "}

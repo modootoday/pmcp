@@ -1,5 +1,5 @@
 // Leave foreign-edit decisions to the person because the mod must not enforce independent policy.
-import { nameOf } from "./model";
+import { linkedWorktreeOf, nameOf } from "./model";
 import type { SessionRecord } from "./reader/index";
 import { state } from "./state";
 
@@ -11,8 +11,8 @@ function checkoutOf(target: string, records: readonly SessionRecord[]): string {
       best = root;
     }
   }
-  const desk = /^(.*\/\.claude\/worktrees\/[^/]+)\//.exec(target)?.[1] ?? "";
-  return desk.length > best.length ? desk : best;
+  const linked = linkedWorktreeOf(target, state.settings?.worktreeRoot);
+  return linked.length > best.length && target !== linked ? linked : best;
 }
 
 export async function holdForeignEdit($: any, e: any, next: any): Promise<any> {

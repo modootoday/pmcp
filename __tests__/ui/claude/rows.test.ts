@@ -2,7 +2,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { holderOf, placeOf, waitingOf } from "../../../src/ui/claude/model.js";
+import {
+  holderOf,
+  linkedWorktreeOf,
+  placeOf,
+  waitingOf,
+} from "../../../src/ui/claude/model.js";
 
 const DESK = "/w/.claude/worktrees/desk-review";
 
@@ -25,6 +30,29 @@ describe("session rows name the desk, the lease holder and the reason", () => {
       placeOf({ session: "d", branch: "", worktree: "/elsewhere/desk" }),
     ).toBe("desk");
     expect(placeOf({ session: "x" })).toBe("-");
+  });
+
+  it("names a linked worktree under the configured root, not only .claude/worktrees", () => {
+    expect(
+      placeOf(
+        { session: "p", branch: "", worktree: "/w/desks/review" },
+        "/w/desks",
+      ),
+    ).toBe("review");
+    // Under another root, a .claude/worktrees path is an ordinary checkout.
+    expect(
+      placeOf(
+        { session: "p", branch: "topic", worktree: "/w/.claude/worktrees/a" },
+        "/w/desks",
+      ),
+    ).toBe("topic");
+    expect(linkedWorktreeOf("/w/desks/review/src/a.ts", "/w/desks/")).toBe(
+      "/w/desks/review",
+    );
+    expect(linkedWorktreeOf("/w/src/a.ts", "/w/desks")).toBe("");
+    expect(linkedWorktreeOf("/w/.claude/worktrees/a/x.ts")).toBe(
+      "/w/.claude/worktrees/a",
+    );
   });
 
   it("names the session holding a lease", () => {

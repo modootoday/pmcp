@@ -127,6 +127,16 @@ describe("mod settings", () => {
     );
   });
 
+  it("reads the projected worktree root against the project root", () => {
+    const withRoot = { ...settings, worktreeRoot: "../desks" };
+    expect(
+      parseUiSettings(JSON.stringify(withRoot), "/work/repo")?.worktreeRoot,
+    ).toBe("/work/desks");
+    expect(
+      parseUiSettings(JSON.stringify({ ...settings, worktreeRoot: 3 }), "/r"),
+    ).toBeNull();
+  });
+
   it("leaves the mod off for a missing switch or unreadable file", () => {
     const { commands: _omitted, ...partial } = settings;
     expect(parseUiSettings(JSON.stringify(partial), "/repo")).toBeNull();

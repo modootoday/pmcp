@@ -24,6 +24,7 @@ export function readUiClaude(
   path: string,
   raw: unknown,
   sessionHooks: boolean,
+  worktreeRoot: string,
 ): UiSettings | undefined {
   if (raw === undefined) return undefined;
   if (raw === null || typeof raw !== "object" || Array.isArray(raw))
@@ -51,6 +52,7 @@ export function readUiClaude(
     statusBand: switches["statusBand"] ?? true,
     commands: switches["commands"] ?? true,
     holdForeignEdits: switches["holdForeignEdits"] ?? true,
+    worktreeRoot,
   };
 }
 

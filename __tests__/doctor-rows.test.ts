@@ -62,4 +62,19 @@ describe("doctor rows for Claude", () => {
         ".agents/pmcp-hooks/ui-claude.json does not match [ui.claude]; run pmcp project",
     });
   });
+
+  it("projects [git.worktrees] root for the mod, or the default root", (t) => {
+    const root = mkdtempSync(join(tmpdir(), "pmcp-ui-root-"));
+    t.onTestFinished(() => rmSync(root, { recursive: true, force: true }));
+    writeFileSync(
+      join(root, "pmcp.toml"),
+      `${UI}[git.worktrees]\nroot = "../desks"\n`,
+    );
+    const spec = readSpec(readConfig(join(root, "pmcp.toml")));
+    expect(spec.uiClaude?.worktreeRoot).toBe("../desks");
+    writeFileSync(join(root, "pmcp.toml"), UI);
+    expect(
+      readSpec(readConfig(join(root, "pmcp.toml"))).uiClaude?.worktreeRoot,
+    ).toBe(".claude/worktrees");
+  });
 });

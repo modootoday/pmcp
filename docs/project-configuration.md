@@ -597,7 +597,8 @@ records them without raising the rest; see [Hooks](hooks.md#hooksguardsgroupname
 `[ui.claude]` installs the session panes into Claude Code: `sessions_pane`,
 `status_band`, `commands` and `hold_foreign_edits`, all booleans defaulting to
 `true`. `hold_foreign_edits` asks before editing a file another live session
-edited. It needs `[sessions.registry]`, and is written only when `claude` is
+edited. The panes and the hold know linked worktrees by `[git.worktrees] root`
+(default `.claude/worktrees`). It needs `[sessions.registry]`, and is written only when `claude` is
 in `[targets] tools`. Without the table nothing is installed. `pmcp doctor`
 shows the projected switches, or a failure until `pmcp project` writes them; it
 cannot tell whether a running Claude Code loaded the session panes.

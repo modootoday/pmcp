@@ -44,11 +44,18 @@ export function parseUiSettings(
   )
     return null;
   if (SWITCHES.some((key) => typeof raw[key] !== "boolean")) return null;
+  const worktrees = raw.worktreeRoot;
+  if (
+    worktrees !== undefined &&
+    (typeof worktrees !== "string" || worktrees === "")
+  )
+    return null;
   return {
     ...(declared ? { stateDir: within(projectRoot, declared) } : {}),
     sessionsPane: raw.sessionsPane === true,
     statusBand: raw.statusBand === true,
     commands: raw.commands === true,
     holdForeignEdits: raw.holdForeignEdits === true,
+    ...(worktrees ? { worktreeRoot: within(projectRoot, worktrees) } : {}),
   };
 }

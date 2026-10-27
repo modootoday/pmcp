@@ -35,4 +35,6 @@ export interface UiSettings {
   readonly statusBand: boolean;
   readonly commands: boolean;
   readonly holdForeignEdits: boolean;
+  // [git.worktrees] root, absolute once parsed; absent in files projected before it was written.
+  readonly worktreeRoot?: string;
 }

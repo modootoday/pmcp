@@ -7,6 +7,7 @@ import {
 } from "../marketplace/declared/index.js";
 import type { UiSettings } from "../ui/claude/reader/index.js";
 import { readUiClaude } from "./ui-claude.js";
+import { readGitConfig } from "../git/config.js";
 import { readPermissions, type PermissionSpec } from "./permissions.js";
 import { readHost, type HostSpec } from "./host-spec.js";
 import { envNames } from "../native/env-names.js";
@@ -196,7 +197,12 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
       throw new ConfigError(path, m);
     },
   );
-  const uiClaude = readUiClaude(path, raw["ui"], sessionHooks);
+  const uiClaude = readUiClaude(
+    path,
+    raw["ui"],
+    sessionHooks,
+    readGitConfig(config)?.worktrees?.root ?? ".claude/worktrees",
+  );
   const permissions = readPermissions(path, raw["permissions"]);
   const host = readHost(path, raw["host"]);
   const harness = readHarness(path, raw["harness"]);
