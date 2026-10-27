@@ -1,11 +1,11 @@
 {
   "name": "pmcp",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "mcpServers": {
     "pmcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@modootoday/pmcp@0.20.0", "serve"]
+      "args": ["-y", "@modootoday/pmcp@0.21.0", "serve"]
     }
   }
 }
