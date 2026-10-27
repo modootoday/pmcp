@@ -14,24 +14,47 @@ export function filesRegistry(
   dir: string,
   staleMs: number,
 ): SessionStore["registry"] {
-  const fleetDir = join(dir, STATE_FILES.records);
-  const pathOf = (session: string) => join(fleetDir, `${session}.json`);
-  const get = (session: string) =>
-    SESSION_ID.test(session) ? asRecord(readJson(pathOf(session))) : null;
-  const list = (now = Date.now()): LiveRecord[] => {
-    let names: string[] = [];
-    try {
-      names = readdirSync(fleetDir).filter((name) => name.endsWith(".json"));
-    } catch {
-      return [];
+  // sessions/ is read first; the deprecated fleet/ holds records written before 0.20 and keeps
+  // a copy of every record for readers that have not moved yet.
+  const dirs = [STATE_FILES.records, STATE_FILES.legacyRecords].map((name) =>
+    join(dir, name),
+  );
+  const pathsOf = (session: string) =>
+    dirs.map((records) => join(records, `${session}.json`));
+  const get = (session: string) => {
+    if (!SESSION_ID.test(session)) return null;
+    for (const path of pathsOf(session)) {
+      const record = asRecord(readJson(path));
+      if (record) return record;
     }
-    return names
-      .map((name) => asRecord(readJson(join(fleetDir, name))))
-      .filter((record): record is SessionRecord => record !== null)
-      .map((record) => ({ ...record, live: isLive(record, now, staleMs) }));
+    return null;
+  };
+  const list = (now = Date.now()): LiveRecord[] => {
+    const seen = new Set<string>();
+    const records: SessionRecord[] = [];
+    for (const folder of dirs) {
+      let names: string[] = [];
+      try {
+        names = readdirSync(folder).filter((name) => name.endsWith(".json"));
+      } catch {
+        continue;
+      }
+      for (const name of names) {
+        if (seen.has(name)) continue;
+        const record = asRecord(readJson(join(folder, name)));
+        if (!record) continue;
+        seen.add(name);
+        records.push(record);
+      }
+    }
+    return records.map((record) => ({
+      ...record,
+      live: isLive(record, now, staleMs),
+    }));
   };
   const remove = (session: string) => {
-    if (SESSION_ID.test(session)) rmSync(pathOf(session), { force: true });
+    if (!SESSION_ID.test(session)) return;
+    for (const path of pathsOf(session)) rmSync(path, { force: true });
   };
   return {
     get,
@@ -52,7 +75,8 @@ export function filesRegistry(
         next["worktree"] = checkout?.root ?? "";
         next["branch"] = checkout?.branch ?? "";
       }
-      writeJson(pathOf(session), next);
+      // Both copies, the new path first; each write is a temporary file and a rename.
+      for (const path of pathsOf(session)) writeJson(path, next);
       return next as SessionRecord;
     },
     sweep(now = Date.now()) {

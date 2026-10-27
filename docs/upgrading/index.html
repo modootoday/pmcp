@@ -74,6 +74,12 @@ shell classifier had them built in. A project&#39;s own landing or sync script i
 <code>server-tools.required</code> or <code>server-tools.order</code>. <code>metadata.server-tools</code> is an optional list of
 any tool names. A catalog that relies on those rules runs its own check beside
 <code>pmcp validate</code>.</p>
+<p><strong>Session records move from <code>fleet/</code> to <code>sessions/</code> in the state directory.</strong> 0.20 writes
+every record to both <code>sessions/&lt;session&gt;.json</code> and the deprecated <code>fleet/&lt;session&gt;.json</code>, and
+reads <code>sessions/</code> first, then a record only <code>fleet/</code> holds. A tool that reads <code>fleet/</code> keeps
+working through 0.20; move it to <code>sessions/</code> before 0.21, which stops writing <code>fleet/</code>. A mail
+recipient&#39;s linked worktree is now <code>worktree</code> throughout; <code>desk:&lt;path&gt;</code> is still accepted as a
+spelling of <code>worktree:&lt;path&gt;</code>.</p>
 <p><strong>Deliveries can leave gating to the repository&#39;s pre-push hook.</strong> This is new, not a
 removal. <code>[git.mainline.deliver] gate = &quot;pre-push&quot;</code> and <code>push_env</code> are described in
 <a href="/git-workflow/">Git workflow</a>. A delivery&#39;s push now always carries <code>PMCP_GIT_DELIVER=1</code>, and

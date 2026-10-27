@@ -1,4 +1,11 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -25,11 +32,42 @@ describe("files store", () => {
     ).toMatchObject({ by: "operator", reason: "incident" });
     expect(existsSync(join(state, "broadcast.json"))).toBe(true);
     expect(existsSync(join(state, "broadcast-history.jsonl"))).toBe(true);
+    // A new write lands in sessions/ and, for readers of the deprecated path, in fleet/.
+    for (const folder of ["sessions", "fleet"])
+      expect(
+        JSON.parse(
+          readFileSync(join(state, folder, "abcd1234-session.json"), "utf8"),
+        ),
+      ).toMatchObject({ session: "abcd1234-session", alias: "kit" });
+  });
+
+  it("reads a record written before 0.20 that only fleet/ holds, and lists each session once", (t) => {
+    const state = dir(t);
+    mkdirSync(join(state, "fleet"), { recursive: true });
+    writeFileSync(
+      join(state, "fleet/old0old0-session.json"),
+      JSON.stringify({ session: "old0old0-session", alias: "old" }),
+    );
+    const store = createFilesStore(state);
+    expect(store.registry.get("old0old0-session")?.alias).toBe("old");
+    store.registry.upsert("new0new0-session", { cwd: state, alias: "new" });
+    // A record in both places is read from sessions/ and listed once.
+    writeFileSync(
+      join(state, "fleet/new0new0-session.json"),
+      JSON.stringify({ session: "new0new0-session", alias: "stale" }),
+    );
+    expect(store.registry.get("new0new0-session")?.alias).toBe("new");
     expect(
-      JSON.parse(
-        readFileSync(join(state, "fleet/abcd1234-session.json"), "utf8"),
-      ),
-    ).toMatchObject({ session: "abcd1234-session", alias: "kit" });
+      store.registry
+        .list()
+        .map((record) => `${record.session}=${record.alias}`)
+        .sort(),
+    ).toEqual(["new0new0-session=new", "old0old0-session=old"]);
+    store.registry.remove("new0new0-session");
+    for (const folder of ["sessions", "fleet"])
+      expect(existsSync(join(state, folder, "new0new0-session.json"))).toBe(
+        false,
+      );
   });
 
   it("keeps only the configured number of broadcasts and withdraws them all", (t) => {

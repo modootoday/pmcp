@@ -43,6 +43,13 @@ shell classifier had them built in. A project's own landing or sync script is da
 any tool names. A catalog that relies on those rules runs its own check beside
 `pmcp validate`.
 
+**Session records move from `fleet/` to `sessions/` in the state directory.** 0.20 writes
+every record to both `sessions/<session>.json` and the deprecated `fleet/<session>.json`, and
+reads `sessions/` first, then a record only `fleet/` holds. A tool that reads `fleet/` keeps
+working through 0.20; move it to `sessions/` before 0.21, which stops writing `fleet/`. A mail
+recipient's linked worktree is now `worktree` throughout; `desk:<path>` is still accepted as a
+spelling of `worktree:<path>`.
+
 **Deliveries can leave gating to the repository's pre-push hook.** This is new, not a
 removal. `[git.mainline.deliver] gate = "pre-push"` and `push_env` are described in
 [Git workflow](git-workflow.md). A delivery's push now always carries `PMCP_GIT_DELIVER=1`, and

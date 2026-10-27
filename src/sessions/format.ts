@@ -3,7 +3,10 @@
 import type { Broadcast, Lease, Pause, SessionRecord } from "./types";
 
 export const STATE_FILES = {
-  records: "fleet",
+  records: "sessions",
+  // The records' former directory. Deprecated: 0.20 still writes every record there too and
+  // reads it when sessions/ lacks one; 0.21 stops writing it.
+  legacyRecords: "fleet",
   pause: "pause.json",
   broadcast: "broadcast.json",
   history: "broadcast-history.jsonl",

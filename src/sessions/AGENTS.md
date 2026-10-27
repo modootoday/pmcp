@@ -3,9 +3,10 @@
 Rules for session state. Package rules: ../../AGENTS.md. Hook rules: ../hooks/AGENTS.md.
 
 - SessionStore (types.ts) is the only way policies, the CLI and the mod reach session state.
-- The files store keeps its documented layout and field names (fleet/<session>.json,
+- The files store keeps its documented layout and field names (sessions/<session>.json,
   pause.json, <name>-lease.json, broadcast.json and broadcast-history.jsonl), so other tools
-  reading it keep working. Add fields; never rename or retype one.
+  reading it keep working. Add fields; never rename or retype one. A rename goes through a
+  release that writes both names (0.20 writes every record to the deprecated fleet/ too).
 - Writes go through a temporary file and a rename; readers never see half a file.
 - Liveness is the runtime pid taken at session start plus a heartbeat on every hook event.
   Never read ~/.claude/sessions or any other runtime's private registry.

@@ -38,10 +38,8 @@ export function seedState(
     const record = asRecord(value);
     if (!record || !SESSION_ID.test(record.session))
       throw new ArgumentError("records need valid session identifiers");
-    writeJson(
-      join(store.dir, STATE_FILES.records, record.session + ".json"),
-      record,
-    );
+    for (const folder of [STATE_FILES.records, STATE_FILES.legacyRecords])
+      writeJson(join(store.dir, folder, record.session + ".json"), record);
   }
   if (raw.pause !== undefined && raw.pause !== null) {
     const pause = asPause(raw.pause);
