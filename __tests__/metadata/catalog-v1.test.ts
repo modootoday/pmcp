@@ -58,7 +58,9 @@ describe("catalog-v1", () => {
         },
       }),
     ).toEqual([]);
-    expect(fired({ front: withMeta({ keywords: ["한글"] }) })).toEqual([]);
+    expect(fired({ front: withMeta({ keywords: ["\uD55C\uAE00"] }) })).toEqual(
+      [],
+    );
     expect(fired({ front: withMeta({ domain: "asset-image" }) })).toEqual([]);
     expect(
       fired({ front: withMeta({ "server-tools": ["render", "status"] }) }),
