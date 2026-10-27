@@ -20,7 +20,7 @@ An unrecognised command does not fall through to a server the caller did not ask
 pmcp status [--config <file>] [--json]
 ```
 
-Show enabled features and their TOML or auto source, projection drift, live sessions, pause, leases, unseen broadcasts, worktree ahead/behind counts, shared MCP credential presence, and logged errors from the last hour. Reads do not acknowledge broadcasts, refresh credentials, prune logs, fetch or move git refs. Projection uses the same check as `project --check`. Exit 0, or 2 when projection or worktree ahead/behind drift exists. Missing or invalid input follows the normal usage/failure exit contract. Human output is a compact summary on stderr; JSON retains the full details.
+Show enabled features and their TOML or auto source, projection drift, live sessions, pause, leases, unseen broadcasts, worktree ahead/behind counts, shared MCP credential presence, logged errors from the last hour, and, with a [`[budget]`](project-configuration.md#budget) table, each limit beside what it measured. Reads do not acknowledge broadcasts, refresh credentials, prune logs, fetch or move git refs. Projection uses the same check as `project --check`. Exit 0, or 2 when projection or worktree ahead/behind drift exists or a budget limit is exceeded. Missing or invalid input follows the normal usage/failure exit contract. Human output is a compact summary on stderr; JSON retains the full details.
 
 ## init
 

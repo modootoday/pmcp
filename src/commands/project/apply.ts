@@ -4,6 +4,7 @@ import { RUNTIMES } from "../../hooks/runtimes/index.js";
 import { project } from "../../project/apply.js";
 import { addEntry, findEntry, removeAsset } from "../../project/edit.js";
 import { recordProjector } from "../../project/projector.js";
+import { checkBudget } from "../../project/budget.js";
 import type { ProjectSpec } from "../../project/spec.js";
 import {
   describeHookProblem,
@@ -79,7 +80,9 @@ export function projectOrCheck(context: CommandContext): number {
     context.ui.error(
       `native hook entry pmcp does not own: ${describeHookProblem(problem)}`,
     );
-  if (broken.length > 0) return 2;
+  const over = spec.budget ? checkBudget(spec, spec.budget).problems : [];
+  for (const problem of over) context.ui.error(problem);
+  if (broken.length > 0 || over.length > 0) return 2;
   return smoke ? smokeCheck(context, spec) : 0;
 }
 

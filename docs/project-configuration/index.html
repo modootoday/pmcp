@@ -83,7 +83,8 @@ ignored.</p>
 <tr><td><code>[marketplaces.&lt;name&gt;]</code></td><td><a href="#marketplaces">Marketplaces</a></td></tr>
 <tr><td><code>[targets]</code>, <code>[skills.&lt;name&gt;]</code>, <code>[agents.&lt;name&gt;.&lt;tool&gt;]</code>, <code>[rules.packages]</code></td><td><a href="#native-files-for-each-agent-tool">Native files for each agent tool</a></td></tr>
 <tr><td><code>[mcp.&lt;alias&gt;]</code></td><td><a href="#unified-project-mcp-configuration">Unified project MCP configuration</a></td></tr>
-<tr><td><code>[hooks]</code>, <code>[hooks.guards.*]</code>, <code>[[hooks.guards.custom]]</code>, <code>[hooks.checks.*]</code></td><td><a href="/hooks/">Hooks</a></td></tr>
+<tr><td><code>[hooks]</code>, <code>[hooks.guards.*]</code>, <code>[[hooks.guards.custom]]</code>, <code>[hooks.checks.*]</code>, <code>[hooks.failure]</code>, <code>[hooks.report]</code>, <code>[hooks.test]</code></td><td><a href="/hooks/">Hooks</a></td></tr>
+<tr><td><code>[budget]</code></td><td><a href="#budget">Budget</a></td></tr>
 <tr><td><code>[[hooks.shell]]</code>, <code>[[hooks.edit]]</code></td><td><a href="/hooks/#deprecated-shell-guards">Deprecated shell guards</a></td></tr>
 <tr><td><code>[sessions]</code>, <code>[sessions.registry]</code>, <code>[sessions.pause]</code>, <code>[sessions.broadcast]</code>, <code>[sessions.mailbox]</code>, <code>[sessions.leases.&lt;name&gt;]</code>, <code>[sessions.roles.&lt;name&gt;]</code></td><td><a href="#sessions">Sessions</a></td></tr>
 <tr><td><code>[git]</code>, <code>[git.shared_checkout]</code>, <code>[git.worktrees]</code>, <code>[git.worktrees.sync]</code>, <code>[git.mainline]</code>, <code>[git.mainline.gate]</code>, <code>[git.mainline.deliver]</code>, <code>[git.mainline.sync]</code>, <code>[git.submodules]</code></td><td><a href="/git-workflow/">Git workflow</a></td></tr>
@@ -495,6 +496,23 @@ Claude Code session panes read broadcasts as before. <code>unbroadcast</code> wi
 messages too.</p>
 <h2 id="git-workflow">Git workflow</h2>
 <p>Worktrees, delivery to the mainline and main checkout sync: <a href="/git-workflow/">Git workflow</a>.</p>
+<h2 id="budget">Budget</h2>
+<p><code>[budget]</code> sets limits on what every agent session loads and on paths the
+project keeps out of its tree. <code>pmcp project --check</code> exits 2 when one is
+exceeded, naming each, and <code>pmcp status</code> shows the measurements beside the
+limits (its JSON gains <code>budget: {rows, problems}</code>, and an exceeded limit counts
+as drift). Every key is optional; nothing is checked without the table.</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Meaning</th></tr></thead><tbody><tr><td><code>root_bytes</code></td><td>integer</td><td>Largest size of each of <code>AGENTS.md</code>, <code>CLAUDE.md</code> and <code>GEMINI.md</code> at the root that is a file (a symbolic link to another is not measured twice).</td></tr>
+<tr><td><code>root_lines</code></td><td>integer</td><td>Largest line count of the same files.</td></tr>
+<tr><td><code>package_bytes</code></td><td>integer</td><td>Largest size of each tracked <code>AGENTS.md</code> below the root, and of each <code>[rules.packages] file</code>.</td></tr>
+<tr><td><code>skills_max</code></td><td>integer</td><td>Most skills under <code>.agents/skills</code> (each a folder with a <code>SKILL.md</code>), the skills every runtime is offered.</td></tr>
+<tr><td><code>forbid_paths</code></td><td>glob list</td><td>Tracked paths that must not exist: <code>*</code> within a segment, <code>**</code> across segments, <code>?</code> one character; a glob naming a directory covers everything below it (<code>docs/adr</code>).</td></tr></tbody></table></div>
+<pre><code>[budget]
+root_bytes = 16000
+root_lines = 300
+package_bytes = 8000
+skills_max = 40
+forbid_paths = [&quot;.spec/**&quot;, &quot;docs/adr&quot;]</code></pre>
 <h2 id="logging">Logging</h2>
 <div class="scroll"><table><thead><tr><th><code>[logging]</code> key</th><th>Type</th><th>Default</th><th>Allowed</th></tr></thead><tbody><tr><td><code>level</code></td><td>string</td><td><code>&quot;info&quot;</code></td><td><code>error</code>, <code>warn</code>, <code>info</code>, <code>debug</code>, <code>trace</code></td></tr>
 <tr><td><code>format</code></td><td>string</td><td><code>&quot;jsonl&quot;</code></td><td><code>jsonl</code> only</td></tr>

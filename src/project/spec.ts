@@ -10,6 +10,7 @@ import { readUiClaude } from "./ui-claude.js";
 import { readGitConfig } from "../git/config.js";
 import { readPermissions, type PermissionSpec } from "./permissions.js";
 import { readHost, type HostSpec } from "./host-spec.js";
+import { readBudget, type BudgetSettings } from "./budget.js";
 import { envNames } from "../native/env-names.js";
 import { TOOLS, type Tool } from "./tools.js";
 
@@ -66,6 +67,8 @@ export interface ProjectSpec {
   readonly host?: HostSpec;
   // [harness]: env names a harness group created in this project passes by default.
   readonly harness?: { readonly env: readonly string[] };
+  // [budget]: limits project --check enforces and status shows.
+  readonly budget?: BudgetSettings;
 }
 
 const NAME = /^[a-z0-9][a-z0-9-]*$/u;
@@ -206,6 +209,12 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
   const permissions = readPermissions(path, raw["permissions"]);
   const host = readHost(path, raw["host"]);
   const harness = readHarness(path, raw["harness"]);
+  let budget: BudgetSettings | null;
+  try {
+    budget = readBudget(raw["budget"]);
+  } catch (error) {
+    throw new ConfigError(path, (error as Error).message);
+  }
 
   return {
     root: config.dir,
@@ -219,6 +228,7 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
     ...(permissions ? { permissions } : {}),
     ...(host ? { host } : {}),
     ...(harness ? { harness } : {}),
+    ...(budget ? { budget } : {}),
     ...(hooks.legacy.length > 0 ? { hooks: hooks.legacy } : {}),
     ...(hooks.bundle ? { hookBundle: hooks.bundle } : {}),
     ...(hooks.deprecations.length > 0

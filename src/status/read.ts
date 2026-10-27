@@ -1,5 +1,6 @@
 import type { ProjectConfig } from "../config.js";
 import { checkProject } from "../project/apply/check-project.js";
+import { checkBudget } from "../project/budget.js";
 import { readSpec } from "../project/spec.js";
 import { openStore, readStoreSettings } from "../sessions/settings.js";
 import { sessionSnapshot } from "../sessions/snapshot.js";
@@ -30,8 +31,10 @@ export async function readStatus(
   const sessions = (config.raw.sessions ?? {}) as Record<string, unknown>;
   const leases = Object.keys((sessions.leases ?? {}) as object);
   const worktrees = desks(config);
+  const budget = spec.budget ? checkBudget(spec, spec.budget) : null;
   const drift =
     checked.code !== 0 ||
+    (budget?.problems.length ?? 0) > 0 ||
     worktrees.some((row) => (row.behind ?? 0) > 0 || (row.ahead ?? 0) > 0);
   return {
     version: 1 as const,
@@ -43,6 +46,8 @@ export async function readStatus(
       outputs: checked.outputs,
       problems: checked.problems,
     },
+    // Only with a [budget] table, so other projects keep the same report.
+    ...(budget ? { budget } : {}),
     sessions: sessionSnapshot(store, leases),
     worktrees,
     mcp: await authPresence(spec, env),

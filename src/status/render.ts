@@ -23,6 +23,26 @@ export function renderStatus(
   );
   for (const problem of report.projection.problems.slice(0, 3))
     context.ui.line("  " + problem);
+  if (report.budget) {
+    // The largest measurement of each limit, then what is over.
+    const worst = new Map<string, (typeof report.budget.rows)[number]>();
+    for (const row of report.budget.rows) {
+      const seen = worst.get(row.key);
+      if (!seen || row.value - row.limit > seen.value - seen.limit)
+        worst.set(row.key, row);
+    }
+    context.ui.line(
+      "Budget: " +
+        (report.budget.problems.length
+          ? report.budget.problems.length + " over"
+          : "within") +
+        ([...worst.values()]
+          .map((row) => `; ${row.key} ${row.subject} ${row.value}/${row.limit}`)
+          .join("") || ""),
+    );
+    for (const problem of report.budget.problems.slice(0, 3))
+      context.ui.line("  " + problem);
+  }
   const state = report.sessions;
   context.ui.line(
     "Sessions: " +

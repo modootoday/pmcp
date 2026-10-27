@@ -58,7 +58,8 @@ ignored.
 | `[marketplaces.<name>]`                                                                                                                                                                   | [Marketplaces](#marketplaces)                                           |
 | `[targets]`, `[skills.<name>]`, `[agents.<name>.<tool>]`, `[rules.packages]`                                                                                                              | [Native files for each agent tool](#native-files-for-each-agent-tool)   |
 | `[mcp.<alias>]`                                                                                                                                                                           | [Unified project MCP configuration](#unified-project-mcp-configuration) |
-| `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[hooks.checks.*]`                                                                                                              | [Hooks](hooks.md)                                                       |
+| `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[hooks.checks.*]`, `[hooks.failure]`, `[hooks.report]`, `[hooks.test]`                                                         | [Hooks](hooks.md)                                                       |
+| `[budget]`                                                                                                                                                                                | [Budget](#budget)                                                       |
 | `[[hooks.shell]]`, `[[hooks.edit]]`                                                                                                                                                       | [Deprecated shell guards](hooks.md#deprecated-shell-guards)             |
 | `[sessions]`, `[sessions.registry]`, `[sessions.pause]`, `[sessions.broadcast]`, `[sessions.mailbox]`, `[sessions.leases.<name>]`, `[sessions.roles.<name>]`                              | [Sessions](#sessions)                                                   |
 | `[git]`, `[git.shared_checkout]`, `[git.worktrees]`, `[git.worktrees.sync]`, `[git.mainline]`, `[git.mainline.gate]`, `[git.mainline.deliver]`, `[git.mainline.sync]`, `[git.submodules]` | [Git workflow](git-workflow.md)                                         |
@@ -578,6 +579,31 @@ messages too.
 ## Git workflow
 
 Worktrees, delivery to the mainline and main checkout sync: [Git workflow](git-workflow.md).
+
+## Budget
+
+`[budget]` sets limits on what every agent session loads and on paths the
+project keeps out of its tree. `pmcp project --check` exits 2 when one is
+exceeded, naming each, and `pmcp status` shows the measurements beside the
+limits (its JSON gains `budget: {rows, problems}`, and an exceeded limit counts
+as drift). Every key is optional; nothing is checked without the table.
+
+| Key             | Type      | Meaning                                                                                                                                                              |
+| --------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `root_bytes`    | integer   | Largest size of each of `AGENTS.md`, `CLAUDE.md` and `GEMINI.md` at the root that is a file (a symbolic link to another is not measured twice).                      |
+| `root_lines`    | integer   | Largest line count of the same files.                                                                                                                                |
+| `package_bytes` | integer   | Largest size of each tracked `AGENTS.md` below the root, and of each `[rules.packages] file`.                                                                        |
+| `skills_max`    | integer   | Most skills under `.agents/skills` (each a folder with a `SKILL.md`), the skills every runtime is offered.                                                           |
+| `forbid_paths`  | glob list | Tracked paths that must not exist: `*` within a segment, `**` across segments, `?` one character; a glob naming a directory covers everything below it (`docs/adr`). |
+
+```toml
+[budget]
+root_bytes = 16000
+root_lines = 300
+package_bytes = 8000
+skills_max = 40
+forbid_paths = [".spec/**", "docs/adr"]
+```
 
 ## Logging
 
