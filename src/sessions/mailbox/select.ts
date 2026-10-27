@@ -36,8 +36,8 @@ function matches(selector: string, recipient: Recipient): boolean {
     return !!recipient.session && recipient.session.startsWith(value);
   if (kind === "alias") return recipient.alias === value;
   if (kind === "role") return (recipient.roles ?? []).includes(value);
-  if (!isWorktree(kind) || !recipient.desk) return false;
-  return recipient.desk === value || basename(recipient.desk) === value;
+  if (!isWorktree(kind) || !recipient.worktree) return false;
+  return recipient.worktree === value || basename(recipient.worktree) === value;
 }
 
 // A broadcast is news for the sessions running when it was sent; a session that starts later

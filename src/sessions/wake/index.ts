@@ -22,7 +22,7 @@ function recipientOf(record: LiveRecord) {
     session: record.session,
     ...(record.alias ? { alias: record.alias } : {}),
     roles,
-    ...(record.worktree ? { desk: record.worktree } : {}),
+    ...(record.worktree ? { worktree: record.worktree } : {}),
     ...(record.startedAt ? { since: record.startedAt } : {}),
   };
 }

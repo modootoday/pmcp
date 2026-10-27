@@ -40,7 +40,7 @@ function recipientOf(
     session,
     ...(record?.alias ? { alias: record.alias } : {}),
     roles,
-    desk: record?.worktree || input.cwd,
+    worktree: record?.worktree || input.cwd,
     // The registry records a session at its start, so earlier broadcasts are not its news.
     ...(record?.startedAt ? { since: record.startedAt } : {}),
   };

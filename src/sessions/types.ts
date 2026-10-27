@@ -118,7 +118,7 @@ export interface Recipient {
   readonly session?: string;
   readonly alias?: string;
   readonly roles?: readonly string[];
-  readonly desk?: string;
+  readonly worktree?: string;
   // When the session started: a broadcast to all sent before then is not for it.
   readonly since?: string;
 }

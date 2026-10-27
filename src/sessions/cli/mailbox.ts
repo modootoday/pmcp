@@ -58,7 +58,7 @@ function caller(context: CommandContext, store: SessionStore): Recipient {
     ...(session ? { session } : {}),
     ...(alias ? { alias } : {}),
     roles,
-    ...(record?.worktree ? { desk: record.worktree } : {}),
+    ...(record?.worktree ? { worktree: record.worktree } : {}),
     ...(record?.startedAt ? { since: record.startedAt } : {}),
   };
 }

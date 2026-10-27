@@ -97,7 +97,7 @@ describe("mailbox store", () => {
     const a = session("aaaaaaaa-1111", {
       alias: "reviewer-desk",
       roles: ["reviewer"],
-      desk: "/w/.claude/worktrees/feature",
+      worktree: "/w/.claude/worktrees/feature",
     });
     expect(
       store.mailbox
@@ -108,7 +108,7 @@ describe("mailbox store", () => {
     const other = session("cccccccc-3333", {
       alias: "x",
       roles: ["writer"],
-      desk: "/w",
+      worktree: "/w",
     });
     expect(store.mailbox.inbox(other)).toEqual([]);
   });
