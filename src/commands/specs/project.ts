@@ -35,6 +35,12 @@ export const projectSpec: CommandSpec = {
         "Write nothing; exit 2 when an output drifted, went stale or is undeclared.",
       boolean: true,
     },
+    {
+      name: "smoke",
+      describe:
+        "With --check, also run the [hooks.test] fixtures through the projected hooks.",
+      boolean: true,
+    },
   ],
 };
 

@@ -65,6 +65,8 @@ export interface RuntimeAdapter {
     input: HookInput,
     decision: Decision,
   ): { stdout: string; exitCode: number };
+  // A before_tool answer this adapter printed, read back as its verdict; null when unreadable.
+  readVerdict(stdout: string): "allow" | "deny" | "ask" | null;
   project(plan: HookProjection): FileEdit[];
   files?(plan: HookProjection): ProjectedFile[];
   readonly nativeFiles: readonly NativeHookFile[];

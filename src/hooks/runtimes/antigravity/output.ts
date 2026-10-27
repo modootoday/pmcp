@@ -1,4 +1,5 @@
 import type { Decision, HookInput, NeutralEvent } from "../../contract.js";
+import { readAnswer, type ReadVerdict } from "../answer.js";
 
 const MAX_REASON = 2000;
 
@@ -30,4 +31,11 @@ export function render(
       out = { injectSteps: [{ ephemeralMessage: notes.join("\n\n") }] };
   }
   return { stdout: `${JSON.stringify(out)}\n`, exitCode: 0 };
+}
+
+// A before_tool answer read back as its verdict (pmcp hooks test --fixtures).
+export function verdict(stdout: string): ReadVerdict | null {
+  return readAnswer(stdout, (out) =>
+    out["decision"] === "deny" ? "deny" : "allow",
+  );
 }

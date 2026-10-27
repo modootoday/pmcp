@@ -140,11 +140,11 @@ Credentials and attachment files contain secrets and must stay outside source co
 
 ```sh
 pmcp project
-pmcp project --check
+pmcp project --check [--smoke]
 pmcp project import-mcp --source codex:/path/to/config.toml
 ```
 
-Generate selected runtimes' native files from `pmcp.toml`. Unmanaged entries and credential references are preserved; conflicts stop the write. `--check` reports drift without writes, and MCP import previews changes by default; `--write` applies them. [Configuration and guard examples](project-configuration.md).
+Generate selected runtimes' native files from `pmcp.toml`. Unmanaged entries and credential references are preserved; conflicts stop the write. `--check` reports drift without writes, and MCP import previews changes by default; `--write` applies them. `--check --smoke` then runs the `[hooks.test] fixtures` file as `pmcp hooks test --fixtures` does, and exits 2 on any finding. [Configuration and guard examples](project-configuration.md).
 
 Configuration files and the ownership lock are replaced atomically one file at a time. If projection is interrupted, inspect with `pmcp project --check`, then run `pmcp project` explicitly to repair drift. Projection does not start a runtime or replay terminal input. The complete set of files is not a single transaction.
 

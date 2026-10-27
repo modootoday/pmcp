@@ -1,9 +1,12 @@
-import type { CommandContext } from "../../cli/command.js";
+import { ArgumentError, type CommandContext } from "../../cli/command.js";
+import { readTestTable } from "../../hooks/inspection/smoke.js";
 import { RUNTIMES } from "../../hooks/runtimes/index.js";
 import { project } from "../../project/apply.js";
 import { addEntry, findEntry, removeAsset } from "../../project/edit.js";
 import { recordProjector } from "../../project/projector.js";
 import type { ProjectSpec } from "../../project/spec.js";
+import { configFrom } from "../config-from.js";
+import { printSmoke, runSmoke } from "../hooks/smoke.js";
 import { catalogFrom } from "../roots.js";
 import { specFrom } from "./spec-from.js";
 
@@ -34,9 +37,25 @@ function reproject(context: CommandContext, spec: ProjectSpec): number {
   return 0;
 }
 
+// project --check --smoke: the [hooks.test] fixtures through the projected hook entry.
+function smokeCheck(context: CommandContext, spec: ProjectSpec): number {
+  const config = configFrom(context);
+  const hooks = (config?.raw.hooks ?? {}) as Record<string, unknown>;
+  const file = readTestTable(hooks["test"]);
+  if (file === undefined) {
+    context.ui.error("--smoke needs [hooks.test] fixtures in pmcp.toml");
+    return 2;
+  }
+  const result = runSmoke(spec.root, file, context.env);
+  printSmoke(context.ui, result);
+  return result.findings.length === 0 ? 0 : 2;
+}
+
 export function projectOrCheck(context: CommandContext): number {
   const spec = specFrom(context);
+  const smoke = context.args.flags.has("smoke");
   if (!context.args.flags.has("check")) {
+    if (smoke) throw new ArgumentError("--smoke needs --check");
     return reproject(context, spec);
   }
   const result = project(spec, { check: true });
@@ -50,7 +69,7 @@ export function projectOrCheck(context: CommandContext): number {
     return 2;
   }
   context.ui.success(`${result.outputs} outputs match`);
-  return 0;
+  return smoke ? smokeCheck(context, spec) : 0;
 }
 
 export function addAndProject(context: CommandContext, name: string): number {

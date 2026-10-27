@@ -135,6 +135,37 @@ hooks.
 | ------------------ | ---- | ------- | --------------------------------------------------------------------------------- |
 | `exclude_sessions` | list | `[]`    | Regexes; guard log lines of a session id matching one are left out of the report. |
 
+## `[hooks.test]`
+
+| Key        | Type | Default | Meaning                                                                                       |
+| ---------- | ---- | ------- | --------------------------------------------------------------------------------------------- |
+| `fixtures` | path | none    | The cases `pmcp project --check --smoke` runs; relative to the directory holding `pmcp.toml`. |
+
+A fixtures file is JSON: `{cases, failure?}`. Each case is
+`{name, guard, command, cwd?, expect}`, where `guard` is the guard the case is
+about (`shell.heredoc`, `custom.<name>`), `cwd = "linked-worktree"` runs it from a
+scratch repository with a branch checked out in a linked worktree, and `expect`
+is `allow`, `deny` or `ask` for every runtime, or a table of runtime to one of
+them (a runtime left out does not run the case). `failure`, when present, must
+equal the projected `[hooks.failure]` (`{timeoutMs, retry, pass}`).
+
+`pmcp hooks test --fixtures <file>` and `pmcp project --check --smoke` run each
+case through the projected `.agents/pmcp-hooks/hook.mjs`, once per `[hooks]
+targets` runtime that answers a shell call, with that runtime's own payload. The
+command is classified by the guards, never run; state goes to a throwaway
+`XDG_STATE_HOME`, and `GIT_*` variables are removed, so a run from inside a git
+hook does not look at the repository being committed. Findings:
+
+- a decision that differs from `expect`, or a hook that fails or times out;
+- coverage: every guard that can refuse (`deny`, `ask` or `graded`, including
+  custom guards on `before_shell`) needs, per runtime, one case it refuses and
+  one it lets through;
+- `[hooks.failure]` differing from the fixtures' `failure`;
+- a target whose native hook entry is missing, and a run in which no case ran.
+
+`hooks test --fixtures` exits 0 with no finding and 1 otherwise; `project --check
+--smoke` exits 2 on a finding, as for drift.
+
 ## `[hooks.failure]`
 
 What a guard that fails to evaluate means for the call: it threw, or it ran past

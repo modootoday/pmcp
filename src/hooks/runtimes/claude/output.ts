@@ -1,4 +1,5 @@
 import type { Decision, HookInput } from "../../contract.js";
+import { field, readAnswer, type ReadVerdict } from "../answer.js";
 import { NATIVE_EVENTS } from "./events.js";
 
 const MAX_REASON = 2000;
@@ -70,4 +71,12 @@ function shape(
   }
   if (input.event === "session_start" && context) return contextOnly;
   return null;
+}
+
+// A before_tool answer read back as its verdict (pmcp hooks test --fixtures).
+export function verdict(stdout: string): ReadVerdict | null {
+  return readAnswer(stdout, (out) => {
+    const decision = field(out["hookSpecificOutput"], "permissionDecision");
+    return decision === "deny" || decision === "ask" ? decision : "allow";
+  });
 }

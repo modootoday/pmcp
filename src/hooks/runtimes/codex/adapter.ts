@@ -1,7 +1,7 @@
 import type { NativeBinding, RuntimeAdapter } from "../types.js";
 import { capabilities } from "./capabilities.js";
 import { NATIVE_EVENTS, matcherFor } from "./events.js";
-import { render } from "./output.js";
+import { render, verdict } from "./output.js";
 import { normalize } from "./payload.js";
 import { HOOKS_FILE, project } from "./projection.js";
 import { synthetic } from "./synthetic.js";
@@ -28,6 +28,7 @@ export const codex: RuntimeAdapter = {
   },
   normalize,
   render,
+  readVerdict: verdict,
   project,
   nativeFiles: [{ file: HOOKS_FILE, root: "hooks" }],
   nativeEvent: (event) => NATIVE_EVENTS[event],

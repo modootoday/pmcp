@@ -15,6 +15,9 @@ import { createFilesStore } from "../../sessions/files-store.js";
 import { specFrom } from "../project/spec-from.js";
 
 export async function run(context: CommandContext): Promise<number> {
+  const fixtures = one(context.args, "fixtures");
+  if (fixtures !== undefined)
+    return (await import("./smoke.js")).run(context, fixtures);
   const runtime = one(context.args, "runtime");
   if (!(RUNTIME_IDS as readonly (string | undefined)[]).includes(runtime))
     throw new ArgumentError("--runtime must be claude or codex");

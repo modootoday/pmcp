@@ -5,6 +5,7 @@ import {
 } from "../contract.js";
 import { readFailure } from "../dispatch/failure.js";
 import { readReportTable } from "../inspection/report.js";
+import { readTestTable } from "../inspection/smoke.js";
 import type { HooksTable, Table } from "./types.js";
 
 const KEYS = [
@@ -18,6 +19,7 @@ const KEYS = [
   "edit",
   "failure",
   "report",
+  "test",
 ];
 const LEGACY = new Set(["shell", "edit"]);
 const FALLBACKS = ["deny", "warn", "refuse"];
@@ -78,8 +80,10 @@ export function readHooksTable(
   const log = errorLog(table["error_log"]);
   const emergencyOffFile = offFile(table["emergency_off_file"]);
   const failure = readFailure(table["failure"]);
-  // Read by pmcp hooks report alone; checked here so a mistake fails at projection.
+  // Read by pmcp hooks report and the smoke run alone; checked here so a mistake fails at
+  // projection.
   readReportTable(table["report"]);
+  readTestTable(table["test"]);
   return {
     enabled,
     targets: [...new Set(targets)],
