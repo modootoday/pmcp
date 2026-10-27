@@ -28,11 +28,17 @@ function enabledValue(value: unknown, where: string): "auto" | boolean {
   throw new Error(`${where} enabled must be "auto", true or false`);
 }
 
-// Default git features to detection so declared overrides can opt out explicitly.
+// Opt-in like every other feature: a declared [git.shared_checkout] follows git detection unless
+// it sets enabled; without the table the notice is off.
 export function readWorkspace(raw: unknown, root: string): WorkspaceTables {
   const git = asTable(raw, "[git]");
   const gitEnabled = enabledValue(git["enabled"], "[git]");
   const declared = git["shared_checkout"] !== undefined;
+  if (!declared)
+    return {
+      declared,
+      sharedCheckout: { guard: null, source: "default-off" },
+    };
   const { enabled, ...options } = asTable(
     git["shared_checkout"],
     "[git.shared_checkout]",

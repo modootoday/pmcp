@@ -31,8 +31,7 @@ compile cache off.
 
 Every feature is opt-in: a table that is missing turns its feature off, and a
 declared table, even an empty one, turns it on. The exceptions are documented
-where they apply: `[git]` features detect git (`enabled = "auto"`),
-`[git.shared_checkout]` is on in any git checkout once the bundle exists, and
+where they apply: declared `[git]` features detect git (`enabled = "auto"`), and
 logging falls back to its defaults rather than to no logging. The bundle is
 projected only when `[hooks]` declares guards or checks, a `[sessions.*]`
 feature table is declared, `[git.shared_checkout]` or `[git.worktrees.sync]` is

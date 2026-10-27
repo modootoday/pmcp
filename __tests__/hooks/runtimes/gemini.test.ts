@@ -136,14 +136,23 @@ describe("gemini adapter on recorded 0.63.0 payloads", () => {
   });
 
   it("projects into .gemini/settings.json with millisecond timeouts and a regex matcher", (t) => {
-    // A git checkout of its own, so the default-on shared checkout guard is on.
+    // A git checkout of its own with [git.shared_checkout] declared, so that guard is on.
     const repo = mkdtempSync(join(tmpdir(), "pmcp-gemini-projection-"));
     t.onTestFinished(() => rmSync(repo, { recursive: true, force: true }));
     execFileSync("git", ["init", "-q", repo]);
+    const hooks = { targets: ["gemini"], guards: { shell: { heredoc: {} } } };
     const out = compileHooks(
-      { hooks: { targets: ["gemini"], guards: { shell: { heredoc: {} } } } },
+      { hooks, git: { shared_checkout: {} } },
       { root: repo, tools: new Set(["gemini"]) },
     );
+    // Undeclared, the shared checkout guard is off and only the shell tool is watched.
+    const shellOnly = compileHooks(
+      { hooks },
+      { root: repo, tools: new Set(["gemini"]) },
+    );
+    expect(
+      shellOnly.edits.find((edit) => edit.key[1] === "BeforeTool")!.entries[0],
+    ).toMatchObject({ matcher: "^(run_shell_command)$" });
     const before = out.edits.find((edit) => edit.key[1] === "BeforeTool")!;
     expect(before.file).toBe(".gemini/settings.json");
     expect(before.entries[0]).toMatchObject({

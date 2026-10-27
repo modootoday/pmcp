@@ -53,9 +53,10 @@ describe("doctor feature x runtime table", () => {
       claude: "measured",
       codex: "measured",
     });
+    // Opt-in: not declared, so off even in a git checkout.
     expect(row(rows, "git.shared_checkout")).toMatchObject({
-      enabled: "auto",
-      projected: "yes",
+      enabled: "default-off",
+      projected: "-",
     });
     expect(row(rows, "git.push_without_verify")).toMatchObject({
       enabled: "default-off",

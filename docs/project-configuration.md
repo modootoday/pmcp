@@ -700,6 +700,8 @@ allow_commands = [["pmcp", "git", "deliver"], ["git", "log"], ["git", "status"]]
 [git]
 remote = "origin"
 
+[git.shared_checkout]
+
 [git.mainline]
 branch = "main"
 
