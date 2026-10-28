@@ -3,6 +3,7 @@
 !/.agents/
 !/.claude/
 !/.claude-plugin/
+!/.gemini/
 !/.github/
 !/.gitignore
 !/.mcp.json
@@ -11,7 +12,6 @@
 !/AGENTS.md
 !/CONTRIBUTING.md
 !/CLAUDE.md
-!/GEMINI.md
 !/LICENSE
 !/NOTICE
 !/README.md
@@ -53,12 +53,14 @@ target/
 
 # Local agent and runtime state. pmcp manages this repository's own skills (pmcp.toml), so
 # only the projected skills under .claude/skills and the sources under .agents/skills belong
-# here; every other runtime directory stays local.
+# here, with the Gemini setting that makes it read AGENTS.md; every other runtime directory
+# stays local.
 .pmcp/
 .claude/*
 !.claude/skills/
 .codex/
-.gemini/
+.gemini/*
+!/.gemini/settings.json
 .opencode/
 .grok/
 .agents/*
