@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 
 import { VERSION } from "../commands/version.js";
+import { lockProblem } from "../hooks/lock-text.js";
 import { projectStateDir } from "../sessions/state-dir.js";
 import type { ProjectSpec } from "./spec.js";
 import { replaceFile } from "./write.js";
@@ -15,10 +16,13 @@ export const PROJECTOR_FILE = "projector.json";
 export function lockVersionProblem(root: string): string | null {
   const path = join(root, "pmcp.lock");
   if (!existsSync(path)) return null;
-  const lock = JSON.parse(readFileSync(path, "utf8")) as Record<
-    string,
-    unknown
-  >;
+  const text = readFileSync(path, "utf8");
+  let lock: Record<string, unknown>;
+  try {
+    lock = JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return lockProblem(text);
+  }
   const recorded = lock[LOCK_VERSION_KEY];
   if (recorded === VERSION) return null;
   return `drift: pmcp.lock ${LOCK_VERSION_KEY} ${typeof recorded === "string" ? recorded : "none"}, this pmcp ${VERSION}`;

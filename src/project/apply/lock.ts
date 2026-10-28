@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { VERSION } from "../../commands/version.js";
+import { lockProblem } from "../../hooks/lock-text.js";
+import { ProjectError } from "../package-rules.js";
 import type { Output } from "../outputs.js";
 import { LOCK_VERSION_KEY } from "../projector.js";
 import { replaceFile } from "../write.js";
@@ -12,13 +14,23 @@ export const LOCK_FILE = "pmcp.lock";
 
 const sha = (text: string) => createHash("sha256").update(text).digest("hex");
 
-export function readLock(root: string): LockEntry[] {
+// The whole lock, {} when there is none. One that is not JSON (a merge's conflict markers) is a
+// ProjectError saying so and how to restore it.
+export function readLockFile(root: string): Record<string, unknown> & {
+  outputs?: LockEntry[];
+} {
   const path = join(root, LOCK_FILE);
-  if (!existsSync(path)) return [];
-  const lock = JSON.parse(readFileSync(path, "utf8")) as {
-    outputs?: LockEntry[];
-  };
-  return lock.outputs ?? [];
+  if (!existsSync(path)) return {};
+  const text = readFileSync(path, "utf8");
+  try {
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    throw new ProjectError(lockProblem(text));
+  }
+}
+
+export function readLock(root: string): LockEntry[] {
+  return readLockFile(root).outputs ?? [];
 }
 
 function lockEntry(output: Output): Record<string, unknown> {

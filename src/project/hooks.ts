@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { climbCommand } from "../hooks/runtimes/climb.js";
+import { readLockFile } from "./apply/lock.js";
 import { jsonOutput, splitKeyed, type Output } from "./outputs.js";
 import { ProjectError } from "./package-rules.js";
 import { guardPath } from "./hook-adapter.js";
@@ -84,12 +85,9 @@ function adapterSource(): string {
 }
 
 export function hookOutputs(spec: ProjectSpec): Output[] {
-  const lockFile = join(spec.root, "pmcp.lock");
-  const lock = existsSync(lockFile)
-    ? (JSON.parse(readFileSync(lockFile, "utf8")) as {
-        outputs?: { path: string; managed?: unknown[] }[];
-      })
-    : {};
+  const lock = readLockFile(spec.root) as {
+    outputs?: { path: string; managed?: unknown[] }[];
+  };
   // Limit ownership to hook keys so projection preserves unrelated native registrations.
   const previous = new Map(
     (lock.outputs ?? [])

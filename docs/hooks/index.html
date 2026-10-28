@@ -57,7 +57,12 @@ features use. Gemini, Antigravity, Grok and OpenCode are opt-in: name them in
 <code>[hooks] targets</code> and pmcp registers the same hook in their files (see
 <a href="#runtime-support">Runtime support</a>). <code>pmcp.lock</code> pins the hash of <code>policy.json</code>; the hook refuses to
 act on a policy that does not match it, so every policy change is a reviewed
-projection. Codex shows changed entries under <code>/hooks</code> as needing review;
+projection. When <code>pmcp.lock</code> itself cannot be read, as when a merge leaves git
+conflict markers in it, no guard can be verified, so the hook refuses every tool
+call except its repair: a read, an edit or write of <code>pmcp.lock</code> alone, and
+<code>git show &lt;rev&gt;:pmcp.lock &gt; pmcp.lock</code>, <code>git checkout [&lt;rev&gt;|--ours|--theirs] [--] pmcp.lock</code> or <code>git restore [--source=&lt;rev&gt;] [--] pmcp.lock</code>. The refusal names
+the line with the first marker and those commands; <code>pmcp project --check</code> and
+<code>pmcp doctor</code> report the same. Codex shows changed entries under <code>/hooks</code> as needing review;
 untrusted hooks do not run. Each Codex, Claude and Grok entry carries a
 <code>statusMessage</code> such as <code>pmcp session start</code> or <code>pmcp before tool</code>: Codex
 lists hooks under that name, and Claude and Grok show it while the hook runs.

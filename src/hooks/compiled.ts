@@ -14,6 +14,7 @@ import {
   verifiedBefore,
 } from "./integrity-cache.js";
 import type { LogSettings } from "../logging/settings.js";
+import { lockProblem } from "./lock-text.js";
 
 export const HOOK_DIRECTORY = ".agents/pmcp-hooks";
 export const POLICY_FILE = `${HOOK_DIRECTORY}/policy.json`;
@@ -79,17 +80,30 @@ export function sha256(text: string): string {
 
 export class PolicyIntegrityError extends Error {}
 
+// pmcp.lock cannot be parsed (a merge left conflict markers in it, say), so policy.json cannot
+// be verified; the entry then lets only the lock's repair through.
+export class LockUnreadableError extends PolicyIntegrityError {}
+
 const MISMATCH =
   "policy.json does not match pmcp.lock; review the change and run pmcp project";
+
+function readLockFile(path: string): {
+  outputs?: { path?: unknown; sha256?: unknown }[];
+} {
+  const text = readFileSync(path, "utf8");
+  try {
+    return JSON.parse(text) as ReturnType<typeof readLockFile>;
+  } catch {
+    throw new LockUnreadableError(lockProblem(text));
+  }
+}
 
 export function readCompiled(root: string): CompiledPolicy {
   const policyPath = join(root, POLICY_FILE);
   const files = [policyPath, join(root, LOCK_FILE)];
   const before = stampOf(files);
   const text = readFileSync(policyPath, "utf8");
-  const lock = JSON.parse(readFileSync(files[1]!, "utf8")) as {
-    outputs?: { path?: unknown; sha256?: unknown }[];
-  };
+  const lock = readLockFile(files[1]!);
   const entry = lock.outputs?.find((output) => output.path === POLICY_FILE);
   const expected = typeof entry?.sha256 === "string" ? entry.sha256 : null;
   if (expected === null) throw new PolicyIntegrityError(MISMATCH);

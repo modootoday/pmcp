@@ -24,11 +24,16 @@ function onDisk(root: string): { text: string; locked: boolean } | null {
   const file = join(root, POLICY_FILE);
   if (!existsSync(file)) return null;
   const text = readFileSync(file, "utf8");
-  const lock = existsSync(join(root, LOCK_FILE))
-    ? (JSON.parse(readFileSync(join(root, LOCK_FILE), "utf8")) as {
+  // A lock that is not JSON verifies nothing; doctor reports it beside the outputs check.
+  let lock: { outputs?: { path: string; sha256?: string }[] } = {};
+  try {
+    if (existsSync(join(root, LOCK_FILE)))
+      lock = JSON.parse(readFileSync(join(root, LOCK_FILE), "utf8")) as {
         outputs?: { path: string; sha256?: string }[];
-      })
-    : {};
+      };
+  } catch {
+    lock = {};
+  }
   const entry = lock.outputs?.find((output) => output.path === POLICY_FILE);
   return { text, locked: entry?.sha256 === sha256(text) };
 }

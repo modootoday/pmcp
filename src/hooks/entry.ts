@@ -6,10 +6,12 @@ import { NEUTRAL_EVENTS, type NeutralEvent } from "./contract.js";
 import { dispatch } from "./dispatch.js";
 import { failClosed, failedEntry, rawFailure } from "./entry/fail-closed.js";
 import {
+  LockUnreadableError,
   PolicyIntegrityError,
   readCompiled,
   type CompiledPolicy,
 } from "./compiled.js";
+import { lockRepair } from "./entry/lock-repair.js";
 import type { HookInput } from "./contract.js";
 import { hookLogger } from "./entry/logger.js";
 import { stateDirAnswer } from "./entry/state-dir.js";
@@ -91,6 +93,18 @@ export async function main(
     log.error("hook failed", {
       error: error instanceof Error ? error.message : String(error),
     });
+    // The lock is read before the payload, so the call is read here to judge its repair.
+    if (error instanceof LockUnreadableError) {
+      try {
+        payload ??= JSON.parse(readStdin() || "{}");
+        const native = adapter.nativeEvent(event);
+        input = native ? adapter.normalize(native, payload, root) : null;
+      } catch {
+        input = null;
+      }
+      writeStdout(lockRepair(adapter, event, root, input, error));
+      return 0;
+    }
     const failure =
       error instanceof PolicyIntegrityError
         ? undefined

@@ -18,7 +18,23 @@ import { hostDoctor, hostEnvDoctor, ptyBinaryDoctor } from "../host.js";
 import { hostApprovalDoctor } from "../host-approval.js";
 import { pluginBinaryDoctor } from "../mcp-spec/plugin-binary.js";
 import { describeHookProblem, unmanagedHooks } from "../unmanaged-hooks.js";
+import { ProjectError } from "../package-rules.js";
+import { readLockFile } from "../apply/lock.js";
 export function doctor(spec: ProjectSpec, options: DoctorOptions): Finding[] {
+  // Every other check reads pmcp.lock, so one a merge left unreadable is the whole report.
+  try {
+    readLockFile(spec.root);
+  } catch (error) {
+    if (!(error instanceof ProjectError)) throw error;
+    return [
+      {
+        tool: "project",
+        check: "outputs match sources",
+        status: "fail",
+        detail: error.message,
+      },
+    ];
+  }
   const check = project(spec, { check: true });
   const findings: Finding[] = [
     check.code === 0
