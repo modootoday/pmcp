@@ -18,6 +18,7 @@ export function storeFrom(context: CommandContext): {
     store: openStore(
       config.dir,
       readStoreSettings(sessions, config.raw["git"]),
+      context.env,
     ),
     leases,
     root: config.dir,

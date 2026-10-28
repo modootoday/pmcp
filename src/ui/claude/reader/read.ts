@@ -94,7 +94,9 @@ export async function readSessionState(
   const at = (name: string) => `${options.stateDir}/${name}`;
   return {
     records: await readRecords(files, options),
-    pause: asPause(await readJson(files, at(STATE_PATHS.pause))),
+    pause: asPause(
+      await readJson(files, options.pauseFile ?? at(STATE_PATHS.pause)),
+    ),
     lease: await readLease(files, options),
     broadcast: asBroadcast(await readJson(files, at(STATE_PATHS.broadcast))),
   };

@@ -14,12 +14,12 @@ import {
 import { lockRepair } from "./entry/lock-repair.js";
 import type { HookInput } from "./contract.js";
 import { hookLogger } from "./entry/logger.js";
-import { stateDirAnswer } from "./entry/state-dir.js";
+import { pauseFileAnswer, stateDirAnswer } from "./entry/state-dir.js";
 import { readStdin, writeStdout } from "./entry/stdin.js";
 import { gitProbe } from "./policies/git-probe.js";
 import { guestFor, runtime } from "./runtimes/index.js";
 import { createFilesStore } from "../sessions/files-store.js";
-import { leaseFilesFor } from "../sessions/lease-files.js";
+import { leaseFilesFor, pauseFileFor } from "../sessions/lease-files.js";
 import { projectStateDir } from "../sessions/state-dir.js";
 import type { Logger } from "../logging/logger.js";
 
@@ -29,6 +29,10 @@ export async function main(
 ): Promise<number> {
   if (argv[0] === "--state-dir") {
     writeStdout(stateDirAnswer(root));
+    return 0;
+  }
+  if (argv[0] === "--pause-file") {
+    writeStdout(pauseFileAnswer(root));
     return 0;
   }
   const projected = runtime(argv[0] ?? "");
@@ -62,6 +66,13 @@ export async function main(
     if (!input) return pass();
     const run = log.child({ session: input.session.id });
     const stateDir = projectStateDir(root, compiled.stateDir);
+    const pauseFile = pauseFileFor(
+      root,
+      stateDir,
+      compiled.sessions.pauseFile,
+      compiled.sessions.gate,
+      process.env,
+    );
     const store = createFilesStore(stateDir, {
       ...compiled.sessions,
       leaseFiles: leaseFilesFor(
@@ -71,6 +82,7 @@ export async function main(
         compiled.sessions.gate,
         process.env,
       ),
+      ...(pauseFile ? { pauseFile } : {}),
     });
     const decision = await dispatch(input, compiled, {
       log: run,

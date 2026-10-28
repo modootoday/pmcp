@@ -3,8 +3,10 @@ import { createFilesStore } from "./files-store.js";
 import type { MailboxSettings, SessionStore } from "./types.js";
 import {
   leaseFilesFor,
+  pauseFileFor,
   readGateLocation,
   readLeaseFiles,
+  readPauseFile,
   type GateLocation,
   type LeaseFiles,
 } from "./lease-files.js";
@@ -16,6 +18,8 @@ export interface StoreSettings {
   readonly mailbox?: MailboxSettings;
   // Lease files outside the state dir, and the gate tree their ${gate_dir} paths follow.
   readonly leaseFiles?: Readonly<Record<string, LeaseFiles>>;
+  // The pause outside the state dir, as written; ${gate_dir} follows the same gate tree.
+  readonly pauseFile?: string;
   readonly gate?: GateLocation;
 }
 
@@ -112,15 +116,21 @@ export function readStoreSettings(raw: unknown, git?: unknown): StoreSettings {
       10,
     ),
     mailbox: readMailbox(sessions["mailbox"]),
-    ...leaseSettings(sessions["leases"], git),
+    ...sharedFileSettings(sessions["leases"], sessions["pause_file"], git),
   };
 }
 
-function leaseSettings(leases: unknown, git: unknown) {
+function sharedFileSettings(leases: unknown, pause: unknown, git: unknown) {
   const leaseFiles = readLeaseFiles(leases);
-  if (Object.keys(leaseFiles).length === 0) return {};
+  const pauseFile = readPauseFile(pause);
+  const hasLeases = Object.keys(leaseFiles).length > 0;
+  if (!hasLeases && !pauseFile) return {};
   const gate = readGateLocation(git);
-  return { leaseFiles, ...(Object.keys(gate).length > 0 ? { gate } : {}) };
+  return {
+    ...(hasLeases ? { leaseFiles } : {}),
+    ...(pauseFile ? { pauseFile } : {}),
+    ...(Object.keys(gate).length > 0 ? { gate } : {}),
+  };
 }
 
 export function openStore(
@@ -129,6 +139,13 @@ export function openStore(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): SessionStore {
   const dir = projectStateDir(root, settings.stateDir, env);
+  const pauseFile = pauseFileFor(
+    root,
+    dir,
+    settings.pauseFile,
+    settings.gate,
+    env,
+  );
   return createFilesStore(dir, {
     ...settings,
     leaseFiles: leaseFilesFor(
@@ -138,5 +155,6 @@ export function openStore(
       settings.gate,
       env,
     ),
+    ...(pauseFile ? { pauseFile } : {}),
   });
 }

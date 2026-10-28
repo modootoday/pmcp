@@ -17,7 +17,7 @@ function deskSync(setup: GitSetup, report: Reporter) {
   return syncDesk({
     ctx: setup.ctx,
     followSubmodules: config.submodules?.follow === "clean_pins",
-    store: filesSessionGate(setup.stateDir, setup.leaseFiles),
+    store: filesSessionGate(setup.stateDir, setup.leaseFiles, setup.pauseFile),
     leases: leaseSpecs(config),
     report,
     ...(install === undefined ? {} : { install }),
@@ -104,7 +104,7 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     logDir: join(setup.stateDir, "gate-logs"),
     links: config.worktrees?.linkFromMain ?? [],
     leases: leaseSpecs(config),
-    store: filesSessionGate(setup.stateDir, setup.leaseFiles),
+    store: filesSessionGate(setup.stateDir, setup.leaseFiles, setup.pauseFile),
     duringPause: context.args.flags.has("during-pause"),
     noPush: context.args.flags.has("no-push"),
     afterDeliver,

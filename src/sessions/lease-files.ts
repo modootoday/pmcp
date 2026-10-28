@@ -5,7 +5,8 @@ import { expandPath } from "./paths.js";
 // A lease kept outside the state dir, where any tool coordinating the same paths can read it
 // (docs/git-workflow.md, Shared file formats): [sessions.leases.<name>] file, and events for
 // the delivery records. ${gate_dir}/ means the directory of the gate tree, so both follow a
-// [git.mainline.gate] tree_env override.
+// [git.mainline.gate] tree_env override. [sessions] pause_file takes the same path forms, so
+// another tool that pauses the same work can keep the pause where it already reads it.
 
 export interface LeaseFiles {
   readonly file?: string;
@@ -58,6 +59,10 @@ export function readLeaseFiles(leases: unknown): Record<string, LeaseFiles> {
   return out;
 }
 
+export function readPauseFile(value: unknown): string | undefined {
+  return setting(value, "[sessions] pause_file");
+}
+
 // [git.mainline.gate] tree and tree_env as written; resolved per run, since tree_env is read
 // from the environment of whichever process opens the store.
 export function readGateLocation(git: unknown): GateLocation {
@@ -86,14 +91,25 @@ export function gateTree(
     : join(stateDir, "gate", "tree");
 }
 
+function atGateDir(path: string, gateDir: string): string {
+  return path.startsWith(GATE_DIR)
+    ? join(gateDir, path.slice(GATE_DIR.length))
+    : path;
+}
+
+export function resolvePauseFile(
+  file: string | undefined,
+  gateDir: string,
+): string | undefined {
+  return file === undefined ? undefined : atGateDir(file, gateDir);
+}
+
 export function resolveLeaseFiles(
   files: Readonly<Record<string, LeaseFiles>> | undefined,
   gateDir: string,
 ): Record<string, LeaseFiles> {
   const resolve = (path: string | undefined) =>
-    path?.startsWith(GATE_DIR)
-      ? join(gateDir, path.slice(GATE_DIR.length))
-      : path;
+    path === undefined ? undefined : atGateDir(path, gateDir);
   return Object.fromEntries(
     Object.entries(files ?? {}).map(([name, f]) => {
       const file = resolve(f.file);
@@ -116,6 +132,20 @@ export function leaseFilesFor(
   if (!files || Object.keys(files).length === 0) return {};
   return resolveLeaseFiles(
     files,
+    dirname(gateTree(root, stateDir, gate ?? {}, env)),
+  );
+}
+
+export function pauseFileFor(
+  root: string,
+  stateDir: string,
+  file: string | undefined,
+  gate: GateLocation | undefined,
+  env: Env,
+): string | undefined {
+  if (!file) return undefined;
+  return resolvePauseFile(
+    file,
     dirname(gateTree(root, stateDir, gate ?? {}, env)),
   );
 }

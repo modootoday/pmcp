@@ -58,6 +58,7 @@ export async function refresh($: any): Promise<void> {
   state.now = Number(await $.clock.now());
   const read = await readSessionState(hostFiles($), {
     stateDir: state.stateDir,
+    ...(state.pauseFile ? { pauseFile: state.pauseFile } : {}),
     now: state.now,
   });
   const next = { ...read, records: [...read.records].sort(byKind) };

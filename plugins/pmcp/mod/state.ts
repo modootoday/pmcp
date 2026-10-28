@@ -20,6 +20,7 @@ export const state = {
   root: "",
 
   stateDir: "",
+  pauseFile: "",
   settings: null as UiSettings | null,
   isOpen: false,
   signature: "",

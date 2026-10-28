@@ -2,14 +2,20 @@ import { STATE_PATHS } from "./reader/index";
 import { refresh } from "./snapshot";
 import { PANE_ID, state } from "./state";
 
+// The pause may live outside the state dir ([sessions] pause_file); the rest never does.
+function statePath(name: string): string {
+  if (name === STATE_PATHS.pause && state.pauseFile) return state.pauseFile;
+  return `${state.stateDir}/${name}`;
+}
+
 async function writeState($: any, name: string, value: object): Promise<void> {
-  const dir = state.stateDir;
-  await $.process.run(["mkdir", "-p", dir]);
-  await $.fs.write(`${dir}/${name}`, `${JSON.stringify(value, null, 2)}\n`);
+  const path = statePath(name);
+  await $.process.run(["mkdir", "-p", path.slice(0, path.lastIndexOf("/"))]);
+  await $.fs.write(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
 async function removeState($: any, name: string): Promise<void> {
-  await $.process.run(["rm", "-f", `${state.stateDir}/${name}`]);
+  await $.process.run(["rm", "-f", statePath(name)]);
 }
 
 async function togglePane($: any): Promise<{ text: string }> {

@@ -98,6 +98,19 @@ describe("session state reader", () => {
     expect(snapshot.records).toEqual([]);
     expect(snapshot.pause).toBeNull();
   });
+
+  it("reads the pause at [sessions] pause_file, not the state directory's", async () => {
+    const snapshot = await readSessionState(nodeFiles(new Set()), {
+      ...options("absent"),
+      pauseFile: join(FIXTURES, "state/pause.json"),
+    });
+    expect(snapshot.pause?.reason).toBe("rebasing main");
+    const elsewhere = await readSessionState(nodeFiles(new Set()), {
+      ...options("state"),
+      pauseFile: join(FIXTURES, "absent/pause.json"),
+    });
+    expect(elsewhere.pause).toBeNull();
+  });
 });
 
 describe("mod settings", () => {

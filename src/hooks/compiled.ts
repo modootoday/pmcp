@@ -64,6 +64,7 @@ export interface CompiledPolicy {
     // Absent in policies compiled before the mailbox; the store then keeps it off.
     readonly mailbox?: MailboxSettings;
     readonly leaseFiles?: Readonly<Record<string, LeaseFiles>>;
+    readonly pauseFile?: string;
     readonly gate?: GateLocation;
   };
   readonly guards: readonly CompiledGuard[];

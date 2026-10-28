@@ -2,7 +2,11 @@ import { dirname, join, resolve } from "node:path";
 
 import { findConfig, readConfig } from "../config.js";
 import { projectStateDir } from "../sessions/state-dir.js";
-import { resolveLeaseFiles, type LeaseFiles } from "../sessions/lease-files.js";
+import {
+  resolveLeaseFiles,
+  resolvePauseFile,
+  type LeaseFiles,
+} from "../sessions/lease-files.js";
 import { readStoreSettings } from "../sessions/settings.js";
 import { readGitConfig } from "./config.js";
 import { detect } from "./detect.js";
@@ -15,6 +19,8 @@ export interface GitSetup {
   // Resolved for this run: tree_env wins over tree, and lease files follow the gate dir.
   readonly gateTree: string;
   readonly leaseFiles: Readonly<Record<string, LeaseFiles>>;
+  // [sessions] pause_file, resolved like the lease files; absent means the state dir's.
+  readonly pauseFile?: string;
 }
 
 export function loadGit(
@@ -42,7 +48,15 @@ export function loadGit(
     project.raw["git"],
   );
   const leaseFiles = resolveLeaseFiles(settings.leaseFiles, dirname(tree));
-  return { config, ctx, stateDir, gateTree: tree, leaseFiles };
+  const pauseFile = resolvePauseFile(settings.pauseFile, dirname(tree));
+  return {
+    config,
+    ctx,
+    stateDir,
+    gateTree: tree,
+    leaseFiles,
+    ...(pauseFile ? { pauseFile } : {}),
+  };
 }
 
 export function gateTreePath(setup: GitSetup): string {

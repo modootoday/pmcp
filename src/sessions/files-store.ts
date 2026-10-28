@@ -15,6 +15,8 @@ export interface FilesStoreOptions {
   readonly mailbox?: MailboxSettings;
   // Resolved lease paths by lease name; the others stay <name>-lease.json in dir.
   readonly leaseFiles?: Readonly<Record<string, LeaseFiles>>;
+  // The resolved [sessions] pause_file; without it pause.json stays in dir.
+  readonly pauseFile?: string;
 }
 
 const OFF: MailboxSettings = {
@@ -34,7 +36,7 @@ export function createFilesStore(
   return {
     dir,
     registry,
-    pause: filesPause(dir),
+    pause: filesPause(dir, options.pauseFile),
     leases: filesLeases(dir, options.leaseFiles),
     // With the mailbox on, a broadcast is also a message to all, which the mailbox delivers;
     // broadcast.json stays the record status, snapshot and the Claude band read.

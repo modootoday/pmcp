@@ -3,7 +3,7 @@ import { atom, read, type On } from "claude-code";
 import { runCommand } from "./commands";
 import { drawBand, drawPane } from "./draw";
 import { holdForeignEdit } from "./guard";
-import { findSettings, resolveStateDir } from "./host";
+import { findSettings, resolvePauseFile, resolveStateDir } from "./host";
 import { refresh } from "./snapshot";
 import { EDITS, PANE_ID, POLL_MS, state, type Kept } from "./state";
 
@@ -23,6 +23,7 @@ async function start($: any, e: any): Promise<void> {
   state.root = found.root;
   state.settings = found.settings;
   state.stateDir = stateDir;
+  state.pauseFile = await resolvePauseFile($, found.root, stateDir);
   const saved = await read($, kept);
   if (saved) {
     state.snapshot = saved.snapshot;

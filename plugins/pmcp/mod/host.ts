@@ -1,4 +1,4 @@
-import { parseUiSettings, UI_SETTINGS_FILE } from "./reader/index";
+import { parseUiSettings, STATE_PATHS, UI_SETTINGS_FILE } from "./reader/index";
 import type { StateFiles, UiSettings } from "./reader/index";
 
 export function hostFiles($: any): StateFiles {
@@ -26,6 +26,22 @@ export async function resolveStateDir(
     .catch(() => null);
   if (!run || run.exitCode !== 0) return "";
   return String(run.stdout).trim();
+}
+
+// The pause the hooks read ([sessions] pause_file); a hook too old to answer keeps the state dir's.
+export async function resolvePauseFile(
+  $: any,
+  root: string,
+  stateDir: string,
+): Promise<string> {
+  const fallback = `${stateDir}/${STATE_PATHS.pause}`;
+  const hook = `${root}/.agents/pmcp-hooks/hook.mjs`;
+  if (!(await $.fs.exists(hook))) return fallback;
+  const run = await $.process
+    .run(["node", hook, "--pause-file"])
+    .catch(() => null);
+  const answer = run && run.exitCode === 0 ? String(run.stdout).trim() : "";
+  return answer.startsWith("/") ? answer : fallback;
 }
 
 export async function findSettings(

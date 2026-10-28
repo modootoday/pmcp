@@ -15,6 +15,7 @@ export interface SessionsTable extends StoreSettings {
 const KEYS = [
   "store",
   "state_dir",
+  "pause_file",
   "registry",
   "pause",
   "broadcast",

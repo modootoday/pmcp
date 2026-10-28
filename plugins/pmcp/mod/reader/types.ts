@@ -26,6 +26,8 @@ export interface StateFiles {
 
 export interface ReadOptions {
   readonly stateDir: string;
+  // [sessions] pause_file as the hook resolves it; absent means pause.json in stateDir.
+  readonly pauseFile?: string;
   readonly now: number;
 }
 

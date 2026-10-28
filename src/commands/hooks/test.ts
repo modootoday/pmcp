@@ -55,7 +55,9 @@ export async function run(context: CommandContext): Promise<number> {
     throw new ArgumentError("Tool selectors require before_tool or after_tool");
   const scratch = mkdtempSync(join(tmpdir(), "pmcp-hooks-test-"));
   try {
-    const store = createFilesStore(scratch, compiled.sessions);
+    // The simulated pause is the seeded one in scratch, never the project's pause_file.
+    const { pauseFile: _project, ...sessions } = compiled.sessions;
+    const store = createFilesStore(scratch, sessions);
     seedState(store, context.cwd, one(context.args, "session-state"));
     const report = await simulate(input, compiled, store);
     const rendered = adapter.render(input, report.decision);

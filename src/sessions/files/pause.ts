@@ -5,8 +5,9 @@ import { asPause, STATE_FILES } from "../format.js";
 import type { SessionStore } from "../types.js";
 import { readJson, writeJson } from "./json.js";
 
-export function filesPause(dir: string): SessionStore["pause"] {
-  const path = join(dir, STATE_FILES.pause);
+// file is [sessions] pause_file, resolved; without it the pause lives in the state dir.
+export function filesPause(dir: string, file?: string): SessionStore["pause"] {
+  const path = file ?? join(dir, STATE_FILES.pause);
   return {
     read: () => asPause(readJson(path)),
     write(pause) {

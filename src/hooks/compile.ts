@@ -98,6 +98,7 @@ export function compileHooks(
       ...(sessions.mailbox?.enabled ? { mailbox: sessions.mailbox } : {}),
       // Only when declared, like the mailbox, so other projects keep the same policy.json.
       ...(sessions.leaseFiles ? { leaseFiles: sessions.leaseFiles } : {}),
+      ...(sessions.pauseFile ? { pauseFile: sessions.pauseFile } : {}),
       ...(sessions.gate ? { gate: sessions.gate } : {}),
     },
     guards,
