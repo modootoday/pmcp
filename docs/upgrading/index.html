@@ -53,6 +53,14 @@ Releases list its breaking changes and link here.</p>
 1.0.62, in a folder it trusts), so the links were duplicates. The next <code>pmcp project</code> removes the
 ones it wrote. A Grok older than 1.0.62 was not measured; check that <code>grok inspect --json</code>
 lists your project&#39;s skills after upgrading, and keep 0.21 for that project if it does not.</p>
+<p><strong><code>pmcp git sync</code> now works in a desk.</strong> In 0.21 it exited 2 in any linked worktree. A
+linked worktree matching <code>[git.worktrees] desks</code> (by default every worktree under
+<code>[git.worktrees] root</code>) is now brought up to date with the mainline when that loses
+nothing, and held with exit 1 otherwise; any other linked worktree still exits 2. A script
+that relied on exit 2 to skip desks should check the kind first, or set <code>desks</code> to a
+pattern that matches none. <code>[git.worktrees.sync] after_deliver = &quot;desk&quot;</code> syncs the
+delivering desk after a delivery, and the <code>--json</code> receipt gains <code>desk_sync</code>. See
+<a href="/git-workflow/">Git workflow</a>.</p>
 <h2 id="from-020-to-021">From 0.20 to 0.21</h2>
 <p><strong>Session records are written to <code>sessions/</code> alone.</strong> 0.20 also wrote each record to the
 deprecated <code>fleet/</code> in the state directory; 0.21 stops. A tool that still reads <code>fleet/</code>

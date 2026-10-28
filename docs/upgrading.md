@@ -12,6 +12,15 @@ Releases list its breaking changes and link here.
 ones it wrote. A Grok older than 1.0.62 was not measured; check that `grok inspect --json`
 lists your project's skills after upgrading, and keep 0.21 for that project if it does not.
 
+**`pmcp git sync` now works in a desk.** In 0.21 it exited 2 in any linked worktree. A
+linked worktree matching `[git.worktrees] desks` (by default every worktree under
+`[git.worktrees] root`) is now brought up to date with the mainline when that loses
+nothing, and held with exit 1 otherwise; any other linked worktree still exits 2. A script
+that relied on exit 2 to skip desks should check the kind first, or set `desks` to a
+pattern that matches none. `[git.worktrees.sync] after_deliver = "desk"` syncs the
+delivering desk after a delivery, and the `--json` receipt gains `desk_sync`. See
+[Git workflow](git-workflow.md).
+
 ## From 0.20 to 0.21
 
 **Session records are written to `sessions/` alone.** 0.20 also wrote each record to the

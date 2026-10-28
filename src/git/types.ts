@@ -11,6 +11,8 @@ export interface WorktreesConfig {
   readonly aliasPattern: string;
   readonly bootstrap?: Argv;
   readonly linkFromMain: readonly string[];
+  // Which linked worktrees are desks: a glob relative to the main checkout, default <root>/*.
+  readonly desks: string;
 }
 
 export interface WorktreeSyncConfig {
@@ -18,6 +20,8 @@ export interface WorktreeSyncConfig {
   readonly installAfterMove: "background" | "foreground" | "off";
   readonly betweenPrompts: string;
   readonly noticePaths: readonly string[];
+  // "desk": a delivery run in a desk syncs that desk once delivered.
+  readonly afterDeliver?: "desk" | "off";
 }
 
 export interface GateConfig {

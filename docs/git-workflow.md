@@ -30,15 +30,34 @@ turn it on.
 | `alias_pattern`  | regex     | `"^[a-z][a-z0-9-]{1,30}$"` |
 | `bootstrap`      | argv list | none                       |
 | `link_from_main` | list      | `[]`                       |
+| `desks`          | glob      | `"<root>/*"`               |
+
+Each checkout is one of three kinds, derived and never declared per checkout:
+**shared** is the main checkout (its `.git` is a directory), a **desk** is a
+linked worktree whose path relative to the main checkout matches `desks` (by
+default, the worktrees `pmcp git worktree create` makes), and every other linked
+worktree is **scratch** (the gate tree, delivery replays, one made by hand).
 
 `[git.worktrees.sync]` (opt-in) keeps each linked worktree on the mainline when moving it
 loses nothing: `on_session_start` (`"fetch_and_move"` default, `"move"`,
 `"off"`), `between_prompts` (`"move_if_light"` default, `"off"`: move only when
 no install is needed), `install_after_move` (`"off"` default, `"background"`,
-`"foreground"`) and `notice_paths` (paths whose change is announced to the
-session). Installs never block a session. A worktree is not moved while the
-workspace is paused or while any lease is held (every `[sessions.leases.<name>]`,
-or the implicit `lockfile` lease), and the session is told which.
+`"foreground"`), `notice_paths` (paths whose change is announced to the
+session) and `after_deliver` (`"off"` default, or `"desk"`: a delivery run in a
+desk then syncs that desk as `pmcp git sync` does there, holding its leases, and
+the `--json` receipt reports it as `desk_sync`). Installs never block a session.
+A worktree is not moved while the workspace is paused or while any lease is held
+(every `[sessions.leases.<name>]`, or the implicit `lockfile` lease), and the
+session is told which.
+
+`pmcp git sync` acts by kind. In the main checkout it is the main checkout sync
+described under `[git.mainline.sync]`. In a desk it brings the desk up to date
+mid-session: it fetches, then fast-forwards, or uses `reset --keep` when every
+commit the desk has beyond the mainline is landed there, follows clean
+submodule pins and runs the install when the lockfile changed. It never rebases:
+an unlanded commit, an uncommitted change to a tracked file, a pause, another
+session's lease, or a git operation in progress holds the desk where it is
+(exit 1, with the reason). In a scratch worktree it moves nothing (exit 2).
 
 `[git.mainline.gate]`: `command` (argv; no gate when missing), `tree` (the
 gate's worktree, default `<state dir>/gate/tree`; a relative path is relative to
@@ -107,15 +126,17 @@ variable reaches the push only if `push_env` names it.
 
 `pmcp git deliver --json` prints one receipt on stdout when it ends, progress
 staying on stderr: `{ok, code, delivered, upstream, attempts, replayed, gate,
-leases, sync, reason?}`, where `delivered` is the upstream commit it pushed (or
+leases, sync, desk_sync, reason?}`, where `delivered` is the upstream commit it pushed (or
 `null`), `replayed` the tip of its last replay onto the upstream (or `null`),
 `gate` is `{exit, log, by}` for the last gate run (or `null`; `by` is
 `"command"` or `"pre-push"`), `leases` the leases it took, `sync` the main
 checkout's sync after the delivery (or `null` when none ran) as
 `{from, to, code, reason?}`: the main checkout's HEAD before and after, the exit
-code `pmcp git sync` would have, and its last warning; and `reason` is the last
-refusal or failure. `--no-push` stops after the gate, so its receipt has
-`replayed` and `gate` but `delivered` and `sync` are `null`.
+code `pmcp git sync` would have, and its last warning; `desk_sync` the same for the
+delivering desk's own sync (`[git.worktrees.sync] after_deliver = "desk"`); and
+`reason` is the last refusal or failure. `--no-push` stops after the gate, so its
+receipt has `replayed` and `gate` but `delivered`, `sync` and `desk_sync` are
+`null`.
 Exit codes: `0` delivered or nothing to deliver, even when the sync after it was
 refused; `1` refused, a lease or the gate lock held too long, a replay
 conflict, the gate failed, the push failed or it gave up after `attempts`; `2`

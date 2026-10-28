@@ -37,17 +37,22 @@ const IN_PROGRESS = [
   "BISECT_LOG",
 ];
 
+// A git operation running or left unfinished in this checkout, which a move must not cross.
+export function inProgress(ctx: GitContext): string | null {
+  for (const marker of IN_PROGRESS) {
+    if (existsSync(join(ctx.gitDir, marker)))
+      return `${marker} is present; another git command is running or unfinished`;
+  }
+  return null;
+}
+
 function refusal(ctx: GitContext): string | null {
   if (ctx.linked)
     return "this is a linked worktree; sync moves only the main checkout";
   const branch = gitText(ctx.root, ["symbolic-ref", "--short", "-q", "HEAD"]);
   if (branch !== ctx.mainline)
     return `the main checkout is on ${branch || "a detached HEAD"}, not ${ctx.mainline}`;
-  for (const marker of IN_PROGRESS) {
-    if (existsSync(join(ctx.gitDir, marker)))
-      return `${marker} is present; another git command is running or unfinished`;
-  }
-  return null;
+  return inProgress(ctx);
 }
 
 function install(options: MainlineSyncOptions): number {

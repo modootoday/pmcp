@@ -65,15 +65,32 @@ turn it on.</p>
 <tr><td><code>branch_prefix</code></td><td>string</td><td><code>&quot;worktree-&quot;</code></td></tr>
 <tr><td><code>alias_pattern</code></td><td>regex</td><td><code>&quot;^[a-z][a-z0-9-]{1,30}$&quot;</code></td></tr>
 <tr><td><code>bootstrap</code></td><td>argv list</td><td>none</td></tr>
-<tr><td><code>link_from_main</code></td><td>list</td><td><code>[]</code></td></tr></tbody></table></div>
+<tr><td><code>link_from_main</code></td><td>list</td><td><code>[]</code></td></tr>
+<tr><td><code>desks</code></td><td>glob</td><td><code>&quot;&lt;root&gt;/*&quot;</code></td></tr></tbody></table></div>
+<p>Each checkout is one of three kinds, derived and never declared per checkout:
+<strong>shared</strong> is the main checkout (its <code>.git</code> is a directory), a <strong>desk</strong> is a
+linked worktree whose path relative to the main checkout matches <code>desks</code> (by
+default, the worktrees <code>pmcp git worktree create</code> makes), and every other linked
+worktree is <strong>scratch</strong> (the gate tree, delivery replays, one made by hand).</p>
 <p><code>[git.worktrees.sync]</code> (opt-in) keeps each linked worktree on the mainline when moving it
 loses nothing: <code>on_session_start</code> (<code>&quot;fetch_and_move&quot;</code> default, <code>&quot;move&quot;</code>,
 <code>&quot;off&quot;</code>), <code>between_prompts</code> (<code>&quot;move_if_light&quot;</code> default, <code>&quot;off&quot;</code>: move only when
 no install is needed), <code>install_after_move</code> (<code>&quot;off&quot;</code> default, <code>&quot;background&quot;</code>,
-<code>&quot;foreground&quot;</code>) and <code>notice_paths</code> (paths whose change is announced to the
-session). Installs never block a session. A worktree is not moved while the
-workspace is paused or while any lease is held (every <code>[sessions.leases.&lt;name&gt;]</code>,
-or the implicit <code>lockfile</code> lease), and the session is told which.</p>
+<code>&quot;foreground&quot;</code>), <code>notice_paths</code> (paths whose change is announced to the
+session) and <code>after_deliver</code> (<code>&quot;off&quot;</code> default, or <code>&quot;desk&quot;</code>: a delivery run in a
+desk then syncs that desk as <code>pmcp git sync</code> does there, holding its leases, and
+the <code>--json</code> receipt reports it as <code>desk_sync</code>). Installs never block a session.
+A worktree is not moved while the workspace is paused or while any lease is held
+(every <code>[sessions.leases.&lt;name&gt;]</code>, or the implicit <code>lockfile</code> lease), and the
+session is told which.</p>
+<p><code>pmcp git sync</code> acts by kind. In the main checkout it is the main checkout sync
+described under <code>[git.mainline.sync]</code>. In a desk it brings the desk up to date
+mid-session: it fetches, then fast-forwards, or uses <code>reset --keep</code> when every
+commit the desk has beyond the mainline is landed there, follows clean
+submodule pins and runs the install when the lockfile changed. It never rebases:
+an unlanded commit, an uncommitted change to a tracked file, a pause, another
+session&#39;s lease, or a git operation in progress holds the desk where it is
+(exit 1, with the reason). In a scratch worktree it moves nothing (exit 2).</p>
 <p><code>[git.mainline.gate]</code>: <code>command</code> (argv; no gate when missing), <code>tree</code> (the
 gate&#39;s worktree, default <code>&lt;state dir&gt;/gate/tree</code>; a relative path is relative to
 the main checkout, like <code>state_dir</code>), <code>lock_wait_seconds</code>
@@ -134,15 +151,17 @@ already gated and step aside.</li>
 <p>Every delivery push also carries <code>PMCP_GIT_DELIVER=1</code>. In command mode the lock
 variable reaches the push only if <code>push_env</code> names it.</p>
 <p><code>pmcp git deliver --json</code> prints one receipt on stdout when it ends, progress
-staying on stderr: <code>{ok, code, delivered, upstream, attempts, replayed, gate, leases, sync, reason?}</code>, where <code>delivered</code> is the upstream commit it pushed (or
+staying on stderr: <code>{ok, code, delivered, upstream, attempts, replayed, gate, leases, sync, desk_sync, reason?}</code>, where <code>delivered</code> is the upstream commit it pushed (or
 <code>null</code>), <code>replayed</code> the tip of its last replay onto the upstream (or <code>null</code>),
 <code>gate</code> is <code>{exit, log, by}</code> for the last gate run (or <code>null</code>; <code>by</code> is
 <code>&quot;command&quot;</code> or <code>&quot;pre-push&quot;</code>), <code>leases</code> the leases it took, <code>sync</code> the main
 checkout&#39;s sync after the delivery (or <code>null</code> when none ran) as
 <code>{from, to, code, reason?}</code>: the main checkout&#39;s HEAD before and after, the exit
-code <code>pmcp git sync</code> would have, and its last warning; and <code>reason</code> is the last
-refusal or failure. <code>--no-push</code> stops after the gate, so its receipt has
-<code>replayed</code> and <code>gate</code> but <code>delivered</code> and <code>sync</code> are <code>null</code>.
+code <code>pmcp git sync</code> would have, and its last warning; <code>desk_sync</code> the same for the
+delivering desk&#39;s own sync (<code>[git.worktrees.sync] after_deliver = &quot;desk&quot;</code>); and
+<code>reason</code> is the last refusal or failure. <code>--no-push</code> stops after the gate, so its
+receipt has <code>replayed</code> and <code>gate</code> but <code>delivered</code>, <code>sync</code> and <code>desk_sync</code> are
+<code>null</code>.
 Exit codes: <code>0</code> delivered or nothing to deliver, even when the sync after it was
 refused; <code>1</code> refused, a lease or the gate lock held too long, a replay
 conflict, the gate failed, the push failed or it gave up after <code>attempts</code>; <code>2</code>

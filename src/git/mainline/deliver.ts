@@ -39,6 +39,8 @@ export interface DeliverOptions {
   // Hold leases through follow-up installation so peers cannot observe a partially installed lockfile change.
   // The sync it ran, if any, goes into the receipt.
   readonly afterDeliver?: () => SyncResult | null;
+  // Then the delivering desk's own sync, if any; it also goes into the receipt.
+  readonly afterDeliverDesk?: () => SyncResult | null;
   // Called once delivered and after afterDeliver, with the leases this delivery took.
   readonly recordDelivery?: (delivery: Delivery) => void;
   // The outcome as data, once deliver returns (pmcp git deliver --json prints it).
@@ -76,6 +78,8 @@ export interface DeliverReceipt {
   readonly leases: readonly string[];
   // The main checkout's sync after the delivery, or null when none ran.
   readonly sync: SyncResult | null;
+  // The delivering desk's sync after the delivery, or null when none ran.
+  readonly desk_sync: SyncResult | null;
   readonly reason?: string;
 }
 
@@ -86,6 +90,7 @@ interface Track {
   delivered: string | null;
   leases: string[];
   sync: SyncResult | null;
+  deskSync: SyncResult | null;
 }
 
 export interface Delivery {
@@ -312,6 +317,7 @@ export function deliver(options: DeliverOptions): number {
     delivered: null,
     leases: [],
     sync: null,
+    deskSync: null,
   };
   let reason: string | undefined;
   const report: Reporter = {
@@ -334,6 +340,7 @@ export function deliver(options: DeliverOptions): number {
     gate: track.gate,
     leases: track.leases,
     sync: track.sync,
+    desk_sync: track.deskSync,
     ...(code !== 0 && reason ? { reason } : {}),
   });
   return code;
@@ -387,6 +394,8 @@ function deliverOnce(options: DeliverOptions): number {
     if (code !== 0 || options.noPush) return code;
     const synced = options.afterDeliver?.() ?? null;
     if (options.track) options.track.sync = synced;
+    const deskSynced = options.afterDeliverDesk?.() ?? null;
+    if (options.track) options.track.deskSync = deskSynced;
     if (taken.length > 0)
       options.recordDelivery?.({
         leases: taken,

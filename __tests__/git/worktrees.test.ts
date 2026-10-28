@@ -25,6 +25,7 @@ function config(marker: string): WorktreesConfig {
     aliasPattern: "^[a-z][a-z0-9-]{1,30}$",
     bootstrap: ["sh", "-c", `printf %s "$PMCP_WORKTREE_ALIAS" > ${marker}`],
     linkFromMain: [".env"],
+    desks: ".claude/worktrees/*",
   };
 }
 

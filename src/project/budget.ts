@@ -5,6 +5,7 @@
 import { lstatSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 
+import { globPattern } from "../glob.js";
 import { trackedFiles } from "./package-rules.js";
 import { skillNames } from "./plan.js";
 import type { ProjectSpec } from "./spec.js";
@@ -61,22 +62,7 @@ export function readBudget(value: unknown): BudgetSettings | null {
   };
 }
 
-// A path glob: * within one segment, ** across segments, ? one character.
-export function globPattern(glob: string): RegExp {
-  let source = "";
-  for (let at = 0; at < glob.length; at += 1) {
-    const char = glob[at]!;
-    if (char === "*" && glob[at + 1] === "*") {
-      const slash = glob[at + 2] === "/";
-      source += slash ? "(?:.*/)?" : ".*";
-      at += slash ? 2 : 1;
-    } else if (char === "*") source += "[^/]*";
-    else if (char === "?") source += "[^/]";
-    else source += char.replace(/[.+^${}()|[\]\\]/gu, "\\$&");
-  }
-  // A glob naming a directory also covers everything below it.
-  return new RegExp(`^${source}(?:/.*)?$`, "u");
-}
+export { globPattern } from "../glob.js";
 
 export interface BudgetRow {
   readonly key: string;

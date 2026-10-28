@@ -20,8 +20,10 @@ export function worktrees(path: string, source: Table): WorktreesConfig {
     "bootstrap",
     "link_from_main",
     "sync",
+    "desks",
   ]);
   const pattern = read.string("alias_pattern") ?? "^[a-z][a-z0-9-]{1,30}$";
+  const root = read.string("root") ?? ".claude/worktrees";
   try {
     new RegExp(pattern, "u");
   } catch {
@@ -31,11 +33,12 @@ export function worktrees(path: string, source: Table): WorktreesConfig {
     );
   }
   return {
-    root: read.string("root") ?? ".claude/worktrees",
+    root,
     branchPrefix: read.string("branch_prefix") ?? "worktree-",
     aliasPattern: pattern,
     bootstrap: read.argv("bootstrap"),
     linkFromMain: read.list("link_from_main"),
+    desks: read.string("desks") ?? `${root.replace(/\/+$/u, "")}/*`,
   };
 }
 
@@ -45,8 +48,14 @@ export function worktreeSync(path: string, source: Table): WorktreeSyncConfig {
     "install_after_move",
     "between_prompts",
     "notice_paths",
+    "after_deliver",
   ]);
   return {
+    afterDeliver: read.oneOf<"desk" | "off">(
+      "after_deliver",
+      ["desk", "off"],
+      "off",
+    ),
     onSessionStart: read.string("on_session_start") ?? "fetch_and_move",
     installAfterMove: read.oneOf(
       "install_after_move",

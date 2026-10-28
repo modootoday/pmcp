@@ -2,12 +2,39 @@ import { deliver, type DeliverReceipt } from "../mainline/deliver.js";
 import { deliveryEvents } from "../mainline/delivery-events.js";
 import { filesSessionGate } from "../mainline/store.js";
 import { detect } from "../detect.js";
+import { installSpec } from "../install.js";
 import { syncMainline, syncMainlineResult } from "../mainline/sync.js";
-import { gateTreePath, leaseSpecs } from "../setup.js";
+import { gateTreePath, leaseSpecs, type GitSetup } from "../setup.js";
+import type { Reporter } from "../types.js";
+import { checkoutKind, syncDesk } from "../worktrees/desk.js";
 import { off, type Action } from "./types.js";
 
+function deskSync(setup: GitSetup, report: Reporter) {
+  const { config } = setup;
+  const install = installSpec(config.sync, setup.stateDir);
+  return syncDesk({
+    ctx: setup.ctx,
+    followSubmodules: config.submodules?.follow === "clean_pins",
+    store: filesSessionGate(setup.stateDir, setup.leaseFiles),
+    leases: leaseSpecs(config),
+    report,
+    ...(install === undefined ? {} : { install }),
+    ...(config.umask !== undefined ? { umask: config.umask } : {}),
+  });
+}
+
+// By checkout kind: the main checkout syncs to the mainline, a desk catches up with it, and
+// any other linked worktree is not this command's (exit 2).
 export const mainlineSync: Action = (setup, _context, report) => {
   const sync = setup.config.sync ?? off("git.mainline.sync");
+  const kind = checkoutKind(setup.ctx, setup.config.worktrees);
+  if (kind === "desk") return deskSync(setup, report).code;
+  if (kind === "scratch") {
+    report.warn(
+      `${setup.ctx.root} is a linked worktree but not a desk ([git.worktrees] desks); pmcp git sync moves the main checkout and desks only`,
+    );
+    return 2;
+  }
   const followSubmodules = setup.config.submodules?.follow === "clean_pins";
   const { ctx, stateDir } = setup;
   const sharedSubmodules = setup.config.submodules?.shared ?? [];
@@ -54,6 +81,17 @@ export const mainlineDeliver: Action = (setup, context, report) => {
       );
     return synced;
   };
+  // The delivering desk itself: [git.worktrees.sync] after_deliver = "desk".
+  const afterDeliverDesk = () => {
+    if (config.worktreeSync?.afterDeliver !== "desk") return null;
+    if (checkoutKind(ctx, config.worktrees) !== "desk") return null;
+    const synced = deskSync(setup, report);
+    if (synced.code !== 0)
+      report.warn(
+        "delivered; only this desk did not catch up, run pmcp git sync here after the hold above is cleared",
+      );
+    return synced;
+  };
   return deliver({
     ctx,
     named: context.args.positional.slice(1),
@@ -66,6 +104,7 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     duringPause: context.args.flags.has("during-pause"),
     noPush: context.args.flags.has("no-push"),
     afterDeliver,
+    afterDeliverDesk,
     recordDelivery: deliveryEvents(setup),
     pushPins: config.submodules?.push === "pins",
     ...(config.umask !== undefined ? { umask: config.umask } : {}),
