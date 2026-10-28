@@ -13,7 +13,15 @@ export function readMainlineDeliver(
     dir: root,
     raw: { git: tables.git, sessions: tables.sessions },
   } as unknown as ProjectConfig;
-  const deliver = readGitConfig(config)?.deliver;
-  if (!deliver?.refuseDirectPush) return null;
-  return { id: "git.mainline.deliver", mode: "deny", options: {} };
+  const git = readGitConfig(config);
+  if (!git?.deliver?.refuseDirectPush) return null;
+  // Only declared names are compiled in; the guard detects the rest as delivery does.
+  return {
+    id: "git.mainline.deliver",
+    mode: "deny",
+    options: {
+      ...(git.remote ? { remote: git.remote } : {}),
+      ...(git.mainline ? { branch: git.mainline } : {}),
+    },
+  };
 }

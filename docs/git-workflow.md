@@ -101,8 +101,12 @@ The fields of every shared file are listed under
 `[git.mainline.deliver]` enables `pmcp git deliver`, which replays commits onto
 the fetched mainline, runs the gate, and pushes one delivery at a time:
 `attempts` (default `3`), `refuse_direct_push` (default `true`: a hook refuses
-`git push` from any checkout of this repository, so the mainline moves only
-through delivery), `during_pause` (`"refuse"` default or `"allow"`),
+a `git push` from any checkout of this repository that would move the mainline
+on the delivery remote, so the mainline moves only through delivery. That
+covers a push naming the mainline as its destination, a push with no refspec
+from the mainline or a branch tracking it, `--all`, `--mirror`, wildcard
+refspecs, and a push to a URL. A dry run, another branch, a tag, another
+remote and a submodule's own push pass), `during_pause` (`"refuse"` default or `"allow"`),
 `lease_wait_seconds` (default `3600`), `notify` (argv run after a
 delivery), `gate` and `push_env`.
 

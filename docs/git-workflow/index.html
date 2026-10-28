@@ -130,8 +130,12 @@ The fields of every shared file are listed under
 <p><code>[git.mainline.deliver]</code> enables <code>pmcp git deliver</code>, which replays commits onto
 the fetched mainline, runs the gate, and pushes one delivery at a time:
 <code>attempts</code> (default <code>3</code>), <code>refuse_direct_push</code> (default <code>true</code>: a hook refuses
-<code>git push</code> from any checkout of this repository, so the mainline moves only
-through delivery), <code>during_pause</code> (<code>&quot;refuse&quot;</code> default or <code>&quot;allow&quot;</code>),
+a <code>git push</code> from any checkout of this repository that would move the mainline
+on the delivery remote, so the mainline moves only through delivery. That
+covers a push naming the mainline as its destination, a push with no refspec
+from the mainline or a branch tracking it, <code>--all</code>, <code>--mirror</code>, wildcard
+refspecs, and a push to a URL. A dry run, another branch, a tag, another
+remote and a submodule&#39;s own push pass), <code>during_pause</code> (<code>&quot;refuse&quot;</code> default or <code>&quot;allow&quot;</code>),
 <code>lease_wait_seconds</code> (default <code>3600</code>), <code>notify</code> (argv run after a
 delivery), <code>gate</code> and <code>push_env</code>.</p>
 <p>A commit is already on the mainline when <code>git cherry</code> finds the same patch there,
