@@ -48,6 +48,18 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-0220-to-0221">From 0.22.0 to 0.22.1</h2>
+<p><strong>Codex agent files are named with underscores.</strong> Codex refuses a hyphen in the name it
+spawns a sub-agent under, so an agent <code>frontend-implementer</code> is now
+<code>.codex/agents/frontend_implementer.toml</code> with <code>name = &quot;frontend_implementer&quot;</code>. The next
+<code>pmcp project</code> writes the new files and removes the hyphenated ones it wrote before. Anything
+that names a Codex agent by its old hyphenated name, a prompt or a script, should use the
+underscore name; <code>[agents.&lt;name&gt;.codex] name</code> sets another one.</p>
+<p><strong><code>[agents.&lt;name&gt;.codex]</code> reaches the Codex agent file.</strong> 0.22.0 ignored it. Its keys are now
+written into the file, so a hand-written Codex agent with settings such as <code>sandbox_mode</code> or
+an <code>[mcp_servers.&lt;id&gt;]</code> table can move to <code>.agents/agents/&lt;name&gt;/agent.md</code> plus that table.
+<code>developer_instructions</code> in the table is now an error: it is the agent&#39;s body. See
+<a href="/project-configuration/#native-files-for-each-agent-tool">Native files for each agent tool</a>.</p>
 <h2 id="from-021-to-022">From 0.21 to 0.22</h2>
 <p><strong>pmcp writes no <code>.grok/skills</code> links.</strong> Grok Build reads <code>.agents/skills</code> itself (measured on
 1.0.62, in a folder it trusts), so the links were duplicates. The next <code>pmcp project</code> removes the

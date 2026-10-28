@@ -5,6 +5,21 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.22.0 to 0.22.1
+
+**Codex agent files are named with underscores.** Codex refuses a hyphen in the name it
+spawns a sub-agent under, so an agent `frontend-implementer` is now
+`.codex/agents/frontend_implementer.toml` with `name = "frontend_implementer"`. The next
+`pmcp project` writes the new files and removes the hyphenated ones it wrote before. Anything
+that names a Codex agent by its old hyphenated name, a prompt or a script, should use the
+underscore name; `[agents.<name>.codex] name` sets another one.
+
+**`[agents.<name>.codex]` reaches the Codex agent file.** 0.22.0 ignored it. Its keys are now
+written into the file, so a hand-written Codex agent with settings such as `sandbox_mode` or
+an `[mcp_servers.<id>]` table can move to `.agents/agents/<name>/agent.md` plus that table.
+`developer_instructions` in the table is now an error: it is the agent's body. See
+[Native files for each agent tool](project-configuration.md#native-files-for-each-agent-tool).
+
 ## From 0.21 to 0.22
 
 **pmcp writes no `.grok/skills` links.** Grok Build reads `.agents/skills` itself (measured on

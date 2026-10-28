@@ -77,7 +77,8 @@ prompts.</p>
 <tr><td>pnpm workspace installation</td><td>Selects the member, preserves root dependencies and updates the shared lockfile</td></tr>
 <tr><td>Yarn skill installation</td><td>Refused without changing project files; Yarn PnP is not supported</td></tr>
 <tr><td>Docker profile for the harness</td><td>Codex 0.161.0 login and main/worker responses through the profile&#39;s proxy; other vendors and token refresh not measured</td></tr>
-<tr><td>OpenCode user-only skills</td><td>OpenCode 1.18.33: <code>invocation = &quot;user&quot;</code> hides the skill from the model and keeps the <code>/&lt;name&gt;</code> command, measured with isolated CLI calls and scripted responses, no model call</td></tr></tbody></table></div>
+<tr><td>OpenCode user-only skills</td><td>OpenCode 1.18.33: <code>invocation = &quot;user&quot;</code> hides the skill from the model and keeps the <code>/&lt;name&gt;</code> command, measured with isolated CLI calls and scripted responses, no model call</td></tr>
+<tr><td>Codex project agents</td><td>codex-cli 0.163.0: the name a sub-agent is spawned under must be lowercase letters, digits and underscores, so pmcp writes Codex agent names with <code>_</code> for <code>-</code>. In <code>codex exec</code> the model found no way to pick a custom agent role when spawning, with or without <code>features.multi_agent_v2.hide_spawn_agent_metadata = false</code>; whether a role named with a hyphen can be picked was not measured</td></tr></tbody></table></div>
 <p>Provider authentication, native children and vendor behavior have separate
 qualification scopes. An installed executable or exported manifest is not proof
 that every native feature works. The packed-package check, run before a

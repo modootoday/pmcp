@@ -1,12 +1,18 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
+import { stringify } from "smol-toml";
+
 import { renderFrontmatter, splitFrontmatter } from "./frontmatter.js";
 import { mcpOutputs } from "./mcp.js";
 import { hookOutputs } from "./hooks.js";
 import { hostOutputs } from "./host.js";
 import { jsonOutput, MARK, type Output } from "./outputs.js";
-import { packageRuleOutputs, RULES_DIR } from "./package-rules.js";
+import {
+  packageRuleOutputs,
+  ProjectError,
+  RULES_DIR,
+} from "./package-rules.js";
 import type { ProjectSpec, Tool } from "./spec.js";
 import { opencodeSkillOutputs } from "./adapters/opencode-skills.js";
 import { mergeBlocks } from "./blocks.js";
@@ -99,6 +105,7 @@ function ruleOutputs(spec: ProjectSpec): Output[] {
 
 function agentOutputs(spec: ProjectSpec): Output[] {
   const outputs: Output[] = [];
+  const codexNames = new Map<string, string>();
   for (const name of agentNames(spec.root)) {
     const rel = `.agents/agents/${name}/agent.md`;
     const { meta, body } = splitFrontmatter(
@@ -126,21 +133,43 @@ function agentOutputs(spec: ProjectSpec): Output[] {
       });
     }
     if (spec.tools.has("codex")) {
+      const { name: _name, description, ...rest } = overrides.codex ?? {};
+      const codex = codexAgentName(name, overrides.codex);
+      const taken = codexNames.get(codex);
+      if (taken !== undefined)
+        throw new ProjectError(
+          `agents ${taken} and ${name} are both ${codex} in Codex; set [agents.<name>.codex] name for one of them`,
+        );
+      codexNames.set(codex, name);
+      // Codex's own keys (sandbox_mode, model, [mcp_servers.<id>], ...) pass through as
+      // written; stringify puts scalars and arrays before tables.
+      const extra = Object.keys(rest).length > 0 ? stringify(rest) : "";
       const toml = [
         `# ${MARK} from ${rel}`,
-        `name = ${tomlString(meta["name"])}`,
-        `description = ${tomlString(meta["description"])}`,
+        `name = ${tomlString(codex)}`,
+        `description = ${tomlString(description ?? meta["description"])}`,
         `developer_instructions = ${tomlString(body.trim())}`,
+        ...(extra ? ["", extra.trimEnd()] : []),
         "",
       ].join("\n");
       outputs.push({
         kind: "file",
-        path: `.codex/agents/${name}.toml`,
+        path: `.codex/agents/${codex}.toml`,
         content: toml,
       });
     }
   }
   return outputs;
+}
+
+// Codex refuses a hyphen where it uses agent names, so a pmcp name's hyphens become
+// underscores there, unless [agents.<name>.codex] name says otherwise.
+export function codexAgentName(
+  name: string,
+  overrides: Readonly<Record<string, unknown>> | undefined,
+): string {
+  const set = overrides?.["name"];
+  return typeof set === "string" ? set : name.replaceAll("-", "_");
 }
 
 export function plan(

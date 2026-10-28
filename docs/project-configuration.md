@@ -139,7 +139,7 @@ pmcp doctor               # ask each installed tool what it loads
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `[targets]`              | `tools`: list of `claude`, `codex`, `gemini`, `grok`, `antigravity`, `opencode`. Missing means nothing is projected.                                                                                                                                                                           |
 | `[skills.<name>]`        | `invocation`: `"any"` (default) or `"user"`.                                                                                                                                                                                                                                                   |
-| `[agents.<name>.<tool>]` | Any keys, merged over the agent's frontmatter; Claude keeps `name`, `description`, `tools`, `model`, `effort`, Gemini keeps `name`, `description`.                                                                                                                                             |
+| `[agents.<name>.<tool>]` | Any keys, merged over the agent's frontmatter; Claude keeps `name`, `description`, `tools`, `model`, `effort`, Gemini keeps `name`, `description`. Codex keeps every key: see below.                                                                                                           |
 | `[rules.packages]`       | `file` (required): the file name each package keeps its rules in; every tracked `<package>/<file>` is linked as `.claude/rules/<dir>/<name>.md`. `dir` (default `"pkg"`, not `"pmcp"`). `strip` (default `[]`): leading path segments dropped when deriving `<name>`. Written only for Claude. |
 
 Rules go to `.claude/rules/<dir>/`, never the top level, because Grok Build
@@ -148,6 +148,27 @@ Grok Build reads `.agents/skills` itself in a trusted folder, so pmcp writes no
 skill links for it; a skill placed by hand under `.grok/skills` would shadow the
 `.agents/skills` one of the same name, and `pmcp project --check` reports it as
 undeclared.
+
+Each agent becomes `.codex/agents/<codex name>.toml` for Codex, where the Codex
+name is the agent's name with `-` turned into `_` (Codex refuses a hyphen where it
+uses agent names), or `[agents.<name>.codex] name`, which must be lowercase
+letters, digits and underscores. Two agents with the same Codex name are an error
+naming both. `description` comes from the frontmatter unless the table sets it,
+`developer_instructions` is always the agent's body (setting it in the table is an
+error), and every other key in `[agents.<name>.codex]` is written as it is, plain
+values first and then tables:
+
+```toml
+[agents.test-planner.codex]
+name = "browser_test_planner"
+sandbox_mode = "read-only"
+
+[agents.test-planner.codex.mcp_servers.browser]
+command = "npx"
+args = ["@playwright/mcp"]
+enabled_tools = ["browser_navigate", "browser_snapshot"]
+```
+
 A server that names `${PROJECT_ROOT}` is launched through `sh`, which finds
 `pmcp.toml` at spawn time, so the generated files hold no machine's path.
 `pmcp.lock` records what was written; a file pmcp did not write is never

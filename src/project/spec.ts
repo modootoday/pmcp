@@ -163,6 +163,29 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
       }
       perTool[tool as Tool] = table(path, `[agents.${name}.${tool}]`, fields);
     }
+    const codex = perTool.codex;
+    if (codex?.["developer_instructions"] !== undefined)
+      throw new ConfigError(
+        path,
+        `[agents.${name}.codex] developer_instructions comes from the body of .agents/agents/${name}/agent.md`,
+      );
+    const codexName = codex?.["name"];
+    if (
+      codexName !== undefined &&
+      (typeof codexName !== "string" || !/^[a-z0-9_]+$/u.test(codexName))
+    )
+      throw new ConfigError(
+        path,
+        `[agents.${name}.codex] name must be lowercase letters, digits and underscores`,
+      );
+    if (
+      codex?.["description"] !== undefined &&
+      typeof codex["description"] !== "string"
+    )
+      throw new ConfigError(
+        path,
+        `[agents.${name}.codex] description must be a string`,
+      );
     agents[named(path, "[agents]", name)] = perTool;
   }
 

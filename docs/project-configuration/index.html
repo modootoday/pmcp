@@ -145,15 +145,31 @@ pmcp project remove &lt;name&gt;
 pmcp doctor               # ask each installed tool what it loads</code></pre>
 <div class="scroll"><table><thead><tr><th>Table</th><th>Keys</th></tr></thead><tbody><tr><td><code>[targets]</code></td><td><code>tools</code>: list of <code>claude</code>, <code>codex</code>, <code>gemini</code>, <code>grok</code>, <code>antigravity</code>, <code>opencode</code>. Missing means nothing is projected.</td></tr>
 <tr><td><code>[skills.&lt;name&gt;]</code></td><td><code>invocation</code>: <code>&quot;any&quot;</code> (default) or <code>&quot;user&quot;</code>.</td></tr>
-<tr><td><code>[agents.&lt;name&gt;.&lt;tool&gt;]</code></td><td>Any keys, merged over the agent&#39;s frontmatter; Claude keeps <code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>, <code>effort</code>, Gemini keeps <code>name</code>, <code>description</code>.</td></tr>
+<tr><td><code>[agents.&lt;name&gt;.&lt;tool&gt;]</code></td><td>Any keys, merged over the agent&#39;s frontmatter; Claude keeps <code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>, <code>effort</code>, Gemini keeps <code>name</code>, <code>description</code>. Codex keeps every key: see below.</td></tr>
 <tr><td><code>[rules.packages]</code></td><td><code>file</code> (required): the file name each package keeps its rules in; every tracked <code>&lt;package&gt;/&lt;file&gt;</code> is linked as <code>.claude/rules/&lt;dir&gt;/&lt;name&gt;.md</code>. <code>dir</code> (default <code>&quot;pkg&quot;</code>, not <code>&quot;pmcp&quot;</code>). <code>strip</code> (default <code>[]</code>): leading path segments dropped when deriving <code>&lt;name&gt;</code>. Written only for Claude.</td></tr></tbody></table></div>
 <p>Rules go to <code>.claude/rules/&lt;dir&gt;/</code>, never the top level, because Grok Build
 loads top-level <code>.claude/rules/*.md</code> in every session regardless of <code>paths:</code>.
 Grok Build reads <code>.agents/skills</code> itself in a trusted folder, so pmcp writes no
 skill links for it; a skill placed by hand under <code>.grok/skills</code> would shadow the
 <code>.agents/skills</code> one of the same name, and <code>pmcp project --check</code> reports it as
-undeclared.
-A server that names <code>${PROJECT_ROOT}</code> is launched through <code>sh</code>, which finds
+undeclared.</p>
+<p>Each agent becomes <code>.codex/agents/&lt;codex name&gt;.toml</code> for Codex, where the Codex
+name is the agent&#39;s name with <code>-</code> turned into <code>_</code> (Codex refuses a hyphen where it
+uses agent names), or <code>[agents.&lt;name&gt;.codex] name</code>, which must be lowercase
+letters, digits and underscores. Two agents with the same Codex name are an error
+naming both. <code>description</code> comes from the frontmatter unless the table sets it,
+<code>developer_instructions</code> is always the agent&#39;s body (setting it in the table is an
+error), and every other key in <code>[agents.&lt;name&gt;.codex]</code> is written as it is, plain
+values first and then tables:</p>
+<pre><code>[agents.test-planner.codex]
+name = &quot;browser_test_planner&quot;
+sandbox_mode = &quot;read-only&quot;
+
+[agents.test-planner.codex.mcp_servers.browser]
+command = &quot;npx&quot;
+args = [&quot;@playwright/mcp&quot;]
+enabled_tools = [&quot;browser_navigate&quot;, &quot;browser_snapshot&quot;]</code></pre>
+<p>A server that names <code>${PROJECT_ROOT}</code> is launched through <code>sh</code>, which finds
 <code>pmcp.toml</code> at spawn time, so the generated files hold no machine&#39;s path.
 <code>pmcp.lock</code> records what was written; a file pmcp did not write is never
 overwritten. <code>doctor</code> calls no model: it reads <code>claude mcp list</code>,
