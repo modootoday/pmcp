@@ -6,6 +6,41 @@ import { fixture } from "./helpers.js";
 const config =
   '[targets]\ntools = ["claude", "codex"]\n[hooks.guards.git.stage_all]\nmode = "ask"\n[sessions]\nstate_dir = ".state"\n[sessions.pause]\n';
 
+it("shows what an observed guard found, though the call is allowed", async (t) => {
+  const { run } = fixture(
+    t,
+    '[targets]\ntools = ["claude"]\n[hooks.guards.shell.runaway_regex]\nmode = "observe"\n',
+  );
+  const args = [
+    "hooks",
+    "test",
+    "--runtime",
+    "claude",
+    "--event",
+    "before_tool",
+    "--command",
+    "grep -oE '.{0,2500}foo' f",
+  ];
+  const json = await run(...args, "--json");
+  expect(json.code).toBe(0);
+  const report = JSON.parse(json.out);
+  expect(report.decision.verdict).toBeUndefined();
+  const row = report.policies.find(
+    (entry: { policy: string }) => entry.policy === "shell.runaway_regex",
+  );
+  expect(row).toMatchObject({
+    mode: "observe",
+    verdict: "allow",
+    raw: { verdict: "deny" },
+  });
+  expect(row.raw.reason).toContain(
+    "a repetition count of 2500 (the limit is 255), whose cost is in compiling the pattern",
+  );
+  const text = await run(...args);
+  expect(text.err).toContain("shell.runaway_regex: allow");
+  expect(text.err).toContain("(observe; found deny: This grep can keep");
+});
+
 it("lists compiled runtime/event bindings with modes and TOML sources", async (t) => {
   const { run } = fixture(t, config);
   const result = await run("hooks", "list", "--json");

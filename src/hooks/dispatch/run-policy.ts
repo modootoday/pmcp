@@ -43,6 +43,8 @@ export interface PolicyObservation {
   readonly policy: string;
   readonly mode: Mode;
   readonly decision: Decision;
+  // What the policy itself returned, before its mode; absent when it failed to evaluate.
+  readonly raw?: Decision;
   readonly durationMs: number;
 }
 
@@ -55,11 +57,12 @@ export async function runPolicy(
   const { policy, mode } = selected;
   const log = deps.log.child({ policy: policy.id });
   const started = deps.now();
-  const finish = (decision: Decision): Decision => {
+  const finish = (decision: Decision, raw?: Decision): Decision => {
     deps.onPolicy?.({
       policy: policy.id,
       mode,
       decision,
+      ...(raw ? { raw } : {}),
       durationMs: deps.now() - started,
     });
     return decision;
@@ -107,7 +110,7 @@ export async function runPolicy(
         : {}),
       duration_ms: deps.now() - started,
     });
-    return finish(decision);
+    return finish(decision, raw);
   } catch (error) {
     log.error("policy failed", {
       error: error instanceof Error ? error.message : String(error),

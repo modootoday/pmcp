@@ -79,7 +79,15 @@ export async function run(context: CommandContext): Promise<number> {
             row.durationMs +
             "ms" +
             (row.skipped ? " (external effects skipped)" : "") +
-            (row.reason ? " " + row.reason : ""),
+            (row.reason ? " " + row.reason : "") +
+            // A guard in observe, warn or graded mode: what it found, before its mode.
+            (row.raw && row.raw.verdict !== row.verdict
+              ? ` (${row.mode}; found ${row.raw.verdict}` +
+                (row.raw.reason && row.raw.reason !== row.reason
+                  ? `: ${row.raw.reason}`
+                  : "") +
+                ")"
+              : ""),
         );
       context.ui.data(
         "Rendered (exit " + rendered.exitCode + "):\n" + rendered.stdout + "\n",

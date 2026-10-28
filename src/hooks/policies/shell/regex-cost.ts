@@ -93,7 +93,7 @@ export function patternCost(
 ): string | null {
   const largest = Math.max(0, ...repetitionCounts(pattern, flavor));
   if (largest > limits.threshold)
-    return `a repetition count of ${largest} (the limit is ${limits.threshold})`;
+    return `a repetition count of ${largest} (the limit is ${limits.threshold}), whose cost is in compiling the pattern, so even an empty input holds the core`;
   if (flavor === "perl" && nestedQuantifier(pattern))
     return "a -P pattern with a quantified group inside a quantifier, such as (a+)+ or (.*)*";
   if (
