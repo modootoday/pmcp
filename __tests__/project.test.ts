@@ -105,15 +105,14 @@ const json = (path: string) =>
   JSON.parse(readFileSync(path, "utf8")) as Record<string, any>;
 
 describe("pmcp project", () => {
-  it("links skills for Claude and Grok and keeps a user-started skill out of the model's list", (t) => {
+  it("links skills for Claude, none for Grok, and keeps a user-started skill out of the model's list", (t) => {
     const root = repo(t);
     expect(run(root).code).toBe(0);
     expect(readlinkSync(join(root, ".claude/skills/plan"))).toBe(
       "../../.agents/skills/plan",
     );
-    expect(lstatSync(join(root, ".grok/skills/router")).isSymbolicLink()).toBe(
-      true,
-    );
+    // Grok reads .agents/skills itself.
+    expect(existsSync(join(root, ".grok/skills"))).toBe(false);
     expect(existsSync(join(root, ".gemini/skills"))).toBe(false);
     const settings = json(join(root, ".claude/settings.json"));
     expect(settings["skillOverrides"]).toEqual({ plan: "user-invocable-only" });
@@ -193,6 +192,30 @@ describe("pmcp project", () => {
     ).toBe(false);
     expect(existsSync(join(root, ".grok/skills/plan"))).toBe(false);
     expect(check(root).code).toBe(0);
+  });
+
+  it("removes the Grok skill links an earlier pmcp wrote, and flags a hand-placed one", (t) => {
+    const root = repo(t);
+    run(root);
+    // What 0.21 left: an owned link per skill under .grok/skills.
+    const lock = json(join(root, "pmcp.lock"));
+    for (const name of ["plan", "router"]) {
+      const path = `.grok/skills/${name}`;
+      mkdirSync(join(root, ".grok/skills"), { recursive: true });
+      symlinkSync(`../../.agents/skills/${name}`, join(root, path));
+      lock["outputs"].push({
+        path,
+        kind: "link",
+        target: `../../.agents/skills/${name}`,
+      });
+    }
+    write(join(root, "pmcp.lock"), `${JSON.stringify(lock, null, 2)}\n`);
+    expect(run(root).code).toBe(0);
+    expect(existsSync(join(root, ".grok/skills/plan"))).toBe(false);
+    expect(existsSync(join(root, ".grok/skills/router"))).toBe(false);
+    expect(check(root).code).toBe(0);
+    write(join(root, ".grok/skills/own/SKILL.md"), "---\nname: own\n---\n");
+    expect(check(root).problems).toContain("undeclared: .grok/skills/own");
   });
 
   it("refuses a file it did not write but takes over a predecessor's copies", (t) => {

@@ -5,6 +5,13 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.21 to 0.22
+
+**pmcp writes no `.grok/skills` links.** Grok Build reads `.agents/skills` itself (measured on
+1.0.62, in a folder it trusts), so the links were duplicates. The next `pmcp project` removes the
+ones it wrote. A Grok older than 1.0.62 was not measured; check that `grok inspect --json`
+lists your project's skills after upgrading, and keep 0.21 for that project if it does not.
+
 ## From 0.20 to 0.21
 
 **Session records are written to `sessions/` alone.** 0.20 also wrote each record to the

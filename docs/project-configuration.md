@@ -144,6 +144,10 @@ pmcp doctor               # ask each installed tool what it loads
 
 Rules go to `.claude/rules/<dir>/`, never the top level, because Grok Build
 loads top-level `.claude/rules/*.md` in every session regardless of `paths:`.
+Grok Build reads `.agents/skills` itself in a trusted folder, so pmcp writes no
+skill links for it; a skill placed by hand under `.grok/skills` would shadow the
+`.agents/skills` one of the same name, and `pmcp project --check` reports it as
+undeclared.
 A server that names `${PROJECT_ROOT}` is launched through `sh`, which finds
 `pmcp.toml` at spawn time, so the generated files hold no machine's path.
 `pmcp.lock` records what was written; a file pmcp did not write is never

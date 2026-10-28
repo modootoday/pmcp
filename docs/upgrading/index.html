@@ -48,6 +48,11 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-021-to-022">From 0.21 to 0.22</h2>
+<p><strong>pmcp writes no <code>.grok/skills</code> links.</strong> Grok Build reads <code>.agents/skills</code> itself (measured on
+1.0.62, in a folder it trusts), so the links were duplicates. The next <code>pmcp project</code> removes the
+ones it wrote. A Grok older than 1.0.62 was not measured; check that <code>grok inspect --json</code>
+lists your project&#39;s skills after upgrading, and keep 0.21 for that project if it does not.</p>
 <h2 id="from-020-to-021">From 0.20 to 0.21</h2>
 <p><strong>Session records are written to <code>sessions/</code> alone.</strong> 0.20 also wrote each record to the
 deprecated <code>fleet/</code> in the state directory; 0.21 stops. A tool that still reads <code>fleet/</code>

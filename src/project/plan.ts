@@ -51,11 +51,9 @@ function skillOutputs(spec: ProjectSpec): Output[] {
   const outputs: Output[] = opencodeSkillOutputs(spec, names);
   for (const name of names) {
     const target = `../../.agents/skills/${name}`;
+    // Grok reads .agents/skills itself, so it gets no links of its own.
     if (spec.tools.has("claude")) {
       outputs.push({ kind: "link", path: `.claude/skills/${name}`, target });
-    }
-    if (spec.tools.has("grok")) {
-      outputs.push({ kind: "link", path: `.grok/skills/${name}`, target });
     }
     if (spec.skills[name]?.invocation !== "user") continue;
     if (spec.tools.has("claude")) {
@@ -173,6 +171,8 @@ export function censusDirs(spec: ProjectSpec): string[] {
     ".claude/commands",
     ".gemini/agents",
     ".codex/agents",
+    // No longer written; still watched, since a skill placed there would shadow the
+    // .agents/skills one of the same name in Grok.
     ".grok/skills",
     `${RULES_DIR}/pmcp`,
   ];
