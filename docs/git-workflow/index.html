@@ -95,10 +95,16 @@ session&#39;s lease, or a git operation in progress holds the desk where it is
 gate&#39;s worktree, default <code>&lt;state dir&gt;/gate/tree</code>; a relative path is relative to
 the main checkout, like <code>state_dir</code>), <code>lock_wait_seconds</code>
 (default <code>5400</code>), <code>lock_env</code> (an environment variable name), <code>tree_env</code> (an
-environment variable name) and <code>log_dir</code> (default <code>&lt;dir of tree&gt;/logs</code>). Each
-gate&#39;s full output goes to <code>&lt;log_dir&gt;/&lt;UTC time&gt;-&lt;tip&gt;.log</code> as well as the
-terminal; pmcp names the file when the gate starts and again if it fails, and
-keeps the newest 20. With <code>max_load</code> (the 1-minute load average, e.g. <code>6</code>) a
+environment variable name), <code>log_dir</code> (default <code>&lt;state dir&gt;/gate-logs</code>, wherever
+the gate tree is) and <code>log_keep</code> (default <code>20</code>). Each gate&#39;s full output, stdout
+and stderr as they streamed to the terminal, is kept in
+<code>&lt;log_dir&gt;/&lt;tip&gt;/&lt;UTC time&gt;-&lt;run&gt;.log</code>, one file per gate run of that replayed
+tip (the full hash), with <code>&lt;log_dir&gt;/&lt;tip&gt;/latest</code> holding the newest file&#39;s
+name; a pre-push gate&#39;s output is kept the same way. pmcp names the file when
+the gate starts and again if it fails, and the <code>--json</code> receipt names it for
+passing and failing runs alike, so a failure can be read without running the
+gate again. The newest <code>log_keep</code> tips are kept, with every run of each; older
+tips&#39; directories are removed when a new tip&#39;s is made. With <code>max_load</code> (the 1-minute load average, e.g. <code>6</code>) a
 delivery that holds the lock waits until the load is below it before the gate starts,
 checking every 15 seconds for up to <code>load_wait_seconds</code> (default <code>1800</code>), and then
 fails without running the gate; once started, a gate is never retried.</p>
@@ -153,7 +159,8 @@ variable reaches the push only if <code>push_env</code> names it.</p>
 <p><code>pmcp git deliver --json</code> prints one receipt on stdout when it ends, progress
 staying on stderr: <code>{ok, code, delivered, upstream, attempts, replayed, gate, leases, sync, desk_sync, reason?}</code>, where <code>delivered</code> is the upstream commit it pushed (or
 <code>null</code>), <code>replayed</code> the tip of its last replay onto the upstream (or <code>null</code>),
-<code>gate</code> is <code>{exit, log, by}</code> for the last gate run (or <code>null</code>; <code>by</code> is
+<code>gate</code> is <code>{exit, log, logs, by}</code> for the last gate run (or <code>null</code>; <code>log</code> is that
+run&#39;s file, <code>logs</code> the tip&#39;s directory holding every run, and <code>by</code> is
 <code>&quot;command&quot;</code> or <code>&quot;pre-push&quot;</code>), <code>leases</code> the leases it took, <code>sync</code> the main
 checkout&#39;s sync after the delivery (or <code>null</code> when none ran) as
 <code>{from, to, code, reason?}</code>: the main checkout&#39;s HEAD before and after, the exit
@@ -205,6 +212,7 @@ removed, and readers ignore fields they do not know. Times are UTC ISO 8601
 strings, and JSON files are written whole through a rename.</p>
 <div class="scroll"><table><thead><tr><th>File</th><th>Where</th><th>Content</th></tr></thead><tbody><tr><td><code>lock</code></td><td>beside the gate tree</td><td>Empty; held with <code>flock -x</code> for the whole of one delivery&#39;s gate.</td></tr>
 <tr><td><code>holder.json</code></td><td>beside <code>lock</code></td><td><code>{tip, subject, checkout, pid, startedAt}</code>: the commit being gated (full hash), its subject, the checkout delivering it, the holding process and when it took the lock. Removed by its writer before the lock is released, and only when <code>pid</code> is its own.</td></tr>
+<tr><td>gate logs</td><td><code>[git.mainline.gate] log_dir</code>, else <code>&lt;state dir&gt;/gate-logs</code></td><td><code>&lt;tip&gt;/&lt;UTC time&gt;-&lt;run&gt;.log</code> per gate run of a replayed tip (full hash), the output as it streamed; <code>&lt;tip&gt;/latest</code> holds the newest file&#39;s name. The newest <code>log_keep</code> tip directories are kept.</td></tr>
 <tr><td><code>&lt;name&gt;-lease.json</code></td><td>the state directory, or <code>[sessions.leases.&lt;name&gt;] file</code></td><td><code>{pid, subject, since, cwd?}</code>. A lease whose <code>pid</code> is not alive is free; whoever takes it next replaces the file.</td></tr>
 <tr><td>lease events</td><td><code>[sessions.leases.&lt;name&gt;] events</code></td><td>JSON Lines, one per delivery that changed the leased paths: <code>{at, subject, commit, hash, installed, lease}</code>, with <code>commit</code> the delivered upstream (10 characters), <code>hash</code> the leased files&#39; hash in the main checkout after sync, and <code>installed</code> whether sync&#39;s install ran for that hash.</td></tr>
 <tr><td>install stamp</td><td><code>[git.mainline.sync] stamp</code>, else pmcp&#39;s state directory</td><td>One line: the hash last installed. With <code>stamp_hash = &quot;plain&quot;</code> it is the sha256 hex of the single <code>install_when_changed</code> file&#39;s bytes; with <code>&quot;pmcp&quot;</code>, a hash of every listed path and its name.</td></tr></tbody></table></div>

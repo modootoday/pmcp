@@ -63,10 +63,16 @@ session's lease, or a git operation in progress holds the desk where it is
 gate's worktree, default `<state dir>/gate/tree`; a relative path is relative to
 the main checkout, like `state_dir`), `lock_wait_seconds`
 (default `5400`), `lock_env` (an environment variable name), `tree_env` (an
-environment variable name) and `log_dir` (default `<dir of tree>/logs`). Each
-gate's full output goes to `<log_dir>/<UTC time>-<tip>.log` as well as the
-terminal; pmcp names the file when the gate starts and again if it fails, and
-keeps the newest 20. With `max_load` (the 1-minute load average, e.g. `6`) a
+environment variable name), `log_dir` (default `<state dir>/gate-logs`, wherever
+the gate tree is) and `log_keep` (default `20`). Each gate's full output, stdout
+and stderr as they streamed to the terminal, is kept in
+`<log_dir>/<tip>/<UTC time>-<run>.log`, one file per gate run of that replayed
+tip (the full hash), with `<log_dir>/<tip>/latest` holding the newest file's
+name; a pre-push gate's output is kept the same way. pmcp names the file when
+the gate starts and again if it fails, and the `--json` receipt names it for
+passing and failing runs alike, so a failure can be read without running the
+gate again. The newest `log_keep` tips are kept, with every run of each; older
+tips' directories are removed when a new tip's is made. With `max_load` (the 1-minute load average, e.g. `6`) a
 delivery that holds the lock waits until the load is below it before the gate starts,
 checking every 15 seconds for up to `load_wait_seconds` (default `1800`), and then
 fails without running the gate; once started, a gate is never retried.
@@ -128,7 +134,8 @@ variable reaches the push only if `push_env` names it.
 staying on stderr: `{ok, code, delivered, upstream, attempts, replayed, gate,
 leases, sync, desk_sync, reason?}`, where `delivered` is the upstream commit it pushed (or
 `null`), `replayed` the tip of its last replay onto the upstream (or `null`),
-`gate` is `{exit, log, by}` for the last gate run (or `null`; `by` is
+`gate` is `{exit, log, logs, by}` for the last gate run (or `null`; `log` is that
+run's file, `logs` the tip's directory holding every run, and `by` is
 `"command"` or `"pre-push"`), `leases` the leases it took, `sync` the main
 checkout's sync after the delivery (or `null` when none ran) as
 `{from, to, code, reason?}`: the main checkout's HEAD before and after, the exit
@@ -185,10 +192,11 @@ formats: within a release line fields are only added, never renamed, retyped or
 removed, and readers ignore fields they do not know. Times are UTC ISO 8601
 strings, and JSON files are written whole through a rename.
 
-| File                | Where                                                    | Content                                                                                                                                                                                                                                                                                     |
-| ------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lock`              | beside the gate tree                                     | Empty; held with `flock -x` for the whole of one delivery's gate.                                                                                                                                                                                                                           |
-| `holder.json`       | beside `lock`                                            | `{tip, subject, checkout, pid, startedAt}`: the commit being gated (full hash), its subject, the checkout delivering it, the holding process and when it took the lock. Removed by its writer before the lock is released, and only when `pid` is its own.                                  |
-| `<name>-lease.json` | the state directory, or `[sessions.leases.<name>] file`  | `{pid, subject, since, cwd?}`. A lease whose `pid` is not alive is free; whoever takes it next replaces the file.                                                                                                                                                                           |
-| lease events        | `[sessions.leases.<name>] events`                        | JSON Lines, one per delivery that changed the leased paths: `{at, subject, commit, hash, installed, lease}`, with `commit` the delivered upstream (10 characters), `hash` the leased files' hash in the main checkout after sync, and `installed` whether sync's install ran for that hash. |
-| install stamp       | `[git.mainline.sync] stamp`, else pmcp's state directory | One line: the hash last installed. With `stamp_hash = "plain"` it is the sha256 hex of the single `install_when_changed` file's bytes; with `"pmcp"`, a hash of every listed path and its name.                                                                                             |
+| File                | Where                                                       | Content                                                                                                                                                                                                                                                                                     |
+| ------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lock`              | beside the gate tree                                        | Empty; held with `flock -x` for the whole of one delivery's gate.                                                                                                                                                                                                                           |
+| `holder.json`       | beside `lock`                                               | `{tip, subject, checkout, pid, startedAt}`: the commit being gated (full hash), its subject, the checkout delivering it, the holding process and when it took the lock. Removed by its writer before the lock is released, and only when `pid` is its own.                                  |
+| gate logs           | `[git.mainline.gate] log_dir`, else `<state dir>/gate-logs` | `<tip>/<UTC time>-<run>.log` per gate run of a replayed tip (full hash), the output as it streamed; `<tip>/latest` holds the newest file's name. The newest `log_keep` tip directories are kept.                                                                                            |
+| `<name>-lease.json` | the state directory, or `[sessions.leases.<name>] file`     | `{pid, subject, since, cwd?}`. A lease whose `pid` is not alive is free; whoever takes it next replaces the file.                                                                                                                                                                           |
+| lease events        | `[sessions.leases.<name>] events`                           | JSON Lines, one per delivery that changed the leased paths: `{at, subject, commit, hash, installed, lease}`, with `commit` the delivered upstream (10 characters), `hash` the leased files' hash in the main checkout after sync, and `installed` whether sync's install ran for that hash. |
+| install stamp       | `[git.mainline.sync] stamp`, else pmcp's state directory    | One line: the hash last installed. With `stamp_hash = "plain"` it is the sha256 hex of the single `install_when_changed` file's bytes; with `"pmcp"`, a hash of every listed path and its name.                                                                                             |

@@ -2,8 +2,11 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
+  renameSync,
   rmSync,
+  statSync,
   symlinkSync,
+  writeFileSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -92,24 +95,47 @@ export function prepareGateTree(
   return null;
 }
 
-const KEEP_LOGS = 20;
+export const KEEP_TIPS = 20;
+const TIP = /^[0-9a-f]{40,64}$/u;
 
-// <UTC>-<tip>.log, so the names sort by time; only the newest KEEP_LOGS stay.
-export function gateLog(dir: string, tip: string): string {
-  mkdirSync(dir, { recursive: true });
+export interface GateLog {
+  // This run's file, and the directory every run of the same tip is kept in.
+  readonly log: string;
+  readonly logs: string;
+}
+
+// <dir>/<tip>/<UTC>-<run>.log, one file per gate run of that tip, with <tip>/latest naming
+// the newest. Retention is by tip: when a new tip's directory is made, only the newest `keep`
+// tip directories stay, every run in them kept.
+export function gateLog(dir: string, tip: string, keep = KEEP_TIPS): GateLog {
+  const logs = join(dir, tip);
+  if (!existsSync(logs)) {
+    mkdirSync(logs, { recursive: true });
+    const tips = readdirSync(dir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && TIP.test(entry.name))
+      .map((entry) => ({
+        name: entry.name,
+        at: statSync(join(dir, entry.name)).mtimeMs,
+      }))
+      .sort((a, b) => b.at - a.at || a.name.localeCompare(b.name));
+    for (const old of tips.slice(Math.max(1, keep)))
+      if (old.name !== tip)
+        rmSync(join(dir, old.name), { recursive: true, force: true });
+  }
+  const runs = readdirSync(logs).filter((name) => name.endsWith(".log")).length;
   const stamp = new Date().toISOString().replace(/[:.]/gu, "-");
-  const logs = readdirSync(dir)
-    .filter((name) => name.endsWith(".log"))
-    .sort();
-  for (const old of logs.slice(0, Math.max(0, logs.length - KEEP_LOGS + 1)))
-    rmSync(join(dir, old), { force: true });
-  return join(dir, `${stamp}-${tip.slice(0, 10)}.log`);
+  const name = `${stamp}-${runs + 1}.log`;
+  const temporary = join(logs, `latest.${process.pid}.tmp`);
+  writeFileSync(temporary, `${name}\n`);
+  renameSync(temporary, join(logs, "latest"));
+  return { log: join(logs, name), logs };
 }
 
 export interface GateRun {
   readonly code: number;
-  // The full output, or null when the gate did not start.
+  // The full output, or null when the gate did not start; logs is the tip's log directory.
   readonly log: string | null;
+  readonly logs: string | null;
 }
 
 export function runGate(
@@ -119,9 +145,10 @@ export function runGate(
   command: Argv,
   links: readonly string[],
   report: Reporter,
-  lockEnv?: string,
-  logDir: string = join(dirname(tree), "logs"),
+  lockEnv: string | undefined,
+  logDir: string,
   restore = false,
+  keep = KEEP_TIPS,
 ): GateRun {
   const problem = prepareGateTree(
     mainRoot,
@@ -132,9 +159,9 @@ export function runGate(
   );
   if (problem !== null) {
     report.warn(`the gate did not run: ${problem}`);
-    return { code: 1, log: null };
+    return { code: 1, log: null, logs: null };
   }
-  const log = gateLog(logDir, tip);
+  const { log, logs } = gateLog(logDir, tip, keep);
   report.info(`gate on ${tip.slice(0, 10)} in ${tree}; gate log: ${log}`);
   const code = runCommandLogged(command, tree, log, {
     PMCP_GATE_TIP: tip,
@@ -143,5 +170,5 @@ export function runGate(
   });
   if (code !== 0)
     report.warn(`the gate failed (exit ${code}); full gate log: ${log}`);
-  return { code, log };
+  return { code, log, logs };
 }

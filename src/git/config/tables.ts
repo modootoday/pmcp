@@ -75,10 +75,12 @@ export function gate(path: string, dir: string, source: Table): GateConfig {
     "lock_env",
     "tree_env",
     "log_dir",
+    "log_keep",
     "max_load",
     "load_wait_seconds",
   ]);
   const tree = read.string("tree");
+  const logKeep = read.positive("log_keep");
   const lockEnv = read.envName("lock_env");
   const treeEnv = read.envName("tree_env");
   const logDir = read.string("log_dir");
@@ -92,6 +94,7 @@ export function gate(path: string, dir: string, source: Table): GateConfig {
     ...(lockEnv ? { lockEnv } : {}),
     ...(treeEnv ? { treeEnv } : {}),
     ...(logDir ? { logDir: expandPath(dir, logDir) } : {}),
+    ...(logKeep ? { logKeep: Math.floor(logKeep) } : {}),
   };
 }
 

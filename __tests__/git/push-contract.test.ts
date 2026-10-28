@@ -124,12 +124,13 @@ describe("the push of a delivery", () => {
   it("in pre-push mode streams the hook's output while the hook still runs", () => {
     const origin = remote();
     const dir = join(origin.base, "hooks");
-    const logs = join(origin.base, "state/gate/logs");
+    // Beside the gate tree when no state dir is given; one directory per tip.
+    const logs = join(origin.base, "state/gate/gate-logs");
     mkdirSync(dir, { recursive: true });
     // The hook fails unless its first line reached the gate log before it ended.
     writeFileSync(
       join(dir, "pre-push"),
-      `#!/bin/sh\necho "early line"\nfor i in 1 2 3 4 5 6 7 8 9 10; do\n  cat "${logs}"/*.log 2>/dev/null | grep -q "early line" && exit 0\n  sleep 0.2\ndone\nexit 9\n`,
+      `#!/bin/sh\necho "early line"\nfor i in 1 2 3 4 5 6 7 8 9 10; do\n  cat "${logs}"/*/*.log 2>/dev/null | grep -q "early line" && exit 0\n  sleep 0.2\ndone\nexit 9\n`,
     );
     chmodSync(join(dir, "pre-push"), 0o755);
     sh(origin.main, "config", "core.hooksPath", dir);

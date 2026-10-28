@@ -1,3 +1,5 @@
+import { join } from "node:path";
+
 import { deliver, type DeliverReceipt } from "../mainline/deliver.js";
 import { deliveryEvents } from "../mainline/delivery-events.js";
 import { filesSessionGate } from "../mainline/store.js";
@@ -98,6 +100,8 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     deliver: settings,
     ...(config.gate === undefined ? {} : { gate: config.gate }),
     tree: gateTreePath(setup),
+    // Gate output lives in the state dir whatever the gate tree is, unless log_dir says.
+    logDir: join(setup.stateDir, "gate-logs"),
     links: config.worktrees?.linkFromMain ?? [],
     leases: leaseSpecs(config),
     store: filesSessionGate(setup.stateDir, setup.leaseFiles),

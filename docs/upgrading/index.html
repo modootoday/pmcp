@@ -48,6 +48,16 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-0221-to-0222">From 0.22.1 to 0.22.2</h2>
+<p><strong>Gate logs move to a directory per tip in the state directory.</strong> A delivery&#39;s gate output was
+<code>&lt;dir of the gate tree&gt;/logs/&lt;time&gt;-&lt;tip&gt;.log</code>, the newest 20 runs kept. It is now
+<code>&lt;state dir&gt;/gate-logs/&lt;tip&gt;/&lt;time&gt;-&lt;run&gt;.log</code> (or under <code>[git.mainline.gate] log_dir</code>), every
+run of a tip kept, with <code>&lt;tip&gt;/latest</code> naming the newest, and the newest <code>log_keep</code> (default 20) tips kept. The <code>--json</code> receipt&#39;s <code>gate</code> gains <code>logs</code>, the tip&#39;s directory. pmcp no longer
+writes or prunes the old <code>logs/</code> directory; delete it when you no longer need it. A tool that
+looked for logs there should use the receipt&#39;s <code>gate.log</code> or <code>&lt;log_dir&gt;/&lt;tip&gt;/latest</code>.</p>
+<p><strong>A <code>pmcp.lock</code> a merge left unreadable no longer locks a session out.</strong> The hook refuses
+everything but the lock&#39;s repair, and names the conflict line and the commands that restore
+it; see <a href="/hooks/">Hooks</a>.</p>
 <h2 id="from-0220-to-0221">From 0.22.0 to 0.22.1</h2>
 <p><strong>Codex agent files are named with underscores.</strong> Codex refuses a hyphen in the name it
 spawns a sub-agent under, so an agent <code>frontend-implementer</code> is now

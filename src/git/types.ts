@@ -33,8 +33,10 @@ export interface GateConfig {
   readonly lockEnv?: string;
   // A variable that, when set, names the gate tree instead of tree (and so the lock beside it).
   readonly treeEnv?: string;
-  // Where each gate's full output is kept; default <dir of the gate tree>/logs.
+  // Where each gate's full output is kept, a directory per tip; default <state dir>/gate-logs.
   readonly logDir?: string;
+  // How many tips' gate logs are kept (every run of a kept tip stays).
+  readonly logKeep?: number;
   // Wait, holding the lock, until the 1-minute load average is below this before the gate.
   readonly maxLoad?: number;
   readonly loadWaitSeconds?: number;

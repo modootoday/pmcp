@@ -5,6 +5,19 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.22.1 to 0.22.2
+
+**Gate logs move to a directory per tip in the state directory.** A delivery's gate output was
+`<dir of the gate tree>/logs/<time>-<tip>.log`, the newest 20 runs kept. It is now
+`<state dir>/gate-logs/<tip>/<time>-<run>.log` (or under `[git.mainline.gate] log_dir`), every
+run of a tip kept, with `<tip>/latest` naming the newest, and the newest `log_keep` (default 20) tips kept. The `--json` receipt's `gate` gains `logs`, the tip's directory. pmcp no longer
+writes or prunes the old `logs/` directory; delete it when you no longer need it. A tool that
+looked for logs there should use the receipt's `gate.log` or `<log_dir>/<tip>/latest`.
+
+**A `pmcp.lock` a merge left unreadable no longer locks a session out.** The hook refuses
+everything but the lock's repair, and names the conflict line and the commands that restore
+it; see [Hooks](hooks.md).
+
 ## From 0.22.0 to 0.22.1
 
 **Codex agent files are named with underscores.** Codex refuses a hyphen in the name it

@@ -58,6 +58,9 @@ export interface DeliverOptions {
   readonly umask?: number;
   // Replay and gate, then stop: no pin, mainline or sync moves (pmcp git deliver --no-push).
   readonly noPush?: boolean;
+  // Where gate output is kept, a directory per tip: [git.mainline.gate] log_dir, else the state
+  // dir's gate-logs (the command passes it), else gate-logs beside the gate tree.
+  readonly logDir?: string;
 }
 
 export interface DeliverReceipt {
@@ -69,10 +72,12 @@ export interface DeliverReceipt {
   readonly attempts: number;
   // The tip of the last replay onto the upstream, or null when nothing was replayed.
   readonly replayed: string | null;
-  // The last gate run, and whether pmcp's command or the repository's pre-push hook ran it.
+  // The last gate run, and whether pmcp's command or the repository's pre-push hook ran it:
+  // log is that run's full output, logs the tip's directory holding every run of it.
   readonly gate: {
     readonly exit: number;
     readonly log: string | null;
+    readonly logs: string | null;
     readonly by: "command" | "pre-push";
   } | null;
   readonly leases: readonly string[];
@@ -119,14 +124,21 @@ function push(options: DeliverOptions, tip: string, preHook: boolean) {
   };
   const args = ["push", ctx.remote, `${tip}:refs/heads/${ctx.mainline}`];
   if (!preHook) return git(ctx.root, args, env);
-  const dir =
-    options.gate?.logDir ?? join(dirname(gateTree(options.tree).tree), "logs");
-  const log = gateLog(dir, tip);
+  const { log, logs } = gateLog(logDir(options), tip, options.gate?.logKeep);
   report.info(`the pre-push hook gates ${tip.slice(0, 10)}; gate log: ${log}`);
   // Streamed as it comes, like a gate command, and kept whole in the log.
   const status = runCommandLogged(["git", ...args], ctx.root, log, env);
-  if (options.track) options.track.gate = { exit: status, log, by: "pre-push" };
+  if (options.track)
+    options.track.gate = { exit: status, log, logs, by: "pre-push" };
   return { status, stdout: "", stderr: "" };
+}
+
+function logDir(options: DeliverOptions): string {
+  return (
+    options.gate?.logDir ??
+    options.logDir ??
+    join(dirname(gateTree(options.tree).tree), "gate-logs")
+  );
 }
 
 // Hold one lock across replay, gate and push so competing deliveries cannot interleave.
@@ -170,11 +182,17 @@ function attempts(options: DeliverOptions): number {
         options.links,
         report,
         options.gate?.lockEnv,
-        options.gate?.logDir,
+        logDir(options),
         options.umask !== undefined,
+        options.gate?.logKeep,
       );
       if (options.track)
-        options.track.gate = { exit: run.code, log: run.log, by: "command" };
+        options.track.gate = {
+          exit: run.code,
+          log: run.log,
+          logs: run.logs,
+          by: "command",
+        };
       if (run.code !== 0) {
         report.warn("the gate failed; nothing was pushed");
         return 1;
