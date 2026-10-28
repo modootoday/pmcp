@@ -596,7 +596,7 @@ dependencies = [
 
 [[package]]
 name = "pmcp-plugin-support"
-version = "0.22.1"
+version = "0.22.2"
 dependencies = [
  "libc",
  "serde_json",
@@ -605,7 +605,7 @@ dependencies = [
 
 [[package]]
 name = "pmcp-pty"
-version = "0.22.1"
+version = "0.22.2"
 dependencies = [
  "libc",
  "pmcp-plugin-support",
@@ -621,7 +621,7 @@ dependencies = [
 
 [[package]]
 name = "pmcp-tui"
-version = "0.22.1"
+version = "0.22.2"
 dependencies = [
  "crossterm",
  "libc",
