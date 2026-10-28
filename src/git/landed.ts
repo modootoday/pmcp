@@ -7,12 +7,25 @@ export interface CherryLines {
   readonly missing: readonly string[];
 }
 
+// A git read that failed while choosing what is landed. Its empty output would read as "the
+// upstream has everything" and drop the commits, so it stops the run instead (exit 2).
+export class GitReadError extends Error {}
+
+function read(cwd: string, args: readonly string[]): string {
+  const run = git(cwd, args);
+  if (run.status !== 0)
+    throw new GitReadError(
+      `git ${args.join(" ")} failed (exit ${run.status}); nothing was chosen: ${run.stderr.trim()}`,
+    );
+  return run.stdout;
+}
+
 export function cherry(
   cwd: string,
   upstream: string,
   head = "HEAD",
 ): CherryLines {
-  const listed = git(cwd, ["cherry", "-v", upstream, head]).stdout;
+  const listed = read(cwd, ["cherry", "-v", upstream, head]);
   const carried: string[] = [];
   const missing: string[] = [];
   for (const line of listed.split("\n")) {
@@ -37,14 +50,9 @@ export function undelivered(
     );
   const shas: string[] = [];
   for (const ref of named) {
-    const sha = gitText(cwd, [
-      "rev-parse",
-      "--verify",
-      "-q",
-      `${ref}^{commit}`,
-    ]);
-    if (!sha) throw new Error(`${ref} is not a commit`);
-    const listed = git(cwd, ["cherry", upstream, sha, `${sha}^`]).stdout;
+    const sha = read(cwd, ["rev-parse", "--verify", `${ref}^{commit}`]).trim();
+    if (!sha) throw new GitReadError(`${ref} is not a commit`);
+    const listed = read(cwd, ["cherry", upstream, sha, `${sha}^`]);
     if (listed.startsWith("+ ") && !pinsSuperseded(cwd, upstream, sha))
       shas.push(sha);
   }

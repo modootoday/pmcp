@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { git, gitText } from "../exec.js";
 import { installIfStale, installSpec } from "../install.js";
-import { cherry } from "../landed.js";
+import { cherry, GitReadError } from "../landed.js";
 import {
   reportModes,
   restoreModes,
@@ -66,7 +66,15 @@ function install(options: MainlineSyncOptions): number {
 
 // Refuse unlanded commits so synchronization cannot discard another session's work.
 export function syncMainline(options: MainlineSyncOptions): number {
-  return withUmask(options.umask, () => syncOnce(options));
+  return withUmask(options.umask, () => {
+    try {
+      return syncOnce(options);
+    } catch (error) {
+      if (!(error instanceof GitReadError)) throw error;
+      options.report.warn(error.message);
+      return 2;
+    }
+  });
 }
 
 // One sync as data: the main checkout's HEAD before and after, the exit code, and the last

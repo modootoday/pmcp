@@ -2,7 +2,12 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { loadavg } from "node:os";
 import { git, gitText, runCommand, runCommandLogged } from "../exec.js";
-import { isAncestor, touchedPaths, undelivered } from "../landed.js";
+import {
+  GitReadError,
+  isAncestor,
+  touchedPaths,
+  undelivered,
+} from "../landed.js";
 import type {
   DeliverConfig,
   GateConfig,
@@ -345,9 +350,16 @@ export function deliver(options: DeliverOptions): number {
       options.report.warn(line);
     },
   };
-  const code = withUmask(options.umask, () =>
-    deliverOnce({ ...options, report, track }),
-  );
+  const code = withUmask(options.umask, () => {
+    try {
+      return deliverOnce({ ...options, report, track });
+    } catch (error) {
+      // The lock, the holder and the leases were released on the way out.
+      if (!(error instanceof GitReadError)) throw error;
+      report.warn(error.message);
+      return 2;
+    }
+  });
   options.onReceipt?.({
     ok: code === 0,
     code,

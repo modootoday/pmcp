@@ -1,6 +1,6 @@
 import { git, gitText } from "../exec.js";
 import { installIfStale, type InstallSpec } from "../install.js";
-import { cherry, distance } from "../landed.js";
+import { cherry, distance, GitReadError } from "../landed.js";
 import {
   reportModes,
   restoreModes,
@@ -23,16 +23,25 @@ export interface WorktreeSyncOptions {
 
 export type WorktreeSyncResult = "current" | "moved" | "held";
 
+// A read that fails holds the worktree: an empty answer is not "clean" or "all landed".
 function heldBy(root: string, upstream: string, ahead: number): string | null {
-  const dirty = gitText(root, [
+  const status = git(root, [
     "status",
     "--porcelain",
     "--untracked-files=no",
     "--ignore-submodules=all",
   ]);
-  if (dirty) return "uncommitted changes";
+  if (status.status !== 0)
+    return `git status failed (exit ${status.status}): ${status.stderr.trim()}`;
+  if (status.stdout.trim()) return "uncommitted changes";
   if (ahead === 0) return null;
-  const own = cherry(root, upstream).missing.length;
+  let own: number;
+  try {
+    own = cherry(root, upstream).missing.length;
+  } catch (error) {
+    if (error instanceof GitReadError) return error.message;
+    throw error;
+  }
   if (own > 0) return `${own} unlanded commit(s)`;
   return null;
 }
