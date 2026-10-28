@@ -20,8 +20,16 @@ it("has Gemini CLI read AGENTS.md, with no GEMINI.md outside test fixtures", () 
   expect(
     tracked().filter(
       (path) =>
-        path.split("/").at(-1) === "GEMINI.md" &&
-        !path.includes("/fixtures/"),
+        path.split("/").at(-1) === "GEMINI.md" && !path.includes("/fixtures/"),
     ),
   ).toEqual([]);
+});
+
+it("advises the same in the setup and migration skills", () => {
+  for (const skill of ["pmcp-project-init", "agent-assets-migrate"]) {
+    const text = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
+    expect(text).toContain('"context": { "fileName": ["AGENTS.md"] }');
+    expect(text).not.toContain("ln -s AGENTS.md GEMINI.md");
+    expect(text).not.toMatch(/CLAUDE\.md and GEMINI\.md linked/u);
+  }
 });

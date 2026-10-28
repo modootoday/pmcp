@@ -1,6 +1,6 @@
 ---
 name: pmcp-project-init
-description: Set up a repository so every coding agent reads the same instructions, skills, subagents, rules and MCP servers - one AGENTS.md with CLAUDE.md and GEMINI.md linked to it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared MCP authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent CLI needs. Use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. Not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.
+description: Set up a repository so every coding agent reads the same instructions, skills, subagents, rules and MCP servers - one AGENTS.md with CLAUDE.md linked to it and Gemini CLI set to read it, sources under .agents/, a pmcp.toml with [targets] and [mcp.*] entries, then the optional layers chosen from what the repository is (hook guards, sessions, the git workflow when it is a git checkout, logging, shared MCP authentication, marketplaces), then pmcp project and pmcp doctor, plus the one-time trust step each agent CLI needs. Use when starting a new repository the pmcp way, adding pmcp to a repository that has no agent assets yet, enabling hooks, sessions or the git workflow, or when asked to write a pmcp.toml. Not for moving existing scattered agent files (migrate them instead) or for hosting a skills server.
 metadata:
   tier: open
   level: L2
@@ -22,18 +22,22 @@ Install `@modootoday/pmcp` as a dev dependency. Never run the bare unscoped name
 through npx: that name is not the package, and whoever publishes it later would run in your
 repository.
 
-## 1. Instructions: one file, two links
+## 1. Instructions: one file, one link, one setting
 
 ```sh
 printf '# <project>\n\n' > AGENTS.md
 ln -s AGENTS.md CLAUDE.md
-ln -s AGENTS.md GEMINI.md
+mkdir -p .gemini
+printf '{\n  "context": { "fileName": ["AGENTS.md"] }\n}\n' > .gemini/settings.json
 ```
 
-`AGENTS.md` is the real file. Claude Code reads `CLAUDE.md` and Gemini CLI `GEMINI.md`, so
-the links make them read the same text. pmcp does not create these links. Keep them
-file-to-file links; a directory symlink at the repository root (for example `.agents`
-pointing at another folder) is rejected by the Codex sandbox.
+`AGENTS.md` is the real file. Claude Code reads `CLAUDE.md`, so the link makes it read the
+same text. Gemini CLI reads every name in `context.fileName`, in each directory, so the
+setting makes it read `AGENTS.md` itself, nested ones included, and no `GEMINI.md` is
+needed. If `.gemini/settings.json` already exists, add the key to it; `pmcp project` keeps
+keys it does not own. pmcp creates neither the link nor the setting. Keep the link
+file-to-file; a directory symlink at the repository root (for example `.agents` pointing at
+another folder) is rejected by the Codex sandbox.
 
 ## 2. Sources under .agents/
 

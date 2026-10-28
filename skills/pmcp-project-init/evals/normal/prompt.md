@@ -5,5 +5,5 @@ Set up this new git repository so Claude Code and Codex read the same instructio
 ## PASS
 
 - Starts with `pmcp init --preset multi-session` (or writes the equivalent pmcp.toml) and adds `[mcp.docs]`.
-- Creates AGENTS.md with CLAUDE.md and GEMINI.md as file links.
+- Creates AGENTS.md with CLAUDE.md as a file link, and sets `context.fileName` to `["AGENTS.md"]` in `.gemini/settings.json` instead of adding a GEMINI.md.
 - Runs `pmcp project` and `pmcp doctor`, and names the one-time Codex trust step.

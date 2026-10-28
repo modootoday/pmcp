@@ -21,14 +21,14 @@ tool files.
 
 List every source with its bytes and line count, and note which are links:
 
-| Found                                                                                         | Goes to                                                               |
-| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.windsurfrules`, `.github/copilot-instructions.md` | merged into `AGENTS.md`; each then becomes a link to it               |
-| `.claude/skills/<n>/`, `.agent/skills/<n>/`                                                   | `.agents/skills/<n>/` (whole folder)                                  |
-| `.claude/commands/<n>.md`, `.agent/workflows/<n>.md`                                          | `.agents/skills/<n>/SKILL.md` plus `[skills.<n>] invocation = "user"` |
-| `.claude/agents/<n>.md`, `.gemini/agents/<n>.md`, `.agent/agents/<n>.md`                      | `.agents/agents/<n>/agent.md`                                         |
-| `.claude/rules/*.md` with `paths:`                                                            | `.agents/rules/<n>.md` with `trigger: glob` and `globs:`              |
-| MCP entries in `.mcp.json`, `.gemini/settings.json`, `.codex/config.toml`                     | `[mcp.<alias>]` in `pmcp.toml`                                        |
+| Found                                                                                         | Goes to                                                                                 |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.windsurfrules`, `.github/copilot-instructions.md` | merged into `AGENTS.md`; each then becomes a link to it, except `GEMINI.md` (section 2) |
+| `.claude/skills/<n>/`, `.agent/skills/<n>/`                                                   | `.agents/skills/<n>/` (whole folder)                                                    |
+| `.claude/commands/<n>.md`, `.agent/workflows/<n>.md`                                          | `.agents/skills/<n>/SKILL.md` plus `[skills.<n>] invocation = "user"`                   |
+| `.claude/agents/<n>.md`, `.gemini/agents/<n>.md`, `.agent/agents/<n>.md`                      | `.agents/agents/<n>/agent.md`                                                           |
+| `.claude/rules/*.md` with `paths:`                                                            | `.agents/rules/<n>.md` with `trigger: glob` and `globs:`                                |
+| MCP entries in `.mcp.json`, `.gemini/settings.json`, `.codex/config.toml`                     | `[mcp.<alias>]` in `pmcp.toml`                                                          |
 
 pmcp has no Copilot or Cursor target. Keep those filenames as links to `AGENTS.md` so they
 cannot drift.
@@ -38,6 +38,9 @@ cannot drift.
 Diff each instruction file against the others line by line. Keep the union; where two say
 different things, settle it from the code or ask, and record the decision. Do not summarise
 during the move. Then replace each old file with a link (`ln -s AGENTS.md CLAUDE.md`).
+For Gemini CLI, delete every `GEMINI.md` once its text is in the `AGENTS.md` beside it, and
+set `"context": { "fileName": ["AGENTS.md"] }` in `.gemini/settings.json` (adding the key if
+the file exists): Gemini CLI then reads `AGENTS.md` in each directory itself.
 Use file-to-file links only: a directory symlink at the repository root, such as `.agents`
 pointing at `.agent`, is rejected by the Codex sandbox.
 
