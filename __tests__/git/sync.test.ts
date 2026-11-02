@@ -215,13 +215,20 @@ it("leaves a shared submodule whose local file conflicts with the pin, and names
 });
 
 // A tracked directory turned into a gitlink upstream (a brand split out of the parent).
-function directoryBecomesGitlink(): { origin: Remote; pin: string } {
+function directoryBecomesGitlink(nestedIgnore = false): {
+  origin: Remote;
+  pin: string;
+} {
   const origin = remote();
   const sub = remote();
   const seed = clone(origin, "seed-dir");
   commit(seed, ".gitignore", "dist/\n", "ignore dist");
   mkdirSync(join(seed, "brand"));
   commit(seed, "brand/a.txt", "plain\n", "plain brand");
+  if (nestedIgnore) {
+    mkdirSync(join(seed, "brand", "app"));
+    commit(seed, "brand/app/.gitignore", "test-results/\n", "nested ignore");
+  }
   sh(seed, "push", "-q", "origin", "HEAD:main");
   sh(origin.main, "pull", "-q", "--ff-only");
   sh(seed, "rm", "-rq", "brand");
@@ -253,6 +260,25 @@ it("moves the ignored output of a directory that became a gitlink aside, then ch
   expect(line).toMatch(/^brand: new submodule checked out at /u);
   expect(sh(join(origin.main, "brand"), "rev-parse", "HEAD")).toBe(pin);
   expect(readFileSync(join(aside, "dist", "out.js"), "utf8")).toBe("built\n");
+});
+
+it("reads the ignore rules the departed directory held when it moves its output aside", () => {
+  const { origin, pin } = directoryBecomesGitlink(true);
+  mkdirSync(join(origin.main, "brand", "app", "test-results"));
+  writeFileSync(
+    join(origin.main, "brand", "app", "test-results", "last.json"),
+    "{}\n",
+  );
+  const report = recorder();
+  expect(syncShared(origin, [], report)).toBe(0);
+  const line = report.lines.find((l) => l.startsWith("brand: ")) ?? "";
+  const aside =
+    /are in (\S+), so run the install again$/u.exec(line)?.[1] ?? "";
+  expect(sh(join(origin.main, "brand"), "rev-parse", "HEAD")).toBe(pin);
+  expect(
+    readFileSync(join(aside, "app", "test-results", "last.json"), "utf8"),
+  ).toBe("{}\n");
+  expect(existsSync(join(aside, "app", ".gitignore"))).toBe(false);
 });
 
 it("names a file git does not ignore in a directory that became a gitlink, and keeps it", () => {
