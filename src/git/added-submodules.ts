@@ -47,7 +47,7 @@ function initOne(
   from: string,
 ): string {
   const dir = join(root, path);
-  if (existsSync(join(dir, ".git"))) return "already checked out";
+  if (existsSync(join(dir, ".git"))) return followLeftCheckout(root, path, pin);
   let displaced = "";
   if (existsSync(dir) && readdirSync(dir).length > 0) {
     if (unignoredFiles(root, path, from).length > 0)
@@ -61,6 +61,22 @@ function initOne(
   if (done.status !== 0)
     return `new submodule not checked out: ${done.stderr.trim()}${aside}`;
   return `new submodule checked out at ${pin.slice(0, 10)}${aside}`;
+}
+
+// A checkout left from an earlier gitlink at the same path moves to the new pin only when
+// it holds nothing of its own; its commits stay in its repository either way.
+function followLeftCheckout(root: string, path: string, pin: string): string {
+  const dir = join(root, path);
+  const head = git(dir, ["rev-parse", "HEAD"]);
+  if (head.status === 0 && head.stdout.trim() === pin)
+    return "already checked out";
+  const status = git(dir, ["status", "--porcelain", "--ignored"]);
+  if (status.status !== 0 || status.stdout.trim() !== "")
+    return `new submodule not checked out: the earlier checkout in ${path} holds changes or ignored files; move it aside, then git submodule update --init ${path}`;
+  const done = git(root, ["submodule", "update", "--init", "-q", "--", path]);
+  if (done.status !== 0)
+    return `new submodule not checked out: ${done.stderr.trim()}`;
+  return `earlier checkout moved to the new pin ${pin.slice(0, 10)}`;
 }
 
 // Files under path that no ignore rule covers. An ignored directory is not descended, so a

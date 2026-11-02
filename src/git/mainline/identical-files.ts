@@ -15,6 +15,7 @@ import { join } from "node:path";
 import { git, type Result } from "../exec.js";
 
 const FILE_MODES = new Set(["100644", "100755"]);
+const GITLINK = "160000";
 
 function refuse(path: string): Result {
   return {
@@ -82,7 +83,10 @@ function adopt(
     // A tracked directory that becomes a file or a gitlink is reset --keep's to judge.
     if (trackedDirs.has(path)) continue;
     if (!lstatSync(join(cwd, path), { throwIfNoEntry: false })) continue;
-    if (!identical(cwd, path, mode, oid)) return refuse(path);
+    // A checkout left from an earlier gitlink at this path is the submodule step's to judge.
+    const leftCheckout =
+      mode === GITLINK && existsSync(join(cwd, path, ".git"));
+    if (!leftCheckout && !identical(cwd, path, mode, oid)) return refuse(path);
     const added = git(
       cwd,
       ["update-index", "--add", "--cacheinfo", `${mode},${oid},${path}`],

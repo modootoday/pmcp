@@ -294,6 +294,55 @@ it("names a file git does not ignore in a directory that became a gitlink, and k
   );
 });
 
+// A gitlink removed upstream leaves its checkout behind; the same repository returns later
+// at a newer pin.
+function gitlinkReturns(): { origin: Remote; pin: string } {
+  const origin = remote();
+  const sub = remote();
+  const seed = clone(origin, "seed-return");
+  sh(seed, "submodule", "add", "-q", sub.bare, "lib");
+  sh(seed, "commit", "-q", "-m", "add lib");
+  sh(seed, "push", "-q", "origin", "HEAD:main");
+  sh(origin.main, "pull", "-q", "--ff-only");
+  sh(origin.main, "submodule", "update", "--init", "-q");
+  sh(seed, "rm", "-q", "lib");
+  sh(seed, "commit", "-q", "-m", "drop lib");
+  sh(seed, "push", "-q", "origin", "HEAD:main");
+  expect(syncShared(origin, [], recorder())).toBe(0);
+  const work = clone(sub, "lib-work");
+  const pin = commit(work, "lib.txt", "v2\n", "lib v2");
+  sh(work, "push", "-q", "origin", "HEAD:main");
+  const back = clone(origin, "readd");
+  sh(back, "submodule", "add", "-q", sub.bare, "lib");
+  sh(back, "commit", "-q", "-m", "lib returns");
+  sh(back, "push", "-q", "origin", "HEAD:main");
+  return { origin, pin };
+}
+
+it("moves the checkout an earlier gitlink left to the pin of the gitlink that returns", () => {
+  const { origin, pin } = gitlinkReturns();
+  const report = recorder();
+  expect(syncShared(origin, [], report)).toBe(0);
+  expect(sh(join(origin.main, "lib"), "rev-parse", "HEAD")).toBe(pin);
+  expect(report.lines).toContain(
+    `lib: earlier checkout moved to the new pin ${pin.slice(0, 10)}`,
+  );
+});
+
+it("keeps an earlier checkout with a local edit where it is and names it", () => {
+  const { origin, pin } = gitlinkReturns();
+  writeFileSync(join(origin.main, "lib", "notes.txt"), "mine\n");
+  const report = recorder();
+  expect(syncShared(origin, [], report)).toBe(0);
+  expect(sh(join(origin.main, "lib"), "rev-parse", "HEAD")).not.toBe(pin);
+  expect(readFileSync(join(origin.main, "lib", "notes.txt"), "utf8")).toBe(
+    "mine\n",
+  );
+  expect(report.lines).toContain(
+    "lib: new submodule not checked out: the earlier checkout in lib holds changes or ignored files; move it aside, then git submodule update --init lib",
+  );
+});
+
 it("still leaves a submodule that is not shared when it has edits", () => {
   const { origin, pin } = withSubmodule();
   const before = pin();
