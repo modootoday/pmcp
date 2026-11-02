@@ -1,3 +1,6 @@
+import { homedir } from "node:os";
+import { isAbsolute, join } from "node:path";
+
 import type { ShellStep } from "../contract.js";
 import { SEPARATORS, tokenize } from "./tokenize.js";
 import { GIT_VALUE_OPTIONS, SHELLS, WRAPPERS } from "./vocabulary.js";
@@ -30,6 +33,14 @@ function unwrap(words: readonly string[]): {
   }
 }
 
+// A relative cd moves on from the previous one; a bare cd or ~ goes home.
+function changeDir(dir: string, target: string | undefined): string {
+  if (target === undefined || target === "~") return homedir();
+  if (target.startsWith("~/")) return join(homedir(), target.slice(2));
+  if (isAbsolute(target) || dir === "") return target;
+  return join(dir, target);
+}
+
 export function commandsOf(script: string, depth = 0): ShellStep[] | null {
   if (depth > 4) return null;
   const parsed = tokenize(script);
@@ -48,7 +59,7 @@ export function commandsOf(script: string, depth = 0): ShellStep[] | null {
       return true;
     }
     if (words[0] === "cd") {
-      dir = words[1] ?? "";
+      dir = changeDir(dir, words[1]);
       return true;
     }
     const scriptAt = SHELLS.has(words[0]!)

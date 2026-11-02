@@ -1,3 +1,6 @@
+import { homedir } from "node:os";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -108,6 +111,23 @@ describe("shell classify", () => {
   it("returns null for a command it cannot read so callers fall back to refusing", () => {
     expect(classify("echo 'unclosed")).toBeNull();
     expect(classify('git commit -m "unclosed')).toBeNull();
+  });
+
+  it("runs each step in the directory every cd before it led to", () => {
+    const dirs = (script: string) =>
+      commandsOf(script)?.map((step) => [step.argv[0], step.dir]);
+    expect(
+      dirs("cd /tmp/x && sh gate.sh && cd pr01 && git grep -n a ; git push"),
+    ).toEqual([
+      ["sh", "/tmp/x"],
+      ["git", "/tmp/x/pr01"],
+      ["git", "/tmp/x/pr01"],
+    ]);
+    expect(dirs("cd a && cd ../b && git push")).toEqual([["git", "b"]]);
+    expect(dirs("cd a && cd /c && git push")).toEqual([["git", "/c"]]);
+    expect(dirs("cd ~/ws && git push")).toEqual([
+      ["git", join(homedir(), "ws")],
+    ]);
   });
 
   it("keeps a bare wrapper as a step with its raw words", () => {

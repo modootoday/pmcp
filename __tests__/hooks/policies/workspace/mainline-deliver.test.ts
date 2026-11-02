@@ -99,6 +99,21 @@ describe.each(["claude", "codex"] as const)(
       ).toBeUndefined();
     });
 
+    it("follows a chain of cd steps into another repository", async (t) => {
+      const { main, brand } = repos(t);
+      const [parent, leaf] = [join(brand, ".."), "brand"];
+      expect(
+        (
+          await push(
+            runtime,
+            main,
+            main,
+            `cd ${parent} && cd ${leaf} && git grep -n x ; git push -q origin HEAD:main`,
+          )
+        ).verdict,
+      ).toBeUndefined();
+    });
+
     it("refuses every form that moves the mainline", async (t) => {
       const { main, desk } = repos(t);
       for (const command of [
