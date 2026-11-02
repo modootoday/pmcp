@@ -44,6 +44,20 @@ function identical(
   return blob.status === 0 && readFileSync(current).equals(blob.stdout);
 }
 
+function directoriesOf(paths: Iterable<string>): Set<string> {
+  const dirs = new Set<string>();
+  for (const path of paths) {
+    let cut = path.lastIndexOf("/");
+    while (cut > 0) {
+      const dir = path.slice(0, cut);
+      if (dirs.has(dir)) break;
+      dirs.add(dir);
+      cut = dir.lastIndexOf("/");
+    }
+  }
+  return dirs;
+}
+
 function adopt(
   cwd: string,
   target: string,
@@ -59,11 +73,14 @@ function adopt(
     ...tracked.stdout.split("\0"),
     ...indexed.stdout.split("\0"),
   ]);
+  const trackedDirs = directoriesOf(existing);
   for (const entry of incoming.stdout.split("\0")) {
     const match = /^(\d+) \w+ ([0-9a-f]+)\t([\s\S]+)$/u.exec(entry);
     if (!match) continue;
     const [, mode = "", oid = "", path = ""] = match;
     if (existing.has(path)) continue;
+    // A tracked directory that becomes a file or a gitlink is reset --keep's to judge.
+    if (trackedDirs.has(path)) continue;
     if (!lstatSync(join(cwd, path), { throwIfNoEntry: false })) continue;
     if (!identical(cwd, path, mode, oid)) return refuse(path);
     const added = git(

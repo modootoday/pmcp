@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, expect, it } from "vitest";
 
@@ -211,6 +211,60 @@ it("leaves a shared submodule whose local file conflicts with the pin, and names
   expect(readFileSync(join(lib, "lib.txt"), "utf8")).toBe("my draft\n");
   expect(report.lines).toContain(
     `lib: left at the old pin: local edits to lib.txt conflict with ${next.slice(0, 10)}; commit or move them, then sync again`,
+  );
+});
+
+// A tracked directory turned into a gitlink upstream (a brand split out of the parent).
+function directoryBecomesGitlink(): { origin: Remote; pin: string } {
+  const origin = remote();
+  const sub = remote();
+  const seed = clone(origin, "seed-dir");
+  commit(seed, ".gitignore", "dist/\n", "ignore dist");
+  mkdirSync(join(seed, "brand"));
+  commit(seed, "brand/a.txt", "plain\n", "plain brand");
+  sh(seed, "push", "-q", "origin", "HEAD:main");
+  sh(origin.main, "pull", "-q", "--ff-only");
+  sh(seed, "rm", "-rq", "brand");
+  sh(seed, "submodule", "add", "-q", sub.bare, "brand");
+  sh(seed, "commit", "-q", "-m", "brand becomes a gitlink");
+  sh(seed, "push", "-q", "origin", "HEAD:main");
+  return { origin, pin: sh(join(seed, "brand"), "rev-parse", "HEAD") };
+}
+
+it("moves across a directory that became a gitlink and checks the new submodule out", () => {
+  const { origin, pin } = directoryBecomesGitlink();
+  const report = recorder();
+  expect(syncShared(origin, [], report)).toBe(0);
+  expect(sh(join(origin.main, "brand"), "rev-parse", "HEAD")).toBe(pin);
+  expect(report.lines).toContain(
+    `brand: new submodule checked out at ${pin.slice(0, 10)}`,
+  );
+});
+
+it("moves the ignored output of a directory that became a gitlink aside, then checks it out", () => {
+  const { origin, pin } = directoryBecomesGitlink();
+  mkdirSync(join(origin.main, "brand", "dist"));
+  writeFileSync(join(origin.main, "brand", "dist", "out.js"), "built\n");
+  const report = recorder();
+  expect(syncShared(origin, [], report)).toBe(0);
+  const line = report.lines.find((l) => l.startsWith("brand: ")) ?? "";
+  const aside =
+    /are in (\S+), so run the install again$/u.exec(line)?.[1] ?? "";
+  expect(line).toMatch(/^brand: new submodule checked out at /u);
+  expect(sh(join(origin.main, "brand"), "rev-parse", "HEAD")).toBe(pin);
+  expect(readFileSync(join(aside, "dist", "out.js"), "utf8")).toBe("built\n");
+});
+
+it("names a file git does not ignore in a directory that became a gitlink, and keeps it", () => {
+  const { origin } = directoryBecomesGitlink();
+  writeFileSync(join(origin.main, "brand", "notes.txt"), "mine\n");
+  const report = recorder();
+  expect(syncShared(origin, [], report)).toBe(0);
+  expect(readFileSync(join(origin.main, "brand", "notes.txt"), "utf8")).toBe(
+    "mine\n",
+  );
+  expect(report.lines).toContain(
+    "brand: new submodule not checked out: brand holds files git does not ignore; move them aside, then git submodule update --init brand",
   );
 });
 

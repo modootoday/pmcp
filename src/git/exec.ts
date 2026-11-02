@@ -42,6 +42,18 @@ export function git(
   return { status: run.status ?? 1, stdout: run.stdout ?? "", stderr };
 }
 
+export function gitWithInput(cwd: string, args: Argv, input: string): Result {
+  const run = spawnSync("git", args, {
+    cwd,
+    encoding: "utf8",
+    env: cleanEnv(),
+    input,
+    maxBuffer: 256 * 1024 * 1024,
+  });
+  const stderr = run.stderr || run.error?.message || "";
+  return { status: run.status ?? 1, stdout: run.stdout ?? "", stderr };
+}
+
 export function gitText(cwd: string, args: Argv): string {
   const run = git(cwd, args);
   if (run.status !== 0) return "";

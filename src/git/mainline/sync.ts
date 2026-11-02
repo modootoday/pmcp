@@ -10,6 +10,7 @@ import {
   restoreSubmoduleModes,
   withUmask,
 } from "../modes.js";
+import { initAddedSubmodules } from "../added-submodules.js";
 import { followPins } from "../submodules.js";
 import type { GitContext, MainlineSyncConfig, Reporter } from "../types.js";
 import { resetKeepingIdenticalFiles } from "./identical-files.js";
@@ -145,6 +146,8 @@ function syncOnce(options: MainlineSyncOptions): number {
       target,
       options.sharedSubmodules,
     ))
+      report.info(line);
+    for (const line of initAddedSubmodules(ctx.root, head, target))
       report.info(line);
   }
   if (options.umask !== undefined)

@@ -7,6 +7,7 @@ import {
   restoreSubmoduleModes,
   withUmask,
 } from "../modes.js";
+import { initAddedSubmodules } from "../added-submodules.js";
 import { movableSubmodules, updateToPins } from "../submodules.js";
 import type { GitContext, Reporter } from "../types.js";
 
@@ -100,6 +101,10 @@ function syncOnce(options: WorktreeSyncOptions): WorktreeSyncResult {
     `moved ${before.slice(0, 10)} -> ${after.slice(0, 10)}, ${counted.behind} commit(s)`,
   );
   for (const line of updateToPins(ctx.root, submodules)) report.info(line);
+  if (options.followSubmodules) {
+    for (const line of initAddedSubmodules(ctx.root, before, after))
+      report.info(line);
+  }
   if (options.umask !== undefined)
     reportModes(report, [
       ...restoreModes(ctx.root, before, after),

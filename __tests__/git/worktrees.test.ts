@@ -1,4 +1,10 @@
-import { existsSync, lstatSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { beforeAll, expect, it } from "vitest";
 
@@ -93,6 +99,31 @@ it("moves a clean worktree up to the upstream", () => {
     syncWorktree({ ctx, followSubmodules: true, report: recorder() }),
   ).toBe("moved");
   expect(sh(ctx.root, "rev-parse", "HEAD")).toBe(upstream);
+});
+
+it("moves a worktree across a directory that became a gitlink, setting its ignored output aside", () => {
+  const { origin, ctx } = desk("split");
+  const sub = remote();
+  const other = clone(origin, "split-brand");
+  commit(other, ".gitignore", "dist/\n", "ignore dist");
+  mkdirSync(join(other, "brand"));
+  commit(other, "brand/a.txt", "plain\n", "plain brand");
+  sh(other, "push", "-q", "origin", "HEAD:main");
+  syncWorktree({ ctx, followSubmodules: true, report: recorder() });
+  mkdirSync(join(ctx.root, "brand", "dist"));
+  writeFileSync(join(ctx.root, "brand", "dist", "out.js"), "built\n");
+  sh(other, "rm", "-rq", "brand");
+  sh(other, "submodule", "add", "-q", sub.bare, "brand");
+  sh(other, "commit", "-q", "-m", "brand becomes a gitlink");
+  sh(other, "push", "-q", "origin", "HEAD:main");
+  const report = recorder();
+  expect(syncWorktree({ ctx, followSubmodules: true, report })).toBe("moved");
+  expect(sh(join(ctx.root, "brand"), "rev-parse", "HEAD")).toBe(
+    sh(join(other, "brand"), "rev-parse", "HEAD"),
+  );
+  expect(report.lines.join("\n")).toMatch(
+    /brand: new submodule checked out at \w+; its ignored files from before are in /u,
+  );
 });
 
 it("leaves a worktree with uncommitted changes where it is", () => {

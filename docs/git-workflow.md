@@ -59,6 +59,13 @@ an unlanded commit, an uncommitted change to a tracked file, a pause, another
 session's lease, or a git operation in progress holds the desk where it is
 (exit 1, with the reason). In a scratch worktree it moves nothing (exit 2).
 
+Both kinds check out a submodule the move adds, such as a directory split into its
+own repository. When that path still holds files from before and git ignores all of
+them (install or build output), they are moved under the git dir
+(`pmcp-displaced/<time>/<path>`), never deleted, and the line says to run the
+install again. A file git does not ignore leaves the submodule unchecked, and the
+line names the path.
+
 `[git.mainline.gate]`: `command` (argv; no gate when missing), `tree` (the
 gate's worktree, default `<state dir>/gate/tree`; a relative path is relative to
 the main checkout, like `state_dir`), `lock_wait_seconds`
