@@ -80,7 +80,8 @@ describe("shell grammar", () => {
       "c",
       "d",
     ]);
-    expect(programs("for d in x y; do git -C $d push; done")).toEqual([
+    expect(programs("for d in $(ls); do git -C $d push; done")).toEqual([
+      "ls",
       "git -C",
     ]);
     expect(programs("for ((i = 0; i < 3; i++)); do a; done")).toEqual(["a"]);
@@ -250,7 +251,7 @@ describe("where each command runs", () => {
       { op: "<", fd: "", target: ".env" },
     ]);
     expect(
-      steps("D=/x; for D in a b; do cd $D; git push; done; read D; cd $D"),
+      steps('D=/x; for D in "$@"; do cd $D; git push; done; read D; cd $D'),
     ).toEqual([
       ["", ""],
       ["git push", "$D"],
@@ -266,5 +267,22 @@ describe("where each command runs", () => {
       ["", ""],
       ["git push", "$D"],
     ]);
+  });
+
+  it("walks a for loop over literal words once per word, and once with the variable unknown otherwise", () => {
+    const dirs = (script: string) =>
+      commandsOf(script)?.map((step) => step.argv[2]);
+    expect(
+      dirs("for r in a 'b c'; do git -C $r push; done; git -C $r push"),
+    ).toEqual(["a", "b c", "b c"]);
+    expect(
+      dirs("for r in a; do for s in x y; do git -C $r/$s push; done; done"),
+    ).toEqual(["a/x", "a/y"]);
+    expect(dirs("for r in a*; do git -C $r push; done")).toEqual(["$r"]);
+    expect(dirs("for r; do git -C $r push; done")).toEqual(["$r"]);
+    const many = Array.from({ length: 40 }, (_, index) => `d${index}`).join(
+      " ",
+    );
+    expect(dirs(`for r in ${many}; do git -C $r push; done`)).toEqual(["$r"]);
   });
 });

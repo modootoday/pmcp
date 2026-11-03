@@ -12,6 +12,8 @@ import { onlyKeys, pass, type Policy } from "../types.js";
 
 const REASON =
   "This repository's mainline moves only through pmcp git deliver, which replays, gates and pushes one delivery at a time. Commit, then run pmcp git deliver; other branches, other remotes and other repositories push as usual.";
+const UNRESOLVED =
+  "This push runs in a directory named by a variable the hook cannot resolve (one set by read, a substitution or a loop over computed items), so it is taken as this repository's. Name the directory literally, or loop over literal words (for h in a b; do ...), and pushes to other repositories pass.";
 
 // [git] remote and [git.mainline] branch as declared; detected per push when absent.
 export interface MainlineDeliverOptions {
@@ -136,7 +138,10 @@ export const mainlineDeliver: Policy<MainlineDeliverOptions> = {
       const dir = resolve(input.cwd, step.dir, git.dir);
       if (!sameRepository(dir, project.commonDir)) continue;
       if (movesMainline(dir, step.argv.slice(git.at + 1), ctx.options))
-        return { verdict: "deny", reason: REASON };
+        return {
+          verdict: "deny",
+          reason: dir.includes("$") ? UNRESOLVED : REASON,
+        };
     }
     return pass;
   },

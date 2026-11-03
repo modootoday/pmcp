@@ -8,6 +8,9 @@ import { GIT_VALUE_OPTIONS, SHELLS, WRAPPERS } from "./vocabulary.js";
 
 const ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/u;
 const MAX_DEPTH = 4;
+// A for loop is walked once per item up to these bounds, and once with its variable unknown past them.
+const MAX_ITEMS = 32;
+const MAX_UNROLLED = 128;
 
 function unwrap(words: readonly string[]): {
   assigned: string[];
@@ -140,6 +143,8 @@ function move(place: Place, argv: readonly string[]): void {
 class Walk {
   readonly found: ShellStep[] = [];
   readonly redirects: ShellRedirect[] = [];
+  // Loop bodies walked once per item so far; nested loops would otherwise multiply.
+  private unrolled = 0;
 
   list(items: List, place: Place, depth: number): void {
     for (const item of items) {
@@ -166,13 +171,28 @@ class Walk {
         this.list(command.body, fork(place), depth);
         this.redirected(command.redirects, place, depth);
         return;
-      case "compound":
+      case "compound": {
         this.expansions(command.words, place, depth);
-        // A loop variable takes values the walk does not follow.
-        if (command.variable) place.vars.delete(command.variable);
-        for (const part of command.parts) this.list(part, place, depth);
+        const items =
+          command.keyword === "for" ? literalItems(command, place) : null;
+        if (
+          items &&
+          command.variable &&
+          this.unrolled + items.length <= MAX_UNROLLED
+        ) {
+          this.unrolled += items.length;
+          for (const item of items) {
+            place.vars.set(command.variable, item);
+            for (const part of command.parts) this.list(part, place, depth);
+          }
+        } else {
+          // A loop variable takes values the walk does not follow.
+          if (command.variable) place.vars.delete(command.variable);
+          for (const part of command.parts) this.list(part, place, depth);
+        }
         this.redirected(command.redirects, place, depth);
         return;
+      }
       case "function":
         this.command(command.body, fork(place), depth);
     }
@@ -270,6 +290,23 @@ class Walk {
     }
     this.found.push({ argv: words, raw, assigned, dir: place.dir, redirects });
   }
+}
+
+// The values a for loop assigns, when each item is plain text the shell neither splits nor
+// globs; null when the walk cannot tell them, such as "for x" over the arguments or a $(...) item.
+function literalItems(
+  command: Extract<Command, { kind: "compound" }>,
+  place: Place,
+): string[] | null {
+  if (command.words.length === 0 || command.words.length > MAX_ITEMS)
+    return null;
+  const items: string[] = [];
+  for (const word of command.words) {
+    if (word.nested.length > 0 || word.params.length > 0) return null;
+    if (/[*?[{$]/u.test(word.text)) return null;
+    items.push(expanded(word, place.vars));
+  }
+  return items;
 }
 
 function redirectWords(redirects: readonly Redirect[]): Word[] {

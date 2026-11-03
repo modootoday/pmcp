@@ -128,6 +128,27 @@ describe.each(["claude", "codex"] as const)(
       ).toBe("deny");
     });
 
+    it("follows a loop over literal words and names a directory it cannot resolve", async (t) => {
+      const { main, brand } = repos(t);
+      const root = join(brand, "..");
+      const loop = (items: string) =>
+        `for r in ${items}; do git -C ${root}/$r push origin HEAD:main; done`;
+      expect(
+        (await push(runtime, main, main, loop("brand"))).verdict,
+      ).toBeUndefined();
+      expect(
+        (await push(runtime, main, main, loop("brand main"))).verdict,
+      ).toBe("deny");
+      const computed = await push(
+        runtime,
+        main,
+        main,
+        "for r in $(ls apps); do git -C apps/$r push origin main; done",
+      );
+      expect(computed.verdict).toBe("deny");
+      expect(computed.reason).toMatch(/variable the hook cannot resolve/u);
+    });
+
     it("refuses every form that moves the mainline", async (t) => {
       const { main, desk } = repos(t);
       for (const command of [
