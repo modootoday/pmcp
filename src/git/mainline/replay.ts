@@ -14,7 +14,16 @@ function remove(root: string, dir: string): string | null {
   return null;
 }
 
-function pick(dir: string, commits: readonly string[]): Replayed {
+// git's hints name cherry-pick --continue/--skip/--abort in a worktree that is already gone.
+function withoutHints(stderr: string): string {
+  return stderr
+    .split("\n")
+    .filter((line) => !line.startsWith("hint:"))
+    .join("\n")
+    .trim();
+}
+
+function pick(dir: string, base: string, commits: readonly string[]): Replayed {
   const picked = git(dir, [
     "-c",
     "core.hooksPath=/dev/null",
@@ -28,7 +37,7 @@ function pick(dir: string, commits: readonly string[]): Replayed {
     .filter(Boolean);
   git(dir, ["cherry-pick", "--abort"]);
   return {
-    error: `the replay conflicts with the upstream in ${conflicted.join(", ") || "unknown files"}:\n${picked.stderr.trim()}`,
+    error: `the replay conflicts with the upstream in ${conflicted.join(", ") || "unknown files"}:\n${withoutHints(picked.stderr)}\nnothing was pushed; rebase onto ${base} and deliver again`,
   };
 }
 
@@ -43,7 +52,7 @@ export function replay(
     rmdirSync(dir);
     return { error: `worktree add failed: ${added.stderr.trim()}` };
   }
-  const result = pick(dir, commits);
+  const result = pick(dir, base, commits);
   const cleanup = remove(root, dir);
   if (cleanup === null) return result;
   const prior = "error" in result ? `${result.error}\n` : "";
