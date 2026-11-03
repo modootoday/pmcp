@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 import type { Decision, HookInput } from "../contract.js";
 import { expandPath } from "../../sessions/paths.js";
+import { readScript } from "../shell/classify.js";
 
 // Allow only reads of the emergency switch so tools cannot silently disable enforcement.
 const READ_ONLY = new Set([
@@ -39,19 +40,21 @@ export function protectOffFile(
       : {};
   }
   if (tool.kind !== "shell") return {};
-  if (!tool.steps) {
-    return (tool.command ?? "").includes(file)
-      ? { verdict: "deny", reason: REASON }
-      : {};
-  }
-  const names = tool.steps.some(
-    (step) =>
-      !READ_ONLY.has(step.argv[0] ?? "") &&
-      step.raw.some(
-        (word) =>
-          word === file ||
-          expandPath(resolve(input.cwd, step.dir), word) === target,
-      ),
-  );
+  const read = tool.steps
+    ? { steps: tool.steps }
+    : readScript(tool.command ?? "");
+  // The shell runs the lines before a syntax error, so a script that cannot be read is refused.
+  if ("error" in read)
+    return {
+      verdict: "deny",
+      reason: `${REASON} (not shell syntax: ${read.error})`,
+    };
+  const names = read.steps.some((step) => {
+    const at = (word: string) =>
+      word === file ||
+      expandPath(resolve(input.cwd, step.dir), word) === target;
+    if (step.redirects.some((redirect) => at(redirect.target))) return true;
+    return !READ_ONLY.has(step.argv[0] ?? "") && step.raw.some(at);
+  });
   return names ? { verdict: "deny", reason: REASON } : {};
 }

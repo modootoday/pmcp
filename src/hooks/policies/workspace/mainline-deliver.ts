@@ -10,7 +10,6 @@ import { checkoutOf } from "../../../sessions/checkout.js";
 import { program, realSteps, shellCall } from "../_shared.js";
 import { onlyKeys, pass, type Policy } from "../types.js";
 
-const PUSH = /\bgit\b[^|;&\n]*\spush\b/u;
 const REASON =
   "This repository's mainline moves only through pmcp git deliver, which replays, gates and pushes one delivery at a time. Commit, then run pmcp git deliver; other branches, other remotes and other repositories push as usual.";
 
@@ -130,11 +129,6 @@ export const mainlineDeliver: Policy<MainlineDeliverOptions> = {
     const call = shellCall(input);
     const project = checkoutOf(input.projectRoot);
     if (!call || !project) return pass;
-    if (!call.steps) {
-      const hit =
-        PUSH.test(call.command) && sameRepository(input.cwd, project.commonDir);
-      return hit ? { verdict: "deny", reason: REASON } : pass;
-    }
     for (const step of realSteps(call.steps)) {
       if (program(step.argv[0]) !== "git") continue;
       const git = gitCall(step.argv);

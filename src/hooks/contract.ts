@@ -39,6 +39,15 @@ export interface ShellStep {
   readonly assigned: readonly string[];
 
   readonly dir: string;
+
+  readonly redirects: readonly ShellRedirect[];
+}
+
+// A redirection of a step: op as written (<, >>, 2>&1 has op >& and fd 2), target after quote removal.
+export interface ShellRedirect {
+  readonly op: string;
+  readonly fd: string;
+  readonly target: string;
 }
 
 export interface HookInput {
@@ -62,6 +71,10 @@ export interface HookInput {
     readonly command?: string;
 
     readonly steps?: readonly ShellStep[];
+    // Every redirection the command makes, compound commands' included.
+    readonly redirects?: readonly ShellRedirect[];
+    // Why the command is not shell syntax; set instead of steps.
+    readonly syntaxError?: string;
     readonly paths: readonly string[];
   };
   readonly prompt?: string;

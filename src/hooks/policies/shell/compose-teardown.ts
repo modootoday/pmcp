@@ -23,8 +23,6 @@ const VERB_VALUE_FLAGS: Readonly<Record<string, ReadonlySet<string>>> = {
   down: new Set(["-t", "--timeout", "--rmi"]),
 };
 const SCOPED_VERBS = new Set(["stop", "rm", "kill"]);
-const FALLBACK =
-  /\b(?:docker[ \t]+compose|docker-compose)\b[^|;&]*\b(?:down|stop|rm|kill)\b/u;
 
 function firstArgument(
   words: readonly string[],
@@ -68,13 +66,6 @@ export const composeTeardown: Policy<object> = {
   evaluate(input) {
     const call = shellCall(input);
     if (!call) return pass;
-    if (!call.steps) {
-      if (!FALLBACK.test(call.command)) return pass;
-      return {
-        verdict: "deny",
-        reason: "A docker compose teardown could not be read.",
-      };
-    }
     for (const step of realSteps(call.steps)) {
       const reason = teardownReason(step.argv);
       if (reason) return { verdict: "deny", reason };

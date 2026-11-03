@@ -112,6 +112,20 @@ describe.each(["claude", "codex"] as const)(
           )
         ).verdict,
       ).toBeUndefined();
+      expect(
+        (
+          await push(
+            runtime,
+            main,
+            main,
+            `W=${brand}; git -C $W fetch -q origin; git -C "$W" push -q origin HEAD:main`,
+          )
+        ).verdict,
+      ).toBeUndefined();
+      expect(
+        (await push(runtime, main, main, "W=x; git -C '$W' push origin main"))
+          .verdict,
+      ).toBe("deny");
     });
 
     it("refuses every form that moves the mainline", async (t) => {

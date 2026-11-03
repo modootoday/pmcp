@@ -1,5 +1,6 @@
 import type { Decision, HookInput, Mode } from "../contract.js";
 import type { Logger } from "../../logging/logger.js";
+import { UnreadableCommand } from "../policies/_shared.js";
 import type { GitProbe, Policy, PolicyContext } from "../policies/types.js";
 import type { SessionStore } from "../../sessions/types.js";
 import { applyMode } from "./compose.js";
@@ -126,7 +127,10 @@ export async function runPolicy(
     }
     return finish({
       verdict: "deny",
-      reason: `pmcp ${policy.id} failed, refusing to be safe`,
+      reason:
+        error instanceof UnreadableCommand
+          ? `pmcp ${policy.id} refuses a command that is ${error.message}`
+          : `pmcp ${policy.id} failed, refusing to be safe`,
     });
   }
 }

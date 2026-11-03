@@ -132,7 +132,7 @@ describe("shell classify", () => {
 
   it("keeps a bare wrapper as a step with its raw words", () => {
     expect(commandsOf("env")).toEqual([
-      { argv: [], raw: ["env"], assigned: [], dir: "" },
+      { argv: [], raw: ["env"], assigned: [], dir: "", redirects: [] },
     ]);
   });
 });

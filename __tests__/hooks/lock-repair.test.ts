@@ -88,10 +88,14 @@ describe("a pmcp.lock a merge left unreadable", () => {
         "git restore --source=HEAD~1 pmcp.lock",
       ])
         expect(call(root, runtime, { command }).verdict).toBe("allow");
-      expect(
-        call(root, runtime, { command: "git show HEAD:pmcp.lock > other.txt" })
-          .verdict,
-      ).toBe("deny");
+      for (const command of [
+        "git show HEAD:pmcp.lock > other.txt",
+        "git show HEAD:pmcp.lock > pmcp.lock; rm -rf x",
+        "git show HEAD:pmcp.lock > pmcp.lock 2> other.txt",
+        "git checkout -f pmcp.lock",
+        "X=1 git checkout pmcp.lock",
+      ])
+        expect(call(root, runtime, { command }).verdict, command).toBe("deny");
       expect(
         call(root, runtime, { path: join(root, "pmcp.lock") }).verdict,
       ).toBe("allow");

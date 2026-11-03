@@ -134,9 +134,19 @@ read passes.</li>
 <li><code>[hooks.guards.git.gate_bypass_env]</code>: <code>names</code> (variable names, default <code>[]</code>)
 and <code>no_verify</code> (boolean, default <code>true</code>).</li>
 </ul>
-<p>A mention is not a match: commands are parsed into steps, so
-<code>git commit -m &quot;never git push --no-verify&quot;</code> and <code>echo &#39;cat &lt;&lt;EOF&#39;</code> pass. A
-command the parser cannot read is judged by a conservative pattern instead.</p>
+<p>A mention is not a match: commands are parsed with the shell&#39;s grammar into the
+steps they run, so <code>git commit -m &quot;never git push --no-verify&quot;</code> and
+<code>echo &#39;cat &lt;&lt;EOF&#39;</code> pass. The parser reads lists (<code>;</code>, <code>&amp;</code>, newlines), <code>&amp;&amp;</code> and
+<code>||</code>, pipelines, subshells, <code>{ }</code> groups, <code>if</code>, <code>while</code>, <code>until</code>, <code>for</code>, <code>case</code>,
+<code>[[ ]]</code>, <code>(( ))</code>, function definitions, redirections, here-documents, quoting and
+command, process and backtick substitutions. Each step runs in the directory the
+<code>cd</code> and <code>pushd</code> before it led to, within its own shell: a <code>cd</code> inside <code>( )</code>, a
+pipeline stage or a background job stays there. A <code>$NAME</code> the shell expands
+takes the value the command set <code>NAME</code> to as plain text, so <code>W=/x; git -C $W push</code>
+is judged in <code>/x</code>; a new shell (<code>bash -c</code>) sees only exported names. A command
+that is not shell syntax is
+refused by every guard that fails closed, since the shell would run the lines
+before the error.</p>
 <h2 id="hooksguardscustom"><code>[[hooks.guards.custom]]</code></h2>
 <p>A project command that decides like a built-in guard: a script under
 <code>.agents/guards/</code>, or an installed program pinned by its version.</p>

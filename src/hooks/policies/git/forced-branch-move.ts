@@ -5,8 +5,6 @@ import { program, realSteps, shellCall } from "../_shared.js";
 import { noOptions, pass, type GitProbe, type Policy } from "../types.js";
 
 const FORCE = new Set(["-f", "-M", "--force"]);
-const FALLBACK =
-  /\bgit\b[^|;&\n]*\sbranch\b[^|;&\n]*\s(?:-f|-M|--force)(?:\s|$)/u;
 
 export function forcedTarget(
   argv: readonly string[],
@@ -42,13 +40,6 @@ export const forcedBranchMove: Policy<object> = {
   evaluate(input, ctx) {
     const call = shellCall(input);
     if (!call) return pass;
-    if (!call.steps) {
-      if (!FALLBACK.test(call.command)) return pass;
-      return {
-        verdict: "deny",
-        reason: "A forced branch move could not be read.",
-      };
-    }
     for (const step of realSteps(call.steps)) {
       const target = forcedTarget(step.argv);
       if (!target) continue;

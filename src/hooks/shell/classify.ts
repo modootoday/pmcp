@@ -9,7 +9,7 @@ import {
   WRANGLER_MUTATING,
 } from "./vocabulary.js";
 
-export { commandsOf, gitCall } from "./commands.js";
+export { commandsOf, gitCall, readScript } from "./commands.js";
 
 // Scripts that change the checkout (a project's own land or sync script) are project data from
 // pmcp.toml, matched against the script node runs; the package itself names none.
@@ -94,7 +94,7 @@ export interface Classified {
   readonly steps: readonly string[];
 }
 
-// Retain text fallback so unreadable shell syntax still reaches conservative guards.
+// Null when the shell would refuse the command.
 export function classify(
   command: string,
   bypassVariables: readonly string[] = [],

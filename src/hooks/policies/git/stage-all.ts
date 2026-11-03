@@ -19,7 +19,6 @@ const COMMIT_VALUES = new Set([
 ]);
 const SHORT_VALUES = new Set(["m", "F", "C", "c", "t"]);
 const ROOT_PATHS = new Set([".", "./", ":/", ":(top)", ":(top)."]);
-const NAMES_GIT = /(?:^|[^\w.-])git(?![\w.-])/u;
 
 function stagesAll(args: readonly string[], commit: boolean): boolean {
   let paths = false;
@@ -73,12 +72,7 @@ export const stageAll: Policy<object> = {
   evaluate(input) {
     const call = shellCall(input);
     if (!call) return pass;
-    // A command that could not be parsed is refused only when it names git as a word.
-    if (!call.steps && !NAMES_GIT.test(call.command)) return pass;
-    if (
-      call.steps &&
-      !realSteps(call.steps).some((step) => stagesEverything(step.argv))
-    )
+    if (!realSteps(call.steps).some((step) => stagesEverything(step.argv)))
       return pass;
     return {
       verdict: "deny",

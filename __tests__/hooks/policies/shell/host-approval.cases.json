@@ -7,7 +7,8 @@
     "yes | pmcp harness host approve",
     "cat ~/.local/state/pmcp/host-approvals/abc/approval.json",
     "cp policy.json ~/.local/state/pmcp/host-approvals/abc/policy.json",
-    "bash -c \"pmcp harness host approve\""
+    "bash -c \"pmcp harness host approve\"",
+    "echo '{}' > ~/.local/state/pmcp/host-approvals/abc/approval.json"
   ],
   "allowed": [
     "pmcp harness host status",

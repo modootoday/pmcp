@@ -6,7 +6,7 @@ import {
   type MutatingRules,
 } from "../../shell/classify.js";
 import type { Pause } from "../../../sessions/types.js";
-import { realSteps } from "../_shared.js";
+import { realSteps, shellCall } from "../_shared.js";
 import {
   onlyKeys,
   pass,
@@ -15,32 +15,13 @@ import {
   type PolicyContext,
 } from "../types.js";
 
-// Text fallback for unreadable shell syntax: git and package-manager verbs; commands and scripts
-// come from the options.
-const BUILT_IN =
-  /\b(git\s+(commit|push|merge|rebase|reset|checkout|switch|cherry-pick|revert|am|stash|tag|clean|restore|rm|mv|worktree\s+(add|remove|move))|bun\s+(install|i|add|remove|rm|update|link)\b|(npm|pnpm|yarn)\s+(install|i|add|remove|publish|ci)\b)\b/u;
-
-const escape = (word: string) => word.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-
 type PauseOptions = MutatingRules;
 
 function changes(input: HookInput, options: PauseOptions): boolean {
-  const tool = input.tool;
-  if (tool?.kind === "edit") return true;
-  if (tool?.kind !== "shell") return false;
-  if (!tool.steps) {
-    const command = tool.command ?? "";
-    return (
-      BUILT_IN.test(command) ||
-      options.commands.some((prefix) =>
-        new RegExp(`\\b${prefix.map(escape).join("\\s+")}\\b`, "u").test(
-          command,
-        ),
-      ) ||
-      options.scripts.some((s) => s.test(command))
-    );
-  }
-  return realSteps(tool.steps).some((step) => mutates(step.argv, options));
+  if (input.tool?.kind === "edit") return true;
+  const call = shellCall(input);
+  if (!call) return false;
+  return realSteps(call.steps).some((step) => mutates(step.argv, options));
 }
 
 function patterns(raw: Record<string, unknown>, key: string): RegExp[] | null {

@@ -5,6 +5,14 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.22.8 to 0.22.9
+
+**Guards read commands with the shell's grammar.** A `cd` chain, a subshell, a pipeline stage
+and a background job now decide which directory each step runs in, as the shell does, so a
+push after `cd a && cd b` is judged in `a/b`, not in `b`. A command that is not shell syntax
+is refused by every guard that fails closed; before, each guard matched it against a text
+pattern of its own. See [Hooks](hooks.md).
+
 ## From 0.22.1 to 0.22.2
 
 **Gate logs move to a directory per tip in the state directory.** A delivery's gate output was

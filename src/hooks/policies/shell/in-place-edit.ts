@@ -3,8 +3,6 @@ import { noOptions, pass, type Policy } from "../types.js";
 
 const EDITORS = new Set(["sed", "perl", "awk", "gawk"]);
 
-const FALLBACK =
-  /(^|[;&|\n]|&&)[ \t]*(?:[A-Za-z_][A-Za-z0-9_]*=\S*[ \t]+)*(sed|perl|gawk|awk)\b[^\n]*?\s(-i\b|--in-place\b|-i\S+)/u;
 const REASON =
   "In-place stream edits (sed -i, perl -i, awk -i) rewrite files without showing a diff and succeed on the first match rather than the intended one. Use the editor tool instead.";
 
@@ -28,9 +26,7 @@ export const inPlaceEdit: Policy<object> = {
   evaluate(input) {
     const call = shellCall(input);
     if (!call) return pass;
-    const hit = call.steps
-      ? realSteps(call.steps).some((step) => inPlace(step.argv))
-      : FALLBACK.test(call.command);
+    const hit = realSteps(call.steps).some((step) => inPlace(step.argv));
     return hit ? { verdict: "deny", reason: REASON } : pass;
   },
 };

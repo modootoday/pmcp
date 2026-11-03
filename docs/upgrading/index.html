@@ -48,6 +48,12 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-0228-to-0229">From 0.22.8 to 0.22.9</h2>
+<p><strong>Guards read commands with the shell&#39;s grammar.</strong> A <code>cd</code> chain, a subshell, a pipeline stage
+and a background job now decide which directory each step runs in, as the shell does, so a
+push after <code>cd a &amp;&amp; cd b</code> is judged in <code>a/b</code>, not in <code>b</code>. A command that is not shell syntax
+is refused by every guard that fails closed; before, each guard matched it against a text
+pattern of its own. See <a href="/hooks/">Hooks</a>.</p>
 <h2 id="from-0221-to-0222">From 0.22.1 to 0.22.2</h2>
 <p><strong>Gate logs move to a directory per tip in the state directory.</strong> A delivery&#39;s gate output was
 <code>&lt;dir of the gate tree&gt;/logs/&lt;time&gt;-&lt;tip&gt;.log</code>, the newest 20 runs kept. It is now

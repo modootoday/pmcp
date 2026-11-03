@@ -6,7 +6,6 @@ import { noOptions, pass, type Policy } from "../types.js";
 // user, so this is a speed bump against an agent told to approve, not a security boundary.
 const APPROVALS = "host-approvals";
 const VERB = ["host", "approve"];
-const FALLBACK = /\bhost\s+approve\b|host-approvals/u;
 const REASON =
   "Approving the pmcp-pty host policy is the operator's step: run pmcp harness host approve in your own terminal, not from an agent.";
 
@@ -21,7 +20,8 @@ function hit(input: HookInput): boolean {
     return tool.paths.some((path) => path.includes(`/${APPROVALS}`));
   const call = shellCall(input);
   if (!call) return false;
-  if (!call.steps) return FALLBACK.test(call.command);
+  if (call.redirects.some((redirect) => redirect.target.includes(APPROVALS)))
+    return true;
   return realSteps(call.steps).some(
     (step) =>
       approves(step.argv) || step.argv.some((word) => word.includes(APPROVALS)),

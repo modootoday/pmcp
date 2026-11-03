@@ -32,13 +32,7 @@ export function startsWith(
   );
 }
 
-function blocked(
-  steps: readonly ShellStep[] | undefined,
-  command: string,
-  rule: LeaseRule,
-): boolean {
-  if (!steps)
-    return rule.blocks.some((prefix) => command.includes(prefix.join(" ")));
+function blocked(steps: readonly ShellStep[], rule: LeaseRule): boolean {
   return realSteps(steps).some((step) =>
     rule.blocks.some((prefix) => startsWith(step.argv, prefix)),
   );
@@ -68,7 +62,7 @@ export const leases: Policy<readonly LeaseRule[]> = {
     const call = shellCall(input);
     if (!call) return pass;
     for (const rule of ctx.options) {
-      if (!blocked(call.steps, call.command, rule)) continue;
+      if (!blocked(call.steps, rule)) continue;
       const lease = ctx.store.leases.read(rule.name);
       if (!lease) continue;
       return {

@@ -104,9 +104,19 @@ Options:
 - `[hooks.guards.git.gate_bypass_env]`: `names` (variable names, default `[]`)
   and `no_verify` (boolean, default `true`).
 
-A mention is not a match: commands are parsed into steps, so
-`git commit -m "never git push --no-verify"` and `echo 'cat <<EOF'` pass. A
-command the parser cannot read is judged by a conservative pattern instead.
+A mention is not a match: commands are parsed with the shell's grammar into the
+steps they run, so `git commit -m "never git push --no-verify"` and
+`echo 'cat <<EOF'` pass. The parser reads lists (`;`, `&`, newlines), `&&` and
+`||`, pipelines, subshells, `{ }` groups, `if`, `while`, `until`, `for`, `case`,
+`[[ ]]`, `(( ))`, function definitions, redirections, here-documents, quoting and
+command, process and backtick substitutions. Each step runs in the directory the
+`cd` and `pushd` before it led to, within its own shell: a `cd` inside `( )`, a
+pipeline stage or a background job stays there. A `$NAME` the shell expands
+takes the value the command set `NAME` to as plain text, so `W=/x; git -C $W push`
+is judged in `/x`; a new shell (`bash -c`) sees only exported names. A command
+that is not shell syntax is
+refused by every guard that fails closed, since the shell would run the lines
+before the error.
 
 ## `[[hooks.guards.custom]]`
 

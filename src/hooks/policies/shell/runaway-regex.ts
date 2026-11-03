@@ -175,8 +175,9 @@ export const runawayRegex: Policy<RunawayOptions> = {
   },
   // Unreadable shell syntax passes: a wrong refusal here costs more than a slow grep.
   evaluate(input, ctx) {
+    if (input.tool?.syntaxError) return pass;
     const call = shellCall(input);
-    if (!call?.steps) return pass;
+    if (!call) return pass;
     for (const step of realSteps(call.steps)) {
       const why = costOf(step, ctx.options);
       if (why)

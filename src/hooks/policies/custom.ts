@@ -162,6 +162,13 @@ function request(entry: CompiledCustom, input: HookInput): string {
   });
 }
 
+// A guard may answer without reading its request; the write then fails with EPIPE, which is no error.
+function failedToRun(error: Error | undefined): boolean {
+  return (
+    error !== undefined && (error as NodeJS.ErrnoException).code !== "EPIPE"
+  );
+}
+
 function run(entry: CompiledCustom, input: HookInput, log: Logger): Decision {
   const root = input.projectRoot;
   if (
@@ -185,7 +192,7 @@ function run(entry: CompiledCustom, input: HookInput, log: Logger): Decision {
     killSignal: "SIGKILL",
     maxBuffer: 65536,
   });
-  if (result.status !== 0 || result.error)
+  if (result.status !== 0 || failedToRun(result.error))
     return { verdict: "deny", reason: FAILED };
   const response = JSON.parse(result.stdout) as Record<string, unknown>;
   const extra = Object.keys(response).some(

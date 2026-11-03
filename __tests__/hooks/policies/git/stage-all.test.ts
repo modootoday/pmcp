@@ -24,8 +24,9 @@ const blocked = [
   "git commit -mspam -a",
   "git commit --message sample -a",
   "git commit -F message.txt -a",
-  "git add 'unterminated",
 ];
+// The shell refuses these too; a guard cannot read what they would run, so it fails closed.
+const unreadable = ["git add 'unterminated", "echo 'unterminated"];
 const allowed = [
   "git add -- src/one.ts src/two.ts",
   "git add -p",
@@ -48,8 +49,6 @@ const allowed = [
   "git log -1",
   // Live false positive: no git at all, once failing to parse and refused as staging.
   'f=/x/chunk.js; n=$(grep -n "^function sanitizeEnvironment\\|function sanitizeEnvironment(" $f | head -1 | cut -d: -f1); echo $n',
-  // Still unreadable, but it never names git, so stage_all has nothing to refuse.
-  "echo 'unterminated",
 ];
 const rows: Record<string, unknown>[] = [];
 afterAll(() => saveEvidence("stage-all", rows));
@@ -66,6 +65,18 @@ describe.each(["claude", "codex"] as const)(
       expect(result.decision.reason).toContain("git.stage_all");
       rows.push(...h.rows);
     });
+    it.each(unreadable)(
+      "refuses what is not shell syntax: %s",
+      async (command) => {
+        const h = harness(runtime, {
+          guards: { git: { stage_all: { mode: "deny" } } },
+        });
+        const result = await h.run("PreToolUse", { tool_input: { command } });
+        expect(result.decision.verdict).toBe("deny");
+        expect(result.decision.reason).toContain("not shell syntax");
+        rows.push(...h.rows);
+      },
+    );
     it.each(allowed)("allows scoped work or a mention: %s", async (command) => {
       const h = harness(runtime, {
         guards: { git: { stage_all: { mode: "deny" } } },

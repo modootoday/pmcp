@@ -154,6 +154,12 @@ describe("hook bundle projection", () => {
     expect(
       verdict(invoke(root, "claude", "touch .agents/pmcp-hooks/OFF")),
     ).toBe("deny");
+    expect(
+      verdict(invoke(root, "claude", "echo > .agents/pmcp-hooks/OFF")),
+    ).toBe("deny");
+    expect(
+      verdict(invoke(root, "claude", "cat .agents/pmcp-hooks/OFF")),
+    ).not.toBe("deny");
   });
 
   it("writes one JSONL line per call under the configured state dir", (t) => {

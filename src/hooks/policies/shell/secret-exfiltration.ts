@@ -46,9 +46,6 @@ const ENV_DUMPS = [
   ["export", "-p"],
   ["declare", "-x"],
 ];
-const FALLBACK_PATH = /(?:^|[^\w.-])\.env(?![.\w-])|\.dev\.vars(?:\.json)?\b/u;
-const FALLBACK_USE =
-  /(?:^|[;&|(]|&&)\s*(?:sudo\s+)?(?:cat|head|tail|less|grep|rg|jq|base64|cp|curl|wget|nc|scp|rsync)\b/u;
 const NO_VALUES =
   "Use metadata verbs instead (ls, stat, wc, find), or a command that names keys without resolving values.";
 
@@ -118,6 +115,13 @@ function operandsOf(argv: readonly string[]): string[] {
 
 type Severity = "read" | "exfil";
 
+// Files a step reads on a descriptor: < file and <> file, not a here-string's text.
+function inputFiles(step: ShellStep): string[] {
+  return step.redirects
+    .filter((redirect) => redirect.op === "<" || redirect.op === "<>")
+    .map((redirect) => redirect.target);
+}
+
 function severity(
   steps: readonly ShellStep[],
   options: SecretOptions,
@@ -130,18 +134,13 @@ function severity(
     return wire ? "exfil" : "read";
   if (steps.some(dumpsEnvironment)) return wire ? "exfil" : "read";
   const touched = real.filter((step) =>
-    operandsOf(step.argv).some((word) => names(word, options)),
+    [...operandsOf(step.argv), ...inputFiles(step)].some((word) =>
+      names(word, options),
+    ),
   );
   if (touched.some((step) => isWire(step.argv[0]!))) return "exfil";
   if (!touched.some((step) => READERS.has(program(step.argv[0])))) return null;
   return wire ? "exfil" : "read";
-}
-
-function fallbackSeverity(command: string): Severity | null {
-  if (!FALLBACK_PATH.test(command) || !FALLBACK_USE.test(command)) return null;
-  return /\b(?:curl|wget|nc|scp|rsync)\b|https?:\/\//u.test(command)
-    ? "exfil"
-    : "read";
 }
 
 function verbsOf(table: Record<string, unknown>, key: string): string[][] {
@@ -191,9 +190,7 @@ export const secretExfiltration: Policy<SecretOptions> = {
   evaluate(input, ctx): Decision {
     const call = shellCall(input);
     if (!call) return pass;
-    const found = call.steps
-      ? severity(call.steps, ctx.options)
-      : fallbackSeverity(call.command);
+    const found = severity(call.steps, ctx.options);
     if (found === "exfil") {
       return {
         verdict: "deny",

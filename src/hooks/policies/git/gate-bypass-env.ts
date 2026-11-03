@@ -10,10 +10,6 @@ export interface BypassOptions {
 const REASON =
   "This takes a way around the gate that only the operator may take. Fix what the gate reports, or ask the operator.";
 
-function escape(text: string): string {
-  return text.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-}
-
 // Match executed bypass assignments so searches and messages can safely mention their names.
 function bypasses(step: ShellStep, options: BypassOptions): boolean {
   if (step.assigned.some((name) => options.variables.includes(name)))
@@ -26,15 +22,6 @@ function bypasses(step: ShellStep, options: BypassOptions): boolean {
   }
   return (
     options.noVerify && name === "git" && step.argv.includes("--no-verify")
-  );
-}
-
-function fallback(command: string, options: BypassOptions): boolean {
-  const names = options.variables.map(escape);
-  if (options.noVerify) names.push("--no-verify");
-  if (names.length === 0) return false;
-  return new RegExp(`(?:^|[^\\w-])(?:${names.join("|")})\\b`, "u").test(
-    command,
   );
 }
 
@@ -54,9 +41,7 @@ export const gateBypassEnv: Policy<BypassOptions> = {
   evaluate(input, ctx) {
     const call = shellCall(input);
     if (!call) return pass;
-    const hit = call.steps
-      ? call.steps.some((step) => bypasses(step, ctx.options))
-      : fallback(call.command, ctx.options);
+    const hit = call.steps.some((step) => bypasses(step, ctx.options));
     return hit ? { verdict: "deny", reason: REASON } : pass;
   },
 };
