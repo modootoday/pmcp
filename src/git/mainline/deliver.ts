@@ -413,12 +413,17 @@ function deliverOnce(options: DeliverOptions): number {
   try {
     for (const spec of leased) {
       if (!options.store.leases.take(spec.name, lease)) {
-        report.warn(`lease ${spec.name} is held by another session`);
+        report.warn(
+          `lease ${spec.name} is held by another session: ${JSON.stringify(options.store.leases.read(spec.name))}`,
+        );
         return 1;
       }
       taken.push(spec.name);
       options.track?.leases.push(spec.name);
-      report.info(`took lease ${spec.name}`);
+      // Read back, so the log shows what other sessions see while the lease is held.
+      report.info(
+        `took lease ${spec.name}: ${JSON.stringify(options.store.leases.read(spec.name))}`,
+      );
     }
     const code = underLock(options);
     if (code !== 0 || options.noPush) return code;
@@ -438,6 +443,14 @@ function deliverOnce(options: DeliverOptions): number {
       });
     return 0;
   } finally {
-    for (const name of taken) options.store.leases.release(name);
+    for (const name of taken) {
+      options.store.leases.release(name);
+      const left = options.store.leases.read(name);
+      report.info(
+        left === null
+          ? `released lease ${name}`
+          : `lease ${name} is still held after release: ${JSON.stringify(left)}`,
+      );
+    }
   }
 }

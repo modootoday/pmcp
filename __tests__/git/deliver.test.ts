@@ -149,6 +149,22 @@ it("holds the lockfile lease through the push and the follow-up sync when the co
   expect(events).toEqual(["take:lockfile", "after", "release:lockfile"]);
 });
 
+it("logs the lease record it took and that the release removed it", () => {
+  const origin = remote();
+  commit(origin.main, "bun.lock", "lock v2\n", "bump lock");
+  const store = filesSessionGate(join(origin.base, "state"));
+  const report = recorder();
+  expect(deliver(options(origin, { store, report }))).toBe(0);
+  const took = report.lines.find((line) =>
+    line.includes("took lease lockfile"),
+  );
+  expect(took).toContain(`"pid":${process.pid}`);
+  expect(took).toContain('"subject":"bump lock"');
+  expect(took).toContain('"since":');
+  expect(report.lines).toContain("released lease lockfile");
+  expect(store.leases.read("lockfile")).toBeNull();
+});
+
 it("takes no lease when the commits leave the lockfile alone", () => {
   const origin = remote();
   commit(origin.main, "a.txt", "a\n", "add a");
