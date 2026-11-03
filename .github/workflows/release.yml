@@ -131,7 +131,9 @@ jobs:
       RELEASE_TAG: ${{ needs.draft.outputs.tag }}
       RELEASE_ID: ${{ needs.draft.outputs.id }}
     runs-on: ubuntu-22.04
-    timeout-minutes: 20
+    # Above publish.sh's 60-minute wait for npm to answer for the platform packages, so the script
+    # fails on its own and the report step still runs.
+    timeout-minutes: 75
     environment: ${{ github.event_name == 'push' && 'npm' || '' }}
     permissions:
       contents: write
