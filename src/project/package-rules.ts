@@ -29,6 +29,24 @@ export function trackedFiles(root: string, recurse = false): string[] {
   }
 }
 
+// Submodule paths as the index records them (mode 160000), so the answer does not
+// depend on whether this checkout initialised them.
+export function trackedGitlinks(root: string): string[] {
+  try {
+    const out = execFileSync("git", ["ls-files", "-s", "-z"], {
+      cwd: root,
+      encoding: "utf8",
+      maxBuffer: 1 << 28,
+    });
+    return out
+      .split("\0")
+      .filter((entry) => entry.startsWith("160000 "))
+      .map((entry) => entry.slice(entry.indexOf("\t") + 1));
+  } catch {
+    return [];
+  }
+}
+
 export function deriveName(dir: string, strip: readonly string[]): string {
   const segments = dir.split("/");
   if (segments.length > 1 && strip.includes(segments[0] ?? "")) {

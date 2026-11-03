@@ -300,6 +300,38 @@ describe("package rule links", () => {
     );
   });
 
+  it("keeps a paths glob live under a submodule this checkout never initialised", (t) => {
+    const root = repo(t, RULES);
+    write(
+      join(root, "lib/x/.agent/rules/PACKAGE.RULE.md"),
+      rule("vendor/brand/apps/**"),
+    );
+    write(
+      join(root, "lib/y/.agent/rules/PACKAGE.RULE.md"),
+      rule("vendor/gone/**"),
+    );
+    git(root);
+    // A gitlink entry with no checkout behind it, as a desk that skipped submodule init has.
+    execFileSync(
+      "git",
+      [
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        `160000,${"1".repeat(40)},vendor/brand`,
+      ],
+      { cwd: root, env: fixtureGitEnv() },
+    );
+    run(root);
+    const problems = check(root).problems;
+    expect(problems).not.toContain(
+      "dead glob: .claude/rules/pkg/x.md: vendor/brand/apps/**",
+    );
+    expect(problems).toContain(
+      "dead glob: .claude/rules/pkg/y.md: vendor/gone/**",
+    );
+  });
+
   it("refuses two packages that derive the same name", (t) => {
     const root = repo(t, RULES);
     write(join(root, "web/x/.agent/rules/PACKAGE.RULE.md"), rule("web/x/**"));

@@ -3,7 +3,7 @@ import { join, posix } from "node:path";
 
 import { splitFrontmatter } from "../frontmatter.js";
 import type { Output } from "../outputs.js";
-import { RULES_DIR, trackedFiles } from "../package-rules.js";
+import { RULES_DIR, trackedFiles, trackedGitlinks } from "../package-rules.js";
 import { censusDirs } from "../plan.js";
 import type { ProjectSpec } from "../spec.js";
 
@@ -46,6 +46,11 @@ export function deadGlobs(root: string, outputs: readonly Output[]): string[] {
     for (let i = 1; i <= parts.length; i += 1)
       seen.add(parts.slice(0, i).join("/"));
   }
+  // A submodule this checkout never initialised lists no files, yet its tree is real.
+  const gitlinks = trackedGitlinks(root);
+  const live = (prefix: string): boolean =>
+    seen.has(prefix) ||
+    gitlinks.some((link) => prefix === link || prefix.startsWith(`${link}/`));
   const dead: string[] = [];
   for (const rule of rules) {
     let text: string;
@@ -62,8 +67,7 @@ export function deadGlobs(root: string, outputs: readonly Output[]): string[] {
     for (const glob of [paths ?? []].flat()) {
       if (typeof glob !== "string") continue;
       const prefix = glob.replace(/\*.*$/u, "").replace(/\/$/u, "");
-      if (prefix !== "" && !seen.has(prefix))
-        dead.push(`${rule.path}: ${glob}`);
+      if (prefix !== "" && !live(prefix)) dead.push(`${rule.path}: ${glob}`);
     }
   }
   return dead;
