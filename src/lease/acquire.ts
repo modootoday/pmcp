@@ -80,8 +80,6 @@ export interface AcquireOptions {
   readonly now?: string;
   // A submitted ticket's id; a blocking run gets one made.
   readonly id?: string;
-  // A [[host.lease.commands]] entry put this command in the bulk lane: a skip does not apply.
-  readonly bulkCommand?: boolean;
 }
 
 const STEP_SECONDS = 1;
@@ -277,10 +275,11 @@ export function acquireLease(options: AcquireOptions): LeaseOutcome {
   if (!settings.enabled) return { kind: "disabled" };
   const paths = leasePaths(settings.dir);
   const skip = skipReason(settings, env);
-  // A skip is for one ordinary command; a whole suite the project marked bulk still queues.
-  if (skip !== null && options.bulkCommand === true) {
+  // A skip is for one ordinary command; a bulk job (an install, a whole suite) still queues.
+  const bulk = options.lane === "bulk";
+  if (skip !== null && bulk) {
     say(
-      `the lease skip (${skip}) is not honoured for a bulk command ([[host.lease.commands]] lane = "bulk"); it queues in the bulk lane. For an emergency run: pmcp heavy --now --reason <text> -- <command>`,
+      `the lease skip (${skip}) is not honoured for a bulk job (--lane bulk, or a [[host.lease.commands]] entry with lane = "bulk"); it queues in the bulk lane. For an emergency run: pmcp heavy --now --reason <text> -- <command>`,
     );
     logEvent(
       paths,
@@ -289,7 +288,7 @@ export function acquireLease(options: AcquireOptions): LeaseOutcome {
       `reason=${skip} cwd=${options.cwd} label=${label}`,
     );
   }
-  if (skip !== null && options.bulkCommand !== true) {
+  if (skip !== null && !bulk) {
     say(`running without the host lease: ${skip}`);
     logEvent(
       paths,

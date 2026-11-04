@@ -331,9 +331,10 @@ the configured ones.</p>
 <p><code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> (or the <code>legacy_skip_env</code> variable) skips the
 lease for an ordinary command: <code>pmcp heavy</code> runs it at once, logs the reason,
 and keeps it as <code>skip</code> in the command&#39;s usage record, and the guard lets a
-command that sets it pass. The skip is bounded: a command a <code>commands</code> entry
-puts in the <code>bulk</code> lane (a whole test suite, a full build) still queues in
-that lane, with a line on standard error saying the skip was not honoured;
+command that sets it pass. The skip is bounded: a bulk job (an install, a
+whole test suite, a full build), put in the <code>bulk</code> lane by <code>--lane bulk</code> or by
+a <code>commands</code> entry, still queues in that lane, with a line on standard error
+saying the skip was not honoured;
 <code>--now --reason &lt;text&gt;</code> is the emergency path for it. <code>pmcp heavy stats</code>
 shows how many runs skipped the lease, so a bypass that became the norm
 shows. <code>enabled = false</code> is the switch for a host or project that does not

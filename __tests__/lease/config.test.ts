@@ -118,30 +118,26 @@ describe("[host.lease]", () => {
       {
         lane: "bulk",
         weight: 3,
-        bulkCommand: true,
       },
     );
     expect(laneFor({ ...run, argv: ["npm", "test"] })).toEqual({
       lane: "interactive",
       weight: 2,
-      bulkCommand: false,
     });
     const tiny = { ...run, settings: read({ tiny: [["npm", "run", "lint"]] }) };
     expect(laneFor({ ...tiny, argv: ["npm", "run", "lint", "--fix"] })).toEqual(
       {
         lane: "interactive",
         weight: 0,
-        bulkCommand: false,
       },
     );
     expect(laneFor({ ...run, argv: ["make"] })).toEqual({
       lane: "interactive",
       weight: 3,
-      bulkCommand: false,
     });
     expect(
       laneFor({ ...run, profile: "gate", argv: ["npm", "test"], weight: 4 }),
-    ).toEqual({ lane: "gate", weight: 4, bulkCommand: false });
+    ).toEqual({ lane: "gate", weight: 4 });
   });
 
   it("rejects unknown keys and malformed values", () => {

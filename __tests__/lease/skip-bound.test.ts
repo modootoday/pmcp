@@ -52,9 +52,28 @@ describe("the lease skip", () => {
     // It queued behind the holder instead of running, and gave up at max_wait.
     expect(result.status).toBe(75);
     expect(result.stderr).toContain(
-      'the lease skip (whole suite) is not honoured for a bulk command ([[host.lease.commands]] lane = "bulk")',
+      "the lease skip (whole suite) is not honoured for a bulk job",
     );
     expect(result.stderr).toContain("pmcp heavy --now --reason");
+    const records = readUsage(join(dir, "usage.jsonl"));
+    expect(records.map((r) => [r.lane, r.outcome, r.skip])).toEqual([
+      ["bulk", "timeout", undefined],
+    ]);
+  }, 30_000);
+
+  it("does not let a job the caller put in the bulk lane around the lease either", () => {
+    const { base, dir, env } = scratch();
+    const cwd = project(base, leaseToml(dir, "max_wait = 1\n"));
+    children.push(shellHolder(dir, 30));
+    until(() => leaseHeld(leasePaths(dir)));
+    const result = pmcpSync(["heavy", "--lane", "bulk", "--", "true"], cwd, {
+      ...env,
+      PMCP_HEAVY_DISABLE: "install",
+    });
+    expect(result.status).toBe(75);
+    expect(result.stderr).toContain(
+      "the lease skip (install) is not honoured for a bulk job (--lane bulk,",
+    );
     const records = readUsage(join(dir, "usage.jsonl"));
     expect(records.map((r) => [r.lane, r.outcome, r.skip])).toEqual([
       ["bulk", "timeout", undefined],

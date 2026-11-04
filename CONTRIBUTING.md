@@ -27,7 +27,9 @@ npm run format:check
 `XDG_CONFIG_HOME` (`__tests__/setup/isolation.ts`) and removes them afterwards; the run
 fails when a test still left a `pmcp-*` directory in the real temp directory or a project
 in the real pmcp state directory. Make fixtures under `os.tmpdir()` and pass the process
-environment to any `pmcp` you spawn.
+environment to any `pmcp` you spawn. The check compares the real directories before and
+after the run, so another session creating `pmcp-*` directories or pmcp projects on the same
+host meanwhile fails it too; run it again once that session is done.
 
 Use the package's typecheck and test scripts for code changes. Documentation changes need
 link, packaging and formatting checks; avoid rebuilding unrelated runtime artifacts.
