@@ -25,7 +25,8 @@ terminal quiet should redirect it too. Off a terminal a table is now one unpadde
 such as `-x` or `--verison`, exits 2. A host that starts the server with leading options
 (`pmcp --root ./node_modules`) is unaffected; one that passed an option `serve` rejects was
 already failing. A short flag a command does not declare (`pmcp list -j`) exits 2 instead of
-being ignored; use `--` before a positional that starts with a dash.
+being ignored; use `--` before a positional that starts with a dash. A word after
+`pmcp list` or `pmcp models`, which take none, exits 2 instead of being ignored.
 
 **Drift has its own exit code, 4.** `pmcp status` with drift or an exceeded budget,
 `pmcp project --check` with drifted, stale or undeclared outputs, `project --check --smoke`

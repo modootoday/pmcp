@@ -65,7 +65,8 @@ terminal quiet should redirect it too. Off a terminal a table is now one unpadde
 such as <code>-x</code> or <code>--verison</code>, exits 2. A host that starts the server with leading options
 (<code>pmcp --root ./node_modules</code>) is unaffected; one that passed an option <code>serve</code> rejects was
 already failing. A short flag a command does not declare (<code>pmcp list -j</code>) exits 2 instead of
-being ignored; use <code>--</code> before a positional that starts with a dash.</p>
+being ignored; use <code>--</code> before a positional that starts with a dash. A word after
+<code>pmcp list</code> or <code>pmcp models</code>, which take none, exits 2 instead of being ignored.</p>
 <p><strong>Drift has its own exit code, 4.</strong> <code>pmcp status</code> with drift or an exceeded budget,
 <code>pmcp project --check</code> with drifted, stale or undeclared outputs, <code>project --check --smoke</code>
 and <code>hooks test --fixtures</code> with a finding now exit 4; before, the first three exited 2,
