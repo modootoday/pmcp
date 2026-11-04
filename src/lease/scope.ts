@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 import type { LeaseSettings } from "./config.js";
@@ -18,16 +19,71 @@ export interface Scoped {
   readonly argv: readonly string[];
   // Called once the job runs: the scope exists then, so its io settings can be written.
   readonly started?: () => Promise<void>;
+  // The job without the scope, for a systemd-run that still cannot reach the user manager.
+  readonly unscoped?: readonly string[];
 }
 
-let scopeSeen: boolean | undefined;
+type Env = Readonly<Record<string, string | undefined>>;
 
-function scopeAvailable(): boolean {
-  scopeSeen ??=
-    process.platform === "linux" &&
+// Why a user scope cannot be made for this environment, or null when it can.
+export interface UserManager {
+  readonly unreachable: (env: Env) => string | null;
+}
+
+// systemd-run --user needs the user manager's socket; without it it fails the whole command.
+export const BUS_FAILURE = /Failed to connect to (?:the )?bus/u;
+
+let installed: boolean | undefined;
+const probed = new Map<string, string | null>();
+
+function probeScope(env: Env): string | null {
+  const run = spawnSync("systemd-run", ["--user", "--scope", "-q", "true"], {
+    env: env as NodeJS.ProcessEnv,
+    encoding: "utf8",
+    stdio: ["ignore", "ignore", "pipe"],
+    timeout: 10_000,
+  });
+  if (run.status === 0) return null;
+  const line = (run.stderr ?? "").trim().split("\n")[0];
+  return line || `systemd-run --user exited ${run.status ?? "on a signal"}`;
+}
+
+function systemdRun(): boolean {
+  installed ??=
     spawnSync("systemd-run", ["--user", "--version"], { stdio: "ignore" })
       .status === 0;
-  return scopeSeen;
+  return installed;
+}
+
+export function userManager(
+  exists: (path: string) => boolean = existsSync,
+  probe: (env: Env) => string | null = probeScope,
+  platform: string = process.platform,
+  present: () => boolean = systemdRun,
+): UserManager {
+  return {
+    unreachable(env) {
+      if (platform !== "linux") return "not Linux";
+      if (!present()) return "systemd-run is not installed";
+      const runtime = env["XDG_RUNTIME_DIR"];
+      if (!runtime) return "XDG_RUNTIME_DIR is not set";
+      const socket =
+        exists(join(runtime, "systemd", "private")) ||
+        exists(join(runtime, "bus")) ||
+        Boolean(env["DBUS_SESSION_BUS_ADDRESS"]);
+      if (!socket) return `no user manager socket in ${runtime}`;
+      if (!probed.has(runtime)) probed.set(runtime, probe(env));
+      return probed.get(runtime) ?? null;
+    },
+  };
+}
+
+function lost(memoryMax: string | undefined, io: boolean): string {
+  const parts = [
+    ...(memoryMax === undefined ? [] : [`MemoryMax=${memoryMax}`]),
+    ...(io ? ["io.weight"] : []),
+  ];
+  return parts.join(" and ");
 }
 
 export function wantsIo(
@@ -73,14 +129,16 @@ export function scoped(
   say: (line: string) => void,
   onCgroup: (dir: string) => void = () => {},
   host: CgroupHost = cgroupHost(),
+  manager: UserManager = userManager(),
+  env: Env = process.env,
 ): Scoped {
   const io = wantsIo(settings, lane, host);
   if (memoryMax === undefined && !io) return { argv };
-  if (!scopeAvailable()) {
-    if (memoryMax !== undefined)
-      say(
-        `systemd-run --user is unavailable; running without MemoryMax=${memoryMax}`,
-      );
+  const reason = manager.unreachable(env);
+  if (reason !== null) {
+    say(
+      `no systemd user scope (${reason}); running without ${lost(memoryMax, io)}`,
+    );
     return { argv };
   }
   const unit = `pmcp-heavy-${process.pid}-${Date.now()}`;
@@ -99,6 +157,7 @@ export function scoped(
       "--",
       ...argv,
     ],
+    unscoped: argv,
     ...(io && lane !== null
       ? { started: () => weigh(unit, settings, lane, host, say, onCgroup) }
       : {}),

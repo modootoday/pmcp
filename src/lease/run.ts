@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { constants } from "node:os";
 
-import { scoped } from "./scope.js";
+import { BUS_FAILURE, scoped } from "./scope.js";
 
 import { acquireLease, profileLane, type LeaseOutcome } from "./acquire.js";
 import { BUSY_EXIT, DISABLE_ENV, type LeaseSettings } from "./config.js";
@@ -63,7 +63,11 @@ interface Watch {
   // Once a second while the job runs, with the job's pid.
   readonly tick: (pid: number | undefined) => void;
   readonly started?: () => Promise<void>;
+  // Keeps the start of stderr, passed through as it arrives, to tell a scope failure apart.
+  readonly stderrHead?: (text: string) => void;
 }
+
+const HEAD = 2048;
 
 function execute(
   argv: readonly string[],
@@ -76,7 +80,14 @@ function execute(
     const child = spawn(bin ?? "true", rest, {
       cwd: run.cwd,
       env: { ...run.env, ...extra },
-      stdio: "inherit",
+      stdio: ["inherit", "inherit", watch.stderrHead ? "pipe" : "inherit"],
+    });
+    let head = "";
+    child.stderr?.on("data", (chunk: Buffer) => {
+      process.stderr.write(chunk);
+      if (head.length >= HEAD) return;
+      head += chunk.toString("utf8");
+      watch.stderrHead?.(head.slice(0, HEAD));
     });
     void watch.started?.();
     const forward = (signal: NodeJS.Signals) => child.kill(signal);
@@ -192,25 +203,38 @@ export async function runHeavy(run: HeavyRun): Promise<number> {
   const memoryMax = run.settings.profiles[run.profile]?.memoryMax;
   const held = outcome.kind === "held" ? outcome : null;
   const sampler = new Sampler();
-  const { argv, started } = scoped(
+  const { argv, started, unscoped } = scoped(
     run.argv,
     run.settings,
     held ? lane : null,
     memoryMax,
     run.say,
     (dir) => sampler.useCgroup(dir),
+    undefined,
+    undefined,
+    run.env,
   );
   const warn = held ? holdWarner(run, epoch()) : () => {};
+  const tick = (pid: number | undefined) => {
+    warn();
+    sampler.sample(pid);
+  };
   const begun = Date.now();
   let code = 1;
+  let head = "";
   try {
     code = await execute(argv, run, held?.env ?? {}, {
-      tick: (pid) => {
-        warn();
-        sampler.sample(pid);
-      },
+      tick,
       ...(started ? { started } : {}),
+      ...(unscoped ? { stderrHead: (text: string) => (head = text) } : {}),
     });
+    // The scope, not the job, failed: the user manager went away after the check.
+    if (code !== 0 && unscoped && BUS_FAILURE.test(head.split("\n")[0] ?? "")) {
+      run.say(
+        "systemd-run could not reach the user manager; running the command again without the scope",
+      );
+      code = await execute(unscoped, run, held?.env ?? {}, { tick });
+    }
   } finally {
     const wall = Math.round((Date.now() - begun) / 100) / 10;
     held?.release(code, Math.round(wall));
