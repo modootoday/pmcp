@@ -1,4 +1,4 @@
-import type { Command } from "../cli/command.js";
+import { ArgumentError, type Command } from "../cli/command.js";
 
 import { catalogFrom, rootsFrom } from "./roots.js";
 import { listSpec } from "./specs/catalog.js";
@@ -6,6 +6,8 @@ import { listSpec } from "./specs/catalog.js";
 export const listCommand: Command = {
   ...listSpec,
   run(context) {
+    if (context.args.positional.length > 0)
+      throw new ArgumentError(`unexpected ${context.args.positional[0]}`);
     const rejected: { path: string; reason: string }[] = [];
     const entries = catalogFrom(context, (rejection) =>
       rejected.push(rejection),
