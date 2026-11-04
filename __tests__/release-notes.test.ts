@@ -43,6 +43,12 @@ function history() {
   commit(
     "fix(api): rename a field\n\nBREAKING CHANGE: clients read `id` instead of `key`.",
   );
+  commit(
+    "feat(cli)!: wrap the output\n\nBREAKING CHANGE: read .data where you\nread the object before.\n\nCo-Authored-By: Someone <someone@example.com>",
+  );
+  commit(
+    "fix(cli)!: move tables\n\nBREAKING CHANGE: tables go to stdout;\nread stdout instead.\nCo-Authored-By: Someone <someone@example.com>",
+  );
   commit("Update things");
   commit("chore: release tool 1.0.2");
   git("tag", "v1.0.2");
@@ -83,6 +89,11 @@ it("groups by type in a fixed order, breaking changes first with their footer", 
   expect(breaking).toContain("drop the old view operations");
   expect(breaking).toContain("api: rename a field");
   expect(breaking).toContain("  clients read `id` instead of `key`.");
+  expect(breaking).toContain(
+    "  read .data where you read the object before.\n",
+  );
+  expect(breaking).toContain("  tables go to stdout; read stdout instead.\n");
+  expect(breaking).not.toContain("Co-Authored-By");
   expect(text.slice(order[1], order[2])).toContain(
     "sessions: worktree selector",
   );

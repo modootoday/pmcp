@@ -11,7 +11,9 @@ const GROUPS = [
   ["other", "Other changes"],
 ];
 const SUBJECT = /^(\w+)(?:\(([^)]*)\))?(!)?: (.+)$/u;
-const FOOTER = /^BREAKING[ -]CHANGE: ([\s\S]+?)(?:\n\n|$)/mu;
+// The whole footer paragraph: up to a blank line, a trailer such as Co-Authored-By, or the end.
+const FOOTER =
+  /^BREAKING[ -]CHANGE: ([\s\S]+?)(?=\n[ \t]*\n|\n[A-Z][\w]*(?:-[A-Za-z]+)+: |\s*$(?![\s\S]))/mu;
 // The version bump the release is tagged on says nothing a reader needs.
 const BUMP = /^chore: release \S+ \d+\.\d+\.\d+/u;
 
@@ -43,7 +45,10 @@ export function commits(from, to, cwd) {
     .map((record) => {
       const [sha, subject, body] = record.split("\x1f");
       const parts = SUBJECT.exec(subject);
-      const footer = FOOTER.exec(body ?? "")?.[1]?.trim();
+      // A wrapped footer reads as one line in the notes.
+      const footer = FOOTER.exec(body ?? "")?.[1]
+        ?.replace(/\s*\n\s*/gu, " ")
+        .trim();
       return {
         sha,
         subject,
@@ -75,9 +80,7 @@ export function notes({ to, published, repo, cwd, summary = false }) {
       ? `${commit.scope}: ${commit.text}`
       : commit.text;
     const head = `- ${label} ([${commit.sha.slice(0, 7)}](${url}/commit/${commit.sha}))`;
-    return commit.footer
-      ? `${head}\n  ${commit.footer.replace(/\n/gu, "\n  ")}`
-      : head;
+    return commit.footer ? `${head}\n  ${commit.footer}` : head;
   };
   const out = [];
   for (const [key, title] of GROUPS) {

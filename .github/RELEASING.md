@@ -6,6 +6,8 @@ tag matching package.json publishes, after a reviewer approves the `npm`
 environment. By hand (workflow_dispatch) it never publishes: mode `dry-run`
 builds and packs everything and deletes its draft release; mode `bootstrap`
 keeps the draft release `v<version>` with one binary archive per target.
+v0.23.0 was tagged but never published: its publish job failed in the Pack step, before
+anything reached npm, and 0.23.1 is the release.
 
 The normal path is a version-bump commit, a push of main, and a push of the tag. The tag run
 writes the release notes, generated from the commit subjects, into the GitHub release; the
