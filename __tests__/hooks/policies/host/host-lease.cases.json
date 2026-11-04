@@ -1,0 +1,32 @@
+{
+  "options": {
+    "heavy": [
+      ["npm", "install"],
+      ["npm", "test"],
+      ["cargo", "build"],
+      ["vitest"]
+    ],
+    "skip_env": ["PMCP_HEAVY_DISABLE"]
+  },
+  "blocked": [
+    "npm install",
+    "npm install --frozen-lockfile",
+    "npm test -- --run",
+    "cd web && npm test",
+    "timeout 600 cargo build --release",
+    "nice -n 19 vitest run",
+    "./node_modules/.bin/vitest run",
+    "echo start; npm install"
+  ],
+  "allowed": [
+    "pmcp heavy -- npm install",
+    "pmcp heavy --label deps -- npm install",
+    "pmcp heavy --profile gate -- cargo build",
+    "PMCP_HEAVY_DISABLE=fixture npm install",
+    "npm run lint",
+    "npm --version",
+    "git commit -m 'npm install later'",
+    "echo npm install",
+    "cargo fmt"
+  ]
+}

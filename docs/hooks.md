@@ -41,7 +41,14 @@ where they apply: declared `[git]` features detect git (`enabled = "auto"`), and
 logging falls back to its defaults rather than to no logging. The bundle is
 projected only when `[hooks]` declares guards or checks, a `[sessions.*]`
 feature table is declared, `[git.shared_checkout]` or `[git.worktrees.sync]` is
-declared, or `[git.mainline.deliver]` keeps `refuse_direct_push`.
+declared, `[git.mainline.deliver]` keeps `refuse_direct_push`, or
+`[host.lease]` lists `heavy` commands.
+
+The `host.lease` guard holds agents to the [host lease](project-configuration.md#host-lease):
+a shell step whose argv starts with a `[host.lease] heavy` prefix and is not
+wrapped in `pmcp heavy --` is reported, in the mode `[host.lease] guard` names
+(`observe` by default; `deny` refuses with the wrapped command to run instead).
+A step that sets `PMCP_HEAVY_DISABLE=<reason>` passes.
 
 ## `[hooks]`
 

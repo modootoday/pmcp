@@ -20,6 +20,7 @@ import type { Policy, PolicyId } from "./types.js";
 import { sharedCheckout } from "./workspace/shared-checkout.js";
 import { mainlineDeliver } from "./workspace/mainline-deliver.js";
 import { worktreeSync } from "./workspace/worktree-sync.js";
+import { hostLease } from "./host/lease.js";
 
 const byId = (list: readonly Policy<any>[]) =>
   Object.fromEntries(list.map((policy) => [policy.id, policy]));
@@ -48,6 +49,7 @@ export const FEATURES: Readonly<Record<PolicyId, Policy<any>>> = byId([
   sharedCheckout,
   worktreeSync,
   mainlineDeliver,
+  hostLease,
 ]);
 
 export const POLICIES: Readonly<Record<PolicyId, Policy<any>>> = {

@@ -81,7 +81,13 @@ where they apply: declared <code>[git]</code> features detect git (<code>enabled
 logging falls back to its defaults rather than to no logging. The bundle is
 projected only when <code>[hooks]</code> declares guards or checks, a <code>[sessions.*]</code>
 feature table is declared, <code>[git.shared_checkout]</code> or <code>[git.worktrees.sync]</code> is
-declared, or <code>[git.mainline.deliver]</code> keeps <code>refuse_direct_push</code>.</p>
+declared, <code>[git.mainline.deliver]</code> keeps <code>refuse_direct_push</code>, or
+<code>[host.lease]</code> lists <code>heavy</code> commands.</p>
+<p>The <code>host.lease</code> guard holds agents to the <a href="/project-configuration/#host-lease">host lease</a>:
+a shell step whose argv starts with a <code>[host.lease] heavy</code> prefix and is not
+wrapped in <code>pmcp heavy --</code> is reported, in the mode <code>[host.lease] guard</code> names
+(<code>observe</code> by default; <code>deny</code> refuses with the wrapped command to run instead).
+A step that sets <code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> passes.</p>
 <h2 id="hooks-1"><code>[hooks]</code></h2>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>targets</code></td><td>list</td><td><code>[targets] tools</code> limited to <code>claude</code>, <code>codex</code></td><td>Runtimes that receive the hook bundle: <code>claude</code>, <code>codex</code>, <code>gemini</code>, <code>antigravity</code>, <code>grok</code>, <code>opencode</code>. The last four are used only when listed here.</td></tr>
 <tr><td><code>ask_fallback</code></td><td>string</td><td><code>&quot;deny&quot;</code></td><td>What an ask becomes on a runtime without ask (Codex, Gemini, Antigravity, Grok, OpenCode): <code>deny</code>, <code>warn</code>, or <code>refuse</code> to make projection fail while any guard may ask.</td></tr>

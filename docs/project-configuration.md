@@ -836,6 +836,9 @@ notice_paths = ["AGENTS.md", "pmcp.toml"]
 
 [git.submodules]
 
+[host.lease]
+heavy = [["npm", "install"], ["npm", "test"]]
+
 [logging]
 level = "warn"
 

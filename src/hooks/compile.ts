@@ -6,6 +6,7 @@ import { legacyEntries, pinnedEntries, readCustom } from "./compile/custom.js";
 import { readGuards } from "./compile/guards.js";
 import { readChecks } from "./compile/checks.js";
 import { readHooksTable } from "./compile/hooks-table.js";
+import { readHostLease } from "./compile/host-lease.js";
 import { declaresPtyHost } from "../project/host-spec.js";
 import { readSessions } from "./compile/sessions.js";
 import { asTable, type CompiledHooks, type Table } from "./compile/types.js";
@@ -53,9 +54,11 @@ export function compileHooks(
   const deskSync = readWorktreeSync(tables, options.root);
   const directPush = readMainlineDeliver(tables, options.root);
   const host = hostGuard(tables.host, guardsTable);
+  const heavy = readHostLease(tables.host, options.root);
   const enabled =
     table.enabled ||
     host !== null ||
+    heavy !== null ||
     sessions.declared ||
     workspace.declared ||
     !!deskSync ||
@@ -76,6 +79,7 @@ export function compileHooks(
     ...(deskSync ? [deskSync] : []),
     ...(directPush ? [directPush] : []),
     ...(host ? [host] : []),
+    ...(heavy ? [heavy] : []),
     ...readGuards(guardsTable),
     ...readChecks(hooks["checks"]),
   ];
