@@ -12,7 +12,7 @@ the same usage from the command itself.
 - `pmcp --root ./node_modules`: a leading option with no command is still a server, because
   hosts pass options without one.
 
-An unrecognised command does not fall through to a server the caller did not ask for. Only an empty argument list, or one that begins with an option, takes that path.
+An unrecognised command does not fall through to a server the caller did not ask for. Only an empty argument list, or one that begins with an option `serve` accepts, takes that path. `-v`, `-V`, `--version` and `version` print the version; any other leading option, such as `-x` or a misspelled `--verison`, is an unknown option and exits 2 without reading standard input.
 
 ## status
 

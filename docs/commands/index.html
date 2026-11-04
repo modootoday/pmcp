@@ -55,7 +55,7 @@ stdio.</li>
 <li><code>pmcp --root ./node_modules</code>: a leading option with no command is still a server, because
 hosts pass options without one.</li>
 </ul>
-<p>An unrecognised command does not fall through to a server the caller did not ask for. Only an empty argument list, or one that begins with an option, takes that path.</p>
+<p>An unrecognised command does not fall through to a server the caller did not ask for. Only an empty argument list, or one that begins with an option <code>serve</code> accepts, takes that path. <code>-v</code>, <code>-V</code>, <code>--version</code> and <code>version</code> print the version; any other leading option, such as <code>-x</code> or a misspelled <code>--verison</code>, is an unknown option and exits 2 without reading standard input.</p>
 <h2 id="status">status</h2>
 <pre><code>pmcp status [--config &lt;file&gt;] [--json]</code></pre>
 <p>Show enabled features and their TOML or auto source, projection drift, live sessions, pause, leases, unseen broadcasts, worktree ahead/behind counts, shared MCP credential presence, logged errors from the last hour, and, with a <a href="/project-configuration/#budget"><code>[budget]</code></a> table, each limit beside what it measured. Reads do not acknowledge broadcasts, refresh credentials, prune logs, fetch or move git refs. Projection uses the same check as <code>project --check</code>. Exit 0, or 2 when projection or worktree ahead/behind drift exists or a budget limit is exceeded. Missing or invalid input follows the normal usage/failure exit contract. Human output is a compact summary on stderr; JSON retains the full details.</p>

@@ -8,6 +8,7 @@ import {
 } from "../cli/command.js";
 import { Ui } from "../cli/ui.js";
 import { entryMode } from "../cli/entry.js";
+import { invocation } from "../cli/invocation.js";
 import { COMMANDS, PLANNED, commandNamed } from "./registry.js";
 import { VERSION } from "./version.js";
 
@@ -26,6 +27,7 @@ interface RunContext {
 
 // Reserve shared options so commands cannot assign conflicting meanings to the same flag.
 const GLOBAL = new Set(["-q", "--quiet", "--no-color", "--color"]);
+const VERSION_WORDS = new Set(["--version", "-v", "-V", "version"]);
 
 function colourChoice(global: readonly string[]): { color?: boolean } {
   if (global.includes("--no-color")) return { color: false };
@@ -63,14 +65,25 @@ export function dispatch(
     if (!named) printHelp(ui, COMMANDS, PLANNED);
     return EXIT.ok;
   }
-  if (verb === "--version") {
+  if (VERSION_WORDS.has(verb)) {
+    if (rest.length > 0) {
+      ui.error(`${verb} takes no arguments, got ${rest[0]}`);
+      return EXIT.usage;
+    }
     ui.data(`${VERSION}\n`);
     return EXIT.ok;
   }
 
-  // Keep bare serving compatible with MCP hosts that pass options without a verb.
+  // Keep bare serving for MCP hosts that pass server options without a verb, but only
+  // for options the server knows: a typo must not start a server that waits on stdin.
   if (verb.startsWith("-")) {
-    return run(required("serve"), rest0, { ui, env, cwd });
+    const serve = required("serve");
+    if (!leadsServe(verb, serve)) {
+      ui.error(`unknown option ${verb.split("=")[0]}`);
+      ui.line(`Run ${invocation(env)} --help for the commands and options.`);
+      return EXIT.usage;
+    }
+    return run(serve, rest0, { ui, env, cwd });
   }
 
   const command = commandNamed(verb);
@@ -89,6 +102,13 @@ export function dispatch(
   }
 
   return run(command, rest, { ui, env, cwd });
+}
+
+function leadsServe(arg: string, serve: CommandEntry): boolean {
+  if (!arg.startsWith("--")) return false;
+  const eq = arg.indexOf("=");
+  const name = eq === -1 ? arg.slice(2) : arg.slice(2, eq);
+  return (serve.options ?? []).some((option) => option.name === name);
 }
 
 function required(name: string): CommandEntry {

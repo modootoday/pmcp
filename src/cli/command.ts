@@ -60,6 +60,8 @@ export class ArgumentError extends Error {
   }
 }
 
+const SHORT_FLAG = /^-[A-Za-z]/u;
+
 // Reject unknown options so misspelled flags cannot silently select default behavior.
 export function parseArgs(
   argv: readonly string[],
@@ -77,6 +79,10 @@ export function parseArgs(
       passthrough = argv.slice(i + 1);
       positional.push(...passthrough);
       break;
+    }
+    // A short flag nobody declared would otherwise become a positional and be ignored.
+    if (SHORT_FLAG.test(arg)) {
+      throw new ArgumentError(`unknown option ${arg}`);
     }
     if (!arg.startsWith("--")) {
       positional.push(arg);
