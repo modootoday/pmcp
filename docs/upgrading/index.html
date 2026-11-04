@@ -48,6 +48,23 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-023-to-024">From 0.23 to 0.24</h2>
+<p><strong>A lease skip no longer covers a bulk job.</strong> <code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> (or the
+<code>legacy_skip_env</code> variable) still runs an ordinary command at once, but a job in the bulk
+lane, sent with <code>--lane bulk</code> or put there by a <code>[host.lease] commands</code> entry, now queues
+for the lease with a line saying the skip was not honoured. A wrapper that skipped the lease
+for installs or whole test suites will see them wait. For a caller that must never wait (a
+commit hook), list its reason in <code>[host.lease] skip_always</code>:</p>
+<pre><code>[host.lease]
+skip_always = [&quot;git-hook&quot;]</code></pre>
+<p>A bulk job nested in a leased job still runs at once on the lease marker. <code>--now --reason</code>
+remains the emergency path, and <code>enabled = false</code> still turns the lease off. A skipped run&#39;s
+usage record now carries <code>skip</code>, and <code>pmcp heavy stats</code> shows the share of runs that skipped
+the lease.</p>
+<p><strong>For contributors: tests run in their own temp and state roots.</strong> <code>npm test</code> gives the run
+its own <code>TMPDIR</code> and XDG directories and fails when a test leaves a <code>pmcp-*</code> directory in the
+real temp directory or a project in the real pmcp state directory; see
+<a href="https://github.com/modootoday/pmcp/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
 <h2 id="from-022-to-023">From 0.22 to 0.23</h2>
 <p>0.23.0 makes the command line behave like other command-line tools; several changes break
 scripts that relied on the old behaviour.</p>
