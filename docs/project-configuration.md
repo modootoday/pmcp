@@ -51,25 +51,25 @@ Every table pmcp reads, and where it is described. An unknown key inside one
 of these tables is an error unless noted; an unknown top-level table is
 ignored.
 
-| Table                                                                                                                                                                                     | Section                                                                 |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `[catalog]`, `[catalog.validation]`                                                                                                                                                       | [Project config](#project-config)                                       |
-| `[embedding]`, `[embedding.encoder]`                                                                                                                                                      | [Embedding models](embeddings.md)                                       |
-| `[marketplaces.<name>]`                                                                                                                                                                   | [Marketplaces](#marketplaces)                                           |
-| `[targets]`, `[skills.<name>]`, `[agents.<name>.<tool>]`, `[rules.packages]`                                                                                                              | [Native files for each agent tool](#native-files-for-each-agent-tool)   |
-| `[mcp.<alias>]`                                                                                                                                                                           | [Unified project MCP configuration](#unified-project-mcp-configuration) |
-| `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[hooks.checks.*]`, `[hooks.failure]`, `[hooks.report]`, `[hooks.test]`                                                         | [Hooks](hooks.md)                                                       |
-| `[budget]`                                                                                                                                                                                | [Budget](#budget)                                                       |
-| `[[hooks.shell]]`, `[[hooks.edit]]`                                                                                                                                                       | [Deprecated shell guards](hooks.md#deprecated-shell-guards)             |
-| `[sessions]`, `[sessions.registry]`, `[sessions.pause]`, `[sessions.broadcast]`, `[sessions.mailbox]`, `[sessions.leases.<name>]`, `[sessions.roles.<name>]`                              | [Sessions](#sessions)                                                   |
-| `[git]`, `[git.shared_checkout]`, `[git.worktrees]`, `[git.worktrees.sync]`, `[git.mainline]`, `[git.mainline.gate]`, `[git.mainline.deliver]`, `[git.mainline.sync]`, `[git.submodules]` | [Git workflow](git-workflow.md)                                         |
-| `[logging]`, `[logging.components]`                                                                                                                                                       | [Logging](#logging)                                                     |
-| `[permissions.claude]`                                                                                                                                                                    | [Claude permission rules](#claude-permission-rules)                     |
-| `[ui.claude]`                                                                                                                                                                             | [Claude session panes](#claude-session-panes)                           |
-| `[tui]`, `[mailbox]`                                                                                                                                                                      | [Terminal workspace](terminal-workspace.md)                             |
-| `[host]`, `[[host.sessions]]`, `[[host.answers]]`, `[host.browser]`, `[host.desktop]`, `[[host.desktop.launch]]`                                                                          | [Sessions pmcp-pty hosts](#sessions-pmcp-pty-hosts)                     |
-| `[host.lease]`, `[host.lease.profiles.<name>]` | [Host lease](#host-lease) |
-| `[harness]`                                                                                                                                                                               | [Terminal harness](terminal-harness.md#create-a-group-and-its-sessions) |
+| Table                                                                                                                                                                                        | Section                                                                 |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `[catalog]`, `[catalog.validation]`                                                                                                                                                          | [Project config](#project-config)                                       |
+| `[embedding]`, `[embedding.encoder]`                                                                                                                                                         | [Embedding models](embeddings.md)                                       |
+| `[marketplaces.<name>]`                                                                                                                                                                      | [Marketplaces](#marketplaces)                                           |
+| `[targets]`, `[skills.<name>]`, `[agents.<name>.<tool>]`, `[rules.packages]`                                                                                                                 | [Native files for each agent tool](#native-files-for-each-agent-tool)   |
+| `[mcp.<alias>]`                                                                                                                                                                              | [Unified project MCP configuration](#unified-project-mcp-configuration) |
+| `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[hooks.checks.*]`, `[hooks.failure]`, `[hooks.report]`, `[hooks.test]`                                                            | [Hooks](hooks.md)                                                       |
+| `[budget]`                                                                                                                                                                                   | [Budget](#budget)                                                       |
+| `[[hooks.shell]]`, `[[hooks.edit]]`                                                                                                                                                          | [Deprecated shell guards](hooks.md#deprecated-shell-guards)             |
+| `[sessions]`, `[sessions.registry]`, `[sessions.pause]`, `[sessions.broadcast]`, `[sessions.mailbox]`, `[sessions.leases.<name>]`, `[sessions.roles.<name>]`                                 | [Sessions](#sessions)                                                   |
+| `[git]`, `[git.shared_checkout]`, `[git.worktrees]`, `[git.worktrees.sync]`, `[git.mainline]`, `[git.mainline.gate]`, `[git.mainline.deliver]`, `[git.mainline.sync]`, `[git.submodules]`    | [Git workflow](git-workflow.md)                                         |
+| `[logging]`, `[logging.components]`                                                                                                                                                          | [Logging](#logging)                                                     |
+| `[permissions.claude]`                                                                                                                                                                       | [Claude permission rules](#claude-permission-rules)                     |
+| `[ui.claude]`                                                                                                                                                                                | [Claude session panes](#claude-session-panes)                           |
+| `[tui]`, `[mailbox]`                                                                                                                                                                         | [Terminal workspace](terminal-workspace.md)                             |
+| `[host]`, `[[host.sessions]]`, `[[host.answers]]`, `[host.browser]`, `[host.desktop]`, `[[host.desktop.launch]]`                                                                             | [Sessions pmcp-pty hosts](#sessions-pmcp-pty-hosts)                     |
+| `[host.lease]`, `[host.lease.lanes]`, `[host.lease.weights]`, `[[host.lease.commands]]`, `[host.lease.profiles.<name>]`, `[host.lease.io]`, `[host.lease.io.weights]`, `[host.lease.io.max]` | [Host lease](#host-lease)                                               |
+| `[harness]`                                                                                                                                                                                  | [Terminal harness](terminal-harness.md#create-a-group-and-its-sessions) |
 
 ## Marketplaces
 
@@ -259,49 +259,97 @@ owned by root.
 
 ## Host lease
 
-`[host.lease]` configures the host-wide lease behind
+`[host.lease]` configures the host-wide budget behind
 [`pmcp heavy`](commands.md#heavy): heavy commands (installs, test suites,
-typechecks, builds, gates) from every session and worktree on the host run one
-at a time, and each starts only once the host has settled. The lease trades
-throughput for stability: a queued job waits instead of running beside another
-one and overflowing memory or IO. Turn it off (`enabled = false`) on a host that
-runs one session at a time or has room for every job at once; keep it on where
-several agents share one machine.
-
-It is on by default, also without the table.
+typechecks, builds, gates) from every session and worktree on the host start
+only while their lane has a free slot, their weight fits what the running jobs
+leave of the budget, and the host is under its load and IO limits. It trades
+throughput for stability: a queued job waits instead of overflowing memory or
+IO beside the others. Turn it off (`enabled = false`) on a host that runs one
+session at a time or has room for every job at once; keep it on where several
+agents share one machine. It is on by default, also without the table.
 
 ```toml
 [host.lease]
 max_load = 8
 max_io = 8
+budget = 4
 hold_warn = 1800
 hold_max = 3600
 heavy = [["npm", "install"], ["npm", "test"], ["cargo", "build"]]
 guard = "deny"
+
+[host.lease.lanes]
+interactive = 2
+
+[[host.lease.commands]]
+argv = ["npm", "install"]
+lane = "bulk"
+weight = 3
 
 [host.lease.profiles.gate]
 max_wait = 2700
 load_grace = 600
 ```
 
-| Key                 | Type       | Default              | Meaning                                                                                                                                                                                       |
-| ------------------- | ---------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`           | boolean    | `true`               | `false` runs every `pmcp heavy` command at once, gates without the lease and turns the guard off.                                                                                             |
-| `dir`               | path       | `~/.cache/pmcp/host` | Where the lock (`heavy.lock`), the holder record, the waiter records and `heavy.log` live. Every tool sharing the lease names the same directory.                                             |
-| `marker_env`        | name       | `PMCP_HEAVY_LEASE`   | Set to the holder's pid for the leased command; a nested `pmcp heavy` whose marker names the live holder runs at once.                                                                        |
-| `legacy_marker_env` | name       | none                 | A second marker, set and honoured like `marker_env`, for a shell wrapper that shares `dir`.                                                                                                   |
-| `legacy_skip_env`   | name       | none                 | A second skip variable, honoured like `PMCP_HEAVY_DISABLE`.                                                                                                                                   |
-| `max_load`          | number     | the CPU count        | With the lease held, wait until the 1-minute load average is below this.                                                                                                                      |
-| `max_io`            | number     | `8`                  | And until IO pressure (`some avg10`) is below this. A host without pressure files waits on load only; one without a load average keeps only the lease order.                                  |
-| `max_wait`          | seconds    | `3600`               | How long the `default` profile waits for the lease; then nothing runs and the exit is 75.                                                                                                     |
-| `load_grace`        | seconds    | `900`                | How long a holder of the `default` profile waits for the host to settle; then it runs and the log says so.                                                                                    |
-| `hold_warn`         | seconds    | `1800`               | A holder past this prints one warning, and `pmcp heavy status` marks it.                                                                                                                      |
-| `hold_max`          | seconds    | none                 | `pmcp heavy status` flags a holder past this as over the limit. Nothing is killed.                                                                                                            |
-| `memory_max`        | size       | none                 | Runs each command in `systemd-run --user --scope -p MemoryMax=<size> -p MemorySwapMax=0` where that is available, so a runaway job is killed alone.                                           |
-| `heartbeat`, `poll` | seconds    | `60`, `15`           | How often a waiter prints that it is still waiting, and how often a holder rereads the host.                                                                                                  |
-| `profiles.<name>`   | table      | `gate`: 2700 / 600   | `max_wait`, `load_grace` and `memory_max` for `pmcp heavy --profile <name>`. `gate` defaults to 2700 s and 600 s; any other profile starts from the top-level values.                          |
-| `heavy`             | argv lists | none                 | The commands the `host.lease` guard expects under the lease, as argv prefixes. Empty, the guard is off. pmcp lists none of its own.                                                           |
-| `guard`             | string     | `observe`            | The `host.lease` guard's mode: `observe` logs only, `warn` tells the agent, `deny` refuses with the command to run instead (`pmcp heavy -- <command>`), `off`. A command already wrapped passes. |
+| Key                 | Type                | Default                                      | Meaning                                                                                                                                                                                                                              |
+| ------------------- | ------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `enabled`           | boolean             | `true`                                       | `false` runs every `pmcp heavy` command at once, gates without the lease and turns the guard off.                                                                                                                                    |
+| `dir`               | path                | `~/.cache/pmcp/host`                         | Where the lock file (`heavy.lock`), the admission lock, the `running/` and `waiters/` records, the holder record and `heavy.log` live. Every tool sharing the lease names the same directory.                                        |
+| `budget`            | integer             | `4`                                          | The most weight that runs at once. `1` is one job at a time.                                                                                                                                                                         |
+| `lanes.<lane>`      | integer             | gate 1, hook 1, interactive 2, bulk 1        | How many jobs of a lane run at once; `0` closes the lane.                                                                                                                                                                            |
+| `weights.<lane>`    | integer             | gate 1, hook 1, interactive 2, bulk 3        | A job's weight when neither `--weight` nor a `commands` entry names one. A weight above the budget counts as the budget.                                                                                                             |
+| `commands`          | tables              | none                                         | `argv` prefix, `lane` and `weight` for commands run without `--lane` or `--weight`; the first match wins.                                                                                                                            |
+| `tiny`              | argv lists          | none                                         | Commands so short (a few seconds) that they take no slot and no budget (weight 0, also `--weight 0`); only the hard ceiling holds them back, and the log still records them.                                                         |
+| `per_session`       | integer             | `1`                                          | How many jobs one agent session may have queued in the interactive lane, and in the bulk lane; the next one waits outside the queue holding no place. `0` is no cap. Gate and hook are exempt.                                       |
+| `marker_env`        | name                | `PMCP_HEAVY_LEASE`                           | Set to the job's pid for the leased command; a nested `pmcp heavy` whose marker names a running job runs at once.                                                                                                                    |
+| `legacy_marker_env` | name                | none                                         | A second marker, set and honoured like `marker_env`, for a shell wrapper that shares `dir`.                                                                                                                                          |
+| `legacy_skip_env`   | name                | none                                         | A second skip variable, honoured like `PMCP_HEAVY_DISABLE`, and set for the leased command so a nested shell wrapper runs at once.                                                                                                   |
+| `max_load`          | number              | the CPU count                                | A job starts only while the 1-minute load average is below this.                                                                                                                                                                     |
+| `max_io`            | number              | `8`                                          | And while IO pressure (`some`, the `io_window` average) is below this. A host without pressure files checks load only; one without a load average checks neither.                                                                    |
+| `io_window`         | string              | `avg60`                                      | Which pressure average the check reads: `avg10` follows spikes, `avg60` and `avg300` smooth them so the queue does not stall on a burst.                                                                                             |
+| `max_wait`          | seconds             | `3600`                                       | How long the `default` profile waits; then nothing runs and the exit is 75.                                                                                                                                                          |
+| `load_grace`        | seconds             | `900`                                        | After this long waiting on the host, a job may start into moderate overload, but only while no leased job runs, so a grace never starts two jobs together. `0` is no grace.                                                          |
+| `hard_factor`       | number              | `2`                                          | Never start, grace or not, while load or IO is at this many times its limit; such a job waits until `max_wait`, then exits 75.                                                                                                       |
+| `hold_warn`         | seconds             | `1800`                                       | A job running past this prints one warning, and `pmcp heavy status` marks it.                                                                                                                                                        |
+| `hold_max`          | seconds             | none                                         | `pmcp heavy status` flags a job past this as over the limit. Nothing is killed.                                                                                                                                                      |
+| `memory_max`        | size                | none                                         | Runs each command in `systemd-run --user --scope -p MemoryMax=<size> -p MemorySwapMax=0` where that is available, so a runaway job is killed alone.                                                                                  |
+| `heartbeat`, `poll` | seconds             | `60`, `15`                                   | How often a waiter prints that it is still waiting, and how often the host is reread.                                                                                                                                                |
+| `profiles.<name>`   | table               | gate 2700/600, hook 900/30                   | `max_wait`, `load_grace` and `memory_max` for `pmcp heavy --profile <name>`. The `gate` and `hook` profiles also choose their lane. Any other profile starts from the top-level values.                                              |
+| `heavy`             | argv lists          | none                                         | The commands the `host.lease` guard expects under the lease, as argv prefixes. Empty, the guard is off. pmcp lists none of its own.                                                                                                  |
+| `guard`             | string              | `observe`                                    | The `host.lease` guard's mode: `observe` logs only, `warn` tells the agent, `deny` refuses with the command to run instead (`pmcp heavy -- <command>`), `off`. A command already wrapped passes.                                     |
+| `io.enabled`        | `"auto"` or boolean | `"auto"`                                     | Each leased job runs in its own `systemd-run --user` scope and gets its lane's `io.weight` where the cgroup v2 io controller reaches the user manager; elsewhere nothing changes. `true` also says when it could not; `false` never. |
+| `io.weights.<lane>` | integer             | gate 500, hook 300, interactive 100, bulk 25 | The scope's `io.weight` per lane (1 to 10000).                                                                                                                                                                                       |
+| `io.max.<lane>`     | string              | none                                         | An `io.max` line for the lane's scopes, such as `"259:0 wbps=50000000"`; the device is this host's to name.                                                                                                                          |
+| `settle_window`     | seconds             | `60`                                         | After a leased job ends, its own leftover IO may hold the queue only this long: then a waiter starts on a moderately busy host (below `hard_factor`). `0` turns it off.                                                              |
+| `usage_cap`         | bytes               | `5000000`                                    | `usage.jsonl` (one record per run) moves to `usage.jsonl.1` past this size.                                                                                                                                                          |
+
+Lanes, in the order a short budget goes to them: `gate` (a land's gate),
+`hook` (commit-hook work, a short slot that skips the host wait unless the host
+is past `hard_factor`), `interactive` (the tests, builds and
+typechecks a session waits on now, the default) and `bulk` (batch runs,
+experiments, bootstraps, installs). Within a lane the oldest waiter goes first,
+and the first waiter the remaining budget cannot fit holds back the ones behind
+it, so a heavy job is not starved by lighter ones. Admission and release happen
+under a short lock beside the records, and dead processes' records are dropped
+on every admission, so running weight never exceeds the budget and a crashed
+job frees its share.
+
+`pmcp heavy --now --reason <text>` (or `PMCP_HEAVY_NOW=<reason>` in a script) is
+the emergency bypass: the command starts at once, outside the lanes, the budget
+and the host check, and never exits 75, but it needs a reason, is logged as a
+`bypass` line, shows as `bypass running` in status and counts its weight, so the
+other jobs' admission sees its load. It is not the off switch below.
+
+Every run appends one record to `usage.jsonl` beside the lease files: the
+command's signature (the program and the lower-case words before its first
+option, path or value; never argument values or the environment), the package
+directory relative to the project, lane, weight, how it started (queue, grace,
+bypass), exit code, wall time, user and system CPU time, peak RSS and bytes read
+and written. CPU time comes from the reaped process tree; peak RSS and IO come
+from the job's cgroup when it runs in a scope, else from `/proc` sampled once a
+second. `pmcp heavy stats` summarises them per signature. The weights are still
+the configured ones.
 
 `PMCP_HEAVY_DISABLE=<reason>` is the one way to run without the lease for a
 single command or a whole shell (a test suite, an emergency): `pmcp heavy`
@@ -309,12 +357,17 @@ runs at once and logs the reason, and the guard lets a command that sets it
 pass. `enabled = false` is the switch for a host or project that does not
 want the lease at all.
 
-The files keep the format of a shell wrapper that takes the same lock with
-`flock`: `heavy.holder` and `waiters/<pid>` hold `key=value` lines (`pid`,
-`since`, `started`, `cwd`, `label`), and `heavy.log` has one tab-separated line
-per event (`<UTC time>`, `<pid>`, `acquired|released|timeout|grace|skip`,
-`<details>`). Point `dir`, `legacy_marker_env` and `legacy_skip_env` at such a
-wrapper's values and the two exclude each other while both are in use.
+The files extend those of a shell wrapper that takes the same lock with
+`flock`: records hold `key=value` lines (`pid`, `since`, `started`, `cwd`,
+`label`, then pmcp's `lane`, `weight`, `queued`, `session`), and `heavy.log` has
+one tab-separated line per event (`<UTC time>`, `<pid>`,
+`acquired|released|timeout|grace|skip`, `<details>`), pmcp appending to the
+details only. Each running pmcp job holds the lock file shared, so a wrapper
+holding it exclusively counts as the whole budget, and a wrapper waits until no
+pmcp job runs. Point `dir`, `legacy_marker_env` and `legacy_skip_env` at such a
+wrapper's values and the two exclude each other while both are in use. A
+wrapper does not join the lanes, so the order and the budget are complete only
+once every caller uses `pmcp heavy`.
 
 ## Browser and desktop for agents
 

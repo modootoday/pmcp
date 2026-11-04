@@ -5,7 +5,10 @@
       "type": "string"
     },
     "nullableString": {
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "record": {
       "type": "object",
@@ -13,7 +16,11 @@
     },
     "feature": {
       "type": "object",
-      "required": ["feature", "enabled", "source"],
+      "required": [
+        "feature",
+        "enabled",
+        "source"
+      ],
       "properties": {
         "feature": {
           "$ref": "#/$defs/string"
@@ -29,7 +36,12 @@
     },
     "lease": {
       "type": "object",
-      "required": ["name", "pid", "subject", "since"],
+      "required": [
+        "name",
+        "pid",
+        "subject",
+        "since"
+      ],
       "properties": {
         "name": {
           "$ref": "#/$defs/string"
@@ -51,7 +63,13 @@
     },
     "broadcast": {
       "type": "object",
-      "required": ["id", "by", "text", "since", "unseenBy"],
+      "required": [
+        "id",
+        "by",
+        "text",
+        "since",
+        "unseenBy"
+      ],
       "properties": {
         "id": {
           "$ref": "#/$defs/string"
@@ -76,7 +94,13 @@
     },
     "sessions": {
       "type": "object",
-      "required": ["version", "live", "pause", "leases", "broadcasts"],
+      "required": [
+        "version",
+        "live",
+        "pause",
+        "leases",
+        "broadcasts"
+      ],
       "properties": {
         "version": {
           "const": 1
@@ -114,7 +138,10 @@
     },
     "worktree": {
       "type": "object",
-      "required": ["path", "main"],
+      "required": [
+        "path",
+        "main"
+      ],
       "properties": {
         "path": {
           "$ref": "#/$defs/string"
@@ -139,7 +166,12 @@
     },
     "auth": {
       "type": "object",
-      "required": ["name", "present", "expiresAt", "scopes"],
+      "required": [
+        "name",
+        "present",
+        "expiresAt",
+        "scopes"
+      ],
       "properties": {
         "name": {
           "$ref": "#/$defs/string"
@@ -164,10 +196,19 @@
     },
     "policy": {
       "type": "object",
-      "required": ["runtime", "event", "policy", "mode", "source"],
+      "required": [
+        "runtime",
+        "event",
+        "policy",
+        "mode",
+        "source"
+      ],
       "properties": {
         "runtime": {
-          "enum": ["claude", "codex"]
+          "enum": [
+            "claude",
+            "codex"
+          ]
         },
         "event": {
           "$ref": "#/$defs/string"
@@ -217,7 +258,11 @@
           "$ref": "#/$defs/string"
         },
         "verdict": {
-          "enum": ["allow", "ask", "deny"]
+          "enum": [
+            "allow",
+            "ask",
+            "deny"
+          ]
         },
         "reason": {
           "$ref": "#/$defs/nullableString"
@@ -258,7 +303,11 @@
         },
         "projection": {
           "type": "object",
-          "required": ["drift", "outputs", "problems"],
+          "required": [
+            "drift",
+            "outputs",
+            "problems"
+          ],
           "properties": {
             "drift": {
               "type": "boolean"
@@ -301,7 +350,10 @@
     },
     "hooks-list": {
       "type": "object",
-      "required": ["version", "policies"],
+      "required": [
+        "version",
+        "policies"
+      ],
       "properties": {
         "version": {
           "const": 1
@@ -331,7 +383,10 @@
           "const": 1
         },
         "runtime": {
-          "enum": ["claude", "codex"]
+          "enum": [
+            "claude",
+            "codex"
+          ]
         },
         "event": {
           "$ref": "#/$defs/string"
@@ -350,7 +405,10 @@
         },
         "rendered": {
           "type": "object",
-          "required": ["stdout", "exitCode"],
+          "required": [
+            "stdout",
+            "exitCode"
+          ],
           "properties": {
             "stdout": {
               "$ref": "#/$defs/string"
@@ -369,7 +427,10 @@
     },
     "logs": {
       "type": "object",
-      "required": ["version", "records"],
+      "required": [
+        "version",
+        "records"
+      ],
       "properties": {
         "version": {
           "const": 1
@@ -385,7 +446,10 @@
     },
     "git-worktree-list": {
       "type": "object",
-      "required": ["version", "worktrees"],
+      "required": [
+        "version",
+        "worktrees"
+      ],
       "properties": {
         "version": {
           "const": 1
@@ -401,7 +465,13 @@
     },
     "mcp-status": {
       "type": "object",
-      "required": ["version", "name", "present", "expiresAt", "scopes"],
+      "required": [
+        "version",
+        "name",
+        "present",
+        "expiresAt",
+        "scopes"
+      ],
       "properties": {
         "version": {
           "const": 1
@@ -423,6 +493,339 @@
         }
       },
       "additionalProperties": false
+    },
+    "heavy-status": {
+      "type": "object",
+      "required": [
+        "version",
+        "schema",
+        "enabled",
+        "dir",
+        "budget",
+        "running_weight",
+        "legacy_holder",
+        "host",
+        "lanes",
+        "waiters",
+        "tickets",
+        "grace_24h",
+        "outside",
+        "skip"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "schema": {
+          "const": "pmcp.heavy.status.v1"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "dir": {
+          "$ref": "#/$defs/string"
+        },
+        "budget": {
+          "type": "integer"
+        },
+        "running_weight": {
+          "type": "integer"
+        },
+        "legacy_holder": {
+          "type": "boolean"
+        },
+        "host": {
+          "type": "object",
+          "required": [
+            "load1",
+            "io_some_avg10",
+            "io_some_avg60",
+            "io_some_avg300",
+            "io_window",
+            "max_load",
+            "max_io",
+            "hard_factor",
+            "settled"
+          ],
+          "properties": {
+            "load1": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "io_some_avg10": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "io_some_avg60": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "io_some_avg300": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "io_window": {
+              "enum": [
+                "avg10",
+                "avg60",
+                "avg300"
+              ]
+            },
+            "max_load": {
+              "type": "number"
+            },
+            "max_io": {
+              "type": "number"
+            },
+            "hard_factor": {
+              "type": "number"
+            },
+            "settled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "lanes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "lane",
+              "slots",
+              "running"
+            ],
+            "properties": {
+              "lane": {
+                "$ref": "#/$defs/string"
+              },
+              "slots": {
+                "type": "integer"
+              },
+              "running": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "pid",
+                    "label",
+                    "cwd",
+                    "lane",
+                    "weight",
+                    "session",
+                    "started",
+                    "running_s",
+                    "flags",
+                    "bypass_reason"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "pid": {
+                      "type": "integer"
+                    },
+                    "label": {
+                      "$ref": "#/$defs/string"
+                    },
+                    "cwd": {
+                      "$ref": "#/$defs/string"
+                    },
+                    "lane": {
+                      "$ref": "#/$defs/string"
+                    },
+                    "weight": {
+                      "type": "integer"
+                    },
+                    "session": {
+                      "$ref": "#/$defs/nullableString"
+                    },
+                    "started": {
+                      "$ref": "#/$defs/string"
+                    },
+                    "running_s": {
+                      "type": "integer"
+                    },
+                    "flags": {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "grace",
+                          "bypass",
+                          "over_hold_warn",
+                          "over_hold_max"
+                        ]
+                      }
+                    },
+                    "bypass_reason": {
+                      "$ref": "#/$defs/nullableString"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "waiters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "pid",
+              "label",
+              "cwd",
+              "lane",
+              "weight",
+              "session",
+              "position",
+              "waited_s",
+              "eta_s"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "pid": {
+                "type": "integer"
+              },
+              "label": {
+                "$ref": "#/$defs/string"
+              },
+              "cwd": {
+                "$ref": "#/$defs/string"
+              },
+              "lane": {
+                "$ref": "#/$defs/string"
+              },
+              "weight": {
+                "type": "integer"
+              },
+              "session": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "position": {
+                "type": "integer"
+              },
+              "waited_s": {
+                "type": "integer"
+              },
+              "eta_s": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "grace_24h": {
+          "type": "object",
+          "required": [
+            "count",
+            "last"
+          ],
+          "properties": {
+            "count": {
+              "type": "integer"
+            },
+            "last": {
+              "$ref": "#/$defs/nullableString"
+            }
+          }
+        },
+        "outside": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "pid",
+              "cpu_percent",
+              "io_mbps",
+              "command"
+            ],
+            "properties": {
+              "pid": {
+                "type": "integer"
+              },
+              "cpu_percent": {
+                "type": "number"
+              },
+              "io_mbps": {
+                "type": "number"
+              },
+              "command": {
+                "$ref": "#/$defs/string"
+              }
+            }
+          }
+        },
+        "skip": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "tickets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "state",
+              "position",
+              "label",
+              "pid",
+              "exit"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/string"
+              },
+              "state": {
+                "enum": [
+                  "queued",
+                  "running",
+                  "done",
+                  "lost"
+                ]
+              },
+              "position": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "label": {
+                "$ref": "#/$defs/string"
+              },
+              "pid": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "exit": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

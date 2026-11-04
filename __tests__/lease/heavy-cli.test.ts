@@ -29,9 +29,9 @@ function job(trace: string, name: string): string[] {
 }
 
 describe("pmcp heavy", () => {
-  it("serialises two leased commands across processes", async () => {
+  it("serialises two leased commands across processes with a budget of one", async () => {
     const { base, dir, env } = scratch();
-    const cwd = project(base, leaseToml(dir));
+    const cwd = project(base, leaseToml(dir, "budget = 1\n"));
     const trace = join(base, "trace");
     const first = pmcp(
       ["heavy", "--label", "a", "--", ...job(trace, "a")],
@@ -53,7 +53,7 @@ describe("pmcp heavy", () => {
       "end b",
     ]);
     expect(results[1]!.stderr).toContain(
-      "pmcp heavy: waiting for host lease held by pid",
+      "interactive position 1, running weight 1/1",
     );
     const events = readFileSync(join(dir, "heavy.log"), "utf8")
       .trim()

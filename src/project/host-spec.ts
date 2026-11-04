@@ -205,11 +205,12 @@ function names(path: string, where: string, value: unknown): string[] {
   }
 }
 
-// Only [host] keys other than lease declare a pmcp-pty host.
+// A [host] table declares a pmcp-pty host, even an empty one, unless lease is all it holds.
 export function declaresPtyHost(host: unknown): boolean {
   if (host === null || typeof host !== "object" || Array.isArray(host))
     return host !== undefined;
-  return Object.keys(host).some((key) => key !== "lease");
+  const keys = Object.keys(host);
+  return keys.length === 0 || keys.some((key) => key !== "lease");
 }
 
 export function readHost(path: string, raw: unknown): HostSpec | undefined {
@@ -217,7 +218,7 @@ export function readHost(path: string, raw: unknown): HostSpec | undefined {
   const { lease, ...root } = table(path, "[host]", raw);
   // [host.lease] is the heavy-command lease, not a pmcp-pty host; alone it declares no host.
   if (lease !== undefined) readLeaseSettings(path, dirname(path), { lease });
-  if (Object.keys(root).length === 0) return undefined;
+  if (!declaresPtyHost(raw)) return undefined;
   only(path, "[host]", root, [
     "sessions",
     "answers",

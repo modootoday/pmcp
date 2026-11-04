@@ -12,7 +12,9 @@ export interface HostSources {
 
 export interface HostReading {
   readonly load: string | null;
+  // some avg10, as status and the waiting lines print it.
   readonly io: string | null;
+  readonly pressure: Readonly<Record<string, string>>;
 }
 
 export function hostSources(
@@ -34,9 +36,11 @@ function read(file: string): string | null {
 
 export function readHost(sources: HostSources): HostReading {
   const load = read(sources.loadavg)?.split(" ")[0]?.trim() || null;
-  const pressure = read(sources.pressure);
-  const io = pressure?.match(/^some avg10=([0-9.]+)/mu)?.[1] ?? null;
-  return { load, io };
+  const some = read(sources.pressure)?.match(/^some (.*)$/mu)?.[1] ?? "";
+  const pressure: Record<string, string> = {};
+  for (const [, key, value] of some.matchAll(/(avg\d+)=([0-9.]+)/gu))
+    pressure[key!] = value!;
+  return { load, io: pressure["avg10"] ?? null, pressure };
 }
 
 export function hostNow(reading: HostReading): string {
@@ -55,7 +59,8 @@ export function hostSettled(
 ): boolean {
   const reading = readHost(sources);
   if (!below(reading.load, settings.maxLoad)) return false;
-  if (!below(reading.io, settings.maxIo)) return false;
+  const io = reading.pressure[settings.ioWindow] ?? reading.io;
+  if (!below(io, settings.maxIo)) return false;
   try {
     writeFileSync(paths.settled, `${nowUtc()}\n`);
   } catch {

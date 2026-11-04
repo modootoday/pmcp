@@ -1,11 +1,11 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import type { ChildProcess } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { acquireLease, type AcquireOptions } from "../../src/lease/acquire.js";
 import { leaseHeld, leasePaths } from "../../src/lease/files.js";
 import { leaseStatus } from "../../src/lease/status.js";
-import type { ChildProcess } from "node:child_process";
 import { scratch, settings, shellHolder, until } from "./fixture.js";
 
 // The files are a protocol shared with shell wrappers: the log line and status shapes are
@@ -44,25 +44,29 @@ function hold(dir: string, seconds = 30): ChildProcess {
 }
 
 describe("the lease files", () => {
-  it("writes acquired and released log lines in the shell wrapper's format", () => {
+  it("writes the shell wrapper's records and log lines, pmcp's fields appended", () => {
     const { dir, env } = scratch();
     const outcome = acquireLease(options(dir, env));
     expect(outcome.kind).toBe("held");
     if (outcome.kind !== "held") return;
-    const holder = readFileSync(join(dir, "heavy.holder"), "utf8");
-    expect(holder).toMatch(
-      new RegExp(
-        `^pid=${process.pid}\nsince=\\d+\nstarted=${STAMP}\ncwd=/work/here\nlabel=unit job\n$`,
-        "u",
-      ),
+    const record = new RegExp(
+      `^pid=${process.pid}\nsince=\\d+\nstarted=${STAMP}\ncwd=/work/here\nlabel=unit job\nlane=interactive\nweight=2\nqueued=\\d+\nsession=\\S+\nid=\\d{10}-[0-9a-f]{6}\n$`,
+      "u",
     );
+    expect(readFileSync(join(dir, "heavy.holder"), "utf8")).toMatch(record);
+    expect(
+      readFileSync(join(dir, "running", String(process.pid)), "utf8"),
+    ).toMatch(record);
+    expect(leaseHeld(leasePaths(dir))).toBe(true);
     expect(outcome.env).toEqual({ PMCP_HEAVY_LEASE: String(process.pid) });
     outcome.release(0, 3);
     expect(existsSync(join(dir, "heavy.holder"))).toBe(false);
+    expect(existsSync(join(dir, "running", String(process.pid)))).toBe(false);
+    expect(leaseHeld(leasePaths(dir))).toBe(false);
     const [acquired, released] = logLines(dir);
     expect(acquired).toMatch(
       new RegExp(
-        `^${STAMP}\t${process.pid}\tacquired\twaited=\\d+ cwd=/work/here label=unit job$`,
+        `^${STAMP}\t${process.pid}\tacquired\twaited=\\d+ cwd=/work/here label=unit job lane=interactive weight=2$`,
         "u",
       ),
     );
@@ -71,24 +75,26 @@ describe("the lease files", () => {
     );
   });
 
-  it("gives up at max_wait behind a shell holder and logs the timeout", () => {
+  it("treats a shell wrapper's hold as the whole budget and logs the timeout", () => {
     const { dir, env } = scratch();
     hold(dir);
     const outcome = acquireLease(options(dir, env, { max_wait: 1 }));
-    expect(outcome).toMatchObject({ kind: "busy", waited: 1 });
-    expect(outcome.kind === "busy" && outcome.holder).toMatch(
-      /^pid \d+ shell job \(cwd \/somewhere, \d+s\)$/u,
-    );
+    expect(outcome).toMatchObject({
+      kind: "busy",
+      reason: "legacy",
+      lane: "interactive",
+      position: 1,
+    });
     expect(logLines(dir).at(-1)).toMatch(
       new RegExp(
-        `^${STAMP}\t${process.pid}\ttimeout\twaited=1 label=unit job$`,
+        `^${STAMP}\t${process.pid}\ttimeout\twaited=1 label=unit job lane=interactive position=1 reason=legacy$`,
         "u",
       ),
     );
     expect(existsSync(join(dir, "waiters", String(process.pid)))).toBe(false);
   });
 
-  it("runs at once for a marker naming the live holder, the legacy marker too", () => {
+  it("runs at once for a marker naming a live holder, the legacy marker too", () => {
     const { dir, env } = scratch();
     const holder = hold(dir);
     const legacy = { legacy_marker_env: "OLD_HEAVY_LEASE", max_wait: 1 };
@@ -100,16 +106,22 @@ describe("the lease files", () => {
     expect(acquireLease(options(dir, stranger, legacy)).kind).toBe("busy");
   });
 
-  it("hands both markers to the command when a legacy marker is configured", () => {
+  it("hands the command both markers and the legacy skip, so a nested wrapper runs at once", () => {
     const { dir, env } = scratch();
     const outcome = acquireLease(
-      options(dir, env, { legacy_marker_env: "OLD_HEAVY_LEASE" }),
+      options(dir, env, {
+        legacy_marker_env: "OLD_HEAVY_LEASE",
+        legacy_skip_env: "OLD_SKIP",
+      }),
     );
     if (outcome.kind !== "held") throw new Error(outcome.kind);
     expect(outcome.env).toEqual({
       PMCP_HEAVY_LEASE: String(process.pid),
       OLD_HEAVY_LEASE: String(process.pid),
+      OLD_SKIP: `inside pmcp heavy ${process.pid}`,
     });
+    const nested = { ...env, PMCP_HEAVY_LEASE: String(process.pid) };
+    expect(acquireLease(options(dir, nested)).kind).toBe("reentrant");
     outcome.release(0, 0);
   });
 
@@ -146,35 +158,65 @@ describe("the lease files", () => {
     expect(existsSync(dir)).toBe(false);
   });
 
-  it("runs after load_grace on a busy host and logs the grace", () => {
+  it("starts on load_grace into moderate overload and logs the load at start", () => {
     const { base, dir, env } = scratch();
-    writeFileSync(join(base, "loadavg"), "99.00 1 1 1/1 1\n");
-    const said: string[] = [];
-    const outcome = acquireLease({
-      ...options(dir, env, { max_load: 8, load_grace: 1 }, said),
-    });
+    writeFileSync(join(base, "loadavg"), "10.00 1 1 1/1 1\n");
+    const outcome = acquireLease(
+      options(dir, env, { max_load: 8, load_grace: 1 }),
+    );
     if (outcome.kind !== "held") throw new Error(outcome.kind);
     outcome.release(0, 0);
-    expect(said[0]).toBe(
-      "holding the lease; waiting for load1 < 8 and io < 1000 (load 99.00 io 0.00)",
-    );
-    expect(logLines(dir)[1]).toMatch(
+    expect(logLines(dir)[0]).toMatch(
       new RegExp(
-        `^${STAMP}\t${process.pid}\tgrace\twaited=1 load 99.00 io 0.00$`,
+        `^${STAMP}\t${process.pid}\tgrace\twaited=\\d+ load 10.00 io 0.00 label=unit job$`,
         "u",
       ),
     );
+    const status = leaseStatus({
+      settings: settings(dir),
+      env,
+      outside: () => [],
+    });
+    expect(status).toContainEqual(
+      expect.stringMatching(
+        /^grace: 1 job\(s\) started on load_grace in the last 24h, last \S+ \(waited=\d+ load 10\.00 io 0\.00 label=unit job\)$/u,
+      ),
+    );
   });
+
+  it("never starts past the hard ceiling, nor without grace when load_grace is 0", () => {
+    const { base, dir, env } = scratch();
+    writeFileSync(join(base, "loadavg"), "17.00 1 1 1/1 1\n");
+    const severe = acquireLease(
+      options(dir, env, { max_load: 8, load_grace: 1, max_wait: 2 }),
+    );
+    expect(severe).toMatchObject({ kind: "busy", reason: "host" });
+    writeFileSync(join(base, "loadavg"), "9.00 1 1 1/1 1\n");
+    const noGrace = acquireLease(
+      options(dir, env, { max_load: 8, load_grace: 0, max_wait: 2 }),
+    );
+    expect(noGrace).toMatchObject({ kind: "busy" });
+    const harder = acquireLease(
+      options(dir, env, { max_load: 8, hard_factor: 3, load_grace: 1 }),
+    );
+    expect(harder.kind).toBe("held");
+    if (harder.kind === "held") harder.release(0, 0);
+  }, 20_000);
 });
 
 describe("pmcp heavy status", () => {
-  it("prints the shell wrapper's lines first, then hold and outside", () => {
+  it("prints the shell wrapper's lines first, then lanes, running jobs, hold and outside", () => {
     const { dir, env } = scratch();
     const holder = hold(dir);
     const since = Math.floor(Date.now() / 1000) - 50;
     writeFileSync(
       join(dir, "heavy.holder"),
       `pid=${holder.pid}\nsince=${since}\nstarted=x\ncwd=/somewhere\nlabel=shell job\n`,
+    );
+    mkdirSync(join(dir, "running"), { recursive: true });
+    writeFileSync(
+      join(dir, "running", String(holder.pid)),
+      `pid=${holder.pid}\nsince=${since}\nstarted=x\ncwd=/somewhere\nlabel=shell job\nlane=bulk\nweight=3\n`,
     );
     mkdirSync(join(dir, "waiters"), { recursive: true });
     writeFileSync(
@@ -198,49 +240,63 @@ describe("pmcp heavy status", () => {
         ),
       ),
       expect.stringMatching(
-        /^waiter: pid \d+ queued job \(cwd \/queue, 5\ds\)$/u,
+        /^waiter: pid \d+ queued job \(cwd \/queue, 5\ds\) lane interactive weight 1 position 1$/u,
+      ),
+      "lanes: gate 0/1 hook 0/1 interactive 0/2 bulk 1/1, weight 3/4",
+      expect.stringMatching(
+        /^running: pid \d+ shell job \(cwd \/somewhere, 5\ds\)$/u,
       ),
       expect.stringMatching(
         new RegExp(
-          `^hold: pid ${holder.pid} 5\\ds \\(warn 10s, max 40s\\) over-limit: over hold_max$`,
+          `^hold: pid ${holder.pid} 5\\ds \\(warn 10s, max 40s\\) over-limit: over hold_max lane bulk weight 3$`,
           "u",
         ),
       ),
+      "io: the host check reads some avg60 0.00 (max 1000, hard 2000)",
+      "grace: no job started on load_grace in the last 24h",
       "outside: pid 7 cpu 93% io 1.3MB/s dockerd",
     ]);
     expect(existsSync(join(dir, "waiters", "999999999"))).toBe(false);
   });
 
-  it("says none, never seen settled, and warns past hold_warn only", () => {
-    const { base, dir, env } = scratch();
-    writeFileSync(join(base, "loadavg"), "50.00 1 1 1/1 1\n");
+  it("says none when idle, and estimates waits from the log's run times", () => {
+    const { dir, env } = scratch();
     const idle = leaseStatus({
-      settings: settings(dir, { max_load: 8 }),
+      settings: settings(dir),
       env,
       outside: () => [],
     });
-    expect(idle.slice(1)).toEqual([
-      "host: load1 50.00 (max 8), io some avg10 0.00 (max 1000)",
-      "settled: last seen never",
+    expect(idle.slice(3, 6)).toEqual([
       "holder: none",
       "waiters: none",
-      "outside: none",
+      "lanes: gate 0/1 hook 0/1 interactive 0/2 bulk 0/1, weight 0/4",
     ]);
-    const holder = hold(dir);
     writeFileSync(
-      join(dir, "heavy.holder"),
-      `pid=${holder.pid}\nsince=${Math.floor(Date.now() / 1000) - 20}\nstarted=x\ncwd=/c\nlabel=j\n`,
+      join(dir, "heavy.log"),
+      [
+        "2026-11-04T00:00:00Z\t11\tacquired\twaited=0 cwd=/c label=a lane=bulk weight=3",
+        "2026-11-04T00:01:40Z\t11\treleased\tran=100 rc=0",
+        "",
+      ].join("\n"),
     );
+    mkdirSync(join(dir, "waiters"), { recursive: true });
+    for (const [pid, queued] of [
+      [process.pid, 1],
+      [process.ppid, 2],
+    ] as const)
+      writeFileSync(
+        join(dir, "waiters", String(pid)),
+        `pid=${pid}\nsince=1\nstarted=x\ncwd=/q\nlabel=w\nlane=bulk\nweight=4\nqueued=${queued}\n`,
+      );
     const busy = leaseStatus({
-      settings: settings(dir, { hold_warn: 10 }),
+      settings: settings(dir),
       env,
       outside: () => [],
     });
-    expect(busy).toContainEqual(
-      expect.stringMatching(
-        /^hold: pid \d+ 2\ds \(warn 10s\) warning: over hold_warn$/u,
-      ),
-    );
+    expect(busy.filter((line) => line.startsWith("waiter:"))).toEqual([
+      expect.stringMatching(/position 1 eta ~0s$/u),
+      expect.stringMatching(/position 2 eta ~100s$/u),
+    ]);
   });
 
   it("says disabled, and names this shell's skip reason", () => {

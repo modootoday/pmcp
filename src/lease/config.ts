@@ -3,16 +3,33 @@ import { availableParallelism } from "node:os";
 import { ConfigError, findConfig, readConfig } from "../config.js";
 import { child, Reader, table } from "../git/config/reader.js";
 import { expandPath } from "../sessions/paths.js";
+import { LANES, type LeaseLane } from "./files.js";
 
-// [host.lease]: one host-wide lease for heavy commands. It trades throughput for stability: a
-// queued job waits instead of overflowing memory or IO beside another one.
+// [host.lease]: a host-wide budget for heavy commands. It trades throughput for stability: a
+// queued job waits instead of overflowing memory or IO beside the others.
 
 export type GuardMode = "observe" | "warn" | "deny" | "off";
+export type IoWindow = "avg10" | "avg60" | "avg300";
 
 export interface LeaseProfile {
   readonly maxWait: number;
   readonly loadGrace: number;
   readonly memoryMax?: string;
+}
+
+export interface LeaseCommand {
+  readonly argv: readonly string[];
+  readonly lane?: LeaseLane;
+  readonly weight?: number;
+}
+
+export interface IoSettings {
+  // "auto": where the io controller reaches the user's scopes; false never; true also says
+  // when it could not.
+  readonly enabled: "auto" | boolean;
+  readonly weights: Readonly<Record<LeaseLane, number>>;
+  // io.max lines per lane, such as "259:0 wbps=50000000"; the device is the host's to name.
+  readonly max: Readonly<Partial<Record<LeaseLane, string>>>;
 }
 
 export interface LeaseSettings {
@@ -23,16 +40,36 @@ export interface LeaseSettings {
   readonly legacySkipEnv?: string;
   readonly maxLoad: number;
   readonly maxIo: number;
+  // Which IO pressure average the host check reads; a longer one does not stall on spikes.
+  readonly ioWindow: IoWindow;
+  // Past load_grace a job still waits while load or io is at this many times its limit.
+  readonly hardFactor: number;
   readonly holdWarn: number;
   readonly holdMax?: number;
   readonly heartbeat: number;
   readonly poll: number;
+  // Running weight never exceeds the budget; budget 1 is one job at a time.
+  readonly budget: number;
+  readonly slots: Readonly<Record<LeaseLane, number>>;
+  readonly weights: Readonly<Record<LeaseLane, number>>;
+  // Lane and weight by argv prefix, for a command run without --lane or --weight.
+  readonly commands: readonly LeaseCommand[];
+  // Commands so short they take no slot and no budget (weight 0); only the hard ceiling holds them.
+  readonly tiny: readonly (readonly string[])[];
+  // How many interactive or bulk jobs one session may have queued per lane; 0 is no cap.
+  readonly perSession: number;
   readonly profiles: Readonly<Record<string, LeaseProfile>>;
   readonly heavy: readonly (readonly string[])[];
   readonly guard: GuardMode;
+  readonly io: IoSettings;
+  // usage.jsonl is rotated to usage.jsonl.1 past this many bytes.
+  readonly usageCap: number;
+  // After a leased job ends, how long its leftover IO may hold the queue back.
+  readonly settleWindow: number;
 }
 
 export const DISABLE_ENV = "PMCP_HEAVY_DISABLE";
+export const NOW_ENV = "PMCP_HEAVY_NOW";
 export const BUSY_EXIT = 75;
 
 const KEYS = [
@@ -43,6 +80,8 @@ const KEYS = [
   "legacy_skip_env",
   "max_load",
   "max_io",
+  "io_window",
+  "hard_factor",
   "max_wait",
   "load_grace",
   "hold_warn",
@@ -50,24 +89,48 @@ const KEYS = [
   "heartbeat",
   "poll",
   "memory_max",
+  "budget",
+  "lanes",
+  "weights",
+  "commands",
+  "tiny",
+  "per_session",
   "profiles",
   "heavy",
   "guard",
+  "io",
+  "usage_cap",
+  "settle_window",
 ];
-const PROFILE_KEYS = ["max_wait", "load_grace", "memory_max"];
 const SIZE = /^[1-9]\d*[KMGT]$/u;
+type Raw = Readonly<Record<string, unknown>>;
+
+function fail(path: string, message: string): never {
+  throw new ConfigError(path, message);
+}
 
 function memory(path: string, where: string, value: unknown) {
   if (value === undefined) return undefined;
   if (typeof value !== "string" || !SIZE.test(value))
-    throw new ConfigError(
-      path,
-      `[${where}] memory_max must be a size such as "6G" or "512M"`,
-    );
+    fail(path, `[${where}] memory_max must be a size such as "6G" or "512M"`);
   return value;
 }
 
-function heavyList(path: string, value: unknown): string[][] {
+// Zero allowed: load_grace 0 is no grace, per_session 0 no cap, a lane of 0 slots closed.
+function whole(
+  path: string,
+  where: string,
+  key: string,
+  value: unknown,
+  fallback: number,
+) {
+  if (value === undefined) return fallback;
+  if (!Number.isInteger(value) || (value as number) < 0)
+    fail(path, `[${where}] ${key} must be a whole number`);
+  return value as number;
+}
+
+function argvList(path: string, value: unknown): string[][] {
   if (value === undefined) return [];
   const valid =
     Array.isArray(value) &&
@@ -78,28 +141,134 @@ function heavyList(path: string, value: unknown): string[][] {
         item.every((word) => typeof word === "string" && word !== ""),
     );
   if (!valid)
-    throw new ConfigError(
+    fail(
       path,
       '[host.lease] heavy must be a list of argv prefixes, such as [["npm", "install"]]',
     );
   return value as string[][];
 }
 
-function profile(
+function perLane(
   path: string,
-  name: string,
-  raw: Readonly<Record<string, unknown>> | undefined,
-  base: LeaseProfile,
-): LeaseProfile {
-  if (raw === undefined) return base;
+  where: string,
+  raw: Raw | undefined,
+  defaults: Record<LeaseLane, number>,
+  least: number,
+): Record<LeaseLane, number> {
+  const found = { ...defaults };
+  for (const [key, value] of Object.entries(raw ?? {})) {
+    if (!LANES.includes(key as LeaseLane))
+      fail(path, `unknown key [${where}] ${key}`);
+    const number = whole(path, where, key, value, 0);
+    if (number < least)
+      fail(path, `[${where}] ${key} must be at least ${least}`);
+    found[key as LeaseLane] = number;
+  }
+  return found;
+}
+
+function commands(path: string, value: unknown): LeaseCommand[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value))
+    fail(path, "[host.lease] commands must be a list of tables");
+  return value.map((item, at) => {
+    const where = `host.lease.commands[${at}]`;
+    const entry = table(path, where, item) ?? {};
+    new Reader(path, where, entry, ["argv", "lane", "weight"]);
+    const [argv] = argvList(path, [entry["argv"]]);
+    const lane = entry["lane"];
+    if (lane !== undefined && !LANES.includes(lane as LeaseLane))
+      fail(path, `[${where}] lane must be ${LANES.join(" | ")}`);
+    const weight = entry["weight"];
+    if (
+      weight !== undefined &&
+      !(Number.isInteger(weight) && (weight as number) >= 0)
+    )
+      fail(path, `[${where}] weight must be a whole number`);
+    return {
+      argv: argv!,
+      ...(lane ? { lane: lane as LeaseLane } : {}),
+      ...(weight !== undefined ? { weight: weight as number } : {}),
+    };
+  });
+}
+
+function profile(path: string, name: string, raw: Raw, base: LeaseProfile) {
   const where = `host.lease.profiles.${name}`;
-  const read = new Reader(path, where, raw, PROFILE_KEYS);
+  const read = new Reader(path, where, raw, [
+    "max_wait",
+    "load_grace",
+    "memory_max",
+  ]);
   const memoryMax = memory(path, where, raw["memory_max"]) ?? base.memoryMax;
   return {
     maxWait: read.int("max_wait", base.maxWait),
-    loadGrace: read.int("load_grace", base.loadGrace),
+    loadGrace: whole(
+      path,
+      where,
+      "load_grace",
+      raw["load_grace"],
+      base.loadGrace,
+    ),
     ...(memoryMax ? { memoryMax } : {}),
   };
+}
+
+function profiles(path: string, raw: Raw | undefined, base: LeaseProfile) {
+  const named: Record<string, LeaseProfile> = {
+    default: base,
+    gate: { ...base, maxWait: 2700, loadGrace: 600 },
+    // Commit-hook work is short: a brief host check, then it runs unless the host is severe.
+    hook: { ...base, maxWait: 900, loadGrace: 30 },
+  };
+  for (const [name, value] of Object.entries(raw ?? {})) {
+    if (!/^[a-z][a-z0-9_-]{0,31}$/u.test(name))
+      fail(path, `[host.lease.profiles] bad name ${name}`);
+    const inner = table(path, `host.lease.profiles.${name}`, value) ?? {};
+    named[name] = profile(path, name, inner, named[name] ?? base);
+  }
+  return named;
+}
+
+function ioSettings(path: string, raw: Raw | undefined): IoSettings {
+  const table = raw ?? {};
+  new Reader(path, "host.lease.io", table, ["enabled", "weights", "max"]);
+  const enabled = table["enabled"] ?? "auto";
+  if (enabled !== "auto" && typeof enabled !== "boolean")
+    fail(path, '[host.lease.io] enabled must be "auto", true or false');
+  const weights = perLane(
+    path,
+    "host.lease.io.weights",
+    child(path, table, "host.lease.io", "weights"),
+    { gate: 500, hook: 300, interactive: 100, bulk: 25 },
+    1,
+  );
+  if (Object.values(weights).some((weight) => weight > 10000))
+    fail(path, "[host.lease.io.weights] a weight is at most 10000");
+  const max: Partial<Record<LeaseLane, string>> = {};
+  for (const [lane, line] of Object.entries(
+    child(path, table, "host.lease.io", "max") ?? {},
+  )) {
+    if (!LANES.includes(lane as LeaseLane))
+      fail(path, `unknown key [host.lease.io.max] ${lane}`);
+    if (
+      typeof line !== "string" ||
+      !/^\d+:\d+( [a-z]+=(\d+|max))+$/u.test(line)
+    )
+      fail(
+        path,
+        `[host.lease.io.max] ${lane} must be an io.max line such as "8:0 wbps=50000000"`,
+      );
+    max[lane as LeaseLane] = line;
+  }
+  return { enabled: enabled as IoSettings["enabled"], weights, max };
+}
+
+function hardFactor(path: string, value: unknown): number {
+  if (value === undefined) return 2;
+  if (typeof value !== "number" || !(value >= 1))
+    fail(path, "[host.lease] hard_factor must be a number of at least 1");
+  return value;
 }
 
 // Without a table every default applies: the lease is on for every host that runs pmcp heavy.
@@ -114,37 +283,58 @@ export function readLeaseSettings(
   const memoryMax = memory(path, "host.lease", raw["memory_max"]);
   const base: LeaseProfile = {
     maxWait: read.int("max_wait", 3600),
-    loadGrace: read.int("load_grace", 900),
+    loadGrace: whole(path, "host.lease", "load_grace", raw["load_grace"], 900),
     ...(memoryMax ? { memoryMax } : {}),
   };
-  const profiles = child(path, raw, "host.lease", "profiles") ?? {};
-  const named: Record<string, LeaseProfile> = { default: base };
-  named["gate"] = { ...base, maxWait: 2700, loadGrace: 600 };
-  for (const [name, value] of Object.entries(profiles)) {
-    if (!/^[a-z][a-z0-9_-]{0,31}$/u.test(name))
-      throw new ConfigError(path, `[host.lease.profiles] bad name ${name}`);
-    const inner = table(path, `host.lease.profiles.${name}`, value);
-    named[name] = profile(path, name, inner, named[name] ?? base);
-  }
   const holdMax = read.positive("hold_max");
   const legacyMarkerEnv = read.envName("legacy_marker_env");
   const legacySkipEnv = read.envName("legacy_skip_env");
-  const dirValue = read.string("dir") ?? "~/.cache/pmcp/host";
+  const lanes = child(path, raw, "host.lease", "lanes");
+  const weights = child(path, raw, "host.lease", "weights");
   return {
     enabled: read.bool("enabled", true),
-    dir: expandPath(dir, dirValue),
+    dir: expandPath(dir, read.string("dir") ?? "~/.cache/pmcp/host"),
     markerEnv: read.envName("marker_env") ?? "PMCP_HEAVY_LEASE",
     ...(legacyMarkerEnv ? { legacyMarkerEnv } : {}),
     ...(legacySkipEnv ? { legacySkipEnv } : {}),
     maxLoad: read.positive("max_load") ?? availableParallelism(),
     maxIo: read.positive("max_io") ?? 8,
+    ioWindow: read.oneOf("io_window", ["avg10", "avg60", "avg300"], "avg60"),
+    hardFactor: hardFactor(path, raw["hard_factor"]),
     holdWarn: read.int("hold_warn", 1800),
     ...(holdMax ? { holdMax } : {}),
     heartbeat: read.int("heartbeat", 60),
     poll: read.int("poll", 15),
-    profiles: named,
-    heavy: heavyList(path, raw["heavy"]),
+    budget: read.int("budget", 4),
+    slots: perLane(
+      path,
+      "host.lease.lanes",
+      lanes,
+      { gate: 1, hook: 1, interactive: 2, bulk: 1 },
+      0,
+    ),
+    weights: perLane(
+      path,
+      "host.lease.weights",
+      weights,
+      { gate: 1, hook: 1, interactive: 2, bulk: 3 },
+      1,
+    ),
+    commands: commands(path, raw["commands"]),
+    tiny: argvList(path, raw["tiny"]),
+    perSession: whole(path, "host.lease", "per_session", raw["per_session"], 1),
+    profiles: profiles(path, child(path, raw, "host.lease", "profiles"), base),
+    heavy: argvList(path, raw["heavy"]),
     guard: read.oneOf("guard", ["observe", "warn", "deny", "off"], "observe"),
+    io: ioSettings(path, child(path, raw, "host.lease", "io")),
+    usageCap: read.int("usage_cap", 5_000_000),
+    settleWindow: whole(
+      path,
+      "host.lease",
+      "settle_window",
+      raw["settle_window"],
+      60,
+    ),
   };
 }
 

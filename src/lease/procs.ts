@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { sleepSeconds } from "./host.js";
 
 // Heavy processes outside the lease: two /proc samples, so CPU and IO are rates, and every
-// descendant of the holder (and of this process) left out.
+// descendant of a running leased job (and of this process) left out.
 
 export interface OutsideProcess {
   readonly pid: number;
@@ -66,7 +66,7 @@ function under(
 }
 
 export function outsideLease(options: {
-  readonly holder: number | null;
+  readonly holders: readonly number[];
   readonly interval?: number;
   readonly proc?: string;
   readonly limit?: number;
@@ -78,7 +78,7 @@ export function outsideLease(options: {
   sleepSeconds(interval);
   const after = sample(proc);
   const roots = new Set([process.pid]);
-  if (options.holder !== null) roots.add(options.holder);
+  for (const pid of options.holders) roots.add(pid);
   const found: OutsideProcess[] = [];
   for (const [pid, now] of after) {
     const then = before.get(pid);

@@ -45,6 +45,7 @@ export function settings(
       max_io: 1000,
       heartbeat: 1,
       poll: 1,
+      per_session: 0,
       ...lease,
     },
   });
@@ -58,7 +59,7 @@ export function project(base: string, toml: string): string {
 }
 
 export function leaseToml(dir: string, extra = ""): string {
-  return `[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 1000\nheartbeat = 1\npoll = 1\n${extra}`;
+  return `[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 1000\nheartbeat = 1\npoll = 1\nper_session = 0\n${extra}`;
 }
 
 export function pmcp(
@@ -92,11 +93,12 @@ export function finished(
 }
 
 // Holds the lock the way a shell wrapper does: flock on the file, recorded as the holder.
+// -o keeps the lock out of sleep, so killing the flock process frees it.
 export function shellHolder(dir: string, seconds: number): ChildProcess {
   mkdirSync(dir, { recursive: true });
   const child = spawn(
     "flock",
-    [join(dir, "heavy.lock"), "sleep", String(seconds)],
+    ["-o", join(dir, "heavy.lock"), "sleep", String(seconds)],
     {
       stdio: "ignore",
     },

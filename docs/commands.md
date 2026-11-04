@@ -55,17 +55,18 @@ pmcp hooks report --switch-check shell.heredoc [--since 2d] [--json]
 
 These opt-in snapshots write one JSON object and a newline to stdout, with `version: 1`. No color or human summary is mixed into stdout. Errors remain on stderr. Without the flag, existing human output is retained, including MCP status's original unversioned object and logs' JSONL stream. Schemas are named in [schemas.json](https://pmcp.build/commands/schemas.json); each entry under `schemas` uses the shared root `$defs`. Consumers must allow unknown fields inside session, decision and log records. Tokens are never part of an auth status object.
 
-| Command                    | Schema            | Fields after version                                                  |
-| -------------------------- | ----------------- | --------------------------------------------------------------------- |
-| `status --json`            | status            | config, drift, features, projection, sessions, worktrees, mcp, errors |
-| `hooks list --json`        | hooks-list        | policies: runtime, event, policy, mode, source                        |
-| `hooks test --json`        | hooks-test        | runtime, event, payload, decision, policies, rendered                 |
-| `sessions status --json`   | sessions-status   | live, pause, leases, broadcasts with unseenBy session IDs             |
-| `logs --json`              | logs              | records; filtered snapshot, incompatible with --follow and --pretty   |
-| `git worktree list --json` | git-worktree-list | worktrees: path, main, optional alias, branch, behind and ahead       |
-| `mcp status <name> --json` | mcp-status        | name, present, expiresAt (UTC string or null), scopes                 |
+| Command                    | Schema            | Fields after version                                                                                                                                          |
+| -------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status --json`            | status            | config, drift, features, projection, sessions, worktrees, mcp, errors                                                                                         |
+| `hooks list --json`        | hooks-list        | policies: runtime, event, policy, mode, source                                                                                                                |
+| `hooks test --json`        | hooks-test        | runtime, event, payload, decision, policies, rendered                                                                                                         |
+| `sessions status --json`   | sessions-status   | live, pause, leases, broadcasts with unseenBy session IDs                                                                                                     |
+| `logs --json`              | logs              | records; filtered snapshot, incompatible with --follow and --pretty                                                                                           |
+| `git worktree list --json` | git-worktree-list | worktrees: path, main, optional alias, branch, behind and ahead                                                                                               |
+| `mcp status <name> --json` | mcp-status        | name, present, expiresAt (UTC string or null), scopes                                                                                                         |
+| `heavy status --json`      | heavy-status      | schema `pmcp.heavy.status.v1`, enabled, dir, budget, running_weight, legacy_holder, host, lanes with running jobs, waiters, tickets, grace_24h, outside, skip |
 
-Feature rows have feature, enabled and source. Projection has drift, outputs and problems. Session snapshots include only live records; broadcasts include the IDs that have not yet seen each entry. Worktree counts are omitted when the upstream cannot be compared; absence does not assert equality. Status auth rows add a redacted error when credentials are unavailable or invalid. Errors are JSONL records with valid timestamps within the last hour, excluding future rows. Hooks test observations have policy, mode, decision, durationMs, skipped, source, verdict and reason; rendered has stdout and exitCode. The final decision includes runtime lowering, while each policy row retains its configured verdict. Mutating sessions, git and MCP verbs reject `--json`.
+Feature rows have feature, enabled and source. Projection has drift, outputs and problems. Session snapshots include only live records; broadcasts include the IDs that have not yet seen each entry. Worktree counts are omitted when the upstream cannot be compared; absence does not assert equality. Status auth rows add a redacted error when credentials are unavailable or invalid. Errors are JSONL records with valid timestamps within the last hour, excluding future rows. Hooks test observations have policy, mode, decision, durationMs, skipped, source, verdict and reason; rendered has stdout and exitCode. The final decision includes runtime lowering, while each policy row retains its configured verdict. Heavy status jobs have pid, label, cwd, lane, weight, session, started, running_s, flags (grace, bypass, over_hold_warn, over_hold_max) and bypass_reason; waiters have pid, label, cwd, lane, weight, session, position, waited_s and eta_s (a rough estimate or null). It only reads: no record is pruned and nothing is written. Mutating sessions, git and MCP verbs reject `--json`.
 
 ## serve
 
@@ -196,11 +197,23 @@ The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs
 
 ```sh
 pmcp heavy -- npm test
-pmcp heavy --label "web build" --profile gate -- npm run build
-pmcp heavy status
+pmcp heavy --lane bulk --weight 3 -- npm run build:all
+pmcp heavy --profile gate --weight 2 -- npm run typecheck
+pmcp heavy --profile hook -- npm run lint:staged
+pmcp heavy --now --reason "prod is down" -- npm run deploy
+pmcp heavy status [--json]
+pmcp heavy stats [--json]
+ticket=$(pmcp heavy submit --lane bulk -- npm run build:all)
+pmcp heavy result "$ticket"
+pmcp heavy wait "$ticket" --timeout 1800
+pmcp heavy cancel "$ticket" [--force]
+pmcp heavy queue [--json]
+pmcp heavy promote <id> --now --reason "release blocker"
+pmcp heavy priority <id> gate --reason "blocks a land"
+pmcp heavy priority <id> +2 --reason "the session waits on it"
 ```
 
-Run a heavy command under the host-wide lease of [`[host.lease]`](project-configuration.md#host-lease), one at a time across every session and worktree on the host. It waits first for the lease (up to `max_wait`, in arrival order, with a line on standard error every `heartbeat`), then, holding it, for the load average and IO pressure to fall below `max_load` and `max_io` (up to `load_grace`, after which it runs anyway). The command runs with the lease marker set, so a nested `pmcp heavy` runs at once. Everything after `--` is the command, options included. `status` prints the lock, the host readings, when the host was last settled, the holder (pid, label, cwd, age), each waiter, the holder against `hold_warn` and `hold_max`, and the busiest processes outside the lease. With the lease disabled, or with `PMCP_HEAVY_DISABLE=<reason>` set, the command runs at once. Exit: the command's own code; 75 when the lease stayed held past `max_wait` and nothing ran; 2 for a missing `--` or an unknown profile.
+Run a heavy command within the host-wide budget of [`[host.lease]`](project-configuration.md#host-lease), across every session and worktree on the host. A job starts once its lane has a free slot, its weight fits what the running jobs leave of the budget, and the host is under `max_load` and `max_io` (or, past `load_grace` and with nothing leased running, under `hard_factor` times them). Waiting jobs start by lane (gate, hook, interactive, bulk), oldest first within a lane, with a line on standard error every `heartbeat`; `--lane` and `--weight` override the profile and `[host.lease] commands`. The command runs with the lease marker set, so a nested `pmcp heavy` runs at once. Everything after `--` is the command, options included. `status` prints the lock, the host readings, when the host was last settled, the holder record, each waiter with its lane, weight, position and a rough wait estimate from the log's run times, the lanes' use and the running weight against the budget, each running job against `hold_warn` and `hold_max`, the IO average the check reads, how many jobs started on `load_grace` in the last day, and the busiest processes outside the lease. With the lease disabled, or with `PMCP_HEAVY_DISABLE=<reason>` set, the command runs at once. `--now --reason <text>` (or `PMCP_HEAVY_NOW=<reason>`) is the emergency bypass: it runs at once, logged and shown in status, and still counts its weight. Where the io controller reaches the user's scopes, each job runs in its own scope with its lane's `io.weight`. `submit` queues the command and returns a ticket at once, so the caller keeps working: a detached runner (its own session, so it outlives the caller) waits and runs it under the same rules, its output in the ticket's log and its exit code and usage record in the ticket's result. `result <ticket>` reads the state (queued with its position, running, done, or lost when the runner died), `--json` as data; `wait <ticket>` blocks until it is done, prints the log's tail and exits with the job's code (75 at `--timeout`); `cancel <ticket>` stops a queued job and, with `--force`, a running one. Tickets live under `<dir>/tickets/` and finished ones are removed after a week. Every waiting or running job has an id (a ticket's, or one made for a blocking run), shown by `status` and `queue`: `queue` lists the waiters with id, lane, position, waited and estimated time, weight, pid, session and label; `promote <id> --now --reason` starts a waiter at once as a bypass; `priority <id> <lane|+N|-N> --reason` moves it to another lane's end or N places within its lane; `cancel <id>` takes a waiter out of the queue (its run exits 130) and, with `--force`, stops a running job. The waiting process reads the change on its next poll; each change is made under the admission lock and logged as a `control` line with the uid, the session and the reason, and a waiter whose process died is removed instead of changed. `stats` lists each command signature's recorded runs with the median and 90th percentile of wall time, CPU time, peak RSS and IO, `--json` as data. Exit: the command's own code; 75 when nothing ran within `max_wait`, with the reason (the queue, the session's cap, a shell wrapper's hold, a host past `hard_factor`); 2 for a missing `--`, an unknown profile or lane, a bad weight, or `--now` without a reason.
 
 ## wait
 
@@ -340,7 +353,7 @@ Options are parsed against the command's own list, so an unknown flag is an erro
 | `1`  | it ran and found a problem                          | no skills under those roots, a partial index, no SQLite in this runtime to store vectors in, a refused or failed `git deliver`                                                 |
 | `2`  | the arguments were unusable, or a check found drift | an unknown command, an unknown option, a missing value; `project --check` drift, stale or undeclared outputs; a `git` fetch that failed or a sync blocked by undelivered edits |
 | `3`  | an optional dependency is missing                   | `index` without `@huggingface/transformers`                                                                                                                                    |
-| `75` | the host stayed busy, so nothing ran; retry later | `heavy` past `max_wait`, `wait` past `--timeout` |
+| `75` | the host stayed busy, so nothing ran; retry later   | `heavy` past `max_wait`, `wait` past `--timeout`                                                                                                                               |
 
 The distinction between 1 and 3 is worth wiring into a script: 1 says the project is not what you expected, and 3 says the machine is missing something optional and the server still works without it.
 
