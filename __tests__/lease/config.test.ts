@@ -53,9 +53,9 @@ describe("[host.lease]", () => {
 
   it("reproduces a shell wrapper's one-at-a-time lease from configuration", () => {
     const settings = read({
-      dir: "~/.cache/datalab-host",
-      legacy_marker_env: "DATALAB_HEAVY_LEASE",
-      legacy_skip_env: "DATALAB_HEAVY_LEASE_SKIP",
+      dir: "~/.cache/wrapper-host",
+      legacy_marker_env: "WRAPPER_HEAVY_LEASE",
+      legacy_skip_env: "WRAPPER_HEAVY_LEASE_SKIP",
       max_load: 8,
       max_io: 8,
       io_window: "avg10",
@@ -66,9 +66,9 @@ describe("[host.lease]", () => {
       guard: "deny",
     });
     expect(settings).toMatchObject({
-      dir: join(homedir(), ".cache/datalab-host"),
-      legacyMarkerEnv: "DATALAB_HEAVY_LEASE",
-      legacySkipEnv: "DATALAB_HEAVY_LEASE_SKIP",
+      dir: join(homedir(), ".cache/wrapper-host"),
+      legacyMarkerEnv: "WRAPPER_HEAVY_LEASE",
+      legacySkipEnv: "WRAPPER_HEAVY_LEASE_SKIP",
       maxLoad: 8,
       maxIo: 8,
       ioWindow: "avg10",

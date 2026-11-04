@@ -62,8 +62,8 @@ describe.each<RuntimeId>(["claude", "codex"])(
     };
 
     it.each([
-      "node /home/me/ws/tools/runner/src/land-main.mjs abc123",
-      "cd /home/me/ws && node tools/runner/src/land-main.mjs",
+      "node /srv/ws/tools/runner/src/land-main.mjs abc123",
+      "cd /srv/ws && node tools/runner/src/land-main.mjs",
       "timeout 600 node ./sync.mjs",
     ])("refuses %s while the lease is held", async (command) => {
       expect(
