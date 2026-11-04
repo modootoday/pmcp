@@ -3,3 +3,6 @@ pmcp logout
 
   pmcp logout
 
+  Examples
+    pmcp logout
+

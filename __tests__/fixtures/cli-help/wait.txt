@@ -3,8 +3,13 @@ pmcp wait
 
   pmcp wait --pid <pid>... | --until <exists:<path>|gone:<path>|load-below:<n>|no-process:<text>>... [--timeout <s>] [--interval <s>]
 
-  --pid <pid>          Wait until this process has exited; repeatable.
-  --until <condition>  Wait until this holds: exists:<path>, gone:<path>, load-below:<n>, no-process:<text>; repeatable, all must hold.
-  --timeout <s>        Give up after this many seconds and exit 75 (default 3600).
-  --interval <s>       Seconds between checks (default 5).
+  Options
+    --pid <pid>          Wait until this process has exited; repeatable.
+    --until <condition>  Wait until this holds: exists:<path>, gone:<path>, load-below:<n>, no-process:<text>; repeatable, all must hold.
+    --timeout <s>        Give up after this many seconds and exit 75 (default 3600).
+    --interval <s>       Seconds between checks (default 5).
+
+  Examples
+    pmcp wait --pid 4242
+    pmcp wait --until gone:/tmp/build.lock --until load-below:6 --timeout 900
 

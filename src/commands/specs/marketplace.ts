@@ -2,13 +2,31 @@ import type { CommandSpec } from "../../cli/command.js";
 
 export const marketplaceSpec: CommandSpec = {
   name: "marketplace",
+  examples: [
+    "pmcp marketplace list",
+    "pmcp marketplace export typescript-5 --runtime agy --output ./typescript-plugin",
+  ],
   subcommands: [
-    { name: "list", describe: "The bundled free plugins" },
-    { name: "export", describe: "Write one plugin in a runtime's format" },
+    {
+      name: "list",
+      describe: "The bundled free plugins",
+      usage: "pmcp marketplace list [--json]",
+      options: ["json"],
+      examples: ["pmcp marketplace list --json"],
+    },
+    {
+      name: "export",
+      describe: "Write one plugin in a runtime's native format",
+      usage:
+        "pmcp marketplace export <plugin> --runtime <runtime> --output <directory> [--json]",
+      options: ["runtime", "output", "json"],
+      examples: [
+        "pmcp marketplace export typescript-5 --runtime claude --output ./ts-plugin",
+      ],
+    },
   ],
   describe: "List free public plugins or export a selected native plugin",
-  usage:
-    "pmcp marketplace list | export <plugin> --runtime <runtime> --output <directory> [--json]",
+  usage: "pmcp marketplace <subcommand> [options]",
   options: [
     {
       name: "runtime",

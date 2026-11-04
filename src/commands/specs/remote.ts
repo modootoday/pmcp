@@ -3,6 +3,10 @@ import { REMOTE_OPTIONS } from "../options/remote.js";
 
 export const availableSpec: CommandSpec = {
   name: "available",
+  examples: [
+    "pmcp available",
+    "pmcp available --catalog saved-catalog.json --json",
+  ],
   describe:
     "Find provided skills matching this project's installed dependencies",
   usage: "pmcp available [--project <dir>] [--catalog <file>] [--json]",
@@ -11,6 +15,7 @@ export const availableSpec: CommandSpec = {
 
 export const previewSpec: CommandSpec = {
   name: "preview",
+  examples: ["pmcp preview @modootoday/skill-react"],
   describe: "Show a skill's contents and a complete example",
   usage: "pmcp preview <skill-package> [--json]",
   options: REMOTE_OPTIONS,
@@ -33,6 +38,10 @@ const MANAGE_OPTIONS = [
 
 export const installSpec: CommandSpec = {
   name: "install",
+  examples: [
+    "pmcp install --all --dry-run",
+    "pmcp install @modootoday/skill-react -y",
+  ],
   describe:
     "Install matching skill npm packages with the project's package manager",
   usage: "pmcp install <skill-package>... | --all [--dry-run | -y]",
@@ -48,6 +57,7 @@ export const installSpec: CommandSpec = {
 
 export const syncSpec: CommandSpec = {
   name: "sync",
+  examples: ["pmcp sync --dry-run", "pmcp sync -y"],
   describe:
     "Update declared skill packages without removing other dependencies",
   usage: "pmcp sync [--project <dir>] [--dry-run | -y]",

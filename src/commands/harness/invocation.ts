@@ -7,41 +7,7 @@ import {
 } from "../../cli/command.js";
 import type { Operation } from "../../harness/contracts.js";
 import { object } from "../../harness/validation.js";
-
-const common = ["group-file", "generation"];
-const options: Readonly<Record<string, readonly string[]>> = {
-  "capabilities:inspect": [],
-  "doctor:inspect": [],
-  "group:create": ["input"],
-  "group:list": [],
-  "group:inspect": ["group-file"],
-  "group:configure": [...common, "input"],
-  "group:pause": common,
-  "group:resume": common,
-  "group:stop": common,
-  "session:start": [...common, "input"],
-  "session:list": ["group-file"],
-  "session:inspect": ["group-file", "session"],
-  "session:read": ["group-file", "session", "input"],
-  "session:watch": ["group-file", "session", "input"],
-  "session:stop": [...common, "session"],
-  "control:acquire": [...common, "session", "controller", "mode"],
-  "control:renew": [...common, "lease-file"],
-  "control:release": [...common, "lease-file"],
-  "input:write": [...common, "lease-file", "request-id", "text-file"],
-  "input:submit": [...common, "lease-file", "request-id"],
-  "input:interrupt": [...common, "lease-file"],
-  "attach:open": [...common, "session", "mode", "lease-file"],
-  "attach:inspect": ["group-file", "session"],
-  "attach:detach": [...common, "session"],
-  "delivery:list": ["group-file"],
-  "delivery:inspect": ["group-file", "request-id"],
-  "recovery:inspect": ["group-file", "include-starts"],
-  "recovery:reconcile": common,
-  "recovery:replace-main": [...common, "input"],
-  "recovery:stop-orphan": [...common, "session"],
-  "recovery:abort-start": [...common, "session"],
-};
+import { HARNESS_OPERATIONS } from "../specs/harness-operations.js";
 
 function file(path: string): string {
   const stat = statSync(path);
@@ -53,17 +19,19 @@ function file(path: string): string {
 export function parseInvocation(context: CommandContext): Operation {
   const [family, action, ...extra] = context.args.positional;
   const key = `${family}:${action}`;
-  const allowed = options[key];
+  const allowed = HARNESS_OPERATIONS[key]?.options;
   const families = [
     "layout",
     "host",
     "mcp",
-    ...new Set(Object.keys(options).map((name) => name.split(":")[0]!)),
+    ...new Set(
+      Object.keys(HARNESS_OPERATIONS).map((name) => name.split(":")[0]!),
+    ),
   ];
   if (!family || !families.includes(family))
     throw unknownSubcommand("harness", family, families);
   if (!allowed || !action) {
-    const actions = Object.keys(options)
+    const actions = Object.keys(HARNESS_OPERATIONS)
       .filter((name) => name.startsWith(`${family}:`))
       .map((name) => name.slice(family.length + 1));
     throw unknownSubcommand(`harness ${family}`, action, actions);

@@ -2,6 +2,10 @@ import type { CommandSpec } from "../../cli/command.js";
 
 export const waitSpec: CommandSpec = {
   name: "wait",
+  examples: [
+    "pmcp wait --pid 4242",
+    "pmcp wait --until gone:/tmp/build.lock --until load-below:6 --timeout 900",
+  ],
   describe:
     "Sleep until a process exits or a condition holds, never matching itself",
   usage:

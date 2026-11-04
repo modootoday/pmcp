@@ -21,19 +21,10 @@ import { failure, MailboxError, type Binding } from "../mailbox/types.js";
 import { configFrom } from "./config-from.js";
 import { mailboxSpec } from "./specs/mailbox.js";
 
-const allowed: Readonly<Record<string, readonly string[]>> = {
-  init: ["config", "state-dir"],
-  actor: ["config", "actor", "actor-file", "parent-binding"],
-  rotate: ["config", "actor", "actor-file", "operator"],
-  send: ["config", "actor-file", "binding-file", "input"],
-  inbox: ["config", "actor-file", "binding-file", "input"],
-  read: ["config", "actor-file", "binding-file", "input"],
-  ack: ["config", "actor-file", "binding-file", "input"],
-  sessions: ["config", "actor-file", "binding-file"],
-  export: ["config", "operator", "output", "scope-actor"],
-  backup: ["config", "operator", "output"],
-  restore: ["config", "operator", "input", "output"],
-};
+// Each operation's options come from the spec, so help and parsing cannot disagree.
+const allowed: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
+  (mailboxSpec.subcommands ?? []).map((sub) => [sub.name, sub.options ?? []]),
+);
 
 function required(context: CommandContext, name: string): string {
   const value = one(context.args, name);

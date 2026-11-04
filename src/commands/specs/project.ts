@@ -5,21 +5,45 @@ import { nearestConfigOption } from "../options/inspection.js";
 
 export const projectSpec: CommandSpec = {
   name: "project",
+  examples: ["pmcp project", "pmcp project --check --smoke"],
   subcommands: [
-    { name: "add", describe: "Add a skill or agent and project" },
-    { name: "remove", describe: "Remove an asset and project" },
+    {
+      name: "add",
+      describe: "Add a skill or agent under .agents/ and project",
+      usage: "pmcp project add <skill|agent>",
+      options: [],
+      examples: ["pmcp project add review-checklist"],
+    },
+    {
+      name: "remove",
+      describe: "Remove an asset and project",
+      usage: "pmcp project remove <name>",
+      options: [],
+      examples: ["pmcp project remove review-checklist"],
+    },
     {
       name: "import-mcp",
-      describe: "Import MCP servers from a native config",
+      describe: "Import MCP servers from a native config; --write applies",
+      usage:
+        "pmcp project import-mcp --source <tool>:<file> [--name <alias>] [--write]",
+      options: ["source", "name", "write", "config"],
+      examples: [
+        "pmcp project import-mcp --source codex:~/.codex/config.toml",
+        "pmcp project import-mcp --source claude:.mcp.json --name github --write",
+      ],
     },
     {
       name: "exec-mcp",
-      describe: "Start a declared MCP server; projected entries run this",
+      describe:
+        "Start a declared MCP server; projected native entries run this",
+      usage: "pmcp project exec-mcp <alias>",
+      options: ["config"],
+      examples: ["pmcp project exec-mcp remote"],
     },
   ],
   describe: "Write each agent tool's native files from .agents/ and pmcp.toml",
   usage:
-    "pmcp project [--check] | pmcp project add <skill|agent> | pmcp project remove <name> | pmcp project import-mcp --source <tool>:<file> [--name <alias>] [--write] | pmcp project exec-mcp <alias>",
+    "pmcp project [--check [--smoke]] | pmcp project <subcommand> [options]",
   options: [
     ...CATALOG_OPTIONS,
     {
@@ -58,6 +82,7 @@ export const projectSpec: CommandSpec = {
 
 export const doctorSpec: CommandSpec = {
   name: "doctor",
+  examples: ["pmcp doctor", "pmcp doctor --tool claude --json"],
   describe:
     "Ask each agent tool, through its own listing commands, whether it loads this project's assets",
   usage: "pmcp doctor [--tool <name>] [--json] [--memory]",

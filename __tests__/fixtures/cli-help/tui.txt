@@ -1,12 +1,26 @@
 pmcp tui
   Open a native terminal workspace with optional configuration
 
-  pmcp tui [--config <file>] [--runtime <id>] | plan | recovery | doctor | start-worker --runtime <id>
+  pmcp tui [--config <file>] [--runtime <id>] [-y] [--new] | pmcp tui <subcommand> [options]
 
-  --json               Print the result as one JSON envelope on stdout.
-  --memory-mb <count>  Worker memory reservation
-  --config <file>      A pmcp.toml to read instead of the nearest one.
-  --runtime <runtime>  Native runtime ID for main launch or worker start
-  -y, --yes            Confirm the first native runtime start
-  --new                Create a workspace after the previous group is stopped
+  Subcommands
+    plan          What a launch would do, without starting it
+    recovery      What to run when a workspace was left behind
+    doctor        Terminal host prerequisites
+    start-worker  Start a worker in the dock
+
+  Run pmcp tui <subcommand> --help for one subcommand's usage.
+
+  Options
+    --json               Print the result as one JSON envelope on stdout.
+    --memory-mb <count>  Worker memory reservation
+    --config <file>      A pmcp.toml to read instead of the nearest one.
+    --runtime <runtime>  Native runtime ID for main launch or worker start
+    -y, --yes            Confirm the first native runtime start
+    --new                Create a workspace after the previous group is stopped
+
+  Examples
+    pmcp tui
+    pmcp tui --runtime codex-cli
+    pmcp tui plan
 

@@ -3,5 +3,10 @@ pmcp models
 
   pmcp models [--json]
 
-  --json  Print the result as one JSON envelope on stdout.
+  Options
+    --json  Print the result as one JSON envelope on stdout.
+
+  Examples
+    pmcp models
+    pmcp models --json
 

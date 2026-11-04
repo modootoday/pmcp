@@ -3,6 +3,11 @@ pmcp status
 
   pmcp status [--config <file>] [--json]
 
-  --config <file>  A pmcp.toml to read instead of the nearest one.
-  --json           Print the result as one JSON envelope on stdout.
+  Options
+    --config <file>  A pmcp.toml to read instead of the nearest one.
+    --json           Print the result as one JSON envelope on stdout.
+
+  Examples
+    pmcp status
+    pmcp status --json | jq .data.projection
 

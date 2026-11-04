@@ -3,9 +3,13 @@ pmcp preview
 
   pmcp preview <skill-package> [--json]
 
-  --provider <public|hosted>  Public free catalog (default) or explicitly hosted service.
-  --project <dir>             Project directory containing package.json.
-  --api <origin>              Catalog API origin.
-  --catalog <file>            Use a saved catalog response without network access.
-  --json                      Print the result as one JSON envelope on stdout.
+  Options
+    --provider <public|hosted>  Public free catalog (default) or explicitly hosted service.
+    --project <dir>             Project directory containing package.json.
+    --api <origin>              Catalog API origin.
+    --catalog <file>            Use a saved catalog response without network access.
+    --json                      Print the result as one JSON envelope on stdout.
+
+  Examples
+    pmcp preview @modootoday/skill-react
 

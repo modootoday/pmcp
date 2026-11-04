@@ -3,7 +3,17 @@ pmcp heavy
 
   pmcp heavy [--label <text>] [--profile default|gate|<name>] -- <command...> | pmcp heavy status
 
-  --config <file>   A pmcp.toml to read instead of the nearest one.
-  --label <text>    What status and the log call this job (default: the command).
-  --profile <name>  Wait limits from [host.lease.profiles.<name>] (default: default).
+  Subcommands
+    status  The lease, its holder, waiters and the host readings
+
+  Run pmcp heavy <subcommand> --help for one subcommand's usage.
+
+  Options
+    --config <file>   A pmcp.toml to read instead of the nearest one.
+    --label <text>    What status and the log call this job (default: the command).
+    --profile <name>  Wait limits from [host.lease.profiles.<name>] (default: default).
+
+  Examples
+    pmcp heavy -- npm test
+    pmcp heavy --label "web build" --profile gate -- npm run build
 

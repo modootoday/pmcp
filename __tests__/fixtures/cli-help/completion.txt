@@ -3,3 +3,7 @@ pmcp completion
 
   pmcp completion bash | zsh | fish
 
+  Examples
+    pmcp completion bash > ~/.local/share/bash-completion/completions/pmcp
+    pmcp completion zsh > "${fpath[1]}/_pmcp"
+

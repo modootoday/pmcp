@@ -1,17 +1,36 @@
 pmcp sessions
   Show and coordinate the live sessions of this workspace: pause, broadcast, sweep
 
-  pmcp sessions status | pause <reason> [--by <name>] | resume | broadcast <text> [--by <name>] | unbroadcast | sweep | send --to <selector>... [--subject <s>] [--ttl <minutes>] [--once] [--reply-to <id>] <body|-> | inbox [--all] | ack <id>... | reply <id> <body|->
+  pmcp sessions [<subcommand>] [options]
 
-  --json            Print the result as one JSON envelope on stdout.
-  --config <file>   A pmcp.toml to read instead of the nearest one.
-  --by <name>       Who pauses, broadcasts or sends; that session is exempt. Default operator.
-  --to <selector>   Message recipients: all, session:<id>, alias:<name>, role:<name> or worktree:<path> (desk:<path> also works). Repeatable.
-  --subject <text>  Message subject.
-  --ttl <minutes>   Minutes until the message expires; default [sessions.mailbox] ttl_minutes.
-  --once            Mark the message a one-time request, not a standing rule.
-  --wake            Also start a turn in idle recipients where the runtime allows it (Claude, opencode).
-  --reply-to <id>   The message this one answers.
-  --session <id>    Whose inbox: the session id that reads, sends or acknowledges.
-  --all             List every unexpired message, not only yours.
+  Subcommands
+    status       Live sessions, pause, broadcasts and leases
+    pause        Refuse edits in every other session until resume
+    resume       Lift the pause
+    broadcast    Deliver a note once to every session
+    unbroadcast  Withdraw the broadcasts
+    sweep        Remove records whose process is gone
+    send         Send a message to sessions
+    inbox        List your messages
+    ack          Acknowledge messages by id
+    reply        Answer a message
+
+  Run pmcp sessions <subcommand> --help for one subcommand's usage.
+
+  Options
+    --json            Print the result as one JSON envelope on stdout.
+    --config <file>   A pmcp.toml to read instead of the nearest one.
+    --by <name>       Who pauses, broadcasts or sends; that session is exempt. Default operator.
+    --to <selector>   Message recipients: all, session:<id>, alias:<name>, role:<name> or worktree:<path> (desk:<path> also works). Repeatable.
+    --subject <text>  Message subject.
+    --ttl <minutes>   Minutes until the message expires; default [sessions.mailbox] ttl_minutes.
+    --once            Mark the message a one-time request, not a standing rule.
+    --wake            Also start a turn in idle recipients where the runtime allows it (Claude, opencode).
+    --reply-to <id>   The message this one answers.
+    --session <id>    Whose inbox: the session id that reads, sends or acknowledges.
+    --all             List every unexpired message, not only yours.
+
+  Examples
+    pmcp sessions
+    pmcp sessions broadcast "main moved; rebase before delivering"
 

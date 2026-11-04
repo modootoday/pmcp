@@ -3,12 +3,17 @@ pmcp install
 
   pmcp install <skill-package>... | --all [--dry-run | -y]
 
-  --provider <public|hosted>  Public free catalog (default) or explicitly hosted service.
-  --project <dir>             Project directory containing package.json.
-  --api <origin>              Catalog API origin.
-  --catalog <file>            Use a saved catalog response without network access.
-  --json                      Print the result as one JSON envelope on stdout.
-  --dry-run                   Show the plan without installing or changing files.
-  -y, --yes                   Approve the displayed project and lockfile changes.
-  --all                       Select all matching skill packages.
+  Options
+    --provider <public|hosted>  Public free catalog (default) or explicitly hosted service.
+    --project <dir>             Project directory containing package.json.
+    --api <origin>              Catalog API origin.
+    --catalog <file>            Use a saved catalog response without network access.
+    --json                      Print the result as one JSON envelope on stdout.
+    --dry-run                   Show the plan without installing or changing files.
+    -y, --yes                   Approve the displayed project and lockfile changes.
+    --all                       Select all matching skill packages.
+
+  Examples
+    pmcp install --all --dry-run
+    pmcp install @modootoday/skill-react -y
 

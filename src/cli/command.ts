@@ -178,21 +178,82 @@ export function many(args: ParsedArgs, name: string): readonly string[] {
   return args.options.get(name) ?? [];
 }
 
+function optionRows(
+  options: readonly OptionSpec[],
+): Array<readonly [string, string]> {
+  return options.map((option) => [
+    `${option.short ? `-${option.short}, ` : ""}--${option.name}${option.placeholder ? ` ${option.placeholder}` : ""}`,
+    option.describe,
+  ]);
+}
+
+function printSections(
+  ui: Ui,
+  options: readonly OptionSpec[],
+  examples: readonly string[],
+): void {
+  if (options.length > 0) {
+    ui.line();
+    ui.line("  Options");
+    ui.table(optionRows(options), "    ");
+  }
+  if (examples.length > 0) {
+    ui.line();
+    ui.line("  Examples");
+    for (const example of examples) ui.line(`    ${example}`);
+  }
+  ui.line();
+}
+
 export function printCommandHelp(ui: Ui, command: CommandSpec): void {
   ui.heading(`pmcp ${command.name}`);
   ui.line(`  ${command.describe}`);
   ui.line();
   ui.line(`  ${ui.paint(command.usage, "dim")}`);
-  if (command.options && command.options.length > 0) {
+  const subcommands = command.subcommands ?? [];
+  if (subcommands.length > 0) {
     ui.line();
+    ui.line("  Subcommands");
     ui.table(
-      command.options.map((option) => [
-        `${option.short ? `-${option.short}, ` : ""}--${option.name}${option.placeholder ? ` ${option.placeholder}` : ""}`,
-        option.describe,
-      ]),
+      subcommands.map((sub) => [sub.name, sub.describe]),
+      "    ",
+    );
+    ui.line();
+    ui.line(
+      `  Run pmcp ${command.name} <subcommand> --help for one subcommand's usage.`,
     );
   }
+  printSections(ui, command.options ?? [], command.examples ?? []);
+}
+
+// Help for one subcommand: its usage, only the options it takes, and its examples.
+export function printSubcommandHelp(
+  ui: Ui,
+  command: CommandSpec,
+  sub: SubcommandSpec,
+): void {
+  ui.heading(`pmcp ${command.name} ${sub.name}`);
+  ui.line(`  ${sub.describe}`);
   ui.line();
+  const usage = sub.usage ?? `pmcp ${command.name} ${sub.name} [options]`;
+  ui.line(`  ${ui.paint(usage, "dim")}`);
+  const options = (command.options ?? []).filter(
+    (option) => sub.options === undefined || sub.options.includes(option.name),
+  );
+  printSections(ui, options, sub.examples ?? []);
+}
+
+// The subcommand named by the leading words, two-word names first.
+export function subcommandNamed(
+  command: CommandSpec,
+  words: readonly string[],
+): SubcommandSpec | undefined {
+  const subs = command.subcommands ?? [];
+  const two = words.slice(0, 2).join(" ");
+  return (
+    subs.find((sub) => sub.name === two) ??
+    subs.find((sub) => sub.name === words[0])
+  );
 }
 
 export function printHelp(

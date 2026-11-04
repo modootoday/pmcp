@@ -3,5 +3,10 @@ pmcp whoami
 
   pmcp whoami [--json]
 
-  --json  Print the result as one JSON envelope on stdout.
+  Options
+    --json  Print the result as one JSON envelope on stdout.
+
+  Examples
+    pmcp whoami
+    pmcp whoami --json
 

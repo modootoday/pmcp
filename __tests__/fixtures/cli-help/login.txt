@@ -3,5 +3,9 @@ pmcp login
 
   pmcp login [--issuer <url>]
 
-  --issuer <url>  override the auth issuer
+  Options
+    --issuer <url>  override the auth issuer
+
+  Examples
+    pmcp login
 

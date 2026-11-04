@@ -4,6 +4,10 @@ import { EMBEDDING_OPTIONS } from "../options/embedding.js";
 
 export const serveSpec: CommandSpec = {
   name: "serve",
+  examples: [
+    "pmcp serve --root ./node_modules",
+    "pmcp serve --lexical --prompts",
+  ],
   describe: "Run the MCP server on stdio (also the default for piped launches)",
   usage:
     "pmcp serve [--root <dir>] [--scope <prefix>] [--marketplace <dir>] [--package <dir>] [--workspace <dir>] [--config <file> | --no-config] [--prompts]",

@@ -47,7 +47,9 @@
     <article class="docs-body"><p class="breadcrumb"><a href="/guide/">Docs</a> / Command reference</p><h1 id="command-reference">Command reference</h1>
 <p><a href="/">Back to the overview</a></p>
 <p>Every pmcp command with its flags, behaviour and exit codes. <code>pmcp &lt;command&gt; --help</code> prints
-the same usage from the command itself.</p>
+the same usage from the command itself, with its subcommands and examples, and
+<code>pmcp &lt;command&gt; &lt;subcommand&gt; --help</code> prints the usage, options and examples of one
+subcommand, such as <code>pmcp harness group create --help</code> or <code>pmcp mailbox export --help</code>.</p>
 <h2 id="the-invocation-a-host-uses">The invocation a host uses</h2>
 <ul>
 <li><code>pmcp</code> opens a workspace on a supported terminal; a piped launch runs the MCP server on
@@ -244,7 +246,7 @@ pmcp sync [--project &lt;dir&gt;] [--dry-run | --yes]</code></pre>
 <tr><td><code>-y</code>, <code>--yes</code></td><td><code>install</code>, <code>sync</code>, <code>tui</code></td><td>approve the displayed changes, or the first runtime start, without a prompt</td></tr>
 <tr><td><code>-q</code>, <code>--quiet</code></td><td>anywhere</td><td>silence diagnostics and progress on standard error, except errors; results on standard output still print</td></tr>
 <tr><td><code>--color</code>, <code>--no-color</code></td><td>anywhere</td><td>always or never colour; without either, <code>FORCE_COLOR</code> (<code>0</code> off, anything else on) wins over <code>NO_COLOR</code>, <code>TERM=dumb</code> and the terminal test</td></tr>
-<tr><td><code>--help</code>, <code>-h</code></td><td>anywhere</td><td>the help for that command, generated from the command itself</td></tr>
+<tr><td><code>--help</code>, <code>-h</code></td><td>anywhere</td><td>the help for that command or subcommand, generated from the command itself: usage, subcommands, the options that apply and examples</td></tr>
 <tr><td><code>-v</code>, <code>-V</code>, <code>--version</code>, <code>version</code></td><td>on its own</td><td>the version, on standard output</td></tr></tbody></table></div>
 <p>With <code>TERM=dumb</code>, or a locale that is not UTF-8, the few typographic characters in messages (an em dash, a middle dot) print as ASCII. Long operations such as <code>index</code> report progress on standard error: one rewritten line on a terminal, a plain <code>k/N</code> line every tenth of the work otherwise.</p>
 <p>Options are parsed against the command&#39;s own list, so an unknown flag is an error rather than a silently ignored typo. Giving a non-repeatable option twice, or leaving off a value it needs, is the same error.</p>

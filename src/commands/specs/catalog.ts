@@ -4,6 +4,7 @@ import { EMBEDDING_OPTIONS } from "../options/embedding.js";
 
 export const listSpec: CommandSpec = {
   name: "list",
+  examples: ["pmcp list", "pmcp list --scope @acme/ --json"],
   describe: "List the skills discovered in node_modules and marketplaces",
   usage:
     "pmcp list [--root <dir>] [--scope <prefix>] [--marketplace <dir>] [--package <dir>] [--workspace <dir|glob>] [--config <file> | --no-config] [--json]",
@@ -19,6 +20,10 @@ export const listSpec: CommandSpec = {
 
 export const indexSpec: CommandSpec = {
   name: "index",
+  examples: [
+    "pmcp index",
+    "pmcp index --model embeddinggemma-2 --dtype q4 --dry-run",
+  ],
   describe: "Encode the catalog so ranking can be semantic",
   usage: "pmcp index [--root <dir>] [--model <id>]",
   options: [
@@ -45,6 +50,7 @@ export const indexSpec: CommandSpec = {
 
 export const modelsSpec: CommandSpec = {
   name: "models",
+  examples: ["pmcp models", "pmcp models --json"],
   describe: "List embedding presets without loading or downloading models",
   usage: "pmcp models [--json]",
   options: [
@@ -58,6 +64,7 @@ export const modelsSpec: CommandSpec = {
 
 export const validateSpec: CommandSpec = {
   name: "validate",
+  examples: ["pmcp validate", "pmcp validate ./skills/review --json"],
   describe:
     "Check skills against the Agent Skills specification: given directories, or every skill the catalog reaches",
   usage:

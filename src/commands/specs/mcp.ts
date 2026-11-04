@@ -3,13 +3,39 @@ import { jsonOption } from "../options/inspection.js";
 
 export const mcpSpec: CommandSpec = {
   name: "mcp",
+  examples: [
+    "pmcp mcp login remote --no-wait",
+    "pmcp mcp status remote --json",
+  ],
   subcommands: [
-    { name: "login", describe: "Sign a shared remote MCP server in" },
-    { name: "logout", describe: "Clear its stored credentials" },
-    { name: "status", describe: "Presence, expiry and scopes; never tokens" },
+    {
+      name: "login",
+      describe: "Sign a shared remote MCP server in",
+      usage:
+        "pmcp mcp login <name> [--no-wait | --code <callback-or-code>] [--port <port>] [--client-id <id>] [--bearer-env <name>]",
+      options: ["code", "no-wait", "port", "client-id", "bearer-env", "config"],
+      examples: [
+        "pmcp mcp login remote --no-wait",
+        "pmcp mcp login remote --code 'http://127.0.0.1:8976/callback?code=...'",
+      ],
+    },
+    {
+      name: "logout",
+      describe: "Clear its stored credentials",
+      usage: "pmcp mcp logout <name>",
+      options: ["config"],
+      examples: ["pmcp mcp logout remote"],
+    },
+    {
+      name: "status",
+      describe: "Presence, UTC expiry and scopes; never tokens",
+      usage: "pmcp mcp status <name> [--json]",
+      options: ["config", "json"],
+      examples: ["pmcp mcp status remote"],
+    },
   ],
   describe: "Manage the project's shared remote MCP authentication",
-  usage: "pmcp mcp <login|logout|status> <name> [--config <file>]",
+  usage: "pmcp mcp <subcommand> <name> [options]",
   options: [
     jsonOption,
     {

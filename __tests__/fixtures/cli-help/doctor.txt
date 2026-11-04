@@ -3,8 +3,13 @@ pmcp doctor
 
   pmcp doctor [--tool <name>] [--json] [--memory]
 
-  --config <file>  A pmcp.toml to read instead of the nearest one.
-  --tool <name>    Check only this tool (claude, codex, gemini, grok, antigravity, opencode). Repeatable.
-  --json           Print the result as one JSON envelope on stdout.
-  --memory         Report native memory configuration metadata only; do not read memory bodies or check MCP connections.
+  Options
+    --config <file>  A pmcp.toml to read instead of the nearest one.
+    --tool <name>    Check only this tool (claude, codex, gemini, grok, antigravity, opencode). Repeatable.
+    --json           Print the result as one JSON envelope on stdout.
+    --memory         Report native memory configuration metadata only; do not read memory bodies or check MCP connections.
+
+  Examples
+    pmcp doctor
+    pmcp doctor --tool claude --json
 

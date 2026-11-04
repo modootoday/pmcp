@@ -1,18 +1,66 @@
 pmcp harness
   Manage optional owned native sessions independently of the MCP server
 
-  pmcp harness layout | family operation [options]
+  pmcp harness <subcommand> [options]
 
-  --include-starts     Include pending native starts in recovery inspection
-  --columns <integer>  Terminal width in cells
-  --rows <integer>     Terminal height including status
-  --generation <id>    Expected group generation for a mutation
-  --group-file <file>  Private owned group state
-  --input <file>       Group, session, read or watch specification JSON
-  --session <id>       Owned native session ID
-  --lease-file <file>  Private writer credential
-  --controller <id>    Local controller identity
-  --mode <mode>        Control cli/native; attachment observe/write
-  --request-id <id>    Explicit input idempotency key
-  --text-file <file>   Literal single-line UTF-8 input without submission
+  Subcommands
+    layout                 Plan the terminal layout for a size
+    host approve           Record your approval of the projected [host] policy
+    host status            Whether the projected policy is approved
+    host up                Start pmcp-pty and the approved sessions (Linux)
+    host down              Stop the host's sessions
+    host unit              Print a systemd user unit for pmcp-pty (Linux)
+    mcp                    A stdio MCP server for one pmcp-pty socket (PMCP_PTY_SOCKET)
+    capabilities inspect   Report what this host can run
+    doctor inspect         Check host prerequisites
+    group create           Create an owned session group from --input
+    group list             List owned groups
+    group inspect          Show one group
+    group configure        Change a group's settings from --input
+    group pause            Pause every session of a group
+    group resume           Resume a paused group
+    group stop             Stop a group and its sessions
+    session start          Start a main or worker session from --input
+    session list           List a group's sessions
+    session inspect        Show one session
+    session read           Read a session's recent output
+    session watch          Follow a session's output
+    session stop           Stop one session
+    control acquire        Take the input lease of a session
+    control renew          Renew a held input lease
+    control release        Give the input lease back
+    input write            Type text into a session without submitting it
+    input submit           Submit what was written
+    input interrupt        Interrupt the session's current turn
+    attach open            Attach a terminal to a session, read only unless --mode write
+    attach inspect         Show a session's attachments
+    attach detach          Detach from a session
+    delivery list          List input deliveries
+    delivery inspect       Show one input delivery
+    recovery inspect       Find sessions and starts that need recovery
+    recovery reconcile     Reconcile recorded state with live processes
+    recovery replace-main  Replace a lost main session from --input
+    recovery stop-orphan   Stop a session no group owns
+    recovery abort-start   Abort a session start that never finished
+
+  Run pmcp harness <subcommand> --help for one subcommand's usage.
+
+  Options
+    --include-starts     Include pending native starts in recovery inspection
+    --columns <integer>  Terminal width in cells
+    --rows <integer>     Terminal height including status
+    --generation <id>    Expected group generation for a mutation
+    --group-file <file>  Private owned group state
+    --input <file>       Group, session, read or watch specification JSON
+    --session <id>       Owned native session ID
+    --lease-file <file>  Private writer credential
+    --controller <id>    Local controller identity
+    --mode <mode>        Control cli/native; attachment observe/write
+    --request-id <id>    Explicit input idempotency key
+    --text-file <file>   Literal single-line UTF-8 input without submission
+
+  Examples
+    pmcp harness doctor inspect
+    pmcp harness group inspect --group-file "$GROUP_FILE"
+    pmcp harness host status
 

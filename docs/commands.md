@@ -3,7 +3,9 @@
 [Back to the overview](../README.md)
 
 Every pmcp command with its flags, behaviour and exit codes. `pmcp <command> --help` prints
-the same usage from the command itself.
+the same usage from the command itself, with its subcommands and examples, and
+`pmcp <command> <subcommand> --help` prints the usage, options and examples of one
+subcommand, such as `pmcp harness group create --help` or `pmcp mailbox export --help`.
 
 ## The invocation a host uses
 
@@ -362,7 +364,7 @@ Both show the project and lockfile changes and stop: `--yes` (`-y`) approves the
 | `-y`, `--yes` | `install`, `sync`, `tui` | approve the displayed changes, or the first runtime start, without a prompt |
 | `-q`, `--quiet` | anywhere | silence diagnostics and progress on standard error, except errors; results on standard output still print |
 | `--color`, `--no-color` | anywhere | always or never colour; without either, `FORCE_COLOR` (`0` off, anything else on) wins over `NO_COLOR`, `TERM=dumb` and the terminal test |
-| `--help`, `-h` | anywhere | the help for that command, generated from the command itself |
+| `--help`, `-h` | anywhere | the help for that command or subcommand, generated from the command itself: usage, subcommands, the options that apply and examples |
 | `-v`, `-V`, `--version`, `version` | on its own | the version, on standard output |
 
 With `TERM=dumb`, or a locale that is not UTF-8, the few typographic characters in messages (an em dash, a middle dot) print as ASCII. Long operations such as `index` report progress on standard error: one rewritten line on a terminal, a plain `k/N` line every tenth of the work otherwise.

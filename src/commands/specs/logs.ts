@@ -3,6 +3,10 @@ import { jsonOption, nearestConfigOption } from "../options/inspection.js";
 
 export const logsSpec: CommandSpec = {
   name: "logs",
+  examples: [
+    "pmcp logs --since 10m --level warn --pretty",
+    "pmcp logs --trace 7cef825e8fbd8c3f --json",
+  ],
   describe:
     "Read this project's pmcp JSONL logs, filtered by session, trace, component, level or time",
   usage:

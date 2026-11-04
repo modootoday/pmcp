@@ -1,6 +1,10 @@
 import { createInterface } from "node:readline/promises";
 
-import { ArgumentError, type CommandContext } from "../../cli/command.js";
+import {
+  ArgumentError,
+  unknownSubcommand,
+  type CommandContext,
+} from "../../cli/command.js";
 import { approvalDir, approvalState } from "../../project/host-approval.js";
 import { approveHost } from "../../harness/host/approve.js";
 import { hostDoctor } from "../../project/host.js";
@@ -28,8 +32,10 @@ const VERBS = ["approve", "status", "up", "down", "unit"];
 // [host] files, and running what was approved through pmcp-pty.
 export async function runHost(context: CommandContext): Promise<number> {
   const [, verb, ...extra] = context.args.positional;
-  if (extra.length > 0 || !verb || !VERBS.includes(verb))
-    throw new ArgumentError(`Provide host ${VERBS.join(" | ")}`);
+  if (!verb || !VERBS.includes(verb))
+    throw unknownSubcommand("harness host", verb, VERBS);
+  if (extra.length > 0)
+    throw new ArgumentError(`unexpected ${extra.join(" ")}`);
   const spec = specFrom(context);
   if (!spec.host) throw new ArgumentError("pmcp.toml has no [host] table");
   const refused = hostVerbUnsupported(verb);

@@ -4,6 +4,9 @@ import {
   parseArgs,
   printCommandHelp,
   printHelp,
+  printSubcommandHelp,
+  subcommandNamed,
+  unknownSubcommand,
   type Command,
   type CommandEntry,
   type CommandSpec,
@@ -101,11 +104,34 @@ export function dispatch(
 
   const own = rest.includes("--") ? rest.slice(0, rest.indexOf("--")) : rest;
   if (own.includes("--help") || own.includes("-h")) {
-    printCommandHelp(ui.results, command);
-    return EXIT.ok;
+    return help(command, positionalWords(own), { ui, env, cwd });
   }
 
   return run(command, rest, { ui, env, cwd });
+}
+
+function help(
+  command: CommandSpec,
+  words: readonly string[],
+  context: RunContext,
+): number {
+  const subs = command.subcommands ?? [];
+  const sub = subcommandNamed(command, words);
+  if (sub !== undefined) {
+    printSubcommandHelp(context.ui.results, command, sub);
+    return EXIT.ok;
+  }
+  const group = subs.some((entry) => entry.name.startsWith(`${words[0]} `));
+  if (words.length === 0 || subs.length === 0 || group) {
+    printCommandHelp(context.ui.results, command);
+    return EXIT.ok;
+  }
+  const names = subs.map((entry) => entry.name);
+  context.ui.error(unknownSubcommand(command.name, words[0], names).message);
+  context.ui.line(
+    `Run ${invocation(context.env)} ${command.name} --help for its subcommands.`,
+  );
+  return EXIT.usage;
 }
 
 const plain = (word: string): string => word;

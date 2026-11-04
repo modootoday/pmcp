@@ -3,6 +3,11 @@ pmcp init
 
   pmcp init [--preset solo|multi-session] [--force]
 
-  --preset <preset>  Starting configuration; default solo.
-  --force            Replace an existing pmcp.toml.
+  Options
+    --preset <preset>  Starting configuration; default solo.
+    --force            Replace an existing pmcp.toml.
+
+  Examples
+    pmcp init
+    pmcp init --preset multi-session
 

@@ -3,8 +3,18 @@ import { jsonOption, nearestConfigOption } from "../options/inspection.js";
 
 export const heavySpec: CommandSpec = {
   name: "heavy",
+  examples: [
+    "pmcp heavy -- npm test",
+    'pmcp heavy --label "web build" --profile gate -- npm run build',
+  ],
   subcommands: [
-    { name: "status", describe: "The lease, its holder and waiters" },
+    {
+      name: "status",
+      describe: "The lease, its holder, waiters and the host readings",
+      usage: "pmcp heavy status",
+      options: ["config"],
+      examples: ["pmcp heavy status"],
+    },
   ],
   describe:
     "Run a heavy command within the host-wide budget, by lane, once the host has room",

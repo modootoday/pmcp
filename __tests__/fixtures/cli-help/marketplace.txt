@@ -1,9 +1,20 @@
 pmcp marketplace
   List free public plugins or export a selected native plugin
 
-  pmcp marketplace list | export <plugin> --runtime <runtime> --output <directory> [--json]
+  pmcp marketplace <subcommand> [options]
 
-  --runtime <runtime>   Native plugin format: claude, codex, gemini, grok or agy.
-  --output <directory>  New directory for the selected plugin; existing paths are preserved.
-  --json                Print the result as one JSON envelope on stdout.
+  Subcommands
+    list    The bundled free plugins
+    export  Write one plugin in a runtime's native format
+
+  Run pmcp marketplace <subcommand> --help for one subcommand's usage.
+
+  Options
+    --runtime <runtime>   Native plugin format: claude, codex, gemini, grok or agy.
+    --output <directory>  New directory for the selected plugin; existing paths are preserved.
+    --json                Print the result as one JSON envelope on stdout.
+
+  Examples
+    pmcp marketplace list
+    pmcp marketplace export typescript-5 --runtime agy --output ./typescript-plugin
 
