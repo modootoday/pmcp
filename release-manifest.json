@@ -13,11 +13,11 @@
     "@modootoday/pmcp-darwin-arm64"
   ],
   "versions": {
-    "@modootoday/pmcp": "0.23.1",
-    "@modootoday/pmcp-linux-x64": "0.23.1",
-    "@modootoday/pmcp-linux-arm64": "0.23.1",
-    "@modootoday/pmcp-darwin-x64": "0.23.1",
-    "@modootoday/pmcp-darwin-arm64": "0.23.1"
+    "@modootoday/pmcp": "0.24.0",
+    "@modootoday/pmcp-linux-x64": "0.24.0",
+    "@modootoday/pmcp-linux-arm64": "0.24.0",
+    "@modootoday/pmcp-darwin-x64": "0.24.0",
+    "@modootoday/pmcp-darwin-arm64": "0.24.0"
   },
   "sourceAuthority": "modootoday/pmcp"
 }

@@ -24,7 +24,7 @@ import type { MailboxService } from "./mailbox/service.js";
 
 export const SERVER_NAME = "pmcp";
 
-export const SERVER_VERSION = "0.23.1";
+export const SERVER_VERSION = "0.24.0";
 
 export const MAX_TOOL_INPUT_ELEMENTS = 10_000;
 
