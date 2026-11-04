@@ -5,6 +5,27 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.22 to 0.23
+
+0.23.0 makes the command line behave like other command-line tools; several changes break
+scripts that relied on the old behaviour.
+
+**Results go to standard output.** The human result of a command (the `list`, `models`,
+`marketplace list` and `doctor` tables, `validate` findings, the `status` summary, `hooks`
+and `sessions` listings, an `install` or `sync` plan, and help you asked for with `--help`)
+now goes to standard output; before, it went to standard error. Progress, summaries,
+warnings and errors stay on standard error. `-q` silences only standard error (errors still
+print), so `pmcp -q list` prints the table. A script that captured a table with `2>&1` or
+`2>file` should read standard output instead; one that discarded standard output to keep a
+terminal quiet should redirect it too.
+
+**A leading option `serve` does not accept no longer starts the server.** `pmcp -v`,
+`pmcp -V` and `pmcp version` print the version, like `--version`. Any other leading option,
+such as `-x` or `--verison`, exits 2. A host that starts the server with leading options
+(`pmcp --root ./node_modules`) is unaffected; one that passed an option `serve` rejects was
+already failing. A short flag a command does not declare (`pmcp list -j`) exits 2 instead of
+being ignored; use `--` before a positional that starts with a dash.
+
 ## From 0.22.12 to 0.22.13
 
 **A gate command that exits 75 makes `pmcp git deliver` exit 75.** 75 now means a test stage

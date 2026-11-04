@@ -17,7 +17,8 @@ async function capture(argv: readonly string[]) {
 }
 
 function helpText(result: { out: string; err: string }): string {
-  return result.out + result.err;
+  expect(result.err).toBe("");
+  return result.out;
 }
 
 it("prints every command's help the same way for --help, -h and help <command>", async () => {

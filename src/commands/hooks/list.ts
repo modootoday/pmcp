@@ -19,7 +19,7 @@ export function run(context: CommandContext): number {
     context.ui.data(JSON.stringify({ version: 1, policies: rows }) + "\n");
     return 0;
   }
-  if (!rows.length) context.ui.line("No compiled policies.");
+  if (!rows.length) context.ui.results.line("No compiled policies.");
   for (const row of rows)
     context.ui.data(
       [row.runtime, row.event, row.policy, row.mode, row.source].join("\t") +

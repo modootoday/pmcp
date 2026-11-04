@@ -5,7 +5,8 @@ import { renderStatus } from "../src/status/render.js";
 
 it("names linked worktrees as worktrees in the status summary", () => {
   const lines: string[] = [];
-  const context = { ui: { line: (text: string) => lines.push(text) } };
+  const view = { line: (text: string) => lines.push(text) };
+  const context = { ui: { results: view } };
   const report = {
     config: "pmcp.toml",
     features: [],

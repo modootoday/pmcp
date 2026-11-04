@@ -24,11 +24,12 @@ export const validateCommand: Command = {
       return errors > 0 ? 1 : 0;
     }
     for (const finding of findings) {
-      const report =
-        finding.level === "error" ? context.ui.error : context.ui.warn;
-      report.call(context.ui, finding.reason, finding.path);
+      const out = context.ui.results;
+      const report = finding.level === "error" ? out.error : out.warn;
+      report.call(out, finding.reason, finding.path);
     }
-    if (findings.length === 0) context.ui.success("every skill is valid");
+    if (findings.length === 0)
+      context.ui.results.success("every skill is valid");
     return errors > 0 ? 1 : 0;
   },
 };

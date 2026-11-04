@@ -51,6 +51,12 @@ const KIND_COLOUR: Record<Kind, Colour> = {
 
 type Env = Readonly<Record<string, string | undefined>>;
 
+const ASCII: Readonly<Record<string, string>> = {
+  "·": "/",
+  "…": "...",
+  "✗": "x",
+};
+
 // FORCE_COLOR wins over the TTY test as Node does; 0 or false turns colour off.
 export function colourFrom(env: Env, tty: boolean): boolean {
   const force = env["FORCE_COLOR"];
@@ -70,16 +76,31 @@ export class Ui {
   private readonly out: Stream;
   private readonly err: Stream;
   private readonly quiet: boolean;
+  private readonly options: UiOptions;
+  private view: Ui | undefined;
   readonly colour: boolean;
   readonly ascii: boolean;
 
   constructor(options: UiOptions = {}) {
+    this.options = options;
     this.out = options.stdout ?? process.stdout;
     this.err = options.stderr ?? process.stderr;
     this.quiet = options.quiet ?? false;
     const env = options.env ?? process.env;
     this.colour = options.color ?? colourFrom(env, this.err.isTTY === true);
     this.ascii = asciiOnly(env);
+  }
+
+  // The same formatting aimed at stdout and never silenced: a command's result, which
+  // -q must not erase and a pipe must receive. Diagnostics stay on this Ui (stderr).
+  get results(): Ui {
+    this.view ??= new Ui({
+      ...this.options,
+      stdout: this.out,
+      stderr: this.out,
+      quiet: false,
+    });
+    return this.view;
   }
 
   paint(text: string, ...colours: readonly Colour[]): string {
@@ -100,9 +121,7 @@ export class Ui {
   // Replace the few typographic characters pmcp prints when the terminal cannot show them.
   text(value: string): string {
     if (!this.ascii) return value;
-    return value.replace(/[—–·…]/gu, (char) =>
-      char === "·" ? "/" : char === "…" ? "..." : "-",
-    );
+    return value.replace(/[—–·…✗]/gu, (char) => ASCII[char] ?? "-");
   }
 
   // k of N on one rewritten line on a TTY; elsewhere a plain line every tenth, so logs stay readable.

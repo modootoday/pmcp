@@ -54,6 +54,6 @@ export async function run(
   const result = runSmoke(config.dir, file, context.env);
   if (context.args.flags.has("json"))
     context.ui.data(JSON.stringify({ version: 1, ...result }) + "\n");
-  else printSmoke(context.ui, result);
+  else printSmoke(context.ui.results, result);
   return result.findings.length === 0 ? 0 : 1;
 }

@@ -46,7 +46,7 @@ export async function run(context: CommandContext): Promise<number> {
       );
     else {
       for (const line of found)
-        context.ui.line(
+        context.ui.results.line(
           [
             line.ts,
             line.runtime,
@@ -57,7 +57,7 @@ export async function run(context: CommandContext): Promise<number> {
             .filter(Boolean)
             .join(" "),
         );
-      context.ui.line(
+      context.ui.results.line(
         `${guard} would have refused ${found.length} call(s) it let through`,
       );
     }
@@ -75,7 +75,7 @@ export async function run(context: CommandContext): Promise<number> {
     return 0;
   }
   if (summary.lines === 0)
-    context.ui.line(
+    context.ui.results.line(
       "no guard log lines; guards log at debug level ([logging] level or PMCP_LOG=debug)",
     );
   for (const row of summary.guards) {
@@ -84,11 +84,11 @@ export async function run(context: CommandContext): Promise<number> {
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([name, value]) => `${name} ${value}`)
         .join(", ");
-    context.ui.line(
+    context.ui.results.line(
       `${row.policy} ${row.runtime} [${row.modes.join(",")}]: ${row.calls} call(s), ${row.sessions} session(s); found ${counts(row.raw)}; gave ${counts(row.verdict)}; p50 ${row.durationMs.p50}ms p95 ${row.durationMs.p95}ms max ${row.durationMs.max}ms`,
     );
   }
-  context.ui.line(
+  context.ui.results.line(
     `${summary.lines} guard run(s) in ${summary.sessions} session(s)${summary.excluded ? `; ${summary.excluded} excluded by [hooks.report] exclude_sessions` : ""}`,
   );
   return 0;

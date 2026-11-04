@@ -62,12 +62,12 @@ export function dispatch(
   }
   if (verb === "--help" || verb === "-h" || verb === "help") {
     if (rest[0] === undefined) {
-      printHelp(ui, COMMANDS, PLANNED);
+      printHelp(ui.results, COMMANDS, PLANNED);
       return EXIT.ok;
     }
     const named = commandNamed(rest[0]);
     if (named === undefined) return unknownCommand(rest[0], { ui, env, cwd });
-    printCommandHelp(ui, named);
+    printCommandHelp(ui.results, named);
     return EXIT.ok;
   }
   if (VERSION_WORDS.has(verb)) {
@@ -98,7 +98,7 @@ export function dispatch(
 
   const own = rest.includes("--") ? rest.slice(0, rest.indexOf("--")) : rest;
   if (own.includes("--help") || own.includes("-h")) {
-    printCommandHelp(ui, command);
+    printCommandHelp(ui.results, command);
     return EXIT.ok;
   }
 
@@ -154,7 +154,7 @@ async function defaultEntry(
       "Run pmcp tui doctor for prerequisites, or pmcp serve for MCP.",
     );
   }
-  printHelp(context.ui, COMMANDS, PLANNED);
+  printHelp(context.ui.results, COMMANDS, PLANNED);
   return EXIT.ok;
 }
 

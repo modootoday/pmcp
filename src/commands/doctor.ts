@@ -40,13 +40,13 @@ export const doctorCommand: Command = {
       const extra = features.length > 0 ? { features } : {};
       context.ui.data(`${JSON.stringify({ findings, ...extra }, null, 2)}\n`);
     } else {
-      context.ui.table(
+      context.ui.results.table(
         findings.map((f) => [
           `${MARKS[f.status]}  ${f.tool}`,
           f.detail ? `${f.check} (${f.detail})` : f.check,
         ]),
       );
-      printFeatures(context.ui, features);
+      printFeatures(context.ui.results, features);
     }
     return findings.some((f) => f.status === "fail") ? 1 : 0;
   },

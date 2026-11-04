@@ -27,12 +27,12 @@ export const availableCommand: Command = {
           `${match.targetName}@${match.targetVersion}\t${match.entry.delivery.packageName}@${match.entry.delivery.version}\t${status}\n`,
         );
         const { verifiedOn, examplesExecuted } = match.entry.evidence;
-        context.ui.line(
+        context.ui.results.line(
           `    ${examplesExecuted} examples executed${verifiedOn ? ` on ${verifiedOn}` : ""}`,
         );
         const headings = match.entry.preview?.headings ?? [];
         if (headings.length > 0) {
-          context.ui.line(`    ${headings.join(" · ")}`);
+          context.ui.results.line(`    ${headings.join(" · ")}`);
         }
         sayStanding(context, match.entry.line);
       }

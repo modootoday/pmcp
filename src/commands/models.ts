@@ -10,7 +10,7 @@ export const modelsCommand: Command = {
       context.ui.data(`${JSON.stringify(models, null, 2)}\n`);
       return 0;
     }
-    context.ui.table(
+    context.ui.results.table(
       models.map((model) => [
         model.name,
         `${model.modelId} (${model.dtype}; dimensions: ${model.dimensions.join(", ")})`,

@@ -48,6 +48,23 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-022-to-023">From 0.22 to 0.23</h2>
+<p>0.23.0 makes the command line behave like other command-line tools; several changes break
+scripts that relied on the old behaviour.</p>
+<p><strong>Results go to standard output.</strong> The human result of a command (the <code>list</code>, <code>models</code>,
+<code>marketplace list</code> and <code>doctor</code> tables, <code>validate</code> findings, the <code>status</code> summary, <code>hooks</code>
+and <code>sessions</code> listings, an <code>install</code> or <code>sync</code> plan, and help you asked for with <code>--help</code>)
+now goes to standard output; before, it went to standard error. Progress, summaries,
+warnings and errors stay on standard error. <code>-q</code> silences only standard error (errors still
+print), so <code>pmcp -q list</code> prints the table. A script that captured a table with <code>2&gt;&amp;1</code> or
+<code>2&gt;file</code> should read standard output instead; one that discarded standard output to keep a
+terminal quiet should redirect it too.</p>
+<p><strong>A leading option <code>serve</code> does not accept no longer starts the server.</strong> <code>pmcp -v</code>,
+<code>pmcp -V</code> and <code>pmcp version</code> print the version, like <code>--version</code>. Any other leading option,
+such as <code>-x</code> or <code>--verison</code>, exits 2. A host that starts the server with leading options
+(<code>pmcp --root ./node_modules</code>) is unaffected; one that passed an option <code>serve</code> rejects was
+already failing. A short flag a command does not declare (<code>pmcp list -j</code>) exits 2 instead of
+being ignored; use <code>--</code> before a positional that starts with a dash.</p>
 <h2 id="from-02212-to-02213">From 0.22.12 to 0.22.13</h2>
 <p><strong>A gate command that exits 75 makes <code>pmcp git deliver</code> exit 75.</strong> 75 now means a test stage
 under <code>pmcp heavy</code> never got the host lease: deliver reports &quot;gate not run: host busy,

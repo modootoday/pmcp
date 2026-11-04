@@ -20,7 +20,7 @@ An unrecognised command does not fall through to a server the caller did not ask
 pmcp status [--config <file>] [--json]
 ```
 
-Show enabled features and their TOML or auto source, projection drift, live sessions, pause, leases, unseen broadcasts, worktree ahead/behind counts, shared MCP credential presence, logged errors from the last hour, and, with a [`[budget]`](project-configuration.md#budget) table, each limit beside what it measured. Reads do not acknowledge broadcasts, refresh credentials, prune logs, fetch or move git refs. Projection uses the same check as `project --check`. Exit 0, or 2 when projection or worktree ahead/behind drift exists or a budget limit is exceeded. Missing or invalid input follows the normal usage/failure exit contract. Human output is a compact summary on stderr; JSON retains the full details.
+Show enabled features and their TOML or auto source, projection drift, live sessions, pause, leases, unseen broadcasts, worktree ahead/behind counts, shared MCP credential presence, logged errors from the last hour, and, with a [`[budget]`](project-configuration.md#budget) table, each limit beside what it measured. Reads do not acknowledge broadcasts, refresh credentials, prune logs, fetch or move git refs. Projection uses the same check as `project --check`. Exit 0, or 2 when projection or worktree ahead/behind drift exists or a budget limit is exceeded. Missing or invalid input follows the normal usage/failure exit contract. Human output is a compact summary on stdout; JSON retains the full details.
 
 ## init
 
@@ -347,7 +347,7 @@ Both show the project and lockfile changes and stop: `--yes` (`-y`) approves the
 | `--model <id>` | `index`, `serve` | the encoder to use; rows from another model are never scored |
 | `--json` | every command that prints a result; `pmcp <command> --help` lists it | emit JSON on standard output rather than a table or a summary |
 | `-y`, `--yes` | `install`, `sync`, `tui` | approve the displayed changes, or the first runtime start, without a prompt |
-| `-q`, `--quiet` | anywhere | only errors on standard error |
+| `-q`, `--quiet` | anywhere | silence diagnostics and progress on standard error, except errors; results on standard output still print |
 | `--color`, `--no-color` | anywhere | always or never colour; without either, `FORCE_COLOR` (`0` off, anything else on) wins over `NO_COLOR`, `TERM=dumb` and the terminal test |
 | `--help`, `-h` | anywhere | the help for that command, generated from the command itself |
 | `-v`, `-V`, `--version`, `version` | on its own | the version, on standard output |
@@ -370,7 +370,7 @@ An unknown command, subcommand or option exits 2 with one line naming it, the cl
 
 The distinction between 1 and 3 is worth wiring into a script: 1 says the project is not what you expected, and 3 says the machine is missing something optional and the server still works without it.
 
-**Data on stdout, everything else on stderr.** The JSON from `--json` and the string from `--version` go to standard output so they can be piped. Tables, help and messages go to standard error, which is what keeps a pipeline's input clean.
+**Results on stdout, diagnostics on stderr.** What you asked for goes to standard output: the JSON from `--json`, the version, requested help, and the human result of a read (the `list`, `models`, `marketplace list` and `doctor` tables, `validate` findings, the `status` summary, `hooks` and `sessions` listings, an `install` or `sync` plan). So `pmcp list | grep react` and `pmcp list > skills.txt` work, and `-q` never erases a result. Progress, summaries such as "144 skills", warnings, hints and errors go to standard error. Before 0.23.0, human tables and help went to standard error; see [Upgrading](upgrading.md).
 
 ## Runtime
 

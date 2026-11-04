@@ -28,7 +28,7 @@ export const listCommand: Command = {
       return 1;
     }
 
-    context.ui.table(
+    context.ui.results.table(
       entries.map((entry) => {
         const tags = [entry.kind, entry.tier].filter(Boolean).join(", ");
         return [

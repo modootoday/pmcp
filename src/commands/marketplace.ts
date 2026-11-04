@@ -39,7 +39,7 @@ export const marketplaceCommand: Command = {
         );
         return 0;
       }
-      context.ui.table(
+      context.ui.results.table(
         plugins.map((plugin) => [
           plugin.name,
           String(plugin.description ?? ""),

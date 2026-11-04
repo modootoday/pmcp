@@ -73,7 +73,7 @@ export async function run(context: CommandContext): Promise<number> {
       context.ui.data(JSON.stringify(result) + "\n");
     if (!context.args.flags.has("json")) {
       for (const row of report.policies)
-        context.ui.line(
+        context.ui.results.line(
           row.policy +
             ": " +
             row.verdict +

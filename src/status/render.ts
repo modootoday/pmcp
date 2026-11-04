@@ -5,14 +5,14 @@ export function renderStatus(
   context: CommandContext,
   report: Awaited<ReturnType<typeof readStatus>>,
 ): void {
-  context.ui.line("pmcp status: " + report.config);
+  context.ui.results.line("pmcp status: " + report.config);
   const enabled = report.features.filter((row) => row.enabled);
-  context.ui.line(
+  context.ui.results.line(
     "Features: " +
       (enabled.map((row) => row.feature + " [" + row.source + "]").join(", ") ||
         "none"),
   );
-  context.ui.line(
+  context.ui.results.line(
     "Projection: " +
       (report.projection.drift
         ? report.projection.problems.length + " drift(s)"
@@ -22,7 +22,7 @@ export function renderStatus(
       " outputs)",
   );
   for (const problem of report.projection.problems.slice(0, 3))
-    context.ui.line("  " + problem);
+    context.ui.results.line("  " + problem);
   if (report.budget) {
     // The largest measurement of each limit, then what is over.
     const worst = new Map<string, (typeof report.budget.rows)[number]>();
@@ -31,7 +31,7 @@ export function renderStatus(
       if (!seen || row.value - row.limit > seen.value - seen.limit)
         worst.set(row.key, row);
     }
-    context.ui.line(
+    context.ui.results.line(
       "Budget: " +
         (report.budget.problems.length
           ? report.budget.problems.length + " over"
@@ -41,10 +41,10 @@ export function renderStatus(
           .join("") || ""),
     );
     for (const problem of report.budget.problems.slice(0, 3))
-      context.ui.line("  " + problem);
+      context.ui.results.line("  " + problem);
   }
   const state = report.sessions;
-  context.ui.line(
+  context.ui.results.line(
     "Sessions: " +
       state.live.length +
       " live; pause " +
@@ -58,18 +58,18 @@ export function renderStatus(
   const drifted = report.worktrees.filter(
     (row) => (row.behind ?? 0) > 0 || (row.ahead ?? 0) > 0,
   );
-  context.ui.line(
+  context.ui.results.line(
     "Linked worktrees: " +
       report.worktrees.length +
       "; " +
       drifted.length +
       " ahead/behind",
   );
-  context.ui.line(
+  context.ui.results.line(
     "MCP auth: " +
       (report.mcp
         .map((row) => row.name + "=" + (row.present ? "present" : "absent"))
         .join(", ") || "no pmcp-auth servers"),
   );
-  context.ui.line("Errors (last hour): " + report.errors.length);
+  context.ui.results.line("Errors (last hour): " + report.errors.length);
 }

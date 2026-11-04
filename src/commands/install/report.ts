@@ -9,9 +9,9 @@ export function reportPlan(
   if (!context.args.flags.has("json")) {
     context.ui.info("project", project);
     for (const entry of plan.changes)
-      context.ui.line(`  ${entry.packageName}@${entry.version}`);
+      context.ui.results.line(`  ${entry.packageName}@${entry.version}`);
     if (plan.changes.length)
-      context.ui.line(
+      context.ui.results.line(
         `  ${plan.command.executable} ${plan.command.args.join(" ")}`,
       );
     for (const entry of plan.recalled) {

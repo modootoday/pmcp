@@ -76,7 +76,7 @@ export function status(context: CommandContext): Promise<number> {
   return import("../status.js").then(({ statusLines }) => {
     const lines = statusLines(store, context.cwd, leases);
     if (lines.length > 0) context.ui.data(`${lines.join("\n")}\n`);
-    if (lines.length === 0) context.ui.line("no live sessions");
+    if (lines.length === 0) context.ui.results.line("no live sessions");
     return 0;
   });
 }

@@ -12,7 +12,7 @@ export function importMcp(context: CommandContext): number {
     throw new ArgumentError("import-mcp needs --source <tool>:<file>");
   }
   const plan = planMcpImport(config.path, sources, many(context.args, "name"));
-  context.ui.table(
+  context.ui.results.table(
     plan.entries.map((entry) => [
       `${entry.status}  ${entry.alias}`,
       entry.detail ?? entry.source,

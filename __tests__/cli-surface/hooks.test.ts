@@ -37,8 +37,8 @@ it("shows what an observed guard found, though the call is allowed", async (t) =
     "a repetition count of 2500 (the limit is 255), whose cost is in compiling the pattern",
   );
   const text = await run(...args);
-  expect(text.err).toContain("shell.runaway_regex: allow");
-  expect(text.err).toContain("(observe; found deny: This grep can keep");
+  expect(text.out).toContain("shell.runaway_regex: allow");
+  expect(text.out).toContain("(observe; found deny: This grep can keep");
 });
 
 it("lists compiled runtime/event bindings with modes and TOML sources", async (t) => {

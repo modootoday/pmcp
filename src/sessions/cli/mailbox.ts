@@ -88,7 +88,7 @@ function ttlOf(context: CommandContext): number | undefined {
 function print(context: CommandContext, value: unknown, line: string): void {
   if (context.args.flags.has("json"))
     context.ui.data(`${JSON.stringify(value, null, 2)}\n`);
-  else context.ui.line(line);
+  else context.ui.results.line(line);
 }
 
 async function sent(
@@ -176,11 +176,11 @@ export function inbox(context: CommandContext): number {
     context.ui.data(`${JSON.stringify(rows, null, 2)}\n`);
     return 0;
   }
-  if (rows.length === 0) context.ui.line("no messages");
+  if (rows.length === 0) context.ui.results.line("no messages");
   for (const row of rows) {
     const subject = row.subject ? ` (${row.subject})` : "";
     const once = row.once ? " [once]" : "";
-    context.ui.line(
+    context.ui.results.line(
       `${row.id} from ${sender(row)} to ${row.to.join(", ")}${subject}${once}: ${row.body}`,
     );
   }
