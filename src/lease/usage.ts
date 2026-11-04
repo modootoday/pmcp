@@ -29,6 +29,10 @@ export interface Usage {
   readonly source: "cgroup" | "proc" | "none";
   // Set when the run went around the lease (PMCP_HEAVY_DISABLE or the legacy skip): why.
   readonly skip?: string;
+  // Set when a skip was present but a bulk job queued anyway: the reason it carried.
+  readonly skip_refused?: string;
+  // The variable that carried skip or skip_refused.
+  readonly skip_env?: string;
 }
 
 // Lower-case words only: a path, a flag, a version, a name=value or a quoted value ends it.

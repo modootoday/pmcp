@@ -1,8 +1,8 @@
 import { mkdirSync, readFileSync } from "node:fs";
 
-import { skipReason } from "./acquire.js";
+import { skipSource } from "./acquire.js";
 import { laneUse, readQueue } from "./admit.js";
-import { DISABLE_ENV, type LeaseSettings } from "./config.js";
+import type { LeaseSettings } from "./config.js";
 import { etas, graceRuns, logLines, runMedians } from "./estimate.js";
 import {
   describeRecord,
@@ -112,10 +112,10 @@ export function leaseStatus(options: StatusOptions): string[] {
   const outside =
     options.outside ?? ((pids) => outsideLease({ holders: pids }));
   lines.push(...outsideLines(outside(running.map((job) => job.pid))));
-  const skip = skipReason(settings, env);
+  const skip = skipSource(settings, env);
   if (skip !== null)
     lines.push(
-      `skip: this shell runs without the lease (${DISABLE_ENV}): ${skip}`,
+      `skip: this shell runs without the lease (${skip.variable}): ${skip.reason}`,
     );
   return lines;
 }

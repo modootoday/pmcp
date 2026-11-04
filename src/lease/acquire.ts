@@ -54,7 +54,12 @@ export type LeaseOutcome =
       release(rc: number, ran: number): void;
     }
   | { readonly kind: "reentrant" }
-  | { readonly kind: "skipped"; readonly reason: string }
+  | {
+      readonly kind: "skipped";
+      readonly reason: string;
+      // The variable that carried the skip, absent when flock is missing.
+      readonly variable?: string;
+    }
   | { readonly kind: "disabled" }
   // Cancelled in the queue by pmcp heavy cancel.
   | { readonly kind: "cancelled"; readonly reason: string }
@@ -84,14 +89,27 @@ export interface AcquireOptions {
 
 const STEP_SECONDS = 1;
 
+export interface Skip {
+  readonly reason: string;
+  readonly variable: string;
+}
+
+export function skipSource(
+  settings: LeaseSettings,
+  env: AcquireOptions["env"],
+): Skip | null {
+  for (const variable of [DISABLE_ENV, settings.legacySkipEnv]) {
+    const reason = variable ? env[variable] : undefined;
+    if (variable && reason) return { reason, variable };
+  }
+  return null;
+}
+
 export function skipReason(
   settings: LeaseSettings,
   env: AcquireOptions["env"],
 ): string | null {
-  const own = env[DISABLE_ENV];
-  if (own) return own;
-  const legacy = settings.legacySkipEnv ? env[settings.legacySkipEnv] : "";
-  return legacy || null;
+  return skipSource(settings, env)?.reason ?? null;
 }
 
 // A marker is trusted only while it names a live running job, or the recorded live holder of a
@@ -274,35 +292,35 @@ export function acquireLease(options: AcquireOptions): LeaseOutcome {
   const { settings, env, label, say } = options;
   if (!settings.enabled) return { kind: "disabled" };
   const paths = leasePaths(settings.dir);
-  const skip = skipReason(settings, env);
+  const skip = skipSource(settings, env);
   // A skip is for one ordinary command; a bulk job (an install, a whole suite) still queues,
   // unless the project lists the reason in skip_always (a caller that must never wait).
   const refused =
     skip !== null &&
     options.lane === "bulk" &&
-    !settings.skipAlways.includes(skip);
+    !settings.skipAlways.includes(skip.reason);
   // Nested inside a leased job, the bulk job already runs under that lease.
   if (refused && reentrant(settings, env)) return { kind: "reentrant" };
   if (skip !== null && refused) {
     say(
-      `the lease skip (${skip}) is not honoured for a bulk job (--lane bulk, or a [[host.lease.commands]] entry with lane = "bulk"); it queues in the bulk lane. For an emergency run: pmcp heavy --now --reason <text> -- <command>`,
+      `the lease skip (${skip.reason}) is not honoured for a bulk job (--lane bulk, or a [[host.lease.commands]] entry with lane = "bulk"); it queues in the bulk lane. For an emergency run: pmcp heavy --now --reason <text> -- <command>`,
     );
     logEvent(
       paths,
       process.pid,
       "skip-refused",
-      `reason=${skip} cwd=${options.cwd} label=${label}`,
+      `reason=${skip.reason} env=${skip.variable} cwd=${options.cwd} label=${label}`,
     );
   }
   if (skip !== null && !refused) {
-    say(`running without the host lease: ${skip}`);
+    say(`running without the host lease: ${skip.reason}`);
     logEvent(
       paths,
       process.pid,
       "skip",
-      `reason=${skip} cwd=${options.cwd} label=${label}`,
+      `reason=${skip.reason} env=${skip.variable} cwd=${options.cwd} label=${label}`,
     );
-    return { kind: "skipped", reason: skip };
+    return { kind: "skipped", ...skip };
   }
   if (!flockAvailable()) {
     say("flock is not installed; running without the host lease");

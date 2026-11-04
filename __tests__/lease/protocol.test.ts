@@ -125,18 +125,22 @@ describe("the lease files", () => {
     outcome.release(0, 0);
   });
 
-  it("skips the lease for PMCP_HEAVY_DISABLE or the legacy skip variable, logged with the reason", () => {
+  it("skips the lease for PMCP_HEAVY_DISABLE or the legacy skip variable, logged with the reason and the variable", () => {
     const { dir, env } = scratch();
     hold(dir);
     const said: string[] = [];
     const skipped = acquireLease(
       options(dir, { ...env, PMCP_HEAVY_DISABLE: "unit test" }, {}, said),
     );
-    expect(skipped).toEqual({ kind: "skipped", reason: "unit test" });
+    expect(skipped).toEqual({
+      kind: "skipped",
+      reason: "unit test",
+      variable: "PMCP_HEAVY_DISABLE",
+    });
     expect(said).toEqual(["running without the host lease: unit test"]);
     expect(logLines(dir).at(-1)).toMatch(
       new RegExp(
-        `^${STAMP}\t${process.pid}\tskip\treason=unit test cwd=/work/here label=unit job$`,
+        `^${STAMP}\t${process.pid}\tskip\treason=unit test env=PMCP_HEAVY_DISABLE cwd=/work/here label=unit job$`,
         "u",
       ),
     );
@@ -147,7 +151,12 @@ describe("the lease files", () => {
         { legacy_skip_env: "OLD_SKIP" },
       ),
     );
-    expect(legacy).toEqual({ kind: "skipped", reason: "old" });
+    expect(legacy).toEqual({
+      kind: "skipped",
+      reason: "old",
+      variable: "OLD_SKIP",
+    });
+    expect(logLines(dir).at(-1)).toContain("\tskip\treason=old env=OLD_SKIP ");
   });
 
   it("does nothing at all when the lease is disabled", () => {

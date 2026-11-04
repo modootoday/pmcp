@@ -335,7 +335,9 @@ and keeps it as <code>skip</code> in the command&#39;s usage record, and the gua
 command that sets it pass. The skip is bounded: a bulk job (an install, a
 whole test suite, a full build), put in the <code>bulk</code> lane by <code>--lane bulk</code> or by
 a <code>commands</code> entry, still queues in that lane, with a line on standard error
-saying the skip was not honoured;
+saying the skip was not honoured and <code>skip_refused</code> in its usage record. The
+<code>skip</code> or <code>skip-refused</code> line in <code>heavy.log</code> (<code>env=</code>) and the record&#39;s
+<code>skip_env</code> name the variable that carried the skip;
 <code>--now --reason &lt;text&gt;</code> is the emergency path for it. A bulk job nested in a
 leased job runs at once on the lease marker, as any nested job does.
 <code>pmcp heavy stats</code> shows how many runs skipped the lease, so a bypass that

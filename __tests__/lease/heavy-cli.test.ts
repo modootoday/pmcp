@@ -93,7 +93,7 @@ describe("pmcp heavy", () => {
     });
     expect(skipped.status).toBe(0);
     expect(readFileSync(join(dir, "heavy.log"), "utf8")).toContain(
-      "\tskip\treason=fixture cwd=",
+      "\tskip\treason=fixture env=PMCP_HEAVY_DISABLE cwd=",
     );
   }, 30_000);
 

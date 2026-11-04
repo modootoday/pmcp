@@ -1,4 +1,5 @@
 import type { ChildProcess } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -50,9 +51,12 @@ describe("the lease skip", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).toContain("running without the host lease: probe");
     const records = readUsage(join(dir, "usage.jsonl"));
-    expect(records.map((r) => [r.signature, r.outcome, r.skip])).toEqual([
-      ["true", "ran", "probe"],
-    ]);
+    expect(
+      records.map((r) => [r.signature, r.outcome, r.skip, r.skip_env]),
+    ).toEqual([["true", "ran", "probe", "PMCP_HEAVY_DISABLE"]]);
+    expect(readFileSync(join(dir, "heavy.log"), "utf8")).toContain(
+      "\tskip\treason=probe env=PMCP_HEAVY_DISABLE ",
+    );
     expect(skipShare(records)).toEqual({ skipped: 1, runs: 1 });
     expect(usageStats(records)[0]!.skipped).toBe(1);
   }, 30_000);
@@ -73,9 +77,53 @@ describe("the lease skip", () => {
     );
     expect(result.stderr).toContain("pmcp heavy --now --reason");
     const records = readUsage(join(dir, "usage.jsonl"));
-    expect(records.map((r) => [r.lane, r.outcome, r.skip])).toEqual([
-      ["bulk", "timeout", undefined],
+    expect(
+      records.map((r) => [
+        r.lane,
+        r.outcome,
+        r.skip,
+        r.skip_refused,
+        r.skip_env,
+      ]),
+    ).toEqual([
+      ["bulk", "timeout", undefined, "whole suite", "PMCP_HEAVY_DISABLE"],
     ]);
+    expect(readFileSync(join(dir, "heavy.log"), "utf8")).toContain(
+      "\tskip-refused\treason=whole suite env=PMCP_HEAVY_DISABLE ",
+    );
+  }, 30_000);
+
+  it("names the legacy skip variable when it carried a refused or an honoured skip", () => {
+    const { base, dir, env } = scratch();
+    const cwd = project(
+      base,
+      leaseToml(
+        dir,
+        `${BULK}legacy_skip_env = "OLD_SKIP"\nskip_always = ["gate-land"]\n`,
+      ),
+    );
+    children.push(shellHolder(dir, 30));
+    until(() => leaseHeld(leasePaths(dir)));
+    const refused = pmcpSync(["heavy", "--", "sleep", "0"], cwd, {
+      ...env,
+      OLD_SKIP: "old suite",
+    });
+    expect(refused.status).toBe(75);
+    const honoured = pmcpSync(["heavy", "--", "true"], cwd, {
+      ...env,
+      OLD_SKIP: "gate-land",
+    });
+    expect(honoured.status).toBe(0);
+    const records = readUsage(join(dir, "usage.jsonl"));
+    expect(
+      records.map((r) => [r.outcome, r.skip, r.skip_refused, r.skip_env]),
+    ).toEqual([
+      ["timeout", undefined, "old suite", "OLD_SKIP"],
+      ["ran", "gate-land", undefined, "OLD_SKIP"],
+    ]);
+    const log = readFileSync(join(dir, "heavy.log"), "utf8");
+    expect(log).toContain("\tskip-refused\treason=old suite env=OLD_SKIP ");
+    expect(log).toContain("\tskip\treason=gate-land env=OLD_SKIP ");
   }, 30_000);
 
   it("does not let a job the caller put in the bulk lane around the lease either", () => {

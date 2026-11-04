@@ -3,7 +3,12 @@ import { constants } from "node:os";
 
 import { BUS_FAILURE, scoped } from "./scope.js";
 
-import { acquireLease, profileLane, type LeaseOutcome } from "./acquire.js";
+import {
+  acquireLease,
+  profileLane,
+  skipSource,
+  type LeaseOutcome,
+} from "./acquire.js";
 import { BUSY_EXIT, DISABLE_ENV, type LeaseSettings } from "./config.js";
 import { epoch, leasePaths, oneLine, type LeaseLane } from "./files.js";
 import {
@@ -147,6 +152,23 @@ function record(
   run.onUsage?.(usage);
 }
 
+// A record names the variable that carried a skip, whether the skip was honoured or refused.
+function skipFields(
+  run: HeavyRun,
+  outcome: LeaseOutcome,
+): Pick<Usage, "skip" | "skip_refused" | "skip_env"> {
+  if (outcome.kind === "skipped")
+    return {
+      skip: outcome.reason,
+      ...(outcome.variable ? { skip_env: outcome.variable } : {}),
+    };
+  if (outcome.kind === "disabled" || outcome.kind === "reentrant") return {};
+  const refused = skipSource(run.settings, run.env);
+  return refused
+    ? { skip_refused: refused.reason, skip_env: refused.variable }
+    : {};
+}
+
 // A job cancelled while it queued ends like one stopped by SIGINT.
 const CANCELLED_EXIT = 130;
 
@@ -178,6 +200,7 @@ export async function runHeavy(run: HeavyRun): Promise<number> {
       start: "none",
       outcome: "cancelled",
       exit: CANCELLED_EXIT,
+      ...skipFields(run, outcome),
     });
     return CANCELLED_EXIT;
   }
@@ -197,6 +220,7 @@ export async function runHeavy(run: HeavyRun): Promise<number> {
       start: "none",
       outcome: "timeout",
       exit: BUSY_EXIT,
+      ...skipFields(run, outcome),
     });
     return BUSY_EXIT;
   }
@@ -247,7 +271,7 @@ export async function runHeavy(run: HeavyRun): Promise<number> {
         start: held ? held.start : "none",
         outcome: "ran",
         exit: code,
-        ...(outcome.kind === "skipped" ? { skip: outcome.reason } : {}),
+        ...skipFields(run, outcome),
       });
   }
   return code;
