@@ -93,6 +93,16 @@ function membersOf(
   }
 }
 
+// Derived readers only ever name files outside every member, so skip them when none changed.
+function outsideMembers(
+  changes: readonly Change[],
+  dirs: ReadonlySet<string>,
+): boolean {
+  return changes.some(
+    ({ path }) => !dirs.has(path) && ownerWalk(path, dirs) === undefined,
+  );
+}
+
 export function selectAffected(
   root: string,
   config: AffectedConfig,
@@ -147,7 +157,9 @@ function mapChanges(
     test: matcher([glob]),
     list,
   }));
-  const derived = deriveReaders(tree, members, config.derive);
+  const derived = outsideMembers(changes, dirs)
+    ? deriveReaders(tree, members, config.derive)
+    : new Map<string, Set<string>>();
   const memberChange = changes.some(
     (change) =>
       (change.status === "A" || change.status === "D") &&

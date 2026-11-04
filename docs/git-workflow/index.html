@@ -233,7 +233,9 @@ outside the checkout. Every input (membership, member manifests, tsconfig and vi
 sources and the lockfile) is read from git objects at the head, and a submodule at the commit the
 head pins, never from the working tree, so the checkout may move while it runs. A submodule with
 no object store on the host reads as empty, as an uninitialized one would; one whose store lacks
-the pinned commit answers <code>ALL</code>.</p>
+the pinned commit answers <code>ALL</code>. What the consumer graph needs from each source file is cached
+by blob id in <code>$XDG_CACHE_HOME/pmcp/affected-sources.json</code>, so a later run reads only the
+sources that changed.</p>
 <p><code>[git.affected]</code> describes the workspace; every key is optional:</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>members</code></td><td><code>&quot;workspaces&quot;</code></td><td><code>&quot;workspaces&quot;</code></td><td>Members are the directories the root <code>package.json</code> <code>workspaces</code> globs (or <code>workspaces.packages</code>) match; the last matching glob decides, so <code>!glob</code> excludes.</td></tr>
 <tr><td><code>shared_inputs</code></td><td>globs</td><td><code>[]</code></td><td>A changed path matching one selects <code>ALL</code>.</td></tr>

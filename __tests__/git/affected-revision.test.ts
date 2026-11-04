@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { selectAffected } from "../../src/git/affected/select.js";
+import { factsOf, importsName } from "../../src/git/affected/source-facts.js";
 import { config, workspace } from "./affected-fixture.js";
 import { commit, isolateGit, remote, sh } from "./fixture.js";
 
@@ -64,5 +65,34 @@ describe("an answer read from the objects at head", () => {
     const sub = join(ws.root, "packages/sub");
     commit(sub, "package.json", JSON.stringify({ name: "sub" }), "drop a");
     expect(selectAffected(ws.root, settings, "HEAD~1", "HEAD")).toEqual(before);
+  });
+});
+
+describe("source facts", () => {
+  const text = [
+    'import x from "a/sub";',
+    "const y = await import ( 'b' );",
+    'import "c";',
+    'export * from "@s/p/deep";',
+    'import { z } from "abc";',
+    'import { w } from "./local";',
+    'import { v } from "../../x/src/index.js";',
+  ].join("\n");
+
+  // The per-file check the facts replace.
+  const imports = (name: string): boolean =>
+    new RegExp(
+      `(?:from|import)\\s*\\(?\\s*["']${name.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}(/|["'])`,
+      "u",
+    ).test(text);
+
+  it("answers a package import exactly as the text match does", () => {
+    const facts = factsOf(text);
+    for (const name of ["a", "b", "c", "@s/p", "@s", "ab", "abc", "x", "d"])
+      expect([name, importsName(facts, name)]).toEqual([name, imports(name)]);
+  });
+
+  it("keeps the specifiers of imports that climb out of the file's directory", () => {
+    expect(factsOf(text).parents).toEqual(["../../x/src/index.js"]);
   });
 });

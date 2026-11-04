@@ -22,29 +22,33 @@ const GRAPH_FIELDS = new Set(["workspaces", "packages"]);
 
 // bun.lock is JSON with trailing commas and comments; strip both outside strings only.
 export function parseBunLock(text: string): Lock {
-  let out = "";
-  for (let i = 0; i < text.length; i += 1) {
+  const out: string[] = [];
+  const special = /["/,]/gu;
+  let copied = 0;
+  for (let match = special.exec(text); match; match = special.exec(text)) {
+    let i = match.index;
     const c = text[i]!;
     if (c === '"') {
-      const start = i;
       for (i += 1; i < text.length && text[i] !== '"'; i += 1)
         if (text[i] === "\\") i += 1;
-      out += text.slice(start, i + 1);
+      special.lastIndex = i + 1;
       continue;
     }
     if (c === "/" && text[i + 1] === "/") {
+      out.push(text.slice(copied, i));
       while (i < text.length && text[i] !== "\n") i += 1;
-      out += "\n";
-      continue;
-    }
-    if (c === ",") {
+      copied = i;
+    } else if (c === ",") {
       let j = i + 1;
       while (j < text.length && /\s/u.test(text.charAt(j))) j += 1;
-      if (text[j] === "}" || text[j] === "]") continue;
+      if (text[j] !== "}" && text[j] !== "]") continue;
+      out.push(text.slice(copied, i));
+      copied = i + 1;
     }
-    out += c;
+    special.lastIndex = Math.max(copied, i + 1);
   }
-  const parsed = JSON.parse(out) as Json | null;
+  out.push(text.slice(copied));
+  const parsed = JSON.parse(out.join("")) as Json | null;
   if (parsed === null || typeof parsed !== "object")
     throw new Error("lockfile is not an object");
   for (const field of GRAPH_FIELDS)
@@ -194,6 +198,7 @@ function lockDelta(input: LockfileInput): LockfileDelta {
     if (moved !== null) direct.add(moved);
     seeds.add(key);
   }
+  if (seeds.size === 0) return { all: null, direct: [...direct].sort() };
   const reverse = new Map<string, Set<string>>();
   addReverseEdges(base, reverse);
   addReverseEdges(head, reverse);

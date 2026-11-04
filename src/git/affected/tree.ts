@@ -146,6 +146,15 @@ export class HeadTree {
     return next !== null && this.has(next, hops - 1);
   }
 
+  // The object id of the file a path names, after its links; content keys a cache safely.
+  blobId(path: string, hops = 8): string | null {
+    const found = this.entry(path);
+    if (found === null) return null;
+    if (!isLink(found.entry)) return found.entry.oid;
+    const next = hops > 0 ? this.linkTarget(path) : null;
+    return next === null ? null : this.blobId(next, hops - 1);
+  }
+
   text(path: string, hops = 8): string | null {
     const found = this.entry(path);
     if (found === null) return null;

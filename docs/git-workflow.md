@@ -217,7 +217,9 @@ outside the checkout. Every input (membership, member manifests, tsconfig and vi
 sources and the lockfile) is read from git objects at the head, and a submodule at the commit the
 head pins, never from the working tree, so the checkout may move while it runs. A submodule with
 no object store on the host reads as empty, as an uninitialized one would; one whose store lacks
-the pinned commit answers `ALL`.
+the pinned commit answers `ALL`. What the consumer graph needs from each source file is cached
+by blob id in `$XDG_CACHE_HOME/pmcp/affected-sources.json`, so a later run reads only the
+sources that changed.
 
 `[git.affected]` describes the workspace; every key is optional:
 

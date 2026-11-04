@@ -1,6 +1,7 @@
 import { posix } from "node:path";
 
 import type { Member } from "./members.js";
+import { importsName, readFacts } from "./source-facts.js";
 import type { HeadTree } from "./tree.js";
 import { extendsSpecs, readTsconfig } from "./tsconfig.js";
 
@@ -50,14 +51,6 @@ function sourceFiles(
   return out;
 }
 
-function imports(text: string, name: string): boolean {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-  return new RegExp(
-    `(?:from|import)\\s*\\(?\\s*["']${escaped}(/|["'])`,
-    "u",
-  ).test(text);
-}
-
 function ownerOf(path: string, dirs: ReadonlySet<string>): string | undefined {
   for (let cur = path; cur && cur !== "."; cur = posix.dirname(cur))
     if (dirs.has(cur)) return cur;
@@ -77,10 +70,8 @@ export function dependencyEdges(
   const dirs = new Set(members.map((m) => m.dir));
   const deps = new Map<string, Set<string>>();
   const sources = sourceFiles(tree, dirs);
-  tree.prefetch([
-    ...members.map((m) => `${m.dir}/tsconfig.json`),
-    ...[...sources.values()].flat(),
-  ]);
+  const facts = readFacts(tree, [...sources.values()].flat());
+  tree.prefetch(members.map((m) => `${m.dir}/tsconfig.json`));
   for (const member of members) {
     const out = new Set<string>();
     const add = (name: string): void => {
@@ -97,23 +88,21 @@ export function dependencyEdges(
     const dev = keys(member.manifest, "devDependencies").filter((name) =>
       byName.has(name),
     );
-    const texts = (sources.get(member.dir) ?? []).flatMap((path) => {
-      const text = tree.text(path);
-      return text === null ? [] : [[path, text] as const];
+    const files = (sources.get(member.dir) ?? []).flatMap((path) => {
+      const found = facts.get(path);
+      return found === undefined ? [] : [[path, found] as const];
     });
     if (typechecksTests(tsconfig)) dev.forEach(add);
     else
       for (const name of dev)
-        if (texts.some(([, text]) => imports(text, name))) add(name);
+        if (files.some(([, found]) => importsName(found, name))) add(name);
     for (const spec of extendsSpecs(tsconfig)) {
       const parts = spec.split("/");
       add(spec.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0]!);
     }
-    for (const [file, text] of texts)
-      for (const match of text.matchAll(/from\s+["'](\.\.\/[^"']*)["']/gu)) {
-        const target = posix.normalize(
-          posix.join(posix.dirname(file), match[1]!),
-        );
+    for (const [file, found] of files)
+      for (const spec of found.parents) {
+        const target = posix.normalize(posix.join(posix.dirname(file), spec));
         const owner = ownerOf(target, dirs);
         if (owner !== undefined && owner !== member.dir) out.add(owner);
       }
