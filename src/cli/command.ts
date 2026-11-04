@@ -16,6 +16,8 @@ export interface ParsedArgs {
   readonly positional: readonly string[];
   readonly options: ReadonlyMap<string, readonly string[]>;
   readonly flags: ReadonlySet<string>;
+  // The words after a bare --, kept apart so a command line to run is never read as options.
+  readonly passthrough?: readonly string[];
 }
 
 export interface CommandContext {
@@ -65,11 +67,13 @@ export function parseArgs(
   const positional: string[] = [];
   const options = new Map<string, string[]>();
   const flags = new Set<string>();
+  let passthrough: string[] | undefined;
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]!;
     if (arg === "--") {
-      positional.push(...argv.slice(i + 1));
+      passthrough = argv.slice(i + 1);
+      positional.push(...passthrough);
       break;
     }
     if (!arg.startsWith("--")) {
@@ -100,7 +104,9 @@ export function parseArgs(
     options.set(name, [...(existing ?? []), value]);
   }
 
-  return { positional, options, flags };
+  return passthrough === undefined
+    ? { positional, options, flags }
+    : { positional, options, flags, passthrough };
 }
 
 export function one(args: ParsedArgs, name: string): string | undefined {

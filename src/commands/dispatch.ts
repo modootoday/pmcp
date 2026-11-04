@@ -37,8 +37,12 @@ export function dispatch(
   argv: readonly string[],
   options: DispatchOptions = {},
 ): number | Promise<number> {
-  const global = argv.filter((arg) => GLOBAL.has(arg));
-  const rest0 = argv.filter((arg) => !GLOBAL.has(arg));
+  // Words after -- belong to the command a verb runs, never to pmcp.
+  const cut = argv.indexOf("--");
+  const head = cut < 0 ? argv : argv.slice(0, cut);
+  const tail = cut < 0 ? [] : argv.slice(cut);
+  const global = head.filter((arg) => GLOBAL.has(arg));
+  const rest0 = [...head.filter((arg) => !GLOBAL.has(arg)), ...tail];
   const env = options.env ?? process.env;
   const cwd = options.cwd ?? process.cwd();
   const ui =
@@ -78,7 +82,8 @@ export function dispatch(
     return EXIT.usage;
   }
 
-  if (rest.includes("--help") || rest.includes("-h")) {
+  const own = rest.includes("--") ? rest.slice(0, rest.indexOf("--")) : rest;
+  if (own.includes("--help") || own.includes("-h")) {
     printCommandHelp(ui, command);
     return EXIT.ok;
   }
