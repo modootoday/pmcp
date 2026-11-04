@@ -43,6 +43,7 @@ export function readGitConfig(config: ProjectConfig): GitConfig | null {
     "shared_checkout",
     "submodules",
     "umask",
+    "affected",
   ]);
   const worktreeTable = child(path, root, "git", "worktrees");
   const named = typeof root["mainline"] === "string";
