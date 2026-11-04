@@ -2,11 +2,14 @@ import {
   ArgumentError,
   many,
   one,
+  unknownSubcommand,
   type Command,
   type CommandContext,
 } from "../cli/command.js";
 import { ProjectError } from "../project/package-rules.js";
 import { projectSpec } from "./specs/project.js";
+
+const VERBS = ["add", "remove", "import-mcp", "exec-mcp"];
 
 // Load each project verb separately so MCP launches do not pay for projection dependencies.
 async function route(
@@ -45,6 +48,7 @@ async function route(
   }
   const apply = await import("./project/apply.js");
   if (verb === undefined) return apply.projectOrCheck(context);
+  if (!VERBS.includes(verb)) throw unknownSubcommand("project", verb, VERBS);
   if (context.args.flags.has("check")) {
     throw new ArgumentError("--check takes no subcommand");
   }
@@ -52,8 +56,7 @@ async function route(
     throw new ArgumentError(`${verb} needs a name`);
   }
   if (verb === "add") return apply.addAndProject(context, name);
-  if (verb === "remove") return apply.removeAndProject(context, name);
-  throw new ArgumentError(`unknown subcommand ${verb}`);
+  return apply.removeAndProject(context, name);
 }
 
 export const projectCommand: Command = {

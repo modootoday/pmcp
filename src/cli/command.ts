@@ -1,5 +1,6 @@
 // Generate help from command metadata so documented flags cannot drift from accepted flags.
 
+import { didYouMean } from "./suggest.js";
 import type { Ui } from "./ui.js";
 
 export interface OptionSpec {
@@ -60,6 +61,29 @@ export class ArgumentError extends Error {
   }
 }
 
+// One wording for a missing project configuration, whichever command needed it.
+export const NO_CONFIG =
+  "no pmcp.toml at or above this directory; run pmcp init to create one, or pass --config <file>";
+
+export function noConfig(): ArgumentError {
+  return new ArgumentError(NO_CONFIG);
+}
+
+// One wording for a missing or unknown subcommand, naming every valid one.
+export function unknownSubcommand(
+  command: string,
+  word: string | undefined,
+  verbs: readonly string[],
+): ArgumentError {
+  const list = verbs.join(", ");
+  if (word === undefined) {
+    return new ArgumentError(`${command} needs a subcommand: ${list}`);
+  }
+  return new ArgumentError(
+    `unknown ${command} subcommand "${word}"${didYouMean(word, verbs)}; choose one of: ${list}`,
+  );
+}
+
 const SHORT_FLAG = /^-[A-Za-z]/u;
 
 // Reject unknown options so misspelled flags cannot silently select default behavior.
@@ -92,7 +116,9 @@ export function parseArgs(
     const name = eq === -1 ? arg.slice(2) : arg.slice(2, eq);
     const spec = byName.get(name);
     if (spec === undefined) {
-      throw new ArgumentError(`unknown option --${name}`);
+      const names = specs.map((option) => `--${option.name}`);
+      const hint = didYouMean(`--${name}`, names, (option) => option);
+      throw new ArgumentError(`unknown option --${name}${hint}`);
     }
     if (spec.boolean === true) {
       if (eq !== -1) {

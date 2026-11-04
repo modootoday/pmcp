@@ -9,6 +9,7 @@ import {
 import { Ui } from "../cli/ui.js";
 import { entryMode } from "../cli/entry.js";
 import { invocation } from "../cli/invocation.js";
+import { didYouMean } from "../cli/suggest.js";
 import { COMMANDS, PLANNED, commandNamed } from "./registry.js";
 import { VERSION } from "./version.js";
 
@@ -60,9 +61,13 @@ export function dispatch(
     return defaultEntry(options, { ui, env, cwd });
   }
   if (verb === "--help" || verb === "-h" || verb === "help") {
+    if (rest[0] === undefined) {
+      printHelp(ui, COMMANDS, PLANNED);
+      return EXIT.ok;
+    }
     const named = commandNamed(rest[0]);
-    if (named) printCommandHelp(ui, named);
-    if (!named) printHelp(ui, COMMANDS, PLANNED);
+    if (named === undefined) return unknownCommand(rest[0], { ui, env, cwd });
+    printCommandHelp(ui, named);
     return EXIT.ok;
   }
   if (VERSION_WORDS.has(verb)) {
@@ -79,7 +84,9 @@ export function dispatch(
   if (verb.startsWith("-")) {
     const serve = required("serve");
     if (!leadsServe(verb, serve)) {
-      ui.error(`unknown option ${verb.split("=")[0]}`);
+      const name = verb.split("=")[0]!;
+      const known = ["--version", "--help", "--quiet", "--color", "--no-color"];
+      ui.error(`unknown option ${name}${didYouMean(name, known, plain)}`);
       ui.line(`Run ${invocation(env)} --help for the commands and options.`);
       return EXIT.usage;
     }
@@ -87,13 +94,7 @@ export function dispatch(
   }
 
   const command = commandNamed(verb);
-  if (command === undefined) {
-    if (PLANNED.includes(verb))
-      ui.error(`"${verb}" is designed but not implemented yet`);
-    if (!PLANNED.includes(verb)) ui.error(`unknown command "${verb}"`);
-    printHelp(ui, COMMANDS, PLANNED);
-    return EXIT.usage;
-  }
+  if (command === undefined) return unknownCommand(verb, { ui, env, cwd });
 
   const own = rest.includes("--") ? rest.slice(0, rest.indexOf("--")) : rest;
   if (own.includes("--help") || own.includes("-h")) {
@@ -102,6 +103,19 @@ export function dispatch(
   }
 
   return run(command, rest, { ui, env, cwd });
+}
+
+const plain = (word: string): string => word;
+
+function unknownCommand(verb: string, context: RunContext): number {
+  if (PLANNED.includes(verb)) {
+    context.ui.error(`"${verb}" is designed but not implemented yet`);
+  } else {
+    const names = COMMANDS.map((command) => command.name);
+    context.ui.error(`unknown command "${verb}"${didYouMean(verb, names)}`);
+  }
+  context.ui.line(`Run ${invocation(context.env)} --help for the commands.`);
+  return EXIT.usage;
 }
 
 function leadsServe(arg: string, serve: CommandEntry): boolean {
@@ -158,7 +172,9 @@ async function run(
   } catch (error) {
     if (error instanceof ArgumentError) {
       context.ui.error(error.message);
-      printCommandHelp(context.ui, command);
+      context.ui.line(
+        `Run ${invocation(context.env)} ${command.name} --help for its usage.`,
+      );
       return EXIT.usage;
     }
     context.ui.error(error instanceof Error ? error.message : "command failed");

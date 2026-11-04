@@ -1,6 +1,7 @@
 import {
   ArgumentError,
   one,
+  unknownSubcommand,
   type Command,
   type CommandContext,
 } from "../cli/command.js";
@@ -15,14 +16,19 @@ async function action(positional: readonly string[]): Promise<Action> {
     return (await import("./cli/mainline.js")).mainlineDeliver;
   if (verb === "sync") return (await import("./cli/mainline.js")).mainlineSync;
   if (verb !== "worktree")
-    throw new ArgumentError("Use worktree, deliver, sync or affected");
+    throw unknownSubcommand("git", verb, [
+      "worktree",
+      "deliver",
+      "sync",
+      "affected",
+    ]);
   if (sub === "create")
     return (await import("./cli/worktree-create.js")).worktreeCreate;
   if (sub === "list")
     return (await import("./cli/worktree-list.js")).worktreeList;
   if (sub === "sync")
     return (await import("./cli/worktree-sync.js")).worktreeSync;
-  throw new ArgumentError("Use worktree create, list or sync");
+  throw unknownSubcommand("git worktree", sub, ["create", "list", "sync"]);
 }
 
 async function run(context: CommandContext): Promise<number> {

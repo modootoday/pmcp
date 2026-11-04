@@ -1,7 +1,11 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { ArgumentError, type CommandContext } from "../../cli/command.js";
+import {
+  ArgumentError,
+  noConfig,
+  type CommandContext,
+} from "../../cli/command.js";
 import type { Ui } from "../../cli/ui.js";
 import {
   readFixtures,
@@ -46,8 +50,7 @@ export async function run(
   file: string,
 ): Promise<number> {
   const config = configFrom(context);
-  if (!config)
-    throw new ArgumentError("no pmcp.toml here or above; pass --config");
+  if (!config) throw noConfig();
   const result = runSmoke(config.dir, file, context.env);
   if (context.args.flags.has("json"))
     context.ui.data(JSON.stringify({ version: 1, ...result }) + "\n");

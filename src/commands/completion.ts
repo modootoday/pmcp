@@ -1,4 +1,5 @@
 import { ArgumentError, EXIT, type Command } from "../cli/command.js";
+import { didYouMean } from "../cli/suggest.js";
 import { completionScript, SHELLS, type Shell } from "./completion/scripts.js";
 import { COMMANDS } from "./registry.js";
 import { completionSpec } from "./specs/completion.js";
@@ -12,7 +13,8 @@ export const completionCommand: Command = {
   run(context) {
     const [shell, ...extra] = context.args.positional;
     if (!isShell(shell) || extra.length > 0) {
-      throw new ArgumentError(`choose one shell: ${SHELLS.join(", ")}`);
+      const hint = shell === undefined ? "" : didYouMean(shell, SHELLS);
+      throw new ArgumentError(`choose one shell: ${SHELLS.join(", ")}${hint}`);
     }
     context.ui.data(completionScript(shell, COMMANDS));
     return EXIT.ok;

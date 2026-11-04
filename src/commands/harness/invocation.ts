@@ -1,5 +1,10 @@
 import { readFileSync, statSync } from "node:fs";
-import { ArgumentError, one, type CommandContext } from "../../cli/command.js";
+import {
+  ArgumentError,
+  one,
+  unknownSubcommand,
+  type CommandContext,
+} from "../../cli/command.js";
 import type { Operation } from "../../harness/contracts.js";
 import { object } from "../../harness/validation.js";
 
@@ -49,8 +54,22 @@ export function parseInvocation(context: CommandContext): Operation {
   const [family, action, ...extra] = context.args.positional;
   const key = `${family}:${action}`;
   const allowed = options[key];
-  if (!family || !action || !allowed || extra.length > 0)
-    throw new ArgumentError("Provide a supported family and operation");
+  const families = [
+    "layout",
+    "host",
+    "mcp",
+    ...new Set(Object.keys(options).map((name) => name.split(":")[0]!)),
+  ];
+  if (!family || !families.includes(family))
+    throw unknownSubcommand("harness", family, families);
+  if (!allowed) {
+    const actions = Object.keys(options)
+      .filter((name) => name.startsWith(`${family}:`))
+      .map((name) => name.slice(family.length + 1));
+    throw unknownSubcommand(`harness ${family}`, action, actions);
+  }
+  if (extra.length > 0)
+    throw new ArgumentError(`unexpected ${extra.join(" ")}`);
   for (const option of [
     ...context.args.options.keys(),
     ...context.args.flags,

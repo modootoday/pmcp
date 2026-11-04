@@ -1,4 +1,9 @@
-import { ArgumentError, one, type CommandContext } from "../../cli/command.js";
+import {
+  ArgumentError,
+  noConfig,
+  one,
+  type CommandContext,
+} from "../../cli/command.js";
 import { findConfig, readConfig } from "../../config.js";
 import { openStore, readStoreSettings } from "../settings.js";
 import type { SessionStore } from "../types.js";
@@ -9,8 +14,7 @@ export function storeFrom(context: CommandContext): {
   root: string;
 } {
   const path = one(context.args, "config") ?? findConfig(context.cwd);
-  if (!path)
-    throw new ArgumentError("no pmcp.toml here or above; pass --config");
+  if (!path) throw noConfig();
   const config = readConfig(path);
   const sessions = (config.raw["sessions"] ?? {}) as Record<string, unknown>;
   const leases = Object.keys((sessions["leases"] ?? {}) as object);

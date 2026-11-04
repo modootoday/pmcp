@@ -1,5 +1,10 @@
 import { resolve } from "node:path";
-import { ArgumentError, one, type Command } from "../cli/command.js";
+import {
+  ArgumentError,
+  one,
+  unknownSubcommand,
+  type Command,
+} from "../cli/command.js";
 import { publicMarketplaceRoot } from "../marketplace/builtin.js";
 import {
   exportPublicPlugin,
@@ -42,10 +47,10 @@ export const marketplaceCommand: Command = {
       );
       return 0;
     }
-    if (verb !== "export" || !name || extra.length)
-      throw new ArgumentError(
-        "Use marketplace list or export with exactly one plugin",
-      );
+    if (verb !== "export")
+      throw unknownSubcommand("marketplace", verb, ["list", "export"]);
+    if (!name || extra.length)
+      throw new ArgumentError("marketplace export takes exactly one plugin");
     const output = one(context.args, "output");
     if (!output)
       throw new ArgumentError("Provide --output for the exported plugin");

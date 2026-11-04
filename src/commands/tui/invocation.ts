@@ -1,4 +1,9 @@
-import { ArgumentError, one, type ParsedArgs } from "../../cli/command.js";
+import {
+  ArgumentError,
+  one,
+  unknownSubcommand,
+  type ParsedArgs,
+} from "../../cli/command.js";
 
 export { tuiOptions } from "./options.js";
 
@@ -51,8 +56,11 @@ export function parseTui(args: ParsedArgs): TuiInvocation {
       `tui ${action} was a tmux view operation and is removed; run pmcp tui, which opens pmcp-tui on the group's pmcp-pty host`,
     );
   const options = allowed[action];
-  if (!options || extra.length)
-    throw new ArgumentError("Provide one supported TUI operation");
+  if (!options) {
+    const verbs = Object.keys(allowed).filter((verb) => verb !== "launch");
+    throw unknownSubcommand("tui", action, verbs);
+  }
+  if (extra.length) throw new ArgumentError(`unexpected ${extra.join(" ")}`);
   for (const key of [...args.options.keys(), ...args.flags])
     if (!options.includes(key))
       throw new ArgumentError(`--${key} is not supported by tui ${action}`);

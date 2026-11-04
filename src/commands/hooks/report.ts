@@ -1,4 +1,9 @@
-import { ArgumentError, one, type CommandContext } from "../../cli/command.js";
+import {
+  ArgumentError,
+  noConfig,
+  one,
+  type CommandContext,
+} from "../../cli/command.js";
 import {
   guardLines,
   readReportTable,
@@ -11,8 +16,7 @@ import { configFrom } from "../config-from.js";
 
 export async function run(context: CommandContext): Promise<number> {
   const config = configFrom(context);
-  if (!config)
-    throw new ArgumentError("no pmcp.toml here or above; pass --config");
+  if (!config) throw noConfig();
   const hooks = (config.raw.hooks ?? {}) as Record<string, unknown>;
   let settings;
   let since: Date | undefined;

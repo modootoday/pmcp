@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import {
   ArgumentError,
   one,
+  unknownSubcommand,
   type Command,
   type CommandContext,
 } from "../cli/command.js";
@@ -45,8 +46,10 @@ export const mailboxCommand: Command = {
   async run(context) {
     const [verb, ...extra] = context.args.positional;
     const supported = verb ? allowed[verb] : undefined;
-    if (!supported || extra.length > 0)
-      throw new ArgumentError("Provide one supported mailbox operation");
+    if (!supported)
+      throw unknownSubcommand("mailbox", verb, Object.keys(allowed));
+    if (extra.length > 0)
+      throw new ArgumentError(`unexpected ${extra.join(" ")}`);
     for (const key of [...context.args.options.keys(), ...context.args.flags]) {
       if (!supported.includes(key))
         throw new ArgumentError(`--${key} is not supported by mailbox ${verb}`);

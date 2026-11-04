@@ -1,5 +1,6 @@
 import { dirname, join, resolve } from "node:path";
 
+import { NO_CONFIG } from "../cli/command.js";
 import { findConfig, readConfig } from "../config.js";
 import { projectStateDir } from "../sessions/state-dir.js";
 import {
@@ -30,8 +31,7 @@ export function loadGit(
 ): GitSetup | Error {
   const path =
     configPath === undefined ? findConfig(cwd) : resolve(cwd, configPath);
-  if (path === null)
-    return new Error("no pmcp.toml found; the git workflow is opt-in");
+  if (path === null) return new Error(NO_CONFIG);
   const project = readConfig(path);
   const config = readGitConfig(project);
   if (config === null)

@@ -118,12 +118,12 @@ it("prints the 0.17.4 top-level help with only the added verbs' rows", async () 
   expect(withCompletionRow(baseline.top)).not.toBe(baseline.top);
 });
 
-it("answers an unknown verb with exit 2 and the same help", async () => {
+it("answers an unknown verb with exit 2 and a pointer, not the whole help", async () => {
   const result = await capture(["nope"]);
   expect(result).toEqual({
     code: 2,
     out: "",
-    err: withCompletionRow(baseline.unknown),
+    err: 'x unknown command "nope"\nRun pmcp --help for the commands.\n',
   });
 });
 

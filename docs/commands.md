@@ -347,6 +347,8 @@ Both show the project and lockfile changes and stop: `--yes` approves them, `--d
 
 Options are parsed against the command's own list, so an unknown flag is an error rather than a silently ignored typo. Giving a non-repeatable option twice, or leaving off a value it needs, is the same error.
 
+An unknown command, subcommand or option exits 2 with one line naming it, the closest valid name when one is near (`unknown command "stauts"; did you mean "status"?`), and where to look next (`Run pmcp status --help for its usage.`), rather than the whole help. An unknown subcommand also lists every valid one. `pmcp help <command>` for a command that does not exist is the same error. Every command that needs a `pmcp.toml` and finds none says so the same way and suggests `pmcp init`.
+
 ## Exit codes
 
 | Code | Means                                               | For example                                                                                                                                                                    |

@@ -1,5 +1,6 @@
 import {
   ArgumentError,
+  unknownSubcommand,
   type Command,
   type CommandContext,
 } from "../cli/command.js";
@@ -12,9 +13,7 @@ import {
 async function run(context: CommandContext): Promise<number> {
   const verb = context.args.positional[0] ?? "status";
   if (!(SESSION_VERBS as readonly string[]).includes(verb))
-    throw new ArgumentError(
-      `unknown verb ${verb}; use ${SESSION_VERBS.join(", ")}`,
-    );
+    throw unknownSubcommand("sessions", verb, SESSION_VERBS);
   if (verb === "status")
     return (await import("./cli/status.js")).status(context);
   if (context.args.flags.has("json") && !JSON_VERBS.includes(verb))
