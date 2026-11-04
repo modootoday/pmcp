@@ -123,7 +123,7 @@ next prompt; SessionEnd hooks get at most 3 seconds.
 
 ```sh
 pmcp project          # write; exits 1 if it would overwrite a file it did not write
-pmcp project --check  # write nothing; exit 2 on drift, stale, undeclared or dead-glob outputs
+pmcp project --check  # write nothing; exit 4 on drift, stale, undeclared or dead-glob outputs
 pmcp doctor           # exit 1 on any failed check; prints the feature x runtime table
 ```
 

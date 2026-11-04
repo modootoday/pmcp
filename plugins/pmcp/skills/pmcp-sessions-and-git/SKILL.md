@@ -65,8 +65,9 @@ pmcp git deliver <commit>...     # only these
 
 It fetches, replays the commits onto the mainline, runs the gate in its own tree under a
 lock, and pushes, replaying again if the mainline moved. Exit 0 delivered or nothing to
-deliver; 1 refused (pause, lease, gate failure, attempts exhausted) with the reason on
-stderr; 2 the fetch failed. Fix what the gate reports; never bypass it with
+deliver; 1 refused (pause, lease, gate failure, attempts exhausted, failed fetch) with the
+reason on stderr; 75 the gate never got the host lease, so retry later. Fix what the gate
+reports; never bypass it with
 `--no-verify` or a gate-bypass variable, which the guards refuse.
 
 `pmcp git sync` moves the main checkout to the mainline afterwards; it refuses (exit 2)

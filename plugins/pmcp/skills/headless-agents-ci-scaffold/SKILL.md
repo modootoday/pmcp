@@ -73,7 +73,7 @@ tool can supply and grep for it.
 ## Projection gate
 
 ```sh
-pmcp project --check   # exit 2: generated files drifted, went stale or are undeclared
+pmcp project --check   # exit 4: generated files drifted, went stale or are undeclared
 pmcp doctor            # exit 1 on any failed check
 ```
 

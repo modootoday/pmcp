@@ -83,7 +83,11 @@ for (const commit of commits) {
   );
   let pmcp;
   try {
-    pmcp = JSON.parse(ours.stdout);
+    const parsed = JSON.parse(ours.stdout);
+    // 0.23 wraps --json output in {schema, ok, data, errors}; an older --pmcp prints it bare.
+    const enveloped = "data" in parsed && "errors" in parsed;
+    if (enveloped && !parsed.data) throw new Error("no result");
+    pmcp = enveloped ? parsed.data : parsed;
   } catch {
     pmcp = {
       all: true,

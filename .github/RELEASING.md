@@ -57,8 +57,11 @@ run with "Release <id> is gone"; run the workflow again.
    open or now fixed.
 3. Docs and site: `bun run site:build`, then `npm run docs:check`. Pushing to
    main deploys pmcp.build (`pages.yml`); `bun run site:deployed` checks it.
-4. Checks: `npm run build`, `npm run typecheck`, `npm test`, `npm run format:check`, and the
-   Rust checks in [CONTRIBUTING.md](../CONTRIBUTING.md) for every crate.
+4. Checks: `npm run build`, `npm run typecheck`, `npm test`, `npm run format:check`,
+   `npm run package:verify -- --pack --matrix`, and the Rust checks in
+   [CONTRIBUTING.md](../CONTRIBUTING.md) for every crate. `package:verify` runs the packed
+   CLI as the publish job's Pack step does, so a script that still reads an older output
+   contract fails here instead of in the release run (v0.23.0 failed there).
 5. Dry run: required only when `.github/workflows/release.yml` or anything under
    `scripts/release/` changed since the last published tag
    (`git diff --quiet v<last published>..HEAD -- .github/workflows/release.yml scripts/release`

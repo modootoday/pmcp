@@ -17,9 +17,10 @@ export async function verifyContracts(installed, runtime) {
     }).trim();
   assert.equal(run(["--version"]), installed.version);
   run(["--help"]);
-  assert.ok(
-    JSON.parse(run(["marketplace", "list", "--json"])).plugins.length > 0,
-  );
+  const listed = JSON.parse(run(["marketplace", "list", "--json"]));
+  assert.equal(listed.schema, "pmcp.marketplace.list.v1");
+  assert.equal(listed.ok, true);
+  assert.ok(listed.data.plugins.length > 0);
   const fixture = fileURLToPath(
     new URL("./installed-entry.mjs", import.meta.url),
   );
