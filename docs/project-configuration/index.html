@@ -286,6 +286,7 @@ load_grace = 600</code></pre>
 <tr><td><code>marker_env</code></td><td>name</td><td><code>PMCP_HEAVY_LEASE</code></td><td>Set to the job&#39;s pid for the leased command; a nested <code>pmcp heavy</code> whose marker names a running job runs at once.</td></tr>
 <tr><td><code>legacy_marker_env</code></td><td>name</td><td>none</td><td>A second marker, set and honoured like <code>marker_env</code>, for a shell wrapper that shares <code>dir</code>.</td></tr>
 <tr><td><code>legacy_skip_env</code></td><td>name</td><td>none</td><td>A second skip variable, honoured like <code>PMCP_HEAVY_DISABLE</code>, and set for the leased command so a nested shell wrapper runs at once.</td></tr>
+<tr><td><code>skip_always</code></td><td>list of reasons</td><td><code>[]</code></td><td>Skip reasons honoured even for a bulk job, for callers that must never wait on the lease (a commit hook). A skip with any other reason does not cover a bulk job.</td></tr>
 <tr><td><code>max_load</code></td><td>number</td><td>the CPU count</td><td>A job starts only while the 1-minute load average is below this.</td></tr>
 <tr><td><code>max_io</code></td><td>number</td><td><code>8</code></td><td>And while IO pressure (<code>some</code>, the <code>io_window</code> average) is below this. A host without pressure files checks load only; one without a load average checks neither.</td></tr>
 <tr><td><code>io_window</code></td><td>string</td><td><code>avg60</code></td><td>Which pressure average the check reads: <code>avg10</code> follows spikes, <code>avg60</code> and <code>avg300</code> smooth them so the queue does not stall on a burst.</td></tr>
@@ -335,10 +336,15 @@ command that sets it pass. The skip is bounded: a bulk job (an install, a
 whole test suite, a full build), put in the <code>bulk</code> lane by <code>--lane bulk</code> or by
 a <code>commands</code> entry, still queues in that lane, with a line on standard error
 saying the skip was not honoured;
-<code>--now --reason &lt;text&gt;</code> is the emergency path for it. <code>pmcp heavy stats</code>
-shows how many runs skipped the lease, so a bypass that became the norm
-shows. <code>enabled = false</code> is the switch for a host or project that does not
-want the lease at all.</p>
+<code>--now --reason &lt;text&gt;</code> is the emergency path for it. A bulk job nested in a
+leased job runs at once on the lease marker, as any nested job does.
+<code>pmcp heavy stats</code> shows how many runs skipped the lease, so a bypass that
+became the norm shows. <code>enabled = false</code> is the switch for a host or project
+that does not want the lease at all.</p>
+<p>A reason listed in <code>skip_always</code> is honoured for bulk jobs too, for a caller
+that must never wait on the lease, such as a commit hook:</p>
+<pre><code>[host.lease]
+skip_always = [&quot;git-hook&quot;]   # PMCP_HEAVY_DISABLE=git-hook runs even a bulk job at once</code></pre>
 <p>The files extend those of a shell wrapper that takes the same lock with
 <code>flock</code>: records hold <code>key=value</code> lines (<code>pid</code>, <code>since</code>, <code>started</code>, <code>cwd</code>,
 <code>label</code>, then pmcp&#39;s <code>lane</code>, <code>weight</code>, <code>queued</code>, <code>session</code>), and <code>heavy.log</code> has

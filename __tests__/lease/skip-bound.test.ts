@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { leaseHeld, leasePaths } from "../../src/lease/files.js";
 import { readUsage, skipShare, usageStats } from "../../src/lease/usage.js";
 import {
+  CLI,
   leaseToml,
   pmcpSync,
   project,
@@ -19,6 +20,22 @@ afterEach(() => {
 });
 
 const BULK = 'commands = [{ argv = ["sleep"], lane = "bulk" }]\nmax_wait = 1\n';
+
+describe("a bulk job nested in a leased job", () => {
+  it("runs at once on the marker, even with a skip it would refuse", () => {
+    const { base, dir, env } = scratch();
+    const cwd = project(base, leaseToml(dir, "budget = 1\nmax_wait = 1\n"));
+    // The outer job holds the whole budget; a queued inner job would time out with 75.
+    const inner = `PMCP_HEAVY_DISABLE=install bun ${CLI} heavy --lane bulk -- true`;
+    const result = pmcpSync(
+      ["heavy", "--weight", "1", "--", "sh", "-c", inner],
+      cwd,
+      env,
+    );
+    expect(result.status).toBe(0);
+    expect(result.stderr).not.toContain("not honoured");
+  }, 30_000);
+});
 
 describe("the lease skip", () => {
   it("runs an ordinary command at once and records why it went around the lease", () => {
@@ -63,7 +80,10 @@ describe("the lease skip", () => {
 
   it("does not let a job the caller put in the bulk lane around the lease either", () => {
     const { base, dir, env } = scratch();
-    const cwd = project(base, leaseToml(dir, "max_wait = 1\n"));
+    const cwd = project(
+      base,
+      leaseToml(dir, 'max_wait = 1\nskip_always = ["gate-land"]\n'),
+    );
     children.push(shellHolder(dir, 30));
     until(() => leaseHeld(leasePaths(dir)));
     const result = pmcpSync(["heavy", "--lane", "bulk", "--", "true"], cwd, {
@@ -77,6 +97,29 @@ describe("the lease skip", () => {
     const records = readUsage(join(dir, "usage.jsonl"));
     expect(records.map((r) => [r.lane, r.outcome, r.skip])).toEqual([
       ["bulk", "timeout", undefined],
+    ]);
+  }, 30_000);
+
+  it("honours a skip_always reason even for a bulk job, as a normal skip", () => {
+    const { base, dir, env } = scratch();
+    const cwd = project(
+      base,
+      leaseToml(dir, 'max_wait = 1\nskip_always = ["gate-land"]\n'),
+    );
+    children.push(shellHolder(dir, 30));
+    until(() => leaseHeld(leasePaths(dir)));
+    const result = pmcpSync(["heavy", "--lane", "bulk", "--", "true"], cwd, {
+      ...env,
+      PMCP_HEAVY_DISABLE: "gate-land",
+    });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain(
+      "running without the host lease: gate-land",
+    );
+    expect(result.stderr).not.toContain("not honoured");
+    const records = readUsage(join(dir, "usage.jsonl"));
+    expect(records.map((r) => [r.lane, r.outcome, r.skip])).toEqual([
+      ["bulk", "ran", "gate-land"],
     ]);
   }, 30_000);
 

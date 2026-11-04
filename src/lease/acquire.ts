@@ -275,9 +275,15 @@ export function acquireLease(options: AcquireOptions): LeaseOutcome {
   if (!settings.enabled) return { kind: "disabled" };
   const paths = leasePaths(settings.dir);
   const skip = skipReason(settings, env);
-  // A skip is for one ordinary command; a bulk job (an install, a whole suite) still queues.
-  const bulk = options.lane === "bulk";
-  if (skip !== null && bulk) {
+  // A skip is for one ordinary command; a bulk job (an install, a whole suite) still queues,
+  // unless the project lists the reason in skip_always (a caller that must never wait).
+  const refused =
+    skip !== null &&
+    options.lane === "bulk" &&
+    !settings.skipAlways.includes(skip);
+  // Nested inside a leased job, the bulk job already runs under that lease.
+  if (refused && reentrant(settings, env)) return { kind: "reentrant" };
+  if (skip !== null && refused) {
     say(
       `the lease skip (${skip}) is not honoured for a bulk job (--lane bulk, or a [[host.lease.commands]] entry with lane = "bulk"); it queues in the bulk lane. For an emergency run: pmcp heavy --now --reason <text> -- <command>`,
     );
@@ -288,7 +294,7 @@ export function acquireLease(options: AcquireOptions): LeaseOutcome {
       `reason=${skip} cwd=${options.cwd} label=${label}`,
     );
   }
-  if (skip !== null && !bulk) {
+  if (skip !== null && !refused) {
     say(`running without the host lease: ${skip}`);
     logEvent(
       paths,

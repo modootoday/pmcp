@@ -305,6 +305,7 @@ load_grace = 600
 | `marker_env`        | name                | `PMCP_HEAVY_LEASE`                           | Set to the job's pid for the leased command; a nested `pmcp heavy` whose marker names a running job runs at once.                                                                                                                                                                                                                                                                                                                                                   |
 | `legacy_marker_env` | name                | none                                         | A second marker, set and honoured like `marker_env`, for a shell wrapper that shares `dir`.                                                                                                                                                                                                                                                                                                                                                                         |
 | `legacy_skip_env`   | name                | none                                         | A second skip variable, honoured like `PMCP_HEAVY_DISABLE`, and set for the leased command so a nested shell wrapper runs at once.                                                                                                                                                                                                                                                                                                                                  |
+| `skip_always`       | list of reasons     | `[]`                                         | Skip reasons honoured even for a bulk job, for callers that must never wait on the lease (a commit hook). A skip with any other reason does not cover a bulk job.                                                                                                                                                                                                                                                                                                   |
 | `max_load`          | number              | the CPU count                                | A job starts only while the 1-minute load average is below this.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `max_io`            | number              | `8`                                          | And while IO pressure (`some`, the `io_window` average) is below this. A host without pressure files checks load only; one without a load average checks neither.                                                                                                                                                                                                                                                                                                   |
 | `io_window`         | string              | `avg60`                                      | Which pressure average the check reads: `avg10` follows spikes, `avg60` and `avg300` smooth them so the queue does not stall on a burst.                                                                                                                                                                                                                                                                                                                            |
@@ -358,10 +359,19 @@ command that sets it pass. The skip is bounded: a bulk job (an install, a
 whole test suite, a full build), put in the `bulk` lane by `--lane bulk` or by
 a `commands` entry, still queues in that lane, with a line on standard error
 saying the skip was not honoured;
-`--now --reason <text>` is the emergency path for it. `pmcp heavy stats`
-shows how many runs skipped the lease, so a bypass that became the norm
-shows. `enabled = false` is the switch for a host or project that does not
-want the lease at all.
+`--now --reason <text>` is the emergency path for it. A bulk job nested in a
+leased job runs at once on the lease marker, as any nested job does.
+`pmcp heavy stats` shows how many runs skipped the lease, so a bypass that
+became the norm shows. `enabled = false` is the switch for a host or project
+that does not want the lease at all.
+
+A reason listed in `skip_always` is honoured for bulk jobs too, for a caller
+that must never wait on the lease, such as a commit hook:
+
+```toml
+[host.lease]
+skip_always = ["git-hook"]   # PMCP_HEAVY_DISABLE=git-hook runs even a bulk job at once
+```
 
 The files extend those of a shell wrapper that takes the same lock with
 `flock`: records hold `key=value` lines (`pid`, `since`, `started`, `cwd`,

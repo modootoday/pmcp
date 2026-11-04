@@ -21,6 +21,7 @@ describe("[host.lease]", () => {
       enabled: true,
       dir: join(homedir(), ".cache/pmcp/host"),
       markerEnv: "PMCP_HEAVY_LEASE",
+      skipAlways: [],
       maxLoad: availableParallelism(),
       maxIo: 8,
       ioWindow: "avg60",

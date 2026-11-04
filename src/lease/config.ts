@@ -38,6 +38,8 @@ export interface LeaseSettings {
   readonly markerEnv: string;
   readonly legacyMarkerEnv?: string;
   readonly legacySkipEnv?: string;
+  // Skip reasons honoured even for a bulk job: callers that must never wait on the lease.
+  readonly skipAlways: readonly string[];
   readonly maxLoad: number;
   readonly maxIo: number;
   // Which IO pressure average the host check reads; a longer one does not stall on spikes.
@@ -101,6 +103,7 @@ const KEYS = [
   "io",
   "usage_cap",
   "settle_window",
+  "skip_always",
 ];
 const SIZE = /^[1-9]\d*[KMGT]$/u;
 type Raw = Readonly<Record<string, unknown>>;
@@ -264,6 +267,16 @@ function ioSettings(path: string, raw: Raw | undefined): IoSettings {
   return { enabled: enabled as IoSettings["enabled"], weights, max };
 }
 
+function reasons(path: string, value: unknown): string[] {
+  if (value === undefined) return [];
+  if (
+    !Array.isArray(value) ||
+    !value.every((item) => typeof item === "string" && item !== "")
+  )
+    fail(path, "[host.lease] skip_always must be a list of skip reasons");
+  return value as string[];
+}
+
 function hardFactor(path: string, value: unknown): number {
   if (value === undefined) return 2;
   if (typeof value !== "number" || !(value >= 1))
@@ -297,6 +310,7 @@ export function readLeaseSettings(
     markerEnv: read.envName("marker_env") ?? "PMCP_HEAVY_LEASE",
     ...(legacyMarkerEnv ? { legacyMarkerEnv } : {}),
     ...(legacySkipEnv ? { legacySkipEnv } : {}),
+    skipAlways: reasons(path, raw["skip_always"]),
     maxLoad: read.positive("max_load") ?? availableParallelism(),
     maxIo: read.positive("max_io") ?? 8,
     ioWindow: read.oneOf("io_window", ["avg10", "avg60", "avg300"], "avg60"),
