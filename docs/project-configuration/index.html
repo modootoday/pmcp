@@ -328,10 +328,15 @@ and written. CPU time comes from the reaped process tree; peak RSS and IO come
 from the job&#39;s cgroup when it runs in a scope, else from <code>/proc</code> sampled once a
 second. <code>pmcp heavy stats</code> summarises them per signature. The weights are still
 the configured ones.</p>
-<p><code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> is the one way to run without the lease for a
-single command or a whole shell (a test suite, an emergency): <code>pmcp heavy</code>
-runs at once and logs the reason, and the guard lets a command that sets it
-pass. <code>enabled = false</code> is the switch for a host or project that does not
+<p><code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> (or the <code>legacy_skip_env</code> variable) skips the
+lease for an ordinary command: <code>pmcp heavy</code> runs it at once, logs the reason,
+and keeps it as <code>skip</code> in the command&#39;s usage record, and the guard lets a
+command that sets it pass. The skip is bounded: a command a <code>commands</code> entry
+puts in the <code>bulk</code> lane (a whole test suite, a full build) still queues in
+that lane, with a line on standard error saying the skip was not honoured;
+<code>--now --reason &lt;text&gt;</code> is the emergency path for it. <code>pmcp heavy stats</code>
+shows how many runs skipped the lease, so a bypass that became the norm
+shows. <code>enabled = false</code> is the switch for a host or project that does not
 want the lease at all.</p>
 <p>The files extend those of a shell wrapper that takes the same lock with
 <code>flock</code>: records hold <code>key=value</code> lines (<code>pid</code>, <code>since</code>, <code>started</code>, <code>cwd</code>,

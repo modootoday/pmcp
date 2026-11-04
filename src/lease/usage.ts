@@ -27,6 +27,8 @@ export interface Usage {
   readonly write_bytes: number;
   // Where the numbers come from: the job's cgroup, or /proc sampled once a second.
   readonly source: "cgroup" | "proc" | "none";
+  // Set when the run went around the lease (PMCP_HEAVY_DISABLE or the legacy skip): why.
+  readonly skip?: string;
 }
 
 // Lower-case words only: a path, a flag, a version, a name=value or a quoted value ends it.
@@ -96,8 +98,22 @@ export interface UsageStat {
   readonly samples: number;
   readonly failed: number;
   readonly timeouts: number;
+  // Runs that went around the lease, of samples.
+  readonly skipped: number;
   readonly p50: Record<(typeof METRICS)[number], number>;
   readonly p90: Record<(typeof METRICS)[number], number>;
+}
+
+// How many runs went around the lease, so a bypass that became the norm shows.
+export function skipShare(records: readonly Usage[]): {
+  readonly skipped: number;
+  readonly runs: number;
+} {
+  const ran = records.filter((record) => record.outcome === "ran");
+  return {
+    skipped: ran.filter((record) => record.skip !== undefined).length,
+    runs: ran.length,
+  };
 }
 
 function percentile(values: number[], share: number): number {
@@ -131,6 +147,7 @@ export function usageStats(records: readonly Usage[]): UsageStat[] {
         samples: ran.length,
         failed: ran.filter((record) => record.exit !== 0).length,
         timeouts: list.length - ran.length,
+        skipped: ran.filter((record) => record.skip !== undefined).length,
         p50: pick(0.5),
         p90: pick(0.9),
       };

@@ -351,10 +351,15 @@ from the job's cgroup when it runs in a scope, else from `/proc` sampled once a
 second. `pmcp heavy stats` summarises them per signature. The weights are still
 the configured ones.
 
-`PMCP_HEAVY_DISABLE=<reason>` is the one way to run without the lease for a
-single command or a whole shell (a test suite, an emergency): `pmcp heavy`
-runs at once and logs the reason, and the guard lets a command that sets it
-pass. `enabled = false` is the switch for a host or project that does not
+`PMCP_HEAVY_DISABLE=<reason>` (or the `legacy_skip_env` variable) skips the
+lease for an ordinary command: `pmcp heavy` runs it at once, logs the reason,
+and keeps it as `skip` in the command's usage record, and the guard lets a
+command that sets it pass. The skip is bounded: a command a `commands` entry
+puts in the `bulk` lane (a whole test suite, a full build) still queues in
+that lane, with a line on standard error saying the skip was not honoured;
+`--now --reason <text>` is the emergency path for it. `pmcp heavy stats`
+shows how many runs skipped the lease, so a bypass that became the norm
+shows. `enabled = false` is the switch for a host or project that does not
 want the lease at all.
 
 The files extend those of a shell wrapper that takes the same lock with

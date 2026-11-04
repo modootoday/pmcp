@@ -26,7 +26,12 @@ import {
   queuePromote,
 } from "./heavy-queue.js";
 import { submitTicket, ticketResult, ticketWait } from "./heavy-tickets.js";
-import { readUsage, usageStats, type UsageStat } from "../lease/usage.js";
+import {
+  readUsage,
+  skipShare,
+  usageStats,
+  type UsageStat,
+} from "../lease/usage.js";
 import { heavySpec } from "./specs/host.js";
 
 function settings(context: CommandContext): LeaseSettings {
@@ -47,7 +52,7 @@ function statLine(stat: UsageStat): string {
   };
   return [
     stat.signature,
-    `samples ${stat.samples} (failed ${stat.failed}, timeouts ${stat.timeouts})`,
+    `samples ${stat.samples} (failed ${stat.failed}, timeouts ${stat.timeouts}, skipped the lease ${stat.skipped})`,
     `wall ${pair("wall_s", 1, "s")}`,
     `cpu ${Math.round(cpu.p50)}/${Math.round(cpu.p90)}s`,
     `rss ${pair("max_rss_kb", 1024, "MB")}`,
@@ -57,12 +62,18 @@ function statLine(stat: UsageStat): string {
 }
 
 function stats(context: CommandContext): number {
-  const found = usageStats(readUsage(leasePaths(settings(context).dir).usage));
+  const records = readUsage(leasePaths(settings(context).dir).usage);
+  const found = usageStats(records);
   if (context.args.flags.has("json")) {
     context.ui.data(`${JSON.stringify(found)}\n`);
     return EXIT.ok;
   }
   if (found.length === 0) context.ui.data("no usage recorded yet\n");
+  const { skipped, runs } = skipShare(records);
+  if (runs > 0)
+    context.ui.data(
+      `skipped the lease: ${skipped} of ${runs} runs (${Math.round((skipped / runs) * 100)}%)\n`,
+    );
   context.ui.data(
     "signature @ dir  samples  p50/p90 of wall, cpu, rss, read, write\n",
   );

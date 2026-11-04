@@ -43,7 +43,11 @@ function prefixed(argv: readonly string[], prefix: readonly string[]) {
 
 // --lane and --weight win; the gate and hook profiles name their lane; then the first
 // [host.lease] commands entry whose argv prefix matches; then the lane's default weight.
-export function laneFor(run: HeavyRun): { lane: LeaseLane; weight: number } {
+export function laneFor(run: HeavyRun): {
+  lane: LeaseLane;
+  weight: number;
+  bulkCommand: boolean;
+} {
   const command = run.settings.commands.find((entry) =>
     prefixed(run.argv, entry.argv),
   );
@@ -54,7 +58,7 @@ export function laneFor(run: HeavyRun): { lane: LeaseLane; weight: number } {
   const tiny = run.settings.tiny.some((prefix) => prefixed(run.argv, prefix));
   const weight =
     run.weight ?? command?.weight ?? (tiny ? 0 : run.settings.weights[lane]);
-  return { lane, weight };
+  return { lane, weight, bulkCommand: command?.lane === "bulk" };
 }
 
 const SIGNALS: readonly NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGHUP"];
@@ -162,13 +166,19 @@ const NOTHING = {
 
 export async function runHeavy(run: HeavyRun): Promise<number> {
   const label = oneLine(run.label || run.argv.join(" "));
-  const { lane, weight } = laneFor(run);
+  const { lane, weight, bulkCommand } = laneFor(run);
   let outcome: LeaseOutcome;
   if (!run.settings.enabled) {
     run.say("lease disabled ([host.lease] enabled = false); running now");
     outcome = { kind: "disabled" };
   } else {
-    outcome = acquireLease({ ...run, label, lane, weight });
+    outcome = acquireLease({
+      ...run,
+      label,
+      lane,
+      weight,
+      bulkCommand: bulkCommand && lane === "bulk",
+    });
   }
   if (outcome.kind === "cancelled") {
     record(run, {
@@ -247,6 +257,7 @@ export async function runHeavy(run: HeavyRun): Promise<number> {
         start: held ? held.start : "none",
         outcome: "ran",
         exit: code,
+        ...(outcome.kind === "skipped" ? { skip: outcome.reason } : {}),
       });
   }
   return code;
