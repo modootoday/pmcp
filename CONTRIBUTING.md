@@ -23,6 +23,12 @@ npm test
 npm run format:check
 ```
 
+`npm test` gives the run its own `TMPDIR`, `XDG_STATE_HOME`, `XDG_CACHE_HOME` and
+`XDG_CONFIG_HOME` (`__tests__/setup/isolation.ts`) and removes them afterwards; the run
+fails when a test still left a `pmcp-*` directory in the real temp directory or a project
+in the real pmcp state directory. Make fixtures under `os.tmpdir()` and pass the process
+environment to any `pmcp` you spawn.
+
 Use the package's typecheck and test scripts for code changes. Documentation changes need
 link, packaging and formatting checks; avoid rebuilding unrelated runtime artifacts.
 
