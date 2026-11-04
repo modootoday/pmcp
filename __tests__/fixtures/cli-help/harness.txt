@@ -10,7 +10,8 @@ pmcp harness
     host up                Start pmcp-pty and the approved sessions (Linux)
     host down              Stop the host's sessions
     host unit              Print a systemd user unit for pmcp-pty (Linux)
-    mcp                    A stdio MCP server for one pmcp-pty socket (PMCP_PTY_SOCKET)
+    mcp                    A stdio MCP server for one pmcp-pty socket
+                           (PMCP_PTY_SOCKET)
     capabilities inspect   Report what this host can run
     doctor inspect         Check host prerequisites
     group create           Create an owned session group from --input
@@ -32,7 +33,8 @@ pmcp harness
     input write            Type text into a session without submitting it
     input submit           Submit what was written
     input interrupt        Interrupt the session's current turn
-    attach open            Attach a terminal to a session, read only unless --mode write
+    attach open            Attach a terminal to a session, read only unless
+                           --mode write
     attach inspect         Show a session's attachments
     attach detach          Detach from a session
     delivery list          List input deliveries

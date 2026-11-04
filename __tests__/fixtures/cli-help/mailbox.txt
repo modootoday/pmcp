@@ -32,5 +32,6 @@ pmcp mailbox
 
   Examples
     pmcp mailbox init --config ./pmcp.toml
-    pmcp mailbox actor --actor reviewer --actor-file /private/reviewer.actor.json
+    pmcp mailbox actor --actor reviewer --actor-file
+    /private/reviewer.actor.json
 

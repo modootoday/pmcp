@@ -13,18 +13,29 @@ pmcp project
 
   Options
     --root <dir>            A node_modules directory to walk. Repeatable.
-    --scope <prefix>        Only packages whose names start with this. Repeatable.
+    --scope <prefix>        Only packages whose names start with this.
+                            Repeatable.
     --no-builtin            Exclude the bundled free PMCP marketplace.
-    --marketplace <dir>     An installed local Claude, Codex or Grok marketplace directory. Repeatable.
-    --package <dir>         A package directory read directly, for one no node_modules links; without a package.json its folder name is the package name. Repeatable.
-    --workspace <dir>       A workspace root, or a glob of them: each root and every member its workspaces globs name. Repeatable.
+    --marketplace <dir>     An installed local Claude, Codex or Grok marketplace
+                            directory. Repeatable.
+    --package <dir>         A package directory read directly, for one no
+                            node_modules links; without a package.json its
+                            folder name is the package name. Repeatable.
+    --workspace <dir>       A workspace root, or a glob of them: each root and
+                            every member its workspaces globs name. Repeatable.
     --config <file>         A pmcp.toml to read instead of the nearest one.
-    --no-config             Ignore pmcp.toml; CLI defaults and the given flags apply.
-    --source <tool>:<file>  Explicit native MCP source as <tool>:<file>. Repeatable; import-mcp only.
-    --name <alias>          Import only this MCP alias. Repeatable; import-mcp only.
-    --write                 Back up and import the reviewed MCP declarations; import-mcp only.
-    --check                 Write nothing; exit 4 when an output drifted, went stale or is undeclared.
-    --smoke                 With --check, also run the [hooks.test] fixtures through the projected hooks.
+    --no-config             Ignore pmcp.toml; CLI defaults and the given flags
+                            apply.
+    --source <tool>:<file>  Explicit native MCP source as <tool>:<file>.
+                            Repeatable; import-mcp only.
+    --name <alias>          Import only this MCP alias. Repeatable; import-mcp
+                            only.
+    --write                 Back up and import the reviewed MCP declarations;
+                            import-mcp only.
+    --check                 Write nothing; exit 4 when an output drifted, went
+                            stale or is undeclared.
+    --smoke                 With --check, also run the [hooks.test] fixtures
+                            through the projected hooks.
 
   Examples
     pmcp project

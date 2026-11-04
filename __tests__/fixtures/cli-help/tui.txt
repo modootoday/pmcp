@@ -1,7 +1,8 @@
 pmcp tui
   Open a native terminal workspace with optional configuration
 
-  pmcp tui [--config <file>] [--runtime <id>] [-y] [--new] | pmcp tui <subcommand> [options]
+  pmcp tui [--config <file>] [--runtime <id>] [-y] [--new] | pmcp tui
+  <subcommand> [options]
 
   Subcommands
     plan          What a launch would do, without starting it

@@ -3,6 +3,36 @@
 export interface Stream {
   write(text: string): unknown;
   isTTY?: boolean;
+  columns?: number;
+}
+
+const HELP_WIDTH = 80;
+const MIN_DESCRIBE = 20;
+
+export function clampWidth(columns: number): number {
+  return Math.min(120, Math.max(40, columns));
+}
+
+// Greedy word wrap; a word longer than the line stays whole rather than being cut.
+export function wrap(
+  text: string,
+  width: number | undefined,
+  indent: number,
+): string[] {
+  if (width === undefined) return [text];
+  const room = Math.max(1, width - indent);
+  const lines: string[] = [];
+  let current = "";
+  for (const word of text.split(/ +/u)) {
+    if (current === "") current = word;
+    else if (current.length + 1 + word.length <= room) current += ` ${word}`;
+    else {
+      lines.push(current);
+      current = word;
+    }
+  }
+  lines.push(current);
+  return lines;
 }
 
 export interface UiOptions {
@@ -99,6 +129,7 @@ export class Ui {
     const stdout: Stream = {
       write: (text) => this.data(text),
       isTTY: this.out.isTTY === true,
+      ...(this.out.columns ? { columns: this.out.columns } : {}),
     };
     this.view ??= new Ui({
       ...this.options,
@@ -196,16 +227,56 @@ export class Ui {
     this.message("info", text, detail);
   }
 
-  table(rows: ReadonlyArray<readonly [string, string]>, indent = "  "): void {
-    const width = rows.reduce((n, [left]) => Math.max(n, left.length), 0);
+  // Help wraps at the terminal width, or 80 off a terminal; a table off a terminal is
+  // one plain record per line so grep and cut see whole records.
+  width(kind: "help" | "table"): number | undefined {
+    const env = this.options.env ?? process.env;
+    const columns = Number.parseInt(env["COLUMNS"] ?? "", 10);
+    if (Number.isFinite(columns) && columns > 0) return clampWidth(columns);
+    if (this.err.isTTY === true) return clampWidth(this.err.columns || 80);
+    return kind === "help" ? HELP_WIDTH : undefined;
+  }
+
+  // A paragraph wrapped to the width, continuation lines under the first word.
+  wrapped(text: string, indent = "  ", ...colours: readonly Colour[]): void {
+    for (const line of wrap(text, this.width("help"), indent.length))
+      this.line(`${indent}${this.paint(line, ...colours)}`);
+  }
+
+  table(
+    rows: ReadonlyArray<readonly [string, string]>,
+    indent = "  ",
+    width = this.width("table"),
+  ): void {
+    if (width === undefined) {
+      for (const [left, right] of rows)
+        this.line(
+          `${indent}${this.paint(left, "cyan")}  ${this.paint(right, "dim")}`,
+        );
+      return;
+    }
+    const longest = rows.reduce((n, [left]) => Math.max(n, left.length), 0);
+    const column = Math.min(longest, Math.floor(width * 0.4));
+    const room = width - indent.length - column - 2;
     for (const [left, right] of rows) {
+      // A name wider than its column, or no room beside it, stacks the description below.
+      if (left.length > column || room < MIN_DESCRIBE) {
+        this.line(`${indent}${this.paint(left, "cyan")}`);
+        for (const line of wrap(right, width, indent.length + 4))
+          this.line(`${indent}    ${this.paint(line, "dim")}`);
+        continue;
+      }
+      const lines = wrap(right, room, 0);
+      const pad = " ".repeat(indent.length + column + 2);
       this.line(
-        `${indent}${this.paint(left.padEnd(width), "cyan")}  ${this.paint(right, "dim")}`,
+        `${indent}${this.paint(left.padEnd(column), "cyan")}  ${this.paint(lines[0] ?? "", "dim")}`,
       );
+      for (const line of lines.slice(1))
+        this.line(`${pad}${this.paint(line, "dim")}`);
     }
   }
 
   heading(text: string): void {
-    this.line(this.paint(text, "bold"));
+    this.wrapped(text, "", "bold");
   }
 }

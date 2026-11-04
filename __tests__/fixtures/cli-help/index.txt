@@ -5,25 +5,38 @@ pmcp index
 
   Options
     --root <dir>                 A node_modules directory to walk. Repeatable.
-    --scope <prefix>             Only packages whose names start with this. Repeatable.
+    --scope <prefix>             Only packages whose names start with this.
+                                 Repeatable.
     --no-builtin                 Exclude the bundled free PMCP marketplace.
-    --marketplace <dir>          An installed local Claude, Codex or Grok marketplace directory. Repeatable.
-    --package <dir>              A package directory read directly, for one no node_modules links; without a package.json its folder name is the package name. Repeatable.
-    --workspace <dir>            A workspace root, or a glob of them: each root and every member its workspaces globs name. Repeatable.
+    --marketplace <dir>          An installed local Claude, Codex or Grok
+                                 marketplace directory. Repeatable.
+    --package <dir>              A package directory read directly, for one no
+                                 node_modules links; without a package.json its
+                                 folder name is the package name. Repeatable.
+    --workspace <dir>            A workspace root, or a glob of them: each root
+                                 and every member its workspaces globs name.
+                                 Repeatable.
     --config <file>              A pmcp.toml to read instead of the nearest one.
-    --no-config                  Ignore pmcp.toml; CLI defaults and the given flags apply.
-    --model <name>               Embedding preset or model ID; list presets with pmcp models
-    --dtype <q4|q8|fp32>         Weight precision; uses the selected model default when omitted
-    --dimensions <number>        Supported output width; uses the model's full output when omitted
-    --model-revision <revision>  Model revision used for loading and index identity
+    --no-config                  Ignore pmcp.toml; CLI defaults and the given
+                                 flags apply.
+    --model <name>               Embedding preset or model ID; list presets with
+                                 pmcp models
+    --dtype <q4|q8|fp32>         Weight precision; uses the selected model
+                                 default when omitted
+    --dimensions <number>        Supported output width; uses the model's full
+                                 output when omitted
+    --model-revision <revision>  Model revision used for loading and index
+                                 identity
     --model-path <dir>           Local model artifact directory
     --model-cache <dir>          Model cache directory
     --query-prefix <text>        Custom model's query instruction prefix
     --passage-prefix <text>      Custom model's document instruction prefix
     --pooling <mean|cls>         Custom model's pooling method
     --local-only                 Refuse model downloads
-    --force                      Re-encode the selected model even when descriptions match
-    --json                       Print the result as one JSON envelope on stdout.
+    --force                      Re-encode the selected model even when
+                                 descriptions match
+    --json                       Print the result as one JSON envelope on
+                                 stdout.
     --dry-run                    Report what would be encoded and write nothing.
 
   Examples

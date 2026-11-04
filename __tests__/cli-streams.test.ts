@@ -45,3 +45,8 @@ it("keeps the result view uncoloured when stdout is not a terminal", () => {
   expect(ui.colour).toBe(true);
   expect(ui.results.colour).toBe(false);
 });
+
+it("wraps a result table on a terminal that reports no width at 80", () => {
+  const ui = new Ui({ stdout: { write: () => true, isTTY: true }, env: {} });
+  expect(ui.results.width("table")).toBe(80);
+});

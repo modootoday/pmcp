@@ -4,13 +4,17 @@ pmcp install
   pmcp install <skill-package>... | --all [--dry-run | -y]
 
   Options
-    --provider <public|hosted>  Public free catalog (default) or explicitly hosted service.
+    --provider <public|hosted>  Public free catalog (default) or explicitly
+                                hosted service.
     --project <dir>             Project directory containing package.json.
     --api <origin>              Catalog API origin.
-    --catalog <file>            Use a saved catalog response without network access.
+    --catalog <file>            Use a saved catalog response without network
+                                access.
     --json                      Print the result as one JSON envelope on stdout.
-    --dry-run                   Show the plan without installing or changing files.
-    -y, --yes                   Approve the displayed project and lockfile changes.
+    --dry-run                   Show the plan without installing or changing
+                                files.
+    -y, --yes                   Approve the displayed project and lockfile
+                                changes.
     --all                       Select all matching skill packages.
 
   Examples

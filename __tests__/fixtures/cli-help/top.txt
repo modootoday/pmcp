@@ -2,7 +2,8 @@ pmcp — the skills your installed packages ship
 
   status       Show enabled features, projection drift and live workspace state
   init         Create a starting pmcp.toml using this checkout's git detection
-  hooks        List compiled policies or simulate a native hook without a runtime
+  hooks        List compiled policies or simulate a native hook without a
+               runtime
   serve        Run the MCP server on stdio (also the default for piped launches)
   list         List the skills discovered in node_modules and marketplaces
   index        Encode the catalog so ranking can be semantic
@@ -10,27 +11,38 @@ pmcp — the skills your installed packages ship
   login        Sign in on this machine, to obtain skills this project lacks
   logout       Forget the sign-in on this machine
   whoami       Whether this machine is signed in, and to what
-  available    Find provided skills matching this project's installed dependencies
+  available    Find provided skills matching this project's installed
+               dependencies
   preview      Show a skill's contents and a complete example
-  install      Install matching skill npm packages with the project's package manager
-  sync         Update declared skill packages without removing other dependencies
+  install      Install matching skill npm packages with the project's package
+               manager
+  sync         Update declared skill packages without removing other
+               dependencies
   project      Write each agent tool's native files from .agents/ and pmcp.toml
-  doctor       Ask each agent tool, through its own listing commands, whether it loads this project's assets
-  sessions     Show and coordinate the live sessions of this workspace: pause, broadcast, sweep
-  logs         Read this project's pmcp JSONL logs, filtered by session, trace, component, level or time
-  git          Create and sync worktrees, deliver commits to the mainline, sync the main checkout
-  heavy        Run a heavy command under the host-wide lease, one at a time, after the host settles
-  wait         Sleep until a process exits or a condition holds, never matching itself
+  doctor       Ask each agent tool, through its own listing commands, whether it
+               loads this project's assets
+  sessions     Show and coordinate the live sessions of this workspace: pause,
+               broadcast, sweep
+  logs         Read this project's pmcp JSONL logs, filtered by session, trace,
+               component, level or time
+  git          Create and sync worktrees, deliver commits to the mainline, sync
+               the main checkout
+  heavy        Run a heavy command under the host-wide lease, one at a time,
+               after the host settles
+  wait         Sleep until a process exits or a condition holds, never matching
+               itself
   mcp          Manage the project's shared remote MCP authentication
-  validate     Check skills against the Agent Skills specification: given directories, or every skill the catalog reaches
+  validate     Check skills against the Agent Skills specification: given
+               directories, or every skill the catalog reaches
   mailbox      Manage opt-in local peer mail and launcher credentials
-  harness      Manage optional owned native sessions independently of the MCP server
+  harness      Manage optional owned native sessions independently of the MCP
+               server
   tui          Open a native terminal workspace with optional configuration
   marketplace  List free public plugins or export a selected native plugin
   completion   Print a shell completion script for bash, zsh or fish
 
-  With no command, pmcp opens a terminal workspace on a supported TTY.
-  Piped launches retain MCP stdio. Use pmcp serve explicitly for MCP.
+  With no command, pmcp opens a terminal workspace on a supported TTY. Piped
+  launches retain MCP stdio. Use pmcp serve explicitly for MCP.
 
   -q, --quiet    only errors
   --color        always colour output; FORCE_COLOR=1 does the same

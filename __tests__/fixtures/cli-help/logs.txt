@@ -1,7 +1,9 @@
 pmcp logs
-  Read this project's pmcp JSONL logs, filtered by session, trace, component, level or time
+  Read this project's pmcp JSONL logs, filtered by session, trace, component,
+  level or time
 
-  pmcp logs [--session <id>] [--trace <id>] [--component <name>] [--level <level>] [--since <10m|ISO>] [--follow] [--pretty]
+  pmcp logs [--session <id>] [--trace <id>] [--component <name>] [--level
+  <level>] [--since <10m|ISO>] [--follow] [--pretty]
 
   Options
     --json              Print the result as one JSON envelope on stdout.

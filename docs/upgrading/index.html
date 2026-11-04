@@ -58,7 +58,8 @@ now goes to standard output; before, it went to standard error. Progress, summar
 warnings and errors stay on standard error. <code>-q</code> silences only standard error (errors still
 print), so <code>pmcp -q list</code> prints the table. A script that captured a table with <code>2&gt;&amp;1</code> or
 <code>2&gt;file</code> should read standard output instead; one that discarded standard output to keep a
-terminal quiet should redirect it too.</p>
+terminal quiet should redirect it too. Off a terminal a table is now one unpadded record per line
+(<code>name  description</code>), and on a terminal it wraps to the width.</p>
 <p><strong>A leading option <code>serve</code> does not accept no longer starts the server.</strong> <code>pmcp -v</code>,
 <code>pmcp -V</code> and <code>pmcp version</code> print the version, like <code>--version</code>. Any other leading option,
 such as <code>-x</code> or <code>--verison</code>, exits 2. A host that starts the server with leading options

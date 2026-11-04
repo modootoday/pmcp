@@ -195,21 +195,21 @@ function printSections(
   if (options.length > 0) {
     ui.line();
     ui.line("  Options");
-    ui.table(optionRows(options), "    ");
+    ui.table(optionRows(options), "    ", ui.width("help"));
   }
   if (examples.length > 0) {
     ui.line();
     ui.line("  Examples");
-    for (const example of examples) ui.line(`    ${example}`);
+    for (const example of examples) ui.wrapped(example, "    ");
   }
   ui.line();
 }
 
 export function printCommandHelp(ui: Ui, command: CommandSpec): void {
   ui.heading(`pmcp ${command.name}`);
-  ui.line(`  ${command.describe}`);
+  ui.wrapped(command.describe);
   ui.line();
-  ui.line(`  ${ui.paint(command.usage, "dim")}`);
+  ui.wrapped(command.usage, "  ", "dim");
   const subcommands = command.subcommands ?? [];
   if (subcommands.length > 0) {
     ui.line();
@@ -217,10 +217,11 @@ export function printCommandHelp(ui: Ui, command: CommandSpec): void {
     ui.table(
       subcommands.map((sub) => [sub.name, sub.describe]),
       "    ",
+      ui.width("help"),
     );
     ui.line();
-    ui.line(
-      `  Run pmcp ${command.name} <subcommand> --help for one subcommand's usage.`,
+    ui.wrapped(
+      `Run pmcp ${command.name} <subcommand> --help for one subcommand's usage.`,
     );
   }
   printSections(ui, command.options ?? [], command.examples ?? []);
@@ -233,10 +234,10 @@ export function printSubcommandHelp(
   sub: SubcommandSpec,
 ): void {
   ui.heading(`pmcp ${command.name} ${sub.name}`);
-  ui.line(`  ${sub.describe}`);
+  ui.wrapped(sub.describe);
   ui.line();
   const usage = sub.usage ?? `pmcp ${command.name} ${sub.name} [options]`;
-  ui.line(`  ${ui.paint(usage, "dim")}`);
+  ui.wrapped(usage, "  ", "dim");
   const options = (command.options ?? []).filter(
     (option) => sub.options === undefined || sub.options.includes(option.name),
   );
@@ -263,22 +264,27 @@ export function printHelp(
 ): void {
   ui.heading("pmcp — the skills your installed packages ship");
   ui.line();
-  ui.table(commands.map((command) => [command.name, command.describe]));
-  ui.line();
-  ui.line(
-    "  With no command, pmcp opens a terminal workspace on a supported TTY.",
-  );
-  ui.line(
-    "  Piped launches retain MCP stdio. Use pmcp serve explicitly for MCP.",
+  ui.table(
+    commands.map((command) => [command.name, command.describe]),
+    "  ",
+    ui.width("help"),
   );
   ui.line();
-  ui.table([
-    ["-q, --quiet", "only errors"],
-    ["--color", "always colour output; FORCE_COLOR=1 does the same"],
-    ["--no-color", "never colour output; NO_COLOR and FORCE_COLOR=0 too"],
-    ["-v, --version", "print the version (also -V and pmcp version)"],
-    ["-h, --help", "this, or help for one command"],
-  ]);
+  ui.wrapped(
+    "With no command, pmcp opens a terminal workspace on a supported TTY. Piped launches retain MCP stdio. Use pmcp serve explicitly for MCP.",
+  );
+  ui.line();
+  ui.table(
+    [
+      ["-q, --quiet", "only errors"],
+      ["--color", "always colour output; FORCE_COLOR=1 does the same"],
+      ["--no-color", "never colour output; NO_COLOR and FORCE_COLOR=0 too"],
+      ["-v, --version", "print the version (also -V and pmcp version)"],
+      ["-h, --help", "this, or help for one command"],
+    ],
+    "  ",
+    ui.width("help"),
+  );
   ui.line();
   // Omit empty headings so help does not suggest that content is missing.
   if (notImplemented.length > 0) {

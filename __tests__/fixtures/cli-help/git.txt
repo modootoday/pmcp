@@ -1,12 +1,15 @@
 pmcp git
-  Create and sync worktrees, deliver commits to the mainline, sync the main checkout
+  Create and sync worktrees, deliver commits to the mainline, sync the main
+  checkout
 
   pmcp git <subcommand> [options]
 
   Subcommands
     worktree create  Make a linked worktree on a new branch from the upstream
-    worktree list    The main checkout and each linked worktree, with behind/ahead
-    worktree sync    Move this worktree onto the mainline when that loses nothing
+    worktree list    The main checkout and each linked worktree, with
+                     behind/ahead
+    worktree sync    Move this worktree onto the mainline when that loses
+                     nothing
     deliver          Replay, gate and push commits to the mainline
     sync             Move the main checkout, or this desk, to the mainline
 

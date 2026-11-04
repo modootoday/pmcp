@@ -369,6 +369,8 @@ Both show the project and lockfile changes and stop: `--yes` (`-y`) approves the
 
 With `TERM=dumb`, or a locale that is not UTF-8, the few typographic characters in messages (an em dash, a middle dot) print as ASCII. Long operations such as `index` report progress on standard error: one rewritten line on a terminal, a plain `k/N` line every tenth of the work otherwise.
 
+Help and tables fit the terminal: `COLUMNS` when set, else the terminal width, kept between 40 and 120 columns; long descriptions wrap under their column, and a name too wide for its column puts its description on the next lines. Off a terminal, help wraps at 80 columns and a table prints one plain record per line (`name  description`, no padding), so `grep` and `cut` see whole records.
+
 Options are parsed against the command's own list, so an unknown flag is an error rather than a silently ignored typo. Giving a non-repeatable option twice, or leaving off a value it needs, is the same error.
 
 An unknown command, subcommand or option exits 2 with one line naming it, the closest valid name when one is near (`unknown command "stauts"; did you mean "status"?`), and where to look next (`Run pmcp status --help for its usage.`), rather than the whole help. An unknown subcommand also lists every valid one. `pmcp help <command>` for a command that does not exist is the same error. Every command that needs a `pmcp.toml` and finds none says so the same way and suggests `pmcp init`.

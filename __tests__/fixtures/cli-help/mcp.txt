@@ -13,11 +13,15 @@ pmcp mcp
   Options
     --json                     Print the result as one JSON envelope on stdout.
     --config <file>            A pmcp.toml to read instead of the nearest one.
-    --code <callback-or-code>  Complete a pending login with a callback URL or authorization code.
-    --no-wait                  Print the authorization URL and save a pending login for later completion.
-    --port <port>              Loopback callback port; zero chooses an available port.
+    --code <callback-or-code>  Complete a pending login with a callback URL or
+                               authorization code.
+    --no-wait                  Print the authorization URL and save a pending
+                               login for later completion.
+    --port <port>              Loopback callback port; zero chooses an available
+                               port.
     --client-id <id>           Use a pre-registered OAuth client identifier.
-    --bearer-env <name>        Store a bearer session from this environment variable without printing it.
+    --bearer-env <name>        Store a bearer session from this environment
+                               variable without printing it.
 
   Examples
     pmcp mcp login remote --no-wait
