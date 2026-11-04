@@ -149,6 +149,7 @@ export function runGate(
   logDir: string,
   restore = false,
   keep = KEEP_TIPS,
+  extraEnv: Readonly<Record<string, string>> = {},
 ): GateRun {
   const problem = prepareGateTree(
     mainRoot,
@@ -164,6 +165,7 @@ export function runGate(
   const { log, logs } = gateLog(logDir, tip, keep);
   report.info(`gate on ${tip.slice(0, 10)} in ${tree}; gate log: ${log}`);
   const code = runCommandLogged(command, tree, log, {
+    ...extraEnv,
     PMCP_GATE_TIP: tip,
     PMCP_GATE_MAIN: mainRoot,
     ...(lockEnv ? { [lockEnv]: "1" } : {}),

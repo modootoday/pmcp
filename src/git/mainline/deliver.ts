@@ -15,6 +15,7 @@ import type {
   LeaseSpec,
   Reporter,
 } from "../types.js";
+import { BUSY_EXIT } from "../../lease/config.js";
 import { gateLog, gateTree, runGate } from "./gate.js";
 import {
   acquireHostLock,
@@ -191,6 +192,19 @@ function attempts(options: DeliverOptions): number {
         options.umask !== undefined,
         options.gate?.logKeep,
       );
+      // A test stage run under pmcp heavy that never got the host lease exits 75; deliver
+      // itself never takes the lease, so a land never queues behind other sessions' work.
+      if (run.code === BUSY_EXIT) {
+        report.warn("gate not run: host busy, nothing pushed, retry later");
+        if (options.track)
+          options.track.gate = {
+            exit: run.code,
+            log: run.log,
+            logs: run.logs,
+            by: "command",
+          };
+        return BUSY_EXIT;
+      }
       if (options.track)
         options.track.gate = {
           exit: run.code,

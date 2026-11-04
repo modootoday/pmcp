@@ -84,6 +84,15 @@ delivery that holds the lock waits until the load is below it before the gate st
 checking every 15 seconds for up to `load_wait_seconds` (default `1800`), and then
 fails without running the gate; once started, a gate is never retried.
 
+Deliver never takes the [host lease](project-configuration.md#host-lease):
+replay, gate tree preparation, hooks and the push run without it, so a land never
+queues behind other sessions' builds and never holds the gate lock while it
+waits for capacity. The gate puts only its test stages under `pmcp heavy
+--profile gate [--weight N] -- <command>`, which queue first, in the gate lane.
+When such a stage gives up (exit 75), a gate command that exits 75 makes
+`pmcp git deliver` stop with "gate not run: host busy, nothing pushed, retry
+later" and exit 75.
+
 One delivery gates at a time: pmcp takes an exclusive `flock` on the file `lock`
 beside the gate tree (`<dir of tree>/lock`), so another tool that takes the same
 file with `flock` (a project's own landing script, say) and pmcp never gate together. With

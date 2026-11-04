@@ -114,6 +114,13 @@ tips&#39; directories are removed when a new tip&#39;s is made. With <code>max_l
 delivery that holds the lock waits until the load is below it before the gate starts,
 checking every 15 seconds for up to <code>load_wait_seconds</code> (default <code>1800</code>), and then
 fails without running the gate; once started, a gate is never retried.</p>
+<p>Deliver never takes the <a href="/project-configuration/#host-lease">host lease</a>:
+replay, gate tree preparation, hooks and the push run without it, so a land never
+queues behind other sessions&#39; builds and never holds the gate lock while it
+waits for capacity. The gate puts only its test stages under <code>pmcp heavy --profile gate [--weight N] -- &lt;command&gt;</code>, which queue first, in the gate lane.
+When such a stage gives up (exit 75), a gate command that exits 75 makes
+<code>pmcp git deliver</code> stop with &quot;gate not run: host busy, nothing pushed, retry
+later&quot; and exit 75.</p>
 <p>One delivery gates at a time: pmcp takes an exclusive <code>flock</code> on the file <code>lock</code>
 beside the gate tree (<code>&lt;dir of tree&gt;/lock</code>), so another tool that takes the same
 file with <code>flock</code> (a project&#39;s own landing script, say) and pmcp never gate together. With
