@@ -58,7 +58,12 @@ pmcp hooks report --switch-check shell.heredoc [--since 2d] [--json]
 Every command that prints a result takes `--json` and then writes exactly one line to standard output, a JSON envelope, whether it succeeded or failed:
 
 ```json
-{"schema":"pmcp.hooks.list.v1","ok":true,"data":{"version":1,"policies":[]},"errors":[]}
+{
+  "schema": "pmcp.hooks.list.v1",
+  "ok": true,
+  "data": { "version": 1, "policies": [] },
+  "errors": []
+}
 ```
 
 - `schema` is `pmcp.<command>[.<subcommand>].v1`, such as `pmcp.status.v1`, `pmcp.git.worktree.list.v1` or `pmcp.models.v1`. A change that removes or retypes a field gets a new version.
@@ -211,7 +216,7 @@ The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs
 - `worktree sync` moves the current worktree onto the mainline when that loses nothing; exit 1 when it is held back.
 - `deliver` fetches, replays the named commits (default: the ones the upstream lacks) onto the mainline, runs the gate in its own tree under a lock, and pushes; it replays again if the mainline moved. A delivery that touches a leased path holds that lease until it has pushed and installed, and it refuses during a pause unless `--during-pause` or `during_pause = "allow"`. `--no-push` replays and runs the gate command, then stops: it takes no lease and pushes, syncs and notifies nothing, and it refuses `gate = "pre-push"`, where the push is the gate. Deliver never takes the [host lease](project-configuration.md#host-lease): replay, gate tree, hooks and push run without it, and the gate wraps only its test stages in `pmcp heavy --profile gate`. Exit 0 delivered, gated with `--no-push`, or nothing to deliver; 1 refused, fetch failed, gate failed or attempts exhausted; 2 `--no-push` with the pre-push gate; 75 the gate command exited 75 because a test stage never got the host lease ("gate not run: host busy"), so nothing was pushed.
 - `sync` moves the main checkout to the mainline, installs when a listed file changed, and follows clean submodule pins. Exit 0 moved or already equal, 1 when local work would be lost or the fetch failed, 2 when blocked (undelivered edits, another branch, a git operation in progress). Run in a desk (a linked worktree matching `[git.worktrees] desks`), it brings the desk up to date the same way without rebasing: exit 0 moved or current, 1 held (an unlanded commit, uncommitted tracked edits, a pause, another session's lease, a git operation in progress), with the reason. In any other linked worktree it exits 2.
-- `affected --base <ref>` prints the workspace members the delta from `<ref>` to `--head` (default `HEAD`) touches, with their consumers when [`[git.affected]`](git-workflow.md#affected-members) `consumers` is on (`--tests-only` leaves them out), or `ALL`; unmapped files are named on stderr. It needs only `[git.affected]`, not an enabled workflow. Exit 0 with an answer, `ALL` included when the base does not resolve, equals the head or a manifest does not parse; 2 for a missing `--base` or an invalid table. `--json` prints `pmcp.git.affected.v1`: `all`, `reason`, `base`, `head`, `changed`, `members`, `unmapped` and `selected` (the printed list, or `"ALL"`).
+- `affected --base <ref>` prints the workspace members the delta from `<ref>` to `--head` (default `HEAD`) touches, with their consumers when [`[git.affected]`](git-workflow.md#affected-members) `consumers` is on (`--tests-only` leaves them out), or `ALL`; unmapped files are named on stderr. It needs only `[git.affected]`, not an enabled workflow. Exit 0 with an answer, `ALL` included when the base does not resolve, equals the head or a manifest does not parse; 2 for a missing `--base` or an invalid table. `--json` prints the [envelope](#json-output) `pmcp.git.affected.v1`, whose `data` has `all`, `reason`, `base`, `head`, `changed`, `members`, `unmapped` and `selected` (the printed list, or `"ALL"`).
 
 ## heavy
 
@@ -354,18 +359,18 @@ Both show the project and lockfile changes and stop: `--yes` (`-y`) approves the
 
 ## Options
 
-| Option | Where | Effect |
-| --- | --- | --- |
-| `--root <dir>` | `serve`, `list`, `index`, `validate`, `project` | a `node_modules` directory to walk; repeatable, and the first one wins on a duplicate package |
-| `--scope <prefix>` | `serve`, `list`, `index`, `validate`, `project` | only packages whose names start with this; repeatable, matched with a plain prefix test |
-| `--config <file>` | every command that reads `pmcp.toml` | a `pmcp.toml` to read instead of the nearest one at or above the working directory |
-| `--model <id>` | `index`, `serve` | the encoder to use; rows from another model are never scored |
-| `--json` | every command that prints a result; `pmcp <command> --help` lists it | emit JSON on standard output rather than a table or a summary |
-| `-y`, `--yes` | `install`, `sync`, `tui` | approve the displayed changes, or the first runtime start, without a prompt |
-| `-q`, `--quiet` | anywhere | silence diagnostics and progress on standard error, except errors; results on standard output still print |
-| `--color`, `--no-color` | anywhere | always or never colour; without either, `FORCE_COLOR` (`0` off, anything else on) wins over `NO_COLOR`, `TERM=dumb` and the terminal test |
-| `--help`, `-h` | anywhere | the help for that command or subcommand, generated from the command itself: usage, subcommands, the options that apply and examples |
-| `-v`, `-V`, `--version`, `version` | on its own | the version, on standard output |
+| Option                             | Where                                                                | Effect                                                                                                                                    |
+| ---------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `--root <dir>`                     | `serve`, `list`, `index`, `validate`, `project`                      | a `node_modules` directory to walk; repeatable, and the first one wins on a duplicate package                                             |
+| `--scope <prefix>`                 | `serve`, `list`, `index`, `validate`, `project`                      | only packages whose names start with this; repeatable, matched with a plain prefix test                                                   |
+| `--config <file>`                  | every command that reads `pmcp.toml`                                 | a `pmcp.toml` to read instead of the nearest one at or above the working directory                                                        |
+| `--model <id>`                     | `index`, `serve`                                                     | the encoder to use; rows from another model are never scored                                                                              |
+| `--json`                           | every command that prints a result; `pmcp <command> --help` lists it | emit JSON on standard output rather than a table or a summary                                                                             |
+| `-y`, `--yes`                      | `install`, `sync`, `tui`                                             | approve the displayed changes, or the first runtime start, without a prompt                                                               |
+| `-q`, `--quiet`                    | anywhere                                                             | silence diagnostics and progress on standard error, except errors; results on standard output still print                                 |
+| `--color`, `--no-color`            | anywhere                                                             | always or never colour; without either, `FORCE_COLOR` (`0` off, anything else on) wins over `NO_COLOR`, `TERM=dumb` and the terminal test |
+| `--help`, `-h`                     | anywhere                                                             | the help for that command or subcommand, generated from the command itself: usage, subcommands, the options that apply and examples       |
+| `-v`, `-V`, `--version`, `version` | on its own                                                           | the version, on standard output                                                                                                           |
 
 With `TERM=dumb`, or a locale that is not UTF-8, the few typographic characters in messages (an em dash, a middle dot) print as ASCII. Long operations such as `index` report progress on standard error: one rewritten line on a terminal, a plain `k/N` line every tenth of the work otherwise.
 
@@ -379,14 +384,14 @@ An unknown command, subcommand or option exits 2 with one line naming it, the cl
 
 Every command uses one table, so a script can branch on the code alone:
 
-| Code | Means | For example |
-| --- | --- | --- |
-| `0` | it did what you asked | skills listed, the whole catalog indexed, nothing to deliver |
-| `1` | it ran and failed, or found a problem | no skills under those roots, a partial index, no SQLite to store vectors in, `validate` errors, a `doctor` FAIL, a declined or failed install, a refused delivery, a failed gate or fetch |
-| `2` | usage error: it could not run as asked | an unknown command, subcommand or option, a missing value, no `pmcp.toml` or a missing `[git]` table, `git sync` in the wrong checkout |
-| `3` | an optional dependency is missing | `index` without `@huggingface/transformers` |
-| `4` | a check ran and found differences | `status` drift or an exceeded budget, `project --check` drift, stale or undeclared outputs, a `hooks test --fixtures` or `--smoke` finding |
-| `75` | the host stayed busy, so nothing ran; retry later | `heavy` past `max_wait`, a `git deliver` gate whose test stage never got the host lease, `wait` past `--timeout` |
+| Code | Means                                             | For example                                                                                                                                                                               |
+| ---- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`  | it did what you asked                             | skills listed, the whole catalog indexed, nothing to deliver                                                                                                                              |
+| `1`  | it ran and failed, or found a problem             | no skills under those roots, a partial index, no SQLite to store vectors in, `validate` errors, a `doctor` FAIL, a declined or failed install, a refused delivery, a failed gate or fetch |
+| `2`  | usage error: it could not run as asked            | an unknown command, subcommand or option, a missing value, no `pmcp.toml` or a missing `[git]` table, `git sync` in the wrong checkout                                                    |
+| `3`  | an optional dependency is missing                 | `index` without `@huggingface/transformers`                                                                                                                                               |
+| `4`  | a check ran and found differences                 | `status` drift or an exceeded budget, `project --check` drift, stale or undeclared outputs, a `hooks test --fixtures` or `--smoke` finding                                                |
+| `75` | the host stayed busy, so nothing ran; retry later | `heavy` past `max_wait`, a `git deliver` gate whose test stage never got the host lease, `wait` past `--timeout`                                                                          |
 
 1 says the project is not what you expected; 2 says the command line or the setup is wrong, so retrying the same command will not help; 3 says the machine is missing something optional and the server still works without it; 4 says a check did its job and found something to fix, usually with `pmcp project`. A command that runs another command, such as `heavy`, exits with that command's code. Before 0.23.0, drift exited 2 like a usage error; see [Upgrading](upgrading.md).
 

@@ -74,7 +74,7 @@ describe("pmcp heavy submit", () => {
     expect(existsSync(out)).toBe(true);
     const json = JSON.parse(
       pmcpSync(["heavy", "result", ticket, "--json"], cwd, env).stdout,
-    );
+    ).data;
     expect(json).toMatchObject({
       version: 1,
       id: ticket,

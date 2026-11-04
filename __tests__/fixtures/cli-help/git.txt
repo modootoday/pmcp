@@ -12,13 +12,17 @@ pmcp git
                      nothing
     deliver          Replay, gate and push commits to the mainline
     sync             Move the main checkout, or this desk, to the mainline
+    affected         The workspace members a delta touches, with their consumers
 
   Run pmcp git <subcommand> --help for one subcommand's usage.
 
   Options
     --json           Print the result as one JSON envelope on stdout.
     --config <file>  A pmcp.toml to read instead of the nearest one.
-    --base <ref>     Start a new worktree from this ref instead of the upstream
+    --base <ref>     Start a new worktree from this ref instead of the upstream;
+                     for affected, the ref the delta starts at
+    --head <ref>     For affected, the ref the delta ends at (default HEAD)
+    --tests-only     For affected, print changed members without their consumers
     --during-pause   Deliver although the sessions are paused
     --no-push        Replay and gate, then stop without pushing
 

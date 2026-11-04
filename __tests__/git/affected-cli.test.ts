@@ -69,7 +69,7 @@ it("prints the versioned JSON shape", async () => {
     ["git", "affected", "--base", "HEAD~1", "--json", "--config", path],
     { cwd: ws.root, ui: io.ui, env: process.env },
   );
-  const parsed = JSON.parse(io.out.join(""));
+  const parsed = JSON.parse(io.out.join("")).data;
   expect(parsed).toMatchObject({
     schema: "pmcp.git.affected.v1",
     all: false,

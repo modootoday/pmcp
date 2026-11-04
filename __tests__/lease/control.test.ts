@@ -63,7 +63,7 @@ describe("queue control", () => {
     const id = idOf(dir, "stuck");
     const listed = JSON.parse(
       pmcpSync(["heavy", "queue", "--json"], cwd, env).stdout,
-    );
+    ).data;
     expect(listed.waiters[0]).toMatchObject({
       id,
       lane: "interactive",

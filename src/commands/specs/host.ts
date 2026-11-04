@@ -9,17 +9,74 @@ export const heavySpec: CommandSpec = {
   ],
   subcommands: [
     {
+      name: "submit",
+      describe: "Queue a command and return its ticket at once",
+      usage:
+        "pmcp heavy submit [--label <text>] [--lane <lane>] [--weight <n>] -- <command...>",
+      options: ["label", "profile", "lane", "weight", "config", "json"],
+      examples: ["pmcp heavy submit --lane bulk -- npm run build"],
+    },
+    {
+      name: "wait",
+      describe: "Wait for a submitted ticket to finish",
+      usage: "pmcp heavy wait <ticket> [--timeout <s>]",
+      options: ["timeout", "config", "json"],
+      examples: ["pmcp heavy wait 7f3a --timeout 900"],
+    },
+    {
+      name: "result",
+      describe: "The exit code and log of a finished ticket",
+      usage: "pmcp heavy result <ticket>",
+      options: ["config", "json"],
+      examples: ["pmcp heavy result 7f3a"],
+    },
+    {
+      name: "queue",
+      describe: "The queued and running jobs by lane",
+      usage: "pmcp heavy queue [--json]",
+      options: ["config", "json"],
+      examples: ["pmcp heavy queue --json"],
+    },
+    {
+      name: "promote",
+      describe: "Run a queued job now (emergency; logged)",
+      usage: "pmcp heavy promote <id> --now --reason <text>",
+      options: ["now", "reason", "config"],
+      examples: ['pmcp heavy promote 7f3a --now --reason "release blocker"'],
+    },
+    {
+      name: "priority",
+      describe: "Move a queued job to another lane or position",
+      usage: "pmcp heavy priority <id> <lane|+N|-N> --reason <text>",
+      options: ["reason", "config"],
+      examples: ['pmcp heavy priority 7f3a gate --reason "blocks the land"'],
+    },
+    {
+      name: "cancel",
+      describe: "Withdraw a queued job; --force also stops a running one",
+      usage: "pmcp heavy cancel <id> [--force]",
+      options: ["force", "reason", "config"],
+      examples: ["pmcp heavy cancel 7f3a"],
+    },
+    {
       name: "status",
       describe: "The lease, its holder, waiters and the host readings",
-      usage: "pmcp heavy status",
-      options: ["config"],
-      examples: ["pmcp heavy status"],
+      usage: "pmcp heavy status [--json]",
+      options: ["config", "json"],
+      examples: ["pmcp heavy status --json"],
+    },
+    {
+      name: "stats",
+      describe: "Recorded run times and weights per command",
+      usage: "pmcp heavy stats [--json]",
+      options: ["config", "json"],
+      examples: ["pmcp heavy stats"],
     },
   ],
   describe:
     "Run a heavy command within the host-wide budget, by lane, once the host has room",
   usage:
-    "pmcp heavy [--label <text>] [--profile default|gate|hook|<name>] [--lane gate|hook|interactive|bulk] [--weight <n>] [--now --reason <text>] -- <command...> | pmcp heavy submit [options] -- <command...> | pmcp heavy wait|result <ticket> | pmcp heavy queue [--json] | pmcp heavy promote <id> --now --reason <text> | pmcp heavy priority <id> <lane|+N|-N> --reason <text> | pmcp heavy cancel <id> [--force] | pmcp heavy status [--json] | pmcp heavy stats [--json]",
+    "pmcp heavy [--label <text>] [--profile <name>] [--lane <lane>] [--weight <n>] [--now --reason <text>] -- <command...> | pmcp heavy <subcommand> [options]",
   options: [
     nearestConfigOption,
     jsonOption,

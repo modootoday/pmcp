@@ -27,8 +27,8 @@ pmcp — the skills your installed packages ship
                component, level or time
   git          Create and sync worktrees, deliver commits to the mainline, sync
                the main checkout
-  heavy        Run a heavy command under the host-wide lease, one at a time,
-               after the host settles
+  heavy        Run a heavy command within the host-wide budget, by lane, once
+               the host has room
   wait         Sleep until a process exits or a condition holds, never matching
                itself
   mcp          Manage the project's shared remote MCP authentication

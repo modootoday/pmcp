@@ -1,21 +1,43 @@
 pmcp heavy
-  Run a heavy command under the host-wide lease, one at a time, after the host
-  settles
+  Run a heavy command within the host-wide budget, by lane, once the host has
+  room
 
-  pmcp heavy [--label <text>] [--profile default|gate|<name>] -- <command...> |
-  pmcp heavy status
+  pmcp heavy [--label <text>] [--profile <name>] [--lane <lane>] [--weight <n>]
+  [--now --reason <text>] -- <command...> | pmcp heavy <subcommand> [options]
 
   Subcommands
-    status  The lease, its holder, waiters and the host readings
+    submit    Queue a command and return its ticket at once
+    wait      Wait for a submitted ticket to finish
+    result    The exit code and log of a finished ticket
+    queue     The queued and running jobs by lane
+    promote   Run a queued job now (emergency; logged)
+    priority  Move a queued job to another lane or position
+    cancel    Withdraw a queued job; --force also stops a running one
+    status    The lease, its holder, waiters and the host readings
+    stats     Recorded run times and weights per command
 
   Run pmcp heavy <subcommand> --help for one subcommand's usage.
 
   Options
     --config <file>   A pmcp.toml to read instead of the nearest one.
+    --json            Print the result as one JSON envelope on stdout.
     --label <text>    What status and the log call this job (default: the
                       command).
     --profile <name>  Wait limits from [host.lease.profiles.<name>] (default:
                       default).
+    --now             Emergency: run at once, outside the lanes, the budget and
+                      the host check, still counted in the running weight; needs
+                      --reason.
+    --reason <text>   Why: a --now run or a promote cannot wait, a priority
+                      change or cancel was needed; logged.
+    --timeout <s>     wait: give up after this many seconds and exit 75.
+    --force           cancel: also stop a job that is already running.
+    --ticket <id>     Internal: the submitted ticket this run belongs to.
+    --lane <lane>     Queue in this lane: gate, hook, interactive or bulk; a
+                      short budget goes to them in that order (default: from the
+                      profile, [host.lease] commands, else interactive).
+    --weight <n>      How much of the host budget the command takes (default:
+                      [host.lease] commands, else the lane's weight).
 
   Examples
     pmcp heavy -- npm test
