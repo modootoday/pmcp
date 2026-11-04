@@ -24,6 +24,7 @@ const SESSION_ROWS = [
   "  sessions     Show and coordinate the live sessions of this workspace: pause, broadcast, sweep\n",
   "  logs         Read this project's pmcp JSONL logs, filtered by session, trace, component, level or time\n",
   "  git          Create and sync worktrees, deliver commits to the mainline, sync the main checkout\n",
+  "  heavy        Run a heavy command under the host-wide lease, one at a time, after the host settles\n",
   "  mcp          Manage the project's shared remote MCP authentication\n",
 ].join("");
 

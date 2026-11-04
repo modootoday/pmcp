@@ -6,6 +6,7 @@ import { legacyEntries, pinnedEntries, readCustom } from "./compile/custom.js";
 import { readGuards } from "./compile/guards.js";
 import { readChecks } from "./compile/checks.js";
 import { readHooksTable } from "./compile/hooks-table.js";
+import { declaresPtyHost } from "../project/host-spec.js";
 import { readSessions } from "./compile/sessions.js";
 import { asTable, type CompiledHooks, type Table } from "./compile/types.js";
 import { readWorkspace } from "./compile/workspace.js";
@@ -33,7 +34,7 @@ export interface CompileOptions {
 // [host] turns shell.host_approval on, so agents cannot approve the host policy they could
 // have written; a [hooks.guards.shell] host_approval entry, even mode off, takes over instead.
 function hostGuard(host: unknown, guards: Table): CompiledGuard | null {
-  if (host === undefined) return null;
+  if (!declaresPtyHost(host)) return null;
   const shell = asTable(guards["shell"], "[hooks.guards.shell]");
   if (shell["host_approval"] !== undefined) return null;
   return { id: "shell.host_approval", mode: "deny", options: {} };

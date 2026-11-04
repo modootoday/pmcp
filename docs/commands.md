@@ -192,6 +192,16 @@ The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs
 - `deliver` fetches, replays the named commits (default: the ones the upstream lacks) onto the mainline, runs the gate in its own tree under a lock, and pushes; it replays again if the mainline moved. A delivery that touches a leased path holds that lease until it has pushed and installed, and it refuses during a pause unless `--during-pause` or `during_pause = "allow"`. `--no-push` replays and runs the gate command, then stops: it takes no lease and pushes, syncs and notifies nothing, and it refuses `gate = "pre-push"`, where the push is the gate. Exit 0 delivered, gated with `--no-push`, or nothing to deliver; 1 refused, gate failed or attempts exhausted; 2 fetch failed or `--no-push` with the pre-push gate.
 - `sync` moves the main checkout to the mainline, installs when a listed file changed, and follows clean submodule pins. Exit 0 moved or already equal, 1 when local work would be lost, 2 when blocked (undelivered edits) or the fetch failed. Run in a desk (a linked worktree matching `[git.worktrees] desks`), it brings the desk up to date the same way without rebasing: exit 0 moved or current, 1 held (an unlanded commit, uncommitted tracked edits, a pause, another session's lease, a git operation in progress), with the reason. In any other linked worktree it exits 2.
 
+## heavy
+
+```sh
+pmcp heavy -- npm test
+pmcp heavy --label "web build" --profile gate -- npm run build
+pmcp heavy status
+```
+
+Run a heavy command under the host-wide lease of [`[host.lease]`](project-configuration.md#host-lease), one at a time across every session and worktree on the host. It waits first for the lease (up to `max_wait`, in arrival order, with a line on standard error every `heartbeat`), then, holding it, for the load average and IO pressure to fall below `max_load` and `max_io` (up to `load_grace`, after which it runs anyway). The command runs with the lease marker set, so a nested `pmcp heavy` runs at once. Everything after `--` is the command, options included. `status` prints the lock, the host readings, when the host was last settled, the holder (pid, label, cwd, age), each waiter, the holder against `hold_warn` and `hold_max`, and the busiest processes outside the lease. With the lease disabled, or with `PMCP_HEAVY_DISABLE=<reason>` set, the command runs at once. Exit: the command's own code; 75 when the lease stayed held past `max_wait` and nothing ran; 2 for a missing `--` or an unknown profile.
+
 ## completion
 
 ```sh
@@ -320,6 +330,7 @@ Options are parsed against the command's own list, so an unknown flag is an erro
 | `1`  | it ran and found a problem                          | no skills under those roots, a partial index, no SQLite in this runtime to store vectors in, a refused or failed `git deliver`                                                 |
 | `2`  | the arguments were unusable, or a check found drift | an unknown command, an unknown option, a missing value; `project --check` drift, stale or undeclared outputs; a `git` fetch that failed or a sync blocked by undelivered edits |
 | `3`  | an optional dependency is missing                   | `index` without `@huggingface/transformers`                                                                                                                                    |
+| `75` | the host stayed busy, so nothing ran; retry later | `heavy` past `max_wait` |
 
 The distinction between 1 and 3 is worth wiring into a script: 1 says the project is not what you expected, and 3 says the machine is missing something optional and the server still works without it.
 

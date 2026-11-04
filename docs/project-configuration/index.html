@@ -93,6 +93,7 @@ ignored.</p>
 <tr><td><code>[ui.claude]</code></td><td><a href="#claude-session-panes">Claude session panes</a></td></tr>
 <tr><td><code>[tui]</code>, <code>[mailbox]</code></td><td><a href="/terminal-workspace/">Terminal workspace</a></td></tr>
 <tr><td><code>[host]</code>, <code>[[host.sessions]]</code>, <code>[[host.answers]]</code>, <code>[host.browser]</code>, <code>[host.desktop]</code>, <code>[[host.desktop.launch]]</code></td><td><a href="#sessions-pmcp-pty-hosts">Sessions pmcp-pty hosts</a></td></tr>
+<tr><td><code>[host.lease]</code>, <code>[host.lease.profiles.&lt;name&gt;]</code></td><td><a href="#host-lease">Host lease</a></td></tr>
 <tr><td><code>[harness]</code></td><td><a href="/terminal-harness/#create-a-group-and-its-sessions">Terminal harness</a></td></tr></tbody></table></div>
 <h2 id="marketplaces">Marketplaces</h2>
 <p><code>[marketplaces.&lt;name&gt;]</code> declares a plugin marketplace once for catalog search
@@ -244,6 +245,54 @@ accident and an agent that was told to approve; they are not a security
 boundary, since any process running as you can write the approvals directory
 directly. A real boundary needs the approvals stored under a different user or
 owned by root.</p>
+<h2 id="host-lease">Host lease</h2>
+<p><code>[host.lease]</code> configures the host-wide lease behind
+<a href="/commands/#heavy"><code>pmcp heavy</code></a>: heavy commands (installs, test suites,
+typechecks, builds, gates) from every session and worktree on the host run one
+at a time, and each starts only once the host has settled. The lease trades
+throughput for stability: a queued job waits instead of running beside another
+one and overflowing memory or IO. Turn it off (<code>enabled = false</code>) on a host that
+runs one session at a time or has room for every job at once; keep it on where
+several agents share one machine.</p>
+<p>It is on by default, also without the table.</p>
+<pre><code>[host.lease]
+max_load = 8
+max_io = 8
+hold_warn = 1800
+hold_max = 3600
+heavy = [[&quot;npm&quot;, &quot;install&quot;], [&quot;npm&quot;, &quot;test&quot;], [&quot;cargo&quot;, &quot;build&quot;]]
+guard = &quot;deny&quot;
+
+[host.lease.profiles.gate]
+max_wait = 2700
+load_grace = 600</code></pre>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>enabled</code></td><td>boolean</td><td><code>true</code></td><td><code>false</code> runs every <code>pmcp heavy</code> command at once, gates without the lease and turns the guard off.</td></tr>
+<tr><td><code>dir</code></td><td>path</td><td><code>~/.cache/pmcp/host</code></td><td>Where the lock (<code>heavy.lock</code>), the holder record, the waiter records and <code>heavy.log</code> live. Every tool sharing the lease names the same directory.</td></tr>
+<tr><td><code>marker_env</code></td><td>name</td><td><code>PMCP_HEAVY_LEASE</code></td><td>Set to the holder&#39;s pid for the leased command; a nested <code>pmcp heavy</code> whose marker names the live holder runs at once.</td></tr>
+<tr><td><code>legacy_marker_env</code></td><td>name</td><td>none</td><td>A second marker, set and honoured like <code>marker_env</code>, for a shell wrapper that shares <code>dir</code>.</td></tr>
+<tr><td><code>legacy_skip_env</code></td><td>name</td><td>none</td><td>A second skip variable, honoured like <code>PMCP_HEAVY_DISABLE</code>.</td></tr>
+<tr><td><code>max_load</code></td><td>number</td><td>the CPU count</td><td>With the lease held, wait until the 1-minute load average is below this.</td></tr>
+<tr><td><code>max_io</code></td><td>number</td><td><code>8</code></td><td>And until IO pressure (<code>some avg10</code>) is below this. A host without pressure files waits on load only; one without a load average keeps only the lease order.</td></tr>
+<tr><td><code>max_wait</code></td><td>seconds</td><td><code>3600</code></td><td>How long the <code>default</code> profile waits for the lease; then nothing runs and the exit is 75.</td></tr>
+<tr><td><code>load_grace</code></td><td>seconds</td><td><code>900</code></td><td>How long a holder of the <code>default</code> profile waits for the host to settle; then it runs and the log says so.</td></tr>
+<tr><td><code>hold_warn</code></td><td>seconds</td><td><code>1800</code></td><td>A holder past this prints one warning, and <code>pmcp heavy status</code> marks it.</td></tr>
+<tr><td><code>hold_max</code></td><td>seconds</td><td>none</td><td><code>pmcp heavy status</code> flags a holder past this as over the limit. Nothing is killed.</td></tr>
+<tr><td><code>memory_max</code></td><td>size</td><td>none</td><td>Runs each command in <code>systemd-run --user --scope -p MemoryMax=&lt;size&gt; -p MemorySwapMax=0</code> where that is available, so a runaway job is killed alone.</td></tr>
+<tr><td><code>heartbeat</code>, <code>poll</code></td><td>seconds</td><td><code>60</code>, <code>15</code></td><td>How often a waiter prints that it is still waiting, and how often a holder rereads the host.</td></tr>
+<tr><td><code>profiles.&lt;name&gt;</code></td><td>table</td><td><code>gate</code>: 2700 / 600</td><td><code>max_wait</code>, <code>load_grace</code> and <code>memory_max</code> for <code>pmcp heavy --profile &lt;name&gt;</code>. <code>gate</code> defaults to 2700 s and 600 s; any other profile starts from the top-level values.</td></tr>
+<tr><td><code>heavy</code></td><td>argv lists</td><td>none</td><td>The commands the <code>host.lease</code> guard expects under the lease, as argv prefixes. Empty, the guard is off. pmcp lists none of its own.</td></tr>
+<tr><td><code>guard</code></td><td>string</td><td><code>observe</code></td><td>The <code>host.lease</code> guard&#39;s mode: <code>observe</code> logs only, <code>warn</code> tells the agent, <code>deny</code> refuses with the command to run instead (<code>pmcp heavy -- &lt;command&gt;</code>), <code>off</code>. A command already wrapped passes.</td></tr></tbody></table></div>
+<p><code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> is the one way to run without the lease for a
+single command or a whole shell (a test suite, an emergency): <code>pmcp heavy</code>
+runs at once and logs the reason, and the guard lets a command that sets it
+pass. <code>enabled = false</code> is the switch for a host or project that does not
+want the lease at all.</p>
+<p>The files keep the format of a shell wrapper that takes the same lock with
+<code>flock</code>: <code>heavy.holder</code> and <code>waiters/&lt;pid&gt;</code> hold <code>key=value</code> lines (<code>pid</code>,
+<code>since</code>, <code>started</code>, <code>cwd</code>, <code>label</code>), and <code>heavy.log</code> has one tab-separated line
+per event (<code>&lt;UTC time&gt;</code>, <code>&lt;pid&gt;</code>, <code>acquired|released|timeout|grace|skip</code>,
+<code>&lt;details&gt;</code>). Point <code>dir</code>, <code>legacy_marker_env</code> and <code>legacy_skip_env</code> at such a
+wrapper&#39;s values and the two exclude each other while both are in use.</p>
 <h2 id="browser-and-desktop-for-agents">Browser and desktop for agents</h2>
 <p>pmcp-browser and pmcp-desktop, and how to declare them: <a href="/browser-and-desktop/">Browser and desktop</a>.</p>
 <h2 id="claude-permission-rules">Claude permission rules</h2>

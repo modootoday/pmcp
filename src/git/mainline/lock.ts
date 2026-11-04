@@ -23,7 +23,7 @@ export interface Holder {
 }
 
 // Keep the inherited descriptor open so the host lock outlives the flock child.
-function flock(fd: number, args: readonly string[]): number {
+export function flock(fd: number, args: readonly string[]): number {
   const run = spawnSync("flock", [...args, "3"], {
     stdio: ["ignore", "ignore", "pipe", fd],
   });

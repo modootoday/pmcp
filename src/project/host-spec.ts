@@ -1,6 +1,7 @@
-import { isAbsolute, normalize } from "node:path";
+import { dirname, isAbsolute, normalize } from "node:path";
 
 import { ConfigError } from "../config.js";
+import { readLeaseSettings } from "../lease/config.js";
 import { envNames } from "../native/env-names.js";
 import {
   readHostBrowser,
@@ -204,9 +205,19 @@ function names(path: string, where: string, value: unknown): string[] {
   }
 }
 
+// Only [host] keys other than lease declare a pmcp-pty host.
+export function declaresPtyHost(host: unknown): boolean {
+  if (host === null || typeof host !== "object" || Array.isArray(host))
+    return host !== undefined;
+  return Object.keys(host).some((key) => key !== "lease");
+}
+
 export function readHost(path: string, raw: unknown): HostSpec | undefined {
   if (raw === undefined) return undefined;
-  const root = table(path, "[host]", raw);
+  const { lease, ...root } = table(path, "[host]", raw);
+  // [host.lease] is the heavy-command lease, not a pmcp-pty host; alone it declares no host.
+  if (lease !== undefined) readLeaseSettings(path, dirname(path), { lease });
+  if (Object.keys(root).length === 0) return undefined;
   only(path, "[host]", root, [
     "sessions",
     "answers",
