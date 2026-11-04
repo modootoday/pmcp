@@ -15,7 +15,7 @@ async function action(positional: readonly string[]): Promise<Action> {
     return (await import("./cli/mainline.js")).mainlineDeliver;
   if (verb === "sync") return (await import("./cli/mainline.js")).mainlineSync;
   if (verb !== "worktree")
-    throw new ArgumentError("Use worktree, deliver or sync");
+    throw new ArgumentError("Use worktree, deliver, sync or affected");
   if (sub === "create")
     return (await import("./cli/worktree-create.js")).worktreeCreate;
   if (sub === "list")
@@ -27,12 +27,19 @@ async function action(positional: readonly string[]): Promise<Action> {
 
 async function run(context: CommandContext): Promise<number> {
   const [verb, sub] = context.args.positional;
+  // affected only reads, so it needs no enabled [git] workflow, worktree or state dir.
+  if (verb === "affected")
+    return (await import("./cli/affected.js")).gitAffected(context);
+  if (context.args.flags.has("tests-only") || context.args.options.has("head"))
+    throw new ArgumentError("--tests-only and --head require git affected");
   if (
     context.args.flags.has("json") &&
     !(verb === "worktree" && sub === "list") &&
     verb !== "deliver"
   )
-    throw new ArgumentError("--json requires git worktree list or git deliver");
+    throw new ArgumentError(
+      "--json requires git worktree list, git deliver or git affected",
+    );
   const act = await action(context.args.positional);
   const { loadGit } = await import("./setup.js");
   const setup = loadGit(context.cwd, one(context.args, "config"), context.env);

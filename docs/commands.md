@@ -183,6 +183,7 @@ pmcp git worktree list
 pmcp git worktree sync
 pmcp git deliver [<commit>...] [--during-pause] [--no-push] [--json]
 pmcp git sync
+pmcp git affected --base <ref> [--head <ref>] [--tests-only] [--json]
 ```
 
 The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs its table; without it the command exits 1 and names the missing table.
@@ -192,6 +193,7 @@ The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs
 - `worktree sync` moves the current worktree onto the mainline when that loses nothing; exit 1 when it is held back.
 - `deliver` fetches, replays the named commits (default: the ones the upstream lacks) onto the mainline, runs the gate in its own tree under a lock, and pushes; it replays again if the mainline moved. A delivery that touches a leased path holds that lease until it has pushed and installed, and it refuses during a pause unless `--during-pause` or `during_pause = "allow"`. `--no-push` replays and runs the gate command, then stops: it takes no lease and pushes, syncs and notifies nothing, and it refuses `gate = "pre-push"`, where the push is the gate. Deliver never takes the [host lease](project-configuration.md#host-lease): replay, gate tree, hooks and push run without it, and the gate wraps only its test stages in `pmcp heavy --profile gate`. Exit 0 delivered, gated with `--no-push`, or nothing to deliver; 1 refused, gate failed or attempts exhausted; 2 fetch failed or `--no-push` with the pre-push gate; 75 the gate command exited 75 because a test stage never got the host lease ("gate not run: host busy"), so nothing was pushed.
 - `sync` moves the main checkout to the mainline, installs when a listed file changed, and follows clean submodule pins. Exit 0 moved or already equal, 1 when local work would be lost, 2 when blocked (undelivered edits) or the fetch failed. Run in a desk (a linked worktree matching `[git.worktrees] desks`), it brings the desk up to date the same way without rebasing: exit 0 moved or current, 1 held (an unlanded commit, uncommitted tracked edits, a pause, another session's lease, a git operation in progress), with the reason. In any other linked worktree it exits 2.
+- `affected --base <ref>` prints the workspace members the delta from `<ref>` to `--head` (default `HEAD`) touches, with their consumers when [`[git.affected]`](git-workflow.md#affected-members) `consumers` is on (`--tests-only` leaves them out), or `ALL`; unmapped files are named on stderr. It needs only `[git.affected]`, not an enabled workflow. Exit 0 with an answer, `ALL` included when the base does not resolve, equals the head or a manifest does not parse; 2 for a missing `--base` or an invalid table. `--json` prints `pmcp.git.affected.v1`: `all`, `reason`, `base`, `head`, `changed`, `members`, `unmapped` and `selected` (the printed list, or `"ALL"`).
 
 ## heavy
 

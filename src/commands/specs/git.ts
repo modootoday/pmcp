@@ -6,14 +6,25 @@ export const gitSpec: CommandSpec = {
   describe:
     "Create and sync worktrees, deliver commits to the mainline, sync the main checkout",
   usage:
-    "pmcp git worktree create <alias> | worktree list | worktree sync | deliver [<commit>...] | sync",
+    "pmcp git worktree create <alias> | worktree list | worktree sync | deliver [<commit>...] | sync | affected --base <ref>",
   options: [
     jsonOption,
     configOption,
     {
       name: "base",
-      describe: "Start a new worktree from this ref instead of the upstream",
+      describe:
+        "Start a new worktree from this ref instead of the upstream; for affected, the ref the delta starts at",
       placeholder: "<ref>",
+    },
+    {
+      name: "head",
+      describe: "For affected, the ref the delta ends at (default HEAD)",
+      placeholder: "<ref>",
+    },
+    {
+      name: "tests-only",
+      describe: "For affected, print changed members without their consumers",
+      boolean: true,
     },
     {
       name: "during-pause",

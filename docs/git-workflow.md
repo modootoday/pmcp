@@ -204,6 +204,48 @@ branch (`branch` in `.gitmodules`, else `main`) as a fast-forward, never a later
 commit; if that branch has moved past the pin's base, delivery stops before
 anything else moves.
 
+## Affected members
+
+`pmcp git affected --base <ref> [--head <ref>] [--tests-only] [--json]` maps the delta
+`<base>...<head>` to the workspace members it touches, so a gate checks in proportion to the
+change. It prints one member directory per line, or the single line `ALL`, and names each
+changed file no member reads on stderr as `unmapped, not tested: <path>`. It always exits 0
+with an answer and answers `ALL` (fail closed) when the base or head does not resolve, the
+base equals the head, the root manifest or lockfile does not parse, or `[git.affected]` is
+absent. Paths in the table are relative to the checkout root, so `--config` may name a file
+outside the checkout. Membership is read from the checkout, which must be at the head.
+
+`[git.affected]` describes the workspace; every key is optional:
+
+| Key                | Type                     | Default        | Meaning                                                                                                                                                                             |
+| ------------------ | ------------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `members`          | `"workspaces"`           | `"workspaces"` | Members are the directories the root `package.json` `workspaces` globs (or `workspaces.packages`) match; the last matching glob decides, so `!glob` excludes.                       |
+| `shared_inputs`    | globs                    | `[]`           | A changed path matching one selects `ALL`.                                                                                                                                          |
+| `readers`          | table: glob to members   | `{}`           | Members that read a path outside themselves which no adapter can derive (a test reading a file by path). The path counts as mapped.                                                |
+| `derive`           | `"tsconfig"`, `"vitest"` | `[]`           | Compute readers instead of listing them: files outside every member that a member's `tsconfig*.json` extends chain (relative or through a member package) or vitest config imports. |
+| `owners`           | table: glob to member    | `{}`           | Map a directory without a manifest to the member that runs it, before walking up to the nearest member.                                                                            |
+| `include`          | globs, `!` excludes      | `["**"]`       | Paths that map to a member at all; a path outside `include` is neither selected nor reported.                                                                                       |
+| `include_deleted`  | globs                    | `[]`           | A deleted path maps only when it matches here; deleting a file cannot break its member.                                                                                             |
+| `ignore`           | globs                    | `[]`           | Paths read by no member: never selected, never reported.                                                                                                                            |
+| `on_member_change` | members                  | `[]`           | Selected when a member manifest is added or removed (suites that assert something about the whole workspace).                                                                      |
+| `unmapped`         | `"all"`, `"report"`      | `"all"`        | What an included path outside every member and reader does: widen to `ALL`, or only be reported.                                                                                   |
+| `consumers`        | boolean                  | `false`        | Add every member that depends on a selected one (typecheck semantics). `--tests-only` prints the selection without them.                                                           |
+
+`[git.affected.lockfile]` reads the package manager's lockfile at both revisions when it or the
+root `package.json` changed, and selects the members whose resolved dependencies moved, with
+their consumers. `adapter = "bun"` is the one implemented. `toolchain` lists package names (a
+trailing `*` matches a prefix) every member builds with: a change to one selects `ALL`, as does a
+root field outside the dependency fields and `inert_root_fields` (default `scripts`,
+`description`, `version`) or a lockfile that does not parse.
+
+Consumer edges are a member's `dependencies`, `peerDependencies` and `optionalDependencies`, the
+`devDependencies` its production source under `src/` imports (all of them when its
+`tsconfig.json` `exclude` names no tests), the member whose tsconfig preset it extends, and
+relative imports from `src/` that leave the package.
+
+`node scripts/affected-shadow.mjs` compares this answer with a project's own selector over
+recent commits in a disposable clone before a gate switches to it.
+
 ## Shared file formats
 
 Delivery and sync coordinate through plain files, so any tool, a project's own
