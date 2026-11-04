@@ -62,7 +62,7 @@ export function parseInvocation(context: CommandContext): Operation {
   ];
   if (!family || !families.includes(family))
     throw unknownSubcommand("harness", family, families);
-  if (!allowed) {
+  if (!allowed || !action) {
     const actions = Object.keys(options)
       .filter((name) => name.startsWith(`${family}:`))
       .map((name) => name.slice(family.length + 1));
