@@ -54,6 +54,30 @@ export function gitWithInput(cwd: string, args: Argv, input: string): Result {
   return { status: run.status ?? 1, stdout: run.stdout ?? "", stderr };
 }
 
+// Raw bytes, for output whose framing counts bytes (cat-file --batch).
+export function gitBytes(
+  cwd: string,
+  args: Argv,
+  input?: string,
+): {
+  readonly status: number;
+  readonly stdout: Buffer;
+  readonly stderr: string;
+} {
+  const run = spawnSync("git", args, {
+    cwd,
+    env: cleanEnv(),
+    maxBuffer: 1024 * 1024 * 1024,
+    ...(input === undefined ? {} : { input }),
+  });
+  const stderr = run.stderr?.toString() || run.error?.message || "";
+  return {
+    status: run.status ?? 1,
+    stdout: run.stdout ?? Buffer.alloc(0),
+    stderr,
+  };
+}
+
 export function gitText(cwd: string, args: Argv): string {
   const run = git(cwd, args);
   if (run.status !== 0) return "";

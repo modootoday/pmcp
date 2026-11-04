@@ -213,7 +213,11 @@ changed file no member reads on stderr as `unmapped, not tested: <path>`. It alw
 with an answer and answers `ALL` (fail closed) when the base or head does not resolve, the
 base equals the head, the root manifest or lockfile does not parse, or `[git.affected]` is
 absent. Paths in the table are relative to the checkout root, so `--config` may name a file
-outside the checkout. Membership is read from the checkout, which must be at the head.
+outside the checkout. Every input (membership, member manifests, tsconfig and vitest configs,
+sources and the lockfile) is read from git objects at the head, and a submodule at the commit the
+head pins, never from the working tree, so the checkout may move while it runs. A submodule with
+no object store on the host reads as empty, as an uninitialized one would; one whose store lacks
+the pinned commit answers `ALL`.
 
 `[git.affected]` describes the workspace; every key is optional:
 

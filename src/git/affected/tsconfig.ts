@@ -1,7 +1,7 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join, posix } from "node:path";
+import { posix } from "node:path";
 
 import type { Member } from "./members.js";
+import type { HeadTree } from "./tree.js";
 
 // tsconfig files are JSONC; parse plainly first so a "//" key survives.
 export function parseJsonc(text: string): Record<string, unknown> | null {
@@ -24,14 +24,11 @@ export function parseJsonc(text: string): Record<string, unknown> | null {
 }
 
 export function readTsconfig(
-  root: string,
+  tree: HeadTree,
   file: string,
 ): Record<string, unknown> | null {
-  try {
-    return parseJsonc(readFileSync(join(root, file), "utf8"));
-  } catch {
-    return null;
-  }
+  const text = tree.text(file);
+  return text === null ? null : parseJsonc(text);
 }
 
 export function extendsSpecs(parsed: Record<string, unknown> | null): string[] {
@@ -48,7 +45,7 @@ function packageSplit(spec: string): [string, string] {
 
 // A package specifier resolves only into a member; anything else is installed and not ours.
 function packageTarget(
-  root: string,
+  tree: HeadTree,
   spec: string,
   byName: ReadonlyMap<string, Member>,
 ): string | null {
@@ -68,7 +65,7 @@ function packageTarget(
   for (const candidate of candidates) {
     if (candidate === undefined) continue;
     const file = posix.normalize(posix.join(member.dir, candidate));
-    if (existsSync(join(root, file))) return file;
+    if (tree.has(file)) return file;
   }
   return null;
 }
@@ -81,27 +78,27 @@ export interface ExtendsTarget {
 
 // Every file an extends chain reaches from one tsconfig, transitively.
 export function extendsChain(
-  root: string,
+  tree: HeadTree,
   file: string,
   byName: ReadonlyMap<string, Member>,
   seen: Set<string> = new Set(),
 ): ExtendsTarget[] {
   const out: ExtendsTarget[] = [];
-  for (const spec of extendsSpecs(readTsconfig(root, file))) {
+  for (const spec of extendsSpecs(readTsconfig(tree, file))) {
     let target: string | null;
     let owner: string | undefined;
     if (spec.startsWith(".")) {
       target = posix.normalize(posix.join(posix.dirname(file), spec));
       if (!target.endsWith(".json")) target = `${target}.json`;
     } else {
-      target = packageTarget(root, spec, byName);
+      target = packageTarget(tree, spec, byName);
       owner = byName.get(packageSplit(spec)[0])?.dir;
     }
     if (target === null || target.startsWith("..") || seen.has(target))
       continue;
     seen.add(target);
     out.push({ file: target, ...(owner ? { owner } : {}) });
-    out.push(...extendsChain(root, target, byName, seen));
+    out.push(...extendsChain(tree, target, byName, seen));
   }
   return out;
 }

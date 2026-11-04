@@ -2,11 +2,12 @@ import { posix } from "node:path";
 
 import { globPattern } from "../../glob.js";
 import type { AffectedConfig } from "./config.js";
-import { readDelta, showFile, type Change } from "./delta.js";
+import { readDelta, showFile, type Change, type Delta } from "./delta.js";
 import { deriveReaders } from "./derive.js";
 import { withConsumers } from "./graph.js";
 import { bunLockfile } from "./lockfile/bun.js";
 import { workspaceMembers, type Member } from "./members.js";
+import { HeadTree } from "./tree.js";
 
 export interface Selection {
   readonly all: boolean;
@@ -80,9 +81,13 @@ function lockfileMembers(
   });
 }
 
-function membersOf(root: string): Member[] | Error {
+function membersOf(
+  root: string,
+  head: string,
+): { tree: HeadTree; members: Member[] } | Error {
   try {
-    return workspaceMembers(root);
+    const tree = HeadTree.open(root, head);
+    return { tree, members: workspaceMembers(tree) };
   } catch (error) {
     return error instanceof Error ? error : new Error(String(error));
   }
@@ -102,9 +107,26 @@ export function selectAffected(
   const shared = matcher(config.sharedInputs);
   const hit = changes.find((change) => shared(change.path));
   if (hit) return ALL(`shared input ${hit.path} changed`, at);
-  const members = membersOf(root);
-  if (members instanceof Error)
-    return ALL(`members unreadable: ${members.message}`, at);
+  const read = membersOf(root, head);
+  if (read instanceof Error)
+    return ALL(`members unreadable: ${read.message}`, at);
+  // A submodule is listed when first needed, so its failure can come from any later step.
+  try {
+    return mapChanges(root, config, delta, read, testsOnly);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return ALL(`head unreadable: ${reason}`, at);
+  }
+}
+
+function mapChanges(
+  root: string,
+  config: AffectedConfig,
+  { base, head, changes }: Extract<Delta, { ok: true }>,
+  { tree, members }: { tree: HeadTree; members: Member[] },
+  testsOnly: boolean,
+): Selection {
+  const at = { base, head };
   const dirs = new Set(members.map((member) => member.dir));
   const lock = lockfileMembers(root, config, changes, base, head);
   if (lock.all !== null) return ALL(lock.all, at);
@@ -112,7 +134,7 @@ export function selectAffected(
   const changed = new Set<string>();
   const direct = lock.direct.filter((dir) => dirs.has(dir));
   if (direct.length > 0)
-    for (const dir of withConsumers(root, members, direct)) changed.add(dir);
+    for (const dir of withConsumers(tree, members, direct)) changed.add(dir);
 
   const ignored = matcher(config.ignore);
   const included = ordered(config.include);
@@ -125,7 +147,7 @@ export function selectAffected(
     test: matcher([glob]),
     list,
   }));
-  const derived = deriveReaders(root, members, config.derive);
+  const derived = deriveReaders(tree, members, config.derive);
   const memberChange = changes.some(
     (change) =>
       (change.status === "A" || change.status === "D") &&
@@ -164,6 +186,6 @@ export function selectAffected(
     return ALL(`unmapped ${unmapped[0]}`, { ...at, unmapped });
   // Tests are not widened to consumers, so a tests-only answer skips reading every source.
   const wide =
-    config.consumers && !testsOnly ? withConsumers(root, members, list) : list;
+    config.consumers && !testsOnly ? withConsumers(tree, members, list) : list;
   return { all: false, ...at, changed: list, members: wide, unmapped };
 }

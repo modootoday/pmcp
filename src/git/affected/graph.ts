@@ -1,7 +1,7 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join, posix } from "node:path";
+import { posix } from "node:path";
 
 import type { Member } from "./members.js";
+import type { HeadTree } from "./tree.js";
 import { extendsSpecs, readTsconfig } from "./tsconfig.js";
 
 const SOURCE = /\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)$/u;
@@ -20,22 +20,31 @@ function typechecksTests(tsconfig: Record<string, unknown> | null): boolean {
   return !text.includes("test") && !text.includes("spec");
 }
 
-function productionSources(root: string, dir: string): Map<string, string> {
-  const out = new Map<string, string>();
-  let files: string[];
-  try {
-    files = readdirSync(join(root, dir, "src"), { recursive: true }).map(
-      String,
+// Production sources under each member's src, listed once for every member.
+function sourceFiles(
+  tree: HeadTree,
+  dirs: ReadonlySet<string>,
+): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  const related = (link: string): boolean =>
+    [...dirs].some(
+      (dir) =>
+        dir === link ||
+        dir.startsWith(`${link}/`) ||
+        link.startsWith(`${dir}/`),
     );
-  } catch {
-    return out;
-  }
-  for (const file of files) {
-    if (!SOURCE.test(file) || TEST.test(file)) continue;
-    try {
-      out.set(file, readFileSync(join(root, dir, "src", file), "utf8"));
-    } catch {
-      // unreadable source adds no edge
+  for (const path of tree.files("", related)) {
+    if (!SOURCE.test(path)) continue;
+    for (
+      let at = path.indexOf("/src/");
+      at >= 0;
+      at = path.indexOf("/src/", at + 1)
+    ) {
+      const dir = path.slice(0, at);
+      if (!dirs.has(dir) || TEST.test(path.slice(at + 5))) continue;
+      const list = out.get(dir) ?? [];
+      list.push(path);
+      out.set(dir, list);
     }
   }
   return out;
@@ -59,7 +68,7 @@ function ownerOf(path: string, dirs: ReadonlySet<string>): string | undefined {
 // dependencies its production source imports (all of them when it typechecks its tests),
 // tsconfig presets a member ships, and relative imports that leave the package.
 export function dependencyEdges(
-  root: string,
+  tree: HeadTree,
   members: readonly Member[],
 ): Map<string, Set<string>> {
   const byName = new Map(
@@ -67,13 +76,18 @@ export function dependencyEdges(
   );
   const dirs = new Set(members.map((m) => m.dir));
   const deps = new Map<string, Set<string>>();
+  const sources = sourceFiles(tree, dirs);
+  tree.prefetch([
+    ...members.map((m) => `${m.dir}/tsconfig.json`),
+    ...[...sources.values()].flat(),
+  ]);
   for (const member of members) {
     const out = new Set<string>();
     const add = (name: string): void => {
       const dir = byName.get(name);
       if (dir !== undefined && dir !== member.dir) out.add(dir);
     };
-    const tsconfig = readTsconfig(root, `${member.dir}/tsconfig.json`);
+    const tsconfig = readTsconfig(tree, `${member.dir}/tsconfig.json`);
     for (const field of [
       "dependencies",
       "peerDependencies",
@@ -83,20 +97,22 @@ export function dependencyEdges(
     const dev = keys(member.manifest, "devDependencies").filter((name) =>
       byName.has(name),
     );
-    const sources = productionSources(root, member.dir);
+    const texts = (sources.get(member.dir) ?? []).flatMap((path) => {
+      const text = tree.text(path);
+      return text === null ? [] : [[path, text] as const];
+    });
     if (typechecksTests(tsconfig)) dev.forEach(add);
     else
       for (const name of dev)
-        if ([...sources.values()].some((text) => imports(text, name)))
-          add(name);
+        if (texts.some(([, text]) => imports(text, name))) add(name);
     for (const spec of extendsSpecs(tsconfig)) {
       const parts = spec.split("/");
       add(spec.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0]!);
     }
-    for (const [file, text] of sources)
+    for (const [file, text] of texts)
       for (const match of text.matchAll(/from\s+["'](\.\.\/[^"']*)["']/gu)) {
         const target = posix.normalize(
-          posix.join(member.dir, "src", posix.dirname(file), match[1]!),
+          posix.join(posix.dirname(file), match[1]!),
         );
         const owner = ownerOf(target, dirs);
         if (owner !== undefined && owner !== member.dir) out.add(owner);
@@ -108,15 +124,16 @@ export function dependencyEdges(
 
 // The given members plus every member that depends on them, transitively.
 export function withConsumers(
-  root: string,
+  tree: HeadTree,
   members: readonly Member[],
   selected: Iterable<string>,
 ): string[] {
+  const seen = new Set(selected);
+  if (seen.size === 0) return [];
   const consumers = new Map<string, string[]>();
-  for (const [dir, deps] of dependencyEdges(root, members))
+  for (const [dir, deps] of dependencyEdges(tree, members))
     for (const dep of deps)
       consumers.set(dep, [...(consumers.get(dep) ?? []), dir]);
-  const seen = new Set(selected);
   const queue = [...seen];
   while (queue.length > 0)
     for (const next of consumers.get(queue.pop()!) ?? [])

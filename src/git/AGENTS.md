@@ -10,7 +10,9 @@ Multi-session git workflow: worktrees, delivery to the mainline, main checkout s
 - Only these commands mutate: `pmcp git worktree create|sync`, `pmcp git deliver`,
   `pmcp git sync`. Hooks may read git state through `detect.ts` and `landed.ts`, never call
   the mutating modules.
-- `affected/` only reads. It answers ALL whenever it cannot compute a delta; package manager
+- `affected/` reads git objects at the head (submodules at their pins), never the working tree,
+  which may move under a shared gate tree, and writes nothing. It answers ALL whenever it
+  cannot compute a delta; package manager
   formats live behind the lockfile adapter interface, and lists a tool can derive (tsconfig
   extends, vitest imports) are computed per run, never stored in configuration.
 - Never lose work. A worktree moves only when it is clean and every ahead commit is a landed

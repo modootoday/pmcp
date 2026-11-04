@@ -229,7 +229,11 @@ changed file no member reads on stderr as <code>unmapped, not tested: &lt;path&g
 with an answer and answers <code>ALL</code> (fail closed) when the base or head does not resolve, the
 base equals the head, the root manifest or lockfile does not parse, or <code>[git.affected]</code> is
 absent. Paths in the table are relative to the checkout root, so <code>--config</code> may name a file
-outside the checkout. Membership is read from the checkout, which must be at the head.</p>
+outside the checkout. Every input (membership, member manifests, tsconfig and vitest configs,
+sources and the lockfile) is read from git objects at the head, and a submodule at the commit the
+head pins, never from the working tree, so the checkout may move while it runs. A submodule with
+no object store on the host reads as empty, as an uninitialized one would; one whose store lacks
+the pinned commit answers <code>ALL</code>.</p>
 <p><code>[git.affected]</code> describes the workspace; every key is optional:</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>members</code></td><td><code>&quot;workspaces&quot;</code></td><td><code>&quot;workspaces&quot;</code></td><td>Members are the directories the root <code>package.json</code> <code>workspaces</code> globs (or <code>workspaces.packages</code>) match; the last matching glob decides, so <code>!glob</code> excludes.</td></tr>
 <tr><td><code>shared_inputs</code></td><td>globs</td><td><code>[]</code></td><td>A changed path matching one selects <code>ALL</code>.</td></tr>
