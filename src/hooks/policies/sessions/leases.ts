@@ -28,8 +28,18 @@ export function startsWith(
 ): boolean {
   if (argv.length < prefix.length) return false;
   return prefix.every((word, at) =>
-    at === 0 ? program(argv[0]) === word : argv[at] === word,
+    at === 0 ? program(argv[0]) === word : argWord(argv[at], word),
   );
+}
+
+const SCRIPT = /(?:\/|\.[A-Za-z0-9]{1,8}$)/u;
+
+// A script word (a path, or a name with an extension) also matches the same script given by a
+// longer path, so ["node", "land.mjs"] refuses node tools/land.mjs; other words match exactly.
+function argWord(arg: string | undefined, word: string): boolean {
+  if (arg === undefined) return false;
+  if (arg === word) return true;
+  return SCRIPT.test(word) && arg.endsWith(`/${word.replace(/^\.\//u, "")}`);
 }
 
 function blocked(steps: readonly ShellStep[], rule: LeaseRule): boolean {
