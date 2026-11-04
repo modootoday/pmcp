@@ -1,0 +1,17 @@
+pmcp hooks
+  List compiled policies or simulate a native hook without a runtime
+
+  pmcp hooks list [--runtime claude|codex] [--json] | test --runtime claude|codex --event <event> [--command <text> | --path <path> | --tool <name>] [--session-state <file>] [--json] | test --fixtures <file> [--json] | report [--since <when>] [--switch-check <guard>] [--json]
+
+  --config <file>         A pmcp.toml to read instead of the nearest one.
+  --json                  Print the documented versioned JSON schema.
+  --fixtures <file>       Run these cases through the projected hook entry for every wired runtime.
+  --since <when>          Report only log lines from this long ago (10m, 2h, 3d) or this ISO time.
+  --switch-check <guard>  List the calls this guard found something in but let through.
+  --runtime <runtime>     Native runtime to inspect.
+  --event <event>         Neutral or native event name.
+  --command <text>        Shell command to classify; never executed.
+  --path <path>           Path for a synthetic edit.
+  --tool <name>           Native tool name or shell, edit, read, other.
+  --session-state <file>  JSON seed for isolated session state.
+

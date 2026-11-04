@@ -1,0 +1,16 @@
+pmcp mailbox
+  Manage opt-in local peer mail and launcher credentials
+
+  pmcp mailbox operation [--config <file>] [options]
+
+  --config <file>          A pmcp.toml to read instead of the nearest one.
+  --state-dir <dir>        Private mailbox state directory
+  --actor <id>             Registered actor ID
+  --actor-file <file>      Private actor credential file
+  --binding-file <file>    Private existing attachment file
+  --parent-binding <file>  Live parent attachment for bounded child delegation
+  --input <file>           Operation input JSON or backup source
+  --output <file>          New export or backup destination
+  --scope-actor <id>       Limit export to one actor's correspondence
+  --operator               Explicit local administrator intent
+

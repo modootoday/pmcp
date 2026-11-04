@@ -1,0 +1,5 @@
+pmcp logout
+  Forget the sign-in on this machine
+
+  pmcp logout
+

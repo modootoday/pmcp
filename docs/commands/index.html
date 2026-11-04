@@ -116,7 +116,9 @@ pmcp serve --config ./pmcp.toml --mailbox-actor-file /private/reviewer.actor.jso
 <h2 id="project">project</h2>
 <pre><code>pmcp project
 pmcp project --check [--smoke]
-pmcp project import-mcp --source codex:/path/to/config.toml</code></pre>
+pmcp project import-mcp --source codex:/path/to/config.toml
+pmcp project exec-mcp remote</code></pre>
+<p><code>exec-mcp &lt;alias&gt;</code> is what a projected native entry runs to start a declared MCP server with its resolved environment, or, for <code>auth = &quot;pmcp&quot;</code>, the shared-auth proxy; you rarely run it by hand. See <a href="/project-configuration/#shared-remote-mcp-authentication">shared remote MCP authentication</a>.</p>
 <p>Generate selected runtimes&#39; native files from <code>pmcp.toml</code>. Unmanaged entries and credential references are preserved; conflicts stop the write. <code>--check</code> reports drift without writes, and MCP import previews changes by default; <code>--write</code> applies them. <code>--check --smoke</code> then runs the <code>[hooks.test] fixtures</code> file as <code>pmcp hooks test --fixtures</code> does, and exits 2 on any finding. <a href="/project-configuration/">Configuration and guard examples</a>.</p>
 <p>Configuration files and the ownership lock are replaced atomically one file at a time. If projection is interrupted, inspect with <code>pmcp project --check</code>, then run <code>pmcp project</code> explicitly to repair drift. Projection does not start a runtime or replay terminal input. The complete set of files is not a single transaction.</p>
 <h2 id="sessions">sessions</h2>
@@ -142,7 +144,7 @@ pmcp git worktree sync
 pmcp git deliver [&lt;commit&gt;...] [--during-pause] [--no-push] [--json]
 pmcp git sync
 pmcp git affected --base &lt;ref&gt; [--head &lt;ref&gt;] [--tests-only] [--json]</code></pre>
-<p>The git workflow configured by <a href="/git-workflow/"><code>[git]</code></a>. Each subcommand needs its table; without it the command exits 1 and names the missing table.</p>
+<p>The git workflow configured by <a href="/git-workflow/"><code>[git]</code></a>. Each subcommand needs its table; without it, or without a <code>pmcp.toml</code>, the command exits 2 and names what is missing.</p>
 <ul>
 <li><code>worktree create &lt;alias&gt;</code> makes a linked worktree under <code>[git.worktrees] root</code> on a new branch from the upstream (or <code>--base</code>), links the configured files from the main checkout, runs <code>bootstrap</code>, and prints the path.</li>
 <li><code>worktree list</code> prints alias, branch, behind/ahead and path for the main checkout and each linked worktree.</li>
@@ -223,14 +225,19 @@ pmcp whoami [--json]</code></pre>
 <pre><code>pmcp install &lt;skill-package&gt;... | --all [--dry-run | --yes]
 pmcp sync [--project &lt;dir&gt;] [--dry-run | --yes]</code></pre>
 <p><code>install</code> adds skill packages as dev dependencies with your own package manager, and what gets installed is checked against the digest the catalogue published — not its name and version, which any registry can claim. <code>sync</code> updates the ones already declared and removes nothing else. pmcp uses the free bundled public catalog by default and verifies immutable archives and installed resources without login. Explicit <code>--provider hosted</code> or <code>--api</code> selects a separate service&#39;s credentialed distribution, such as skills.modoo.today (see <a href="#login--logout--whoami">login</a>).</p>
-<p>Both show the project and lockfile changes and stop: <code>--yes</code> approves them, <code>--dry-run</code> prints the plan and changes nothing.</p>
+<p>Both show the project and lockfile changes and stop: <code>--yes</code> (<code>-y</code>) approves them, <code>--dry-run</code> prints the plan and changes nothing.</p>
 <h2 id="options">Options</h2>
-<div class="scroll"><table><thead><tr><th>Option</th><th>Where</th><th>Effect</th></tr></thead><tbody><tr><td><code>--root &lt;dir&gt;</code></td><td><code>serve</code>, <code>list</code>, <code>index</code></td><td>a <code>node_modules</code> directory to walk; repeatable, and the first one wins on a duplicate package</td></tr>
-<tr><td><code>--scope &lt;prefix&gt;</code></td><td><code>serve</code>, <code>list</code>, <code>index</code></td><td>only packages whose names start with this; repeatable, matched with a plain prefix test</td></tr>
+<div class="scroll"><table><thead><tr><th>Option</th><th>Where</th><th>Effect</th></tr></thead><tbody><tr><td><code>--root &lt;dir&gt;</code></td><td><code>serve</code>, <code>list</code>, <code>index</code>, <code>validate</code>, <code>project</code></td><td>a <code>node_modules</code> directory to walk; repeatable, and the first one wins on a duplicate package</td></tr>
+<tr><td><code>--scope &lt;prefix&gt;</code></td><td><code>serve</code>, <code>list</code>, <code>index</code>, <code>validate</code>, <code>project</code></td><td>only packages whose names start with this; repeatable, matched with a plain prefix test</td></tr>
+<tr><td><code>--config &lt;file&gt;</code></td><td>every command that reads <code>pmcp.toml</code></td><td>a <code>pmcp.toml</code> to read instead of the nearest one at or above the working directory</td></tr>
 <tr><td><code>--model &lt;id&gt;</code></td><td><code>index</code>, <code>serve</code></td><td>the encoder to use; rows from another model are never scored</td></tr>
-<tr><td><code>--json</code></td><td><code>list</code>, <code>index</code>, <code>models</code></td><td>emit JSON on standard output rather than a table or a summary</td></tr>
+<tr><td><code>--json</code></td><td>every command that prints a result; <code>pmcp &lt;command&gt; --help</code> lists it</td><td>emit JSON on standard output rather than a table or a summary</td></tr>
+<tr><td><code>-y</code>, <code>--yes</code></td><td><code>install</code>, <code>sync</code>, <code>tui</code></td><td>approve the displayed changes, or the first runtime start, without a prompt</td></tr>
+<tr><td><code>-q</code>, <code>--quiet</code></td><td>anywhere</td><td>only errors on standard error</td></tr>
+<tr><td><code>--color</code>, <code>--no-color</code></td><td>anywhere</td><td>always or never colour; without either, <code>FORCE_COLOR</code> (<code>0</code> off, anything else on) wins over <code>NO_COLOR</code>, <code>TERM=dumb</code> and the terminal test</td></tr>
 <tr><td><code>--help</code>, <code>-h</code></td><td>anywhere</td><td>the help for that command, generated from the command itself</td></tr>
-<tr><td><code>--version</code></td><td>on its own</td><td>the version, on standard output</td></tr></tbody></table></div>
+<tr><td><code>-v</code>, <code>-V</code>, <code>--version</code>, <code>version</code></td><td>on its own</td><td>the version, on standard output</td></tr></tbody></table></div>
+<p>With <code>TERM=dumb</code>, or a locale that is not UTF-8, the few typographic characters in messages (an em dash, a middle dot) print as ASCII. Long operations such as <code>index</code> report progress on standard error: one rewritten line on a terminal, a plain <code>k/N</code> line every tenth of the work otherwise.</p>
 <p>Options are parsed against the command&#39;s own list, so an unknown flag is an error rather than a silently ignored typo. Giving a non-repeatable option twice, or leaving off a value it needs, is the same error.</p>
 <p>An unknown command, subcommand or option exits 2 with one line naming it, the closest valid name when one is near (<code>unknown command &quot;stauts&quot;; did you mean &quot;status&quot;?</code>), and where to look next (<code>Run pmcp status --help for its usage.</code>), rather than the whole help. An unknown subcommand also lists every valid one. <code>pmcp help &lt;command&gt;</code> for a command that does not exist is the same error. Every command that needs a <code>pmcp.toml</code> and finds none says so the same way and suggests <code>pmcp init</code>.</p>
 <h2 id="exit-codes">Exit codes</h2>

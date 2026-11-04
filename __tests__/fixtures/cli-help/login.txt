@@ -1,0 +1,7 @@
+pmcp login
+  Sign in on this machine, to obtain skills this project lacks
+
+  pmcp login [--issuer <url>]
+
+  --issuer <url>  override the auth issuer
+

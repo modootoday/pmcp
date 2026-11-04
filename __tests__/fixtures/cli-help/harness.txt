@@ -1,0 +1,18 @@
+pmcp harness
+  Manage optional owned native sessions independently of the MCP server
+
+  pmcp harness layout | family operation [options]
+
+  --include-starts     Include pending native starts in recovery inspection
+  --columns <integer>  Terminal width in cells
+  --rows <integer>     Terminal height including status
+  --generation <id>    Expected group generation for a mutation
+  --group-file <file>  Private owned group state
+  --input <file>       Group, session, read or watch specification JSON
+  --session <id>       Owned native session ID
+  --lease-file <file>  Private writer credential
+  --controller <id>    Local controller identity
+  --mode <mode>        Control cli/native; attachment observe/write
+  --request-id <id>    Explicit input idempotency key
+  --text-file <file>   Literal single-line UTF-8 input without submission
+

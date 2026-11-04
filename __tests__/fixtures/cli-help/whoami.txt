@@ -1,0 +1,7 @@
+pmcp whoami
+  Whether this machine is signed in, and to what
+
+  pmcp whoami [--json]
+
+  --json  Print the answer as JSON.
+

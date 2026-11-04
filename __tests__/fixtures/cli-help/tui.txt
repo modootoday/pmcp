@@ -1,0 +1,11 @@
+pmcp tui
+  Open a native terminal workspace with optional configuration
+
+  pmcp tui [--config <file>] [--runtime <id>] | plan | recovery | doctor | start-worker --runtime <id>
+
+  --memory-mb <count>  Worker memory reservation
+  --config <file>      Project pmcp.toml
+  --runtime <runtime>  Native runtime ID for main launch or worker start
+  -y, --yes            Confirm the first native runtime start
+  --new                Create a workspace after the previous group is stopped
+

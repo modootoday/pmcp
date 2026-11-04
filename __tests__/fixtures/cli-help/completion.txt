@@ -1,0 +1,5 @@
+pmcp completion
+  Print a shell completion script for bash, zsh or fish
+
+  pmcp completion bash | zsh | fish
+

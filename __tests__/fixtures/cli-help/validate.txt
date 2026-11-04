@@ -1,0 +1,15 @@
+pmcp validate
+  Check skills against the Agent Skills specification: given directories, or every skill the catalog reaches
+
+  pmcp validate [<skill-dir>...] [--root <dir>] [--marketplace <dir>] [--package <dir>] [--workspace <dir>] [--config <file> | --no-config] [--json]
+
+  --root <dir>         A node_modules directory to walk. Repeatable.
+  --scope <prefix>     Only packages whose names start with this. Repeatable.
+  --no-builtin         Exclude the bundled free PMCP marketplace.
+  --marketplace <dir>  An installed local Claude, Codex or Grok marketplace directory. Repeatable.
+  --package <dir>      A package directory read directly, for one no node_modules links; without a package.json its folder name is the package name. Repeatable.
+  --workspace <dir>    A workspace root, or a glob of them: each root and every member its workspaces globs name. Repeatable.
+  --config <file>      A pmcp.toml to read instead of the nearest one.
+  --no-config          Ignore pmcp.toml; CLI defaults and the given flags apply.
+  --json               Emit JSON rather than a table.
+

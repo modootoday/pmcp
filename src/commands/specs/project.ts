@@ -7,7 +7,7 @@ export const projectSpec: CommandSpec = {
   name: "project",
   describe: "Write each agent tool's native files from .agents/ and pmcp.toml",
   usage:
-    "pmcp project [--check] | pmcp project add <skill|agent> | pmcp project remove <name> | pmcp project import-mcp --source <tool>:<file> [--name <alias>] [--write]",
+    "pmcp project [--check] | pmcp project add <skill|agent> | pmcp project remove <name> | pmcp project import-mcp --source <tool>:<file> [--name <alias>] [--write] | pmcp project exec-mcp <alias>",
   options: [
     ...CATALOG_OPTIONS,
     {

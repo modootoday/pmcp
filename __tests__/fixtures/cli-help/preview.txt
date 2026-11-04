@@ -1,0 +1,11 @@
+pmcp preview
+  Show a skill's contents and a complete example
+
+  pmcp preview <skill-package> [--json]
+
+  --provider <public|hosted>  Public free catalog (default) or explicitly hosted service.
+  --project <dir>             Project directory containing package.json.
+  --api <origin>              Catalog API origin.
+  --catalog <file>            Use a saved catalog response without network access.
+  --json                      Print machine-readable results.
+

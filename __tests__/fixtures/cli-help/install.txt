@@ -1,0 +1,14 @@
+pmcp install
+  Install matching skill npm packages with the project's package manager
+
+  pmcp install <skill-package>... | --all [--dry-run | -y]
+
+  --provider <public|hosted>  Public free catalog (default) or explicitly hosted service.
+  --project <dir>             Project directory containing package.json.
+  --api <origin>              Catalog API origin.
+  --catalog <file>            Use a saved catalog response without network access.
+  --json                      Print machine-readable results.
+  --dry-run                   Show the plan without installing or changing files.
+  -y, --yes                   Approve the displayed project and lockfile changes.
+  --all                       Select all matching skill packages.
+

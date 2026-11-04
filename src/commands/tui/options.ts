@@ -20,6 +20,7 @@ export const tuiOptions: readonly OptionSpec[] = [
     name: "yes",
     describe: "Confirm the first native runtime start",
     boolean: true,
+    short: "y",
   },
   {
     name: "new",

@@ -41,8 +41,7 @@ export const CATALOG_OPTIONS: readonly OptionSpec[] = [
   },
   {
     name: "config",
-    describe:
-      "A pmcp.toml to read instead of the nearest one at or above the working directory.",
+    describe: "A pmcp.toml to read instead of the nearest one.",
     placeholder: "<file>",
   },
   {

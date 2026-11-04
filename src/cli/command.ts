@@ -11,6 +11,8 @@ export interface OptionSpec {
 
   readonly repeat?: boolean;
   readonly placeholder?: string;
+  // One letter that also selects a boolean option, such as y for --yes.
+  readonly short?: string;
 }
 
 export interface ParsedArgs {
@@ -104,6 +106,13 @@ export function parseArgs(
       positional.push(...passthrough);
       break;
     }
+    const short = specs.find(
+      (spec) => spec.short !== undefined && arg === `-${spec.short}`,
+    );
+    if (short !== undefined) {
+      flags.add(short.name);
+      continue;
+    }
     // A short flag nobody declared would otherwise become a positional and be ignored.
     if (SHORT_FLAG.test(arg)) {
       throw new ArgumentError(`unknown option ${arg}`);
@@ -160,7 +169,7 @@ export function printCommandHelp(ui: Ui, command: CommandSpec): void {
     ui.line();
     ui.table(
       command.options.map((option) => [
-        `--${option.name}${option.placeholder ? ` ${option.placeholder}` : ""}`,
+        `${option.short ? `-${option.short}, ` : ""}--${option.name}${option.placeholder ? ` ${option.placeholder}` : ""}`,
         option.describe,
       ]),
     );
@@ -186,8 +195,9 @@ export function printHelp(
   ui.line();
   ui.table([
     ["-q, --quiet", "only errors"],
-    ["--no-color", "never colour output; NO_COLOR is honoured too"],
-    ["--version", "print the version"],
+    ["--color", "always colour output; FORCE_COLOR=1 does the same"],
+    ["--no-color", "never colour output; NO_COLOR and FORCE_COLOR=0 too"],
+    ["-v, --version", "print the version (also -V and pmcp version)"],
     ["-h, --help", "this, or help for one command"],
   ]);
   ui.line();

@@ -143,7 +143,10 @@ Credentials and attachment files contain secrets and must stay outside source co
 pmcp project
 pmcp project --check [--smoke]
 pmcp project import-mcp --source codex:/path/to/config.toml
+pmcp project exec-mcp remote
 ```
+
+`exec-mcp <alias>` is what a projected native entry runs to start a declared MCP server with its resolved environment, or, for `auth = "pmcp"`, the shared-auth proxy; you rarely run it by hand. See [shared remote MCP authentication](project-configuration.md#shared-remote-mcp-authentication).
 
 Generate selected runtimes' native files from `pmcp.toml`. Unmanaged entries and credential references are preserved; conflicts stop the write. `--check` reports drift without writes, and MCP import previews changes by default; `--write` applies them. `--check --smoke` then runs the `[hooks.test] fixtures` file as `pmcp hooks test --fixtures` does, and exits 2 on any finding. [Configuration and guard examples](project-configuration.md).
 
@@ -186,7 +189,7 @@ pmcp git sync
 pmcp git affected --base <ref> [--head <ref>] [--tests-only] [--json]
 ```
 
-The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs its table; without it the command exits 1 and names the missing table.
+The git workflow configured by [`[git]`](git-workflow.md). Each subcommand needs its table; without it, or without a `pmcp.toml`, the command exits 2 and names what is missing.
 
 - `worktree create <alias>` makes a linked worktree under `[git.worktrees] root` on a new branch from the upstream (or `--base`), links the configured files from the main checkout, runs `bootstrap`, and prints the path.
 - `worktree list` prints alias, branch, behind/ahead and path for the main checkout and each linked worktree.
@@ -332,18 +335,24 @@ pmcp sync [--project <dir>] [--dry-run | --yes]
 
 `install` adds skill packages as dev dependencies with your own package manager, and what gets installed is checked against the digest the catalogue published — not its name and version, which any registry can claim. `sync` updates the ones already declared and removes nothing else. pmcp uses the free bundled public catalog by default and verifies immutable archives and installed resources without login. Explicit `--provider hosted` or `--api` selects a separate service's credentialed distribution, such as skills.modoo.today (see [login](#login--logout--whoami)).
 
-Both show the project and lockfile changes and stop: `--yes` approves them, `--dry-run` prints the plan and changes nothing.
+Both show the project and lockfile changes and stop: `--yes` (`-y`) approves them, `--dry-run` prints the plan and changes nothing.
 
 ## Options
 
-| Option             | Where                     | Effect                                                                                        |
-| ------------------ | ------------------------- | --------------------------------------------------------------------------------------------- |
-| `--root <dir>`     | `serve`, `list`, `index`  | a `node_modules` directory to walk; repeatable, and the first one wins on a duplicate package |
-| `--scope <prefix>` | `serve`, `list`, `index`  | only packages whose names start with this; repeatable, matched with a plain prefix test       |
-| `--model <id>`     | `index`, `serve`          | the encoder to use; rows from another model are never scored                                  |
-| `--json`           | `list`, `index`, `models` | emit JSON on standard output rather than a table or a summary                                 |
-| `--help`, `-h`     | anywhere                  | the help for that command, generated from the command itself                                  |
-| `--version`        | on its own                | the version, on standard output                                                               |
+| Option | Where | Effect |
+| --- | --- | --- |
+| `--root <dir>` | `serve`, `list`, `index`, `validate`, `project` | a `node_modules` directory to walk; repeatable, and the first one wins on a duplicate package |
+| `--scope <prefix>` | `serve`, `list`, `index`, `validate`, `project` | only packages whose names start with this; repeatable, matched with a plain prefix test |
+| `--config <file>` | every command that reads `pmcp.toml` | a `pmcp.toml` to read instead of the nearest one at or above the working directory |
+| `--model <id>` | `index`, `serve` | the encoder to use; rows from another model are never scored |
+| `--json` | every command that prints a result; `pmcp <command> --help` lists it | emit JSON on standard output rather than a table or a summary |
+| `-y`, `--yes` | `install`, `sync`, `tui` | approve the displayed changes, or the first runtime start, without a prompt |
+| `-q`, `--quiet` | anywhere | only errors on standard error |
+| `--color`, `--no-color` | anywhere | always or never colour; without either, `FORCE_COLOR` (`0` off, anything else on) wins over `NO_COLOR`, `TERM=dumb` and the terminal test |
+| `--help`, `-h` | anywhere | the help for that command, generated from the command itself |
+| `-v`, `-V`, `--version`, `version` | on its own | the version, on standard output |
+
+With `TERM=dumb`, or a locale that is not UTF-8, the few typographic characters in messages (an em dash, a middle dot) print as ASCII. Long operations such as `index` report progress on standard error: one rewritten line on a terminal, a plain `k/N` line every tenth of the work otherwise.
 
 Options are parsed against the command's own list, so an unknown flag is an error rather than a silently ignored typo. Giving a non-repeatable option twice, or leaving off a value it needs, is the same error.
 

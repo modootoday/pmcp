@@ -1,0 +1,8 @@
+pmcp init
+  Create a starting pmcp.toml using this checkout's git detection
+
+  pmcp init [--preset solo|multi-session] [--force]
+
+  --preset <preset>  Starting configuration; default solo.
+  --force            Replace an existing pmcp.toml.
+

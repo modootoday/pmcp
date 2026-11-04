@@ -27,6 +27,7 @@ const MANAGE_OPTIONS = [
     name: "yes",
     describe: "Approve the displayed project and lockfile changes.",
     boolean: true,
+    short: "y",
   },
 ];
 
@@ -34,7 +35,7 @@ export const installSpec: CommandSpec = {
   name: "install",
   describe:
     "Install matching skill npm packages with the project's package manager",
-  usage: "pmcp install <skill-package>... | --all [--dry-run | --yes]",
+  usage: "pmcp install <skill-package>... | --all [--dry-run | -y]",
   options: [
     ...MANAGE_OPTIONS,
     {
@@ -49,6 +50,6 @@ export const syncSpec: CommandSpec = {
   name: "sync",
   describe:
     "Update declared skill packages without removing other dependencies",
-  usage: "pmcp sync [--project <dir>] [--dry-run | --yes]",
+  usage: "pmcp sync [--project <dir>] [--dry-run | -y]",
   options: MANAGE_OPTIONS,
 };

@@ -8,7 +8,7 @@ export async function approve(context: CommandContext): Promise<boolean> {
     context.args.flags.has("json")
   ) {
     throw new ArgumentError(
-      "use --yes to apply non-interactively or --dry-run to inspect the plan",
+      "use --yes (-y) to apply non-interactively or --dry-run to inspect the plan",
     );
   }
   const prompt = createInterface({

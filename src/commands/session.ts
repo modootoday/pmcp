@@ -141,7 +141,7 @@ export const whoamiCommand: Command = {
         ui.data(`${JSON.stringify({ signedIn: false }, null, 2)}\n`);
       } else {
         ui.data("not signed in\n");
-        ui.info("sign in", `run ${invocation()} login`);
+        ui.info(`run ${invocation()} login to sign in`);
       }
       return 1;
     }

@@ -1,0 +1,9 @@
+pmcp heavy
+  Run a heavy command under the host-wide lease, one at a time, after the host settles
+
+  pmcp heavy [--label <text>] [--profile default|gate|<name>] -- <command...> | pmcp heavy status
+
+  --config <file>   A pmcp.toml to read instead of the nearest one.
+  --label <text>    What status and the log call this job (default: the command).
+  --profile <name>  Wait limits from [host.lease.profiles.<name>] (default: default).
+

@@ -9,7 +9,7 @@ export const mcpSpec: CommandSpec = {
     jsonOption,
     {
       name: "config",
-      describe: "Read this project configuration.",
+      describe: "A pmcp.toml to read instead of the nearest one.",
       placeholder: "<file>",
     },
     {

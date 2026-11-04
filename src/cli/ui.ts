@@ -49,22 +49,37 @@ const KIND_COLOUR: Record<Kind, Colour> = {
   prompt: "cyan",
 };
 
+type Env = Readonly<Record<string, string | undefined>>;
+
+// FORCE_COLOR wins over the TTY test as Node does; 0 or false turns colour off.
+export function colourFrom(env: Env, tty: boolean): boolean {
+  const force = env["FORCE_COLOR"];
+  if (force !== undefined && force !== "") {
+    return force !== "0" && force !== "false";
+  }
+  return tty && (env["NO_COLOR"] ?? "") === "" && env["TERM"] !== "dumb";
+}
+
+export function asciiOnly(env: Env): boolean {
+  if (env["TERM"] === "dumb") return true;
+  const locale = env["LC_ALL"] || env["LC_CTYPE"] || env["LANG"] || "";
+  return locale !== "" && !/utf-?8/iu.test(locale);
+}
+
 export class Ui {
   private readonly out: Stream;
   private readonly err: Stream;
   private readonly quiet: boolean;
   readonly colour: boolean;
+  readonly ascii: boolean;
 
   constructor(options: UiOptions = {}) {
     this.out = options.stdout ?? process.stdout;
     this.err = options.stderr ?? process.stderr;
     this.quiet = options.quiet ?? false;
     const env = options.env ?? process.env;
-    this.colour =
-      options.color ??
-      (this.err.isTTY === true &&
-        (env["NO_COLOR"] ?? "") === "" &&
-        env["TERM"] !== "dumb");
+    this.colour = options.color ?? colourFrom(env, this.err.isTTY === true);
+    this.ascii = asciiOnly(env);
   }
 
   paint(text: string, ...colours: readonly Colour[]): string {
@@ -79,7 +94,30 @@ export class Ui {
 
   line(text = ""): void {
     if (this.quiet) return;
-    this.err.write(`${text}\n`);
+    this.err.write(`${this.text(text)}\n`);
+  }
+
+  // Replace the few typographic characters pmcp prints when the terminal cannot show them.
+  text(value: string): string {
+    if (!this.ascii) return value;
+    return value.replace(/[—–·…]/gu, (char) =>
+      char === "·" ? "/" : char === "…" ? "..." : "-",
+    );
+  }
+
+  // k of N on one rewritten line on a TTY; elsewhere a plain line every tenth, so logs stay readable.
+  progress(total: number, label: string): (done: number) => void {
+    const step = Math.max(1, Math.ceil(total / 10));
+    const tty = this.err.isTTY === true;
+    return (done) => {
+      if (this.quiet || total === 0) return;
+      const text = `  ${done}/${total} ${label}`;
+      if (tty) {
+        this.err.write(`\r${text}${ESC}[K${done === total ? "\n" : ""}`);
+        return;
+      }
+      if (done === total || done % step === 0) this.err.write(`${text}\n`);
+    };
   }
 
   message(kind: Kind, text: string, detail?: string): void {
@@ -87,7 +125,7 @@ export class Ui {
     const tail = detail === undefined ? "" : ` ${this.paint(detail, "dim")}`;
     // Keep errors visible under quiet mode so failed operations remain observable.
     if (kind === "error" && this.quiet) {
-      this.err.write(`${mark} ${text}${tail}\n`);
+      this.err.write(this.text(`${mark} ${text}${tail}\n`));
       return;
     }
     this.line(`${mark} ${text}${tail}`);

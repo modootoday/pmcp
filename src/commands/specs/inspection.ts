@@ -29,7 +29,7 @@ export const hooksSpec: CommandSpec = {
   describe:
     "List compiled policies or simulate a native hook without a runtime",
   usage:
-    "pmcp hooks list | test --runtime claude|codex --event <event> [--command <text> | --path <path> | --tool <name>] [--session-state <file>] [--json] | test --fixtures <file> [--json] | report [--since <when>] [--switch-check <guard>] [--json]",
+    "pmcp hooks list [--runtime claude|codex] [--json] | test --runtime claude|codex --event <event> [--command <text> | --path <path> | --tool <name>] [--session-state <file>] [--json] | test --fixtures <file> [--json] | report [--since <when>] [--switch-check <guard>] [--json]",
   options: [
     configOption,
     jsonOption,

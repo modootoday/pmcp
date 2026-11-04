@@ -1,121 +1,46 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { expect, it } from "vitest";
 import { COMMANDS, dispatch } from "../src/commands/index.js";
 import { Ui } from "../src/cli/ui.js";
 
-interface Baseline {
-  readonly top: string;
-  readonly unknown: string;
-  readonly commands: Readonly<Record<string, string>>;
-}
-
-const baseline: Baseline = JSON.parse(
-  readFileSync(
-    join(import.meta.dirname, "fixtures/cli-help-0.17.4.json"),
-    "utf8",
-  ),
-);
-const COMPLETION_ROW =
-  "  completion   Print a shell completion script for bash, zsh or fish\n";
-
-const SESSION_ROWS = [
-  "  sessions     Show and coordinate the live sessions of this workspace: pause, broadcast, sweep\n",
-  "  logs         Read this project's pmcp JSONL logs, filtered by session, trace, component, level or time\n",
-  "  git          Create and sync worktrees, deliver commits to the mainline, sync the main checkout\n",
-  "  heavy        Run a heavy command within the host-wide budget, by lane, once the host has room\n",
-  "  wait         Sleep until a process exits or a condition holds, never matching itself\n",
-  "  mcp          Manage the project's shared remote MCP authentication\n",
-].join("");
-
-function withCompletionRow(text: string): string {
-  return text
-    .replace(
-      /( {2}serve .*\n)/u,
-      "  status       Show enabled features, projection drift and live workspace state\n  init         Create a starting pmcp.toml using this checkout's git detection\n  hooks        List compiled policies or simulate a native hook without a runtime\n$1",
-    )
-    .replace(/( {2}doctor .*\n)/u, `$1${SESSION_ROWS}`)
-    .replace(/( {2}marketplace .*\n)/u, `$1${COMPLETION_ROW}`);
-}
-
-// 0.18.0 removes the tmux view operations: their usage tail and the view-only options go, and
-// --config loses its create-only remark. Nothing else changes.
-const TUI_REMOVED = [
-  "  --group-file <file>     Existing owned harness group\n",
-  "  --view <file>           Private TUI view state\n",
-  "  --columns <count>       Terminal columns (40–1000)\n",
-  "  --rows <count>          Terminal rows (12–1000)\n",
-  "  --index <count>         Worker dock index\n",
-  "  --confirm-session <id>  Exact target ID for stop\n",
-  "  --actor-file <file>     Optional private mailbox observer credential\n",
-];
-
-function withoutTuiViews(text: string): string {
-  let out = text
-    .replace(" | operation --view <file>\n", "\n")
-    .replace(
-      "Project pmcp.toml (or mailbox config for create)",
-      "Project pmcp.toml",
-    );
-  for (const line of TUI_REMOVED) {
-    expect(out).toContain(line);
-    out = out.replace(line, "");
-  }
-  // Without --confirm-session the option column narrows by three characters.
-  return out.replace(/^( {2}--\S+(?: <[^>]+>)?) {3}/gmu, "$1");
-}
-
+// Help is pinned per command in fixtures/cli-help; vitest run -u rewrites them after an intended change.
 async function capture(argv: readonly string[]) {
   const out: string[] = [];
   const err: string[] = [];
   const ui = new Ui({
     stdout: { write: (text) => out.push(text) },
     stderr: { write: (text) => err.push(text) },
+    env: {},
   });
   const code = await dispatch(argv, { ui, env: {}, cwd: "/" });
   return { code, out: out.join(""), err: err.join("") };
 }
 
-// Options added since, each a new row after the one named; no existing row changes.
-const ADDED_OPTIONS: Readonly<Record<string, readonly [string, string]>> = {
-  project: [
-    "  --check                 Write nothing; exit 2 when an output drifted, went stale or is undeclared.\n",
-    "  --smoke                 With --check, also run the [hooks.test] fixtures through the projected hooks.\n",
-  ],
-};
-
-function withAddedOptions(name: string, text: string): string {
-  const added = ADDED_OPTIONS[name];
-  if (!added) return text;
-  expect(text).toContain(added[0]);
-  return text.replace(added[0], added[0] + added[1]);
+function helpText(result: { out: string; err: string }): string {
+  return result.out + result.err;
 }
 
-it("prints every 0.17.4 command help byte for byte, tui without its views", async () => {
-  for (const [name, pinned] of Object.entries(baseline.commands)) {
-    const text = withAddedOptions(
-      name,
-      name === "tui" ? withoutTuiViews(pinned) : pinned,
+it("prints every command's help the same way for --help, -h and help <command>", async () => {
+  for (const command of COMMANDS) {
+    const pinned = await capture([command.name, "--help"]);
+    expect(pinned.code).toBe(0);
+    await expect(helpText(pinned)).toMatchFileSnapshot(
+      `fixtures/cli-help/${command.name}.txt`,
     );
-    for (const flag of ["--help", "-h"]) {
-      const result = await capture([name, flag]);
-      expect(result).toEqual({ code: 0, out: "", err: text });
-    }
-    expect((await capture(["help", name])).err).toBe(text);
+    expect(await capture([command.name, "-h"])).toEqual(pinned);
+    expect(await capture(["help", command.name])).toEqual(pinned);
   }
 });
 
-it("prints the 0.17.4 top-level help with only the added verbs' rows", async () => {
-  for (const argv of [["--help"], ["-h"], ["help"]]) {
-    const result = await capture(argv);
-    expect(result).toEqual({
-      code: 0,
-      out: "",
-      err: withCompletionRow(baseline.top),
-    });
+it("prints the top-level help for --help, -h and help", async () => {
+  const pinned = await capture(["--help"]);
+  expect(pinned.code).toBe(0);
+  await expect(helpText(pinned)).toMatchFileSnapshot(
+    "fixtures/cli-help/top.txt",
+  );
+  for (const argv of [["-h"], ["help"]]) {
+    expect(await capture(argv)).toEqual(pinned);
   }
-  expect(withCompletionRow(baseline.top)).not.toBe(baseline.top);
 });
 
 it("answers an unknown verb with exit 2 and a pointer, not the whole help", async () => {

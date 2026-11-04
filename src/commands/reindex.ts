@@ -82,11 +82,13 @@ export const indexCommand: Command = {
         embedder.modelId,
       );
 
-      for (const entry of todo) {
+      const progress = context.ui.progress(todo.length, "encoded");
+      for (const [done, entry] of todo.entries()) {
         const vector = embedder.embedPassage
           ? await embedder.embedPassage(entry.description)
           : await embedder.embed(entry.description);
         store.write(key, entry.name, entry.description, vector);
+        progress(done + 1);
       }
 
       const indexed = store.read(key).size;

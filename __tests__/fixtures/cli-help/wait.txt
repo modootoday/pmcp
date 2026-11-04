@@ -1,0 +1,10 @@
+pmcp wait
+  Sleep until a process exits or a condition holds, never matching itself
+
+  pmcp wait --pid <pid>... | --until <exists:<path>|gone:<path>|load-below:<n>|no-process:<text>>... [--timeout <s>] [--interval <s>]
+
+  --pid <pid>          Wait until this process has exited; repeatable.
+  --until <condition>  Wait until this holds: exists:<path>, gone:<path>, load-below:<n>, no-process:<text>; repeatable, all must hold.
+  --timeout <s>        Give up after this many seconds and exit 75 (default 3600).
+  --interval <s>       Seconds between checks (default 5).
+

@@ -1,0 +1,7 @@
+pmcp models
+  List embedding presets without loading or downloading models
+
+  pmcp models [--json]
+
+  --json  Emit preset metadata as JSON
+

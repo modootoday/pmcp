@@ -1,0 +1,9 @@
+pmcp marketplace
+  List free public plugins or export a selected native plugin
+
+  pmcp marketplace list | export <plugin> --runtime <runtime> --output <directory> [--json]
+
+  --runtime <runtime>   Native plugin format: claude, codex, gemini, grok or agy.
+  --output <directory>  New directory for the selected plugin; existing paths are preserved.
+  --json                Print machine-readable results.
+

@@ -1,0 +1,15 @@
+pmcp logs
+  Read this project's pmcp JSONL logs, filtered by session, trace, component, level or time
+
+  pmcp logs [--session <id>] [--trace <id>] [--component <name>] [--level <level>] [--since <10m|ISO>] [--follow] [--pretty]
+
+  --json              Print the documented versioned JSON schema.
+  --config <file>     A pmcp.toml to read instead of the nearest one.
+  --session <id>      Only this session (a prefix is enough).
+  --trace <id>        Only this hook call.
+  --component <name>  Only this component and those below it.
+  --level <level>     This level and more severe.
+  --since <when>      From this long ago (10m, 2h, 3d) or this ISO time.
+  --follow            Keep printing new lines until interrupted.
+  --pretty            One readable line per record instead of JSON.
+
