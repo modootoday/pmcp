@@ -17,7 +17,7 @@ it("reports projection drift with the same problems as project check without wri
     check: true,
   });
   const result = await run("status", "--json");
-  expect(result.code).toBe(2);
+  expect(result.code).toBe(4);
   expect(JSON.parse(result.out).projection.problems).toEqual(checked.problems);
   expect(readFileSync(join(root, "pmcp.toml"), "utf8")).toBe(before);
 });

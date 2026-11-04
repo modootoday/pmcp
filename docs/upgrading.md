@@ -26,6 +26,16 @@ such as `-x` or `--verison`, exits 2. A host that starts the server with leading
 already failing. A short flag a command does not declare (`pmcp list -j`) exits 2 instead of
 being ignored; use `--` before a positional that starts with a dash.
 
+**Drift has its own exit code, 4.** `pmcp status` with drift or an exceeded budget,
+`pmcp project --check` with drifted, stale or undeclared outputs, `project --check --smoke`
+and `hooks test --fixtures` with a finding now exit 4; before, the first three exited 2,
+the same code as a mistyped flag, and `hooks test --fixtures` exited 1. Exit 2 now means
+only that the command could not run as asked (bad arguments, no `pmcp.toml`). A failed
+fetch in `pmcp git deliver` or `pmcp git sync` now exits 1, like the other failures, rather
+than 2. A CI step that treated any non-zero code as failure needs no change; one that tested
+for `2` to detect drift should test for `4`. See
+[Exit codes](commands.md#exit-codes).
+
 ## From 0.22.12 to 0.22.13
 
 **A gate command that exits 75 makes `pmcp git deliver` exit 75.** 75 now means a test stage

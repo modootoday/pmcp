@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 import {
   ArgumentError,
+  EXIT,
   noConfig,
   type CommandContext,
 } from "../../cli/command.js";
@@ -44,7 +45,7 @@ export function printSmoke(ui: Ui, result: SmokeResult): void {
   );
 }
 
-// pmcp hooks test --fixtures <file>: exit 0 all as expected, 1 any finding.
+// pmcp hooks test --fixtures <file>: exit 0 all as expected, 4 any finding.
 export async function run(
   context: CommandContext,
   file: string,
@@ -55,5 +56,5 @@ export async function run(
   if (context.args.flags.has("json"))
     context.ui.data(JSON.stringify({ version: 1, ...result }) + "\n");
   else printSmoke(context.ui.results, result);
-  return result.findings.length === 0 ? 0 : 1;
+  return result.findings.length === 0 ? EXIT.ok : EXIT.differences;
 }

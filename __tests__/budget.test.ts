@@ -80,7 +80,7 @@ describe("[budget]", () => {
       '[budget]\nroot_lines = 2\npackage_bytes = 49\nskills_max = 0\nforbid_paths = ["docs/adr"]\n',
     );
     const checked = await cli(root, "project", "--check");
-    expect(checked.code).toBe(2);
+    expect(checked.code).toBe(4);
     for (const line of [
       "[budget] root_lines: AGENTS.md is 3, over 2",
       "[budget] package_bytes: packages/app/AGENTS.md is 50, over 49",
@@ -89,7 +89,7 @@ describe("[budget]", () => {
     ])
       expect(checked.out).toContain(line);
     const status = await cli(root, "status");
-    expect(status.code).toBe(2);
+    expect(status.code).toBe(4);
     expect(status.out).toContain("Budget: 4 over");
   });
 

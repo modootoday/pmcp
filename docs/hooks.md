@@ -247,8 +247,8 @@ hook does not look at the repository being committed. Findings:
 - `[hooks.failure]` differing from the fixtures' `failure`;
 - a target whose native hook entry is missing, and a run in which no case ran.
 
-`hooks test --fixtures` exits 0 with no finding and 1 otherwise; `project --check
---smoke` exits 2 on a finding, as for drift.
+`hooks test --fixtures` and `project --check --smoke` exit 0 with no finding and 4
+otherwise, as for drift.
 
 ## `[hooks.failure]`
 
@@ -302,7 +302,7 @@ as `projector.json`), and only at the version `pmcp.lock` records. A pmcp on
 ## Native hook entries pmcp does not own
 
 Hook entries a project or a tool wrote itself run beside pmcp's, and a broken one
-fails every call it matches. `pmcp project --check` (exit 2) and `pmcp doctor`
+fails every call it matches. `pmcp project --check` (exit 4) and `pmcp doctor`
 check each such entry in `.claude/settings.json`, `.claude/settings.local.json`,
 `.codex/hooks.json`, and the `hooks/hooks.json` (or the manifest's `hooks` path)
 of each plugin whose `.claude-plugin/plugin.json` is tracked by git. Entries that

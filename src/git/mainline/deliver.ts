@@ -155,7 +155,7 @@ function attempts(options: DeliverOptions): number {
     if (options.track) options.track.attempts = attempt;
     if (!fetch(ctx)) {
       report.warn(`fetch from ${ctx.remote} failed`);
-      return 2;
+      return 1;
     }
     const commits = undelivered(ctx.root, ctx.upstream, options.named);
     if (commits.length === 0) {
@@ -371,7 +371,7 @@ export function deliver(options: DeliverOptions): number {
       // The lock, the holder and the leases were released on the way out.
       if (!(error instanceof GitReadError)) throw error;
       report.warn(error.message);
-      return 2;
+      return 1;
     }
   });
   options.onReceipt?.({
@@ -406,7 +406,7 @@ function deliverOnce(options: DeliverOptions): number {
   }
   if (!fetch(ctx)) {
     report.warn(`fetch from ${ctx.remote} failed`);
-    return 2;
+    return 1;
   }
   const commits = undelivered(ctx.root, ctx.upstream, options.named);
   const touched = touchedPaths(ctx.root, commits);

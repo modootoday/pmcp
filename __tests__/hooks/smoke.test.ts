@@ -130,8 +130,8 @@ describe("hooks smoke through the projected hook entry", () => {
     );
     expect(
       (await cli(root, "hooks", "test", "--fixtures", "smoke.json")).code,
-    ).toBe(1);
-    expect((await cli(root, "project", "--check", "--smoke")).code).toBe(2);
+    ).toBe(4);
+    expect((await cli(root, "project", "--check", "--smoke")).code).toBe(4);
   });
 });
 

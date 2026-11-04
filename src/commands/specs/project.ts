@@ -32,7 +32,7 @@ export const projectSpec: CommandSpec = {
     {
       name: "check",
       describe:
-        "Write nothing; exit 2 when an output drifted, went stale or is undeclared.",
+        "Write nothing; exit 4 when an output drifted, went stale or is undeclared.",
       boolean: true,
     },
     {

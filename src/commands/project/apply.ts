@@ -1,4 +1,4 @@
-import { ArgumentError, type CommandContext } from "../../cli/command.js";
+import { ArgumentError, EXIT, type CommandContext } from "../../cli/command.js";
 import { readTestTable } from "../../hooks/inspection/smoke.js";
 import { RUNTIMES } from "../../hooks/runtimes/index.js";
 import { project } from "../../project/apply.js";
@@ -52,8 +52,8 @@ function smokeCheck(context: CommandContext, spec: ProjectSpec): number {
     return 2;
   }
   const result = runSmoke(spec.root, file, context.env);
-  printSmoke(context.ui, result);
-  return result.findings.length === 0 ? 0 : 2;
+  printSmoke(context.ui.results, result);
+  return result.findings.length === 0 ? EXIT.ok : EXIT.differences;
 }
 
 export function projectOrCheck(context: CommandContext): number {
@@ -71,7 +71,7 @@ export function projectOrCheck(context: CommandContext): number {
       "fix",
       "pmcp project (edit .agents/ or pmcp.toml, never the outputs)",
     );
-    return 2;
+    return EXIT.differences;
   }
   context.ui.success(`${result.outputs} outputs match`);
   // Hook entries pmcp does not own are not drift, but a broken one fails every call it matches.
@@ -82,7 +82,7 @@ export function projectOrCheck(context: CommandContext): number {
     );
   const over = spec.budget ? checkBudget(spec, spec.budget).problems : [];
   for (const problem of over) context.ui.error(problem);
-  if (broken.length > 0 || over.length > 0) return 2;
+  if (broken.length > 0 || over.length > 0) return EXIT.differences;
   return smoke ? smokeCheck(context, spec) : 0;
 }
 

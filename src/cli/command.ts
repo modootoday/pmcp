@@ -44,6 +44,8 @@ export const EXIT = {
   failure: 1,
   usage: 2,
   missingOptional: 3,
+  // A check ran and found differences: drift, stale outputs, a failed fixture, a budget over.
+  differences: 4,
   // Not run because the host stayed busy; nothing changed, so a retry later is safe (EX_TEMPFAIL).
   busy: 75,
 } as const;

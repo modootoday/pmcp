@@ -73,7 +73,7 @@ export function syncMainline(options: MainlineSyncOptions): number {
     } catch (error) {
       if (!(error instanceof GitReadError)) throw error;
       options.report.warn(error.message);
-      return 2;
+      return 1;
     }
   });
 }
@@ -111,7 +111,7 @@ function syncOnce(options: MainlineSyncOptions): number {
   }
   if (git(ctx.root, ["fetch", "-q", ctx.remote, ctx.mainline]).status !== 0) {
     report.warn(`fetch from ${ctx.remote} failed`);
-    return 2;
+    return 1;
   }
   const { carried, missing } = cherry(ctx.root, ctx.upstream);
   if (missing.length > 0) {

@@ -241,7 +241,8 @@ one it lets through;</li>
 <li><code>[hooks.failure]</code> differing from the fixtures&#39; <code>failure</code>;</li>
 <li>a target whose native hook entry is missing, and a run in which no case ran.</li>
 </ul>
-<p><code>hooks test --fixtures</code> exits 0 with no finding and 1 otherwise; <code>project --check --smoke</code> exits 2 on a finding, as for drift.</p>
+<p><code>hooks test --fixtures</code> and <code>project --check --smoke</code> exit 0 with no finding and 4
+otherwise, as for drift.</p>
 <h2 id="hooksfailure"><code>[hooks.failure]</code></h2>
 <p>What a guard that fails to evaluate means for the call: it threw, or it ran past
 <code>timeout_ms</code>. A guard&#39;s own deny is a verdict and is never affected. Without the
@@ -277,7 +278,7 @@ as <code>projector.json</code>), and only at the version <code>pmcp.lock</code> 
 <code>projecting pmcp not available</code> once instead of a drift report.</p>
 <h2 id="native-hook-entries-pmcp-does-not-own">Native hook entries pmcp does not own</h2>
 <p>Hook entries a project or a tool wrote itself run beside pmcp&#39;s, and a broken one
-fails every call it matches. <code>pmcp project --check</code> (exit 2) and <code>pmcp doctor</code>
+fails every call it matches. <code>pmcp project --check</code> (exit 4) and <code>pmcp doctor</code>
 check each such entry in <code>.claude/settings.json</code>, <code>.claude/settings.local.json</code>,
 <code>.codex/hooks.json</code>, and the <code>hooks/hooks.json</code> (or the manifest&#39;s <code>hooks</code> path)
 of each plugin whose <code>.claude-plugin/plugin.json</code> is tracked by git. Entries that

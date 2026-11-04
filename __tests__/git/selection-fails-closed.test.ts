@@ -81,7 +81,7 @@ function options(
 // A failed read while choosing what is landed must stop the run with its stderr, never read
 // as "the upstream already has it" and report nothing to deliver.
 describe("a git failure while choosing commits", () => {
-  it("stops deliver with exit 2 and the error, and a retry delivers", () => {
+  it("stops deliver with exit 1 and the error, and a retry delivers", () => {
     const origin = remote();
     commit(origin.main, "a.txt", "a\n", "add a");
     const before = sh(origin.bare, "rev-parse", "main");
@@ -92,7 +92,7 @@ describe("a git failure while choosing commits", () => {
         options(origin, { onReceipt: (r) => void (receipt = r) }),
       );
       expect(existsSync(mark)).toBe(true);
-      expect(code).toBe(2);
+      expect(code).toBe(1);
       expect(receipt!.delivered).toBeNull();
       expect(receipt!.reason).toContain("simulated cherry failure");
       expect(sh(origin.bare, "rev-parse", "main")).toBe(before);
@@ -109,7 +109,7 @@ describe("a git failure while choosing commits", () => {
     cherryFailsOnce();
     try {
       const report = recorder();
-      expect(deliver(options(origin, { named: [sha], report }))).toBe(2);
+      expect(deliver(options(origin, { named: [sha], report }))).toBe(1);
       expect(report.lines.join("\n")).toContain("simulated cherry failure");
     } finally {
       vi.unstubAllEnvs();
@@ -133,7 +133,7 @@ describe("a git failure while choosing commits", () => {
         stateDir: join(origin.base, "state"),
         report,
       });
-      expect(code).toBe(2);
+      expect(code).toBe(1);
       expect(report.lines.join("\n")).toContain("simulated cherry failure");
       expect(sh(origin.main, "rev-parse", "HEAD")).toBe(head);
     } finally {

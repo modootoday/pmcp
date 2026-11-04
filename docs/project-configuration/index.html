@@ -140,7 +140,7 @@ root = &quot;AGENTS.md&quot;
 command = &quot;node&quot;
 args = [&quot;${PROJECT_ROOT}/node_modules/@modootoday/pmcp/dist/cli.js&quot;, &quot;serve&quot;]</code></pre>
 <pre><code>pmcp project              # write
-pmcp project --check      # exit 2 on drift, stale or undeclared outputs
+pmcp project --check      # exit 4 on drift, stale or undeclared outputs
 pmcp project add &lt;name&gt;   # copy a catalog skill or agent into .agents/
 pmcp project remove &lt;name&gt;
 pmcp doctor               # ask each installed tool what it loads</code></pre>
@@ -619,7 +619,7 @@ messages too.</p>
 <p>Worktrees, delivery to the mainline and main checkout sync: <a href="/git-workflow/">Git workflow</a>.</p>
 <h2 id="budget">Budget</h2>
 <p><code>[budget]</code> sets limits on what every agent session loads and on paths the
-project keeps out of its tree. <code>pmcp project --check</code> exits 2 when one is
+project keeps out of its tree. <code>pmcp project --check</code> exits 4 when one is
 exceeded, naming each, and <code>pmcp status</code> shows the measurements beside the
 limits (its JSON gains <code>budget: {rows, problems}</code>, and an exceeded limit counts
 as drift). Every key is optional; nothing is checked without the table.</p>

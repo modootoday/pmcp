@@ -65,6 +65,15 @@ such as <code>-x</code> or <code>--verison</code>, exits 2. A host that starts t
 (<code>pmcp --root ./node_modules</code>) is unaffected; one that passed an option <code>serve</code> rejects was
 already failing. A short flag a command does not declare (<code>pmcp list -j</code>) exits 2 instead of
 being ignored; use <code>--</code> before a positional that starts with a dash.</p>
+<p><strong>Drift has its own exit code, 4.</strong> <code>pmcp status</code> with drift or an exceeded budget,
+<code>pmcp project --check</code> with drifted, stale or undeclared outputs, <code>project --check --smoke</code>
+and <code>hooks test --fixtures</code> with a finding now exit 4; before, the first three exited 2,
+the same code as a mistyped flag, and <code>hooks test --fixtures</code> exited 1. Exit 2 now means
+only that the command could not run as asked (bad arguments, no <code>pmcp.toml</code>). A failed
+fetch in <code>pmcp git deliver</code> or <code>pmcp git sync</code> now exits 1, like the other failures, rather
+than 2. A CI step that treated any non-zero code as failure needs no change; one that tested
+for <code>2</code> to detect drift should test for <code>4</code>. See
+<a href="/commands/#exit-codes">Exit codes</a>.</p>
 <h2 id="from-02212-to-02213">From 0.22.12 to 0.22.13</h2>
 <p><strong>A gate command that exits 75 makes <code>pmcp git deliver</code> exit 75.</strong> 75 now means a test stage
 under <code>pmcp heavy</code> never got the host lease: deliver reports &quot;gate not run: host busy,

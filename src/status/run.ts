@@ -1,5 +1,6 @@
 import {
   ArgumentError,
+  EXIT,
   noConfig,
   type CommandContext,
 } from "../cli/command.js";
@@ -16,5 +17,5 @@ export async function run(context: CommandContext): Promise<number> {
   if (context.args.flags.has("json"))
     context.ui.data(JSON.stringify(report) + "\n");
   if (!context.args.flags.has("json")) renderStatus(context, report);
-  return report.drift ? 2 : 0;
+  return report.drift ? EXIT.differences : EXIT.ok;
 }

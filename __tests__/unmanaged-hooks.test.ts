@@ -148,7 +148,7 @@ describe("native hook entries pmcp does not own", () => {
       hooks("PreToolUse", ["tools/missing.sh"]),
     );
     const checked = await cli(root, "project", "--check");
-    expect(checked.code).toBe(2);
+    expect(checked.code).toBe(4);
     expect(checked.out).toContain(
       "native hook entry pmcp does not own: .claude/settings.json PreToolUse: tools/missing.sh: the script does not exist",
     );

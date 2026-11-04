@@ -14,6 +14,6 @@ pmcp project
   --source <tool>:<file>  Explicit native MCP source as <tool>:<file>. Repeatable; import-mcp only.
   --name <alias>          Import only this MCP alias. Repeatable; import-mcp only.
   --write                 Back up and import the reviewed MCP declarations; import-mcp only.
-  --check                 Write nothing; exit 2 when an output drifted, went stale or is undeclared.
+  --check                 Write nothing; exit 4 when an output drifted, went stale or is undeclared.
   --smoke                 With --check, also run the [hooks.test] fixtures through the projected hooks.
 
