@@ -153,6 +153,11 @@ pmcp git sync</code></pre>
 pmcp heavy --label &quot;web build&quot; --profile gate -- npm run build
 pmcp heavy status</code></pre>
 <p>Run a heavy command under the host-wide lease of <a href="/project-configuration/#host-lease"><code>[host.lease]</code></a>, one at a time across every session and worktree on the host. It waits first for the lease (up to <code>max_wait</code>, in arrival order, with a line on standard error every <code>heartbeat</code>), then, holding it, for the load average and IO pressure to fall below <code>max_load</code> and <code>max_io</code> (up to <code>load_grace</code>, after which it runs anyway). The command runs with the lease marker set, so a nested <code>pmcp heavy</code> runs at once. Everything after <code>--</code> is the command, options included. <code>status</code> prints the lock, the host readings, when the host was last settled, the holder (pid, label, cwd, age), each waiter, the holder against <code>hold_warn</code> and <code>hold_max</code>, and the busiest processes outside the lease. With the lease disabled, or with <code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> set, the command runs at once. Exit: the command&#39;s own code; 75 when the lease stayed held past <code>max_wait</code> and nothing ran; 2 for a missing <code>--</code> or an unknown profile.</p>
+<h2 id="wait">wait</h2>
+<pre><code>pmcp wait --pid 4242
+pmcp wait --until gone:/tmp/build.lock --until load-below:6 --timeout 900
+pmcp wait --until no-process:&quot;vitest run&quot;</code></pre>
+<p>Sleep until every condition holds: <code>--pid</code> until that process has exited, <code>--until exists:&lt;path&gt;</code>, <code>gone:&lt;path&gt;</code>, <code>load-below:&lt;n&gt;</code> (1-minute load average) or <code>no-process:&lt;text&gt;</code> (no command line contains the text). It never matches itself or the shells that started it, which a loop around <code>pgrep -f</code> does, and it sleeps between checks (<code>--interval</code>, default 5 s) instead of spinning. Exit 0 once met, 75 after <code>--timeout</code> (default 3600 s), 2 for an unreadable condition.</p>
 <h2 id="completion">completion</h2>
 <pre><code>pmcp completion bash &gt; ~/.local/share/bash-completion/completions/pmcp
 pmcp completion zsh &gt; &quot;${fpath[1]}/_pmcp&quot;
@@ -217,7 +222,7 @@ pmcp sync [--project &lt;dir&gt;] [--dry-run | --yes]</code></pre>
 <tr><td><code>1</code></td><td>it ran and found a problem</td><td>no skills under those roots, a partial index, no SQLite in this runtime to store vectors in, a refused or failed <code>git deliver</code></td></tr>
 <tr><td><code>2</code></td><td>the arguments were unusable, or a check found drift</td><td>an unknown command, an unknown option, a missing value; <code>project --check</code> drift, stale or undeclared outputs; a <code>git</code> fetch that failed or a sync blocked by undelivered edits</td></tr>
 <tr><td><code>3</code></td><td>an optional dependency is missing</td><td><code>index</code> without <code>@huggingface/transformers</code></td></tr>
-<tr><td><code>75</code></td><td>the host stayed busy, so nothing ran; retry later</td><td><code>heavy</code> past <code>max_wait</code></td></tr></tbody></table></div>
+<tr><td><code>75</code></td><td>the host stayed busy, so nothing ran; retry later</td><td><code>heavy</code> past <code>max_wait</code>, <code>wait</code> past <code>--timeout</code></td></tr></tbody></table></div>
 <p>The distinction between 1 and 3 is worth wiring into a script: 1 says the project is not what you expected, and 3 says the machine is missing something optional and the server still works without it.</p>
 <p><strong>Data on stdout, everything else on stderr.</strong> The JSON from <code>--json</code> and the string from <code>--version</code> go to standard output so they can be piped. Tables, help and messages go to standard error, which is what keeps a pipeline&#39;s input clean.</p>
 <h2 id="runtime">Runtime</h2>

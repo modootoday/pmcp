@@ -202,6 +202,16 @@ pmcp heavy status
 
 Run a heavy command under the host-wide lease of [`[host.lease]`](project-configuration.md#host-lease), one at a time across every session and worktree on the host. It waits first for the lease (up to `max_wait`, in arrival order, with a line on standard error every `heartbeat`), then, holding it, for the load average and IO pressure to fall below `max_load` and `max_io` (up to `load_grace`, after which it runs anyway). The command runs with the lease marker set, so a nested `pmcp heavy` runs at once. Everything after `--` is the command, options included. `status` prints the lock, the host readings, when the host was last settled, the holder (pid, label, cwd, age), each waiter, the holder against `hold_warn` and `hold_max`, and the busiest processes outside the lease. With the lease disabled, or with `PMCP_HEAVY_DISABLE=<reason>` set, the command runs at once. Exit: the command's own code; 75 when the lease stayed held past `max_wait` and nothing ran; 2 for a missing `--` or an unknown profile.
 
+## wait
+
+```sh
+pmcp wait --pid 4242
+pmcp wait --until gone:/tmp/build.lock --until load-below:6 --timeout 900
+pmcp wait --until no-process:"vitest run"
+```
+
+Sleep until every condition holds: `--pid` until that process has exited, `--until exists:<path>`, `gone:<path>`, `load-below:<n>` (1-minute load average) or `no-process:<text>` (no command line contains the text). It never matches itself or the shells that started it, which a loop around `pgrep -f` does, and it sleeps between checks (`--interval`, default 5 s) instead of spinning. Exit 0 once met, 75 after `--timeout` (default 3600 s), 2 for an unreadable condition.
+
 ## completion
 
 ```sh
@@ -330,7 +340,7 @@ Options are parsed against the command's own list, so an unknown flag is an erro
 | `1`  | it ran and found a problem                          | no skills under those roots, a partial index, no SQLite in this runtime to store vectors in, a refused or failed `git deliver`                                                 |
 | `2`  | the arguments were unusable, or a check found drift | an unknown command, an unknown option, a missing value; `project --check` drift, stale or undeclared outputs; a `git` fetch that failed or a sync blocked by undelivered edits |
 | `3`  | an optional dependency is missing                   | `index` without `@huggingface/transformers`                                                                                                                                    |
-| `75` | the host stayed busy, so nothing ran; retry later | `heavy` past `max_wait` |
+| `75` | the host stayed busy, so nothing ran; retry later | `heavy` past `max_wait`, `wait` past `--timeout` |
 
 The distinction between 1 and 3 is worth wiring into a script: 1 says the project is not what you expected, and 3 says the machine is missing something optional and the server still works without it.
 
