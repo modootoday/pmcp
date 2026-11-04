@@ -221,6 +221,39 @@ needs nothing. Otherwise exactly the pinned commit is pushed to the submodule&#3
 branch (<code>branch</code> in <code>.gitmodules</code>, else <code>main</code>) as a fast-forward, never a later
 commit; if that branch has moved past the pin&#39;s base, delivery stops before
 anything else moves.</p>
+<h2 id="affected-members">Affected members</h2>
+<p><code>pmcp git affected --base &lt;ref&gt; [--head &lt;ref&gt;] [--tests-only] [--json]</code> maps the delta
+<code>&lt;base&gt;...&lt;head&gt;</code> to the workspace members it touches, so a gate checks in proportion to the
+change. It prints one member directory per line, or the single line <code>ALL</code>, and names each
+changed file no member reads on stderr as <code>unmapped, not tested: &lt;path&gt;</code>. It always exits 0
+with an answer and answers <code>ALL</code> (fail closed) when the base or head does not resolve, the
+base equals the head, the root manifest or lockfile does not parse, or <code>[git.affected]</code> is
+absent. Paths in the table are relative to the checkout root, so <code>--config</code> may name a file
+outside the checkout. Membership is read from the checkout, which must be at the head.</p>
+<p><code>[git.affected]</code> describes the workspace; every key is optional:</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>members</code></td><td><code>&quot;workspaces&quot;</code></td><td><code>&quot;workspaces&quot;</code></td><td>Members are the directories the root <code>package.json</code> <code>workspaces</code> globs (or <code>workspaces.packages</code>) match; the last matching glob decides, so <code>!glob</code> excludes.</td></tr>
+<tr><td><code>shared_inputs</code></td><td>globs</td><td><code>[]</code></td><td>A changed path matching one selects <code>ALL</code>.</td></tr>
+<tr><td><code>readers</code></td><td>table: glob to members</td><td><code>{}</code></td><td>Members that read a path outside themselves which no adapter can derive (a test reading a file by path). The path counts as mapped.</td></tr>
+<tr><td><code>derive</code></td><td><code>&quot;tsconfig&quot;</code>, <code>&quot;vitest&quot;</code></td><td><code>[]</code></td><td>Compute readers instead of listing them: files outside every member that a member&#39;s <code>tsconfig*.json</code> extends chain (relative or through a member package) or vitest config imports.</td></tr>
+<tr><td><code>owners</code></td><td>table: glob to member</td><td><code>{}</code></td><td>Map a directory without a manifest to the member that runs it, before walking up to the nearest member.</td></tr>
+<tr><td><code>include</code></td><td>globs, <code>!</code> excludes</td><td><code>[&quot;**&quot;]</code></td><td>Paths that map to a member at all; a path outside <code>include</code> is neither selected nor reported.</td></tr>
+<tr><td><code>include_deleted</code></td><td>globs</td><td><code>[]</code></td><td>A deleted path maps only when it matches here; deleting a file cannot break its member.</td></tr>
+<tr><td><code>ignore</code></td><td>globs</td><td><code>[]</code></td><td>Paths read by no member: never selected, never reported.</td></tr>
+<tr><td><code>on_member_change</code></td><td>members</td><td><code>[]</code></td><td>Selected when a member manifest is added or removed (suites that assert something about the whole workspace).</td></tr>
+<tr><td><code>unmapped</code></td><td><code>&quot;all&quot;</code>, <code>&quot;report&quot;</code></td><td><code>&quot;all&quot;</code></td><td>What an included path outside every member and reader does: widen to <code>ALL</code>, or only be reported.</td></tr>
+<tr><td><code>consumers</code></td><td>boolean</td><td><code>false</code></td><td>Add every member that depends on a selected one (typecheck semantics). <code>--tests-only</code> prints the selection without them.</td></tr></tbody></table></div>
+<p><code>[git.affected.lockfile]</code> reads the package manager&#39;s lockfile at both revisions when it or the
+root <code>package.json</code> changed, and selects the members whose resolved dependencies moved, with
+their consumers. <code>adapter = &quot;bun&quot;</code> is the one implemented. <code>toolchain</code> lists package names (a
+trailing <code>*</code> matches a prefix) every member builds with: a change to one selects <code>ALL</code>, as does a
+root field outside the dependency fields and <code>inert_root_fields</code> (default <code>scripts</code>,
+<code>description</code>, <code>version</code>) or a lockfile that does not parse.</p>
+<p>Consumer edges are a member&#39;s <code>dependencies</code>, <code>peerDependencies</code> and <code>optionalDependencies</code>, the
+<code>devDependencies</code> its production source under <code>src/</code> imports (all of them when its
+<code>tsconfig.json</code> <code>exclude</code> names no tests), the member whose tsconfig preset it extends, and
+relative imports from <code>src/</code> that leave the package.</p>
+<p><code>node scripts/affected-shadow.mjs</code> compares this answer with a project&#39;s own selector over
+recent commits in a disposable clone before a gate switches to it.</p>
 <h2 id="shared-file-formats">Shared file formats</h2>
 <p>Delivery and sync coordinate through plain files, so any tool, a project&#39;s own
 scripts included, can wait on, read or write the same state. These are pmcp&#39;s

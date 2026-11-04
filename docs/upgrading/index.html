@@ -48,6 +48,14 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-02212-to-02213">From 0.22.12 to 0.22.13</h2>
+<p><strong>A gate command that exits 75 makes <code>pmcp git deliver</code> exit 75.</strong> 75 now means a test stage
+under <code>pmcp heavy</code> never got the host lease: deliver reports &quot;gate not run: host busy,
+nothing pushed, retry later&quot; instead of a failed gate and exit 1. A gate that used 75 for
+another failure should exit with another code.</p>
+<p><strong>Words after <code>--</code> belong to the command.</strong> <code>-q</code>, <code>--quiet</code>, <code>--color</code>, <code>--no-color</code> and
+<code>--help</code> after a bare <code>--</code> are no longer read as pmcp&#39;s own options, so
+<code>pmcp heavy -- grep -q x file</code> passes <code>-q</code> to grep.</p>
 <h2 id="from-0228-to-0229">From 0.22.8 to 0.22.9</h2>
 <p><strong>Guards read commands with the shell&#39;s grammar.</strong> A <code>cd</code> chain, a subshell, a pipeline stage
 and a background job now decide which directory each step runs in, as the shell does, so a

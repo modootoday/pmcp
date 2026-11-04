@@ -5,6 +5,17 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.22.12 to 0.22.13
+
+**A gate command that exits 75 makes `pmcp git deliver` exit 75.** 75 now means a test stage
+under `pmcp heavy` never got the host lease: deliver reports "gate not run: host busy,
+nothing pushed, retry later" instead of a failed gate and exit 1. A gate that used 75 for
+another failure should exit with another code.
+
+**Words after `--` belong to the command.** `-q`, `--quiet`, `--color`, `--no-color` and
+`--help` after a bare `--` are no longer read as pmcp's own options, so
+`pmcp heavy -- grep -q x file` passes `-q` to grep.
+
 ## From 0.22.8 to 0.22.9
 
 **Guards read commands with the shell's grammar.** A `cd` chain, a subshell, a pipeline stage
