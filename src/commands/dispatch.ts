@@ -4,8 +4,11 @@ import {
   parseArgs,
   printCommandHelp,
   printHelp,
+  type Command,
   type CommandEntry,
+  type CommandSpec,
 } from "../cli/command.js";
+import { envelope } from "../cli/envelope.js";
 import { Ui } from "../cli/ui.js";
 import { entryMode } from "../cli/entry.js";
 import { invocation } from "../cli/invocation.js";
@@ -164,6 +167,24 @@ async function run(
   context: RunContext,
 ): Promise<number> {
   const command = await entry.load();
+  const own = argv.includes("--") ? argv.slice(0, argv.indexOf("--")) : argv;
+  const json = own.includes("--json") && command.protocol !== true;
+  if (json) context.ui.capture();
+  const code = await runCaught(command, argv, context);
+  if (!json) return code;
+  const { printed, errors } = context.ui.release();
+  const words = schemaWords(command, positionalWords(own));
+  context.ui.data(
+    `${JSON.stringify(envelope(words, code, printed, errors))}\n`,
+  );
+  return code;
+}
+
+async function runCaught(
+  command: Command,
+  argv: readonly string[],
+  context: RunContext,
+): Promise<number> {
   try {
     return await command.run({
       ...context,
@@ -180,4 +201,29 @@ async function run(
     context.ui.error(error instanceof Error ? error.message : "command failed");
     return EXIT.failure;
   }
+}
+
+// Leading words before any option: the subcommand path, if the command has one.
+function positionalWords(argv: readonly string[]): string[] {
+  const words: string[] = [];
+  for (const arg of argv) {
+    if (arg.startsWith("-")) break;
+    words.push(arg);
+  }
+  return words;
+}
+
+// The schema is named by the command and the subcommand that ran, e.g. pmcp.hooks.list.v1.
+export function schemaWords(
+  command: CommandSpec,
+  words: readonly string[],
+): string[] {
+  const names = (command.subcommands ?? []).map((sub) => sub.name);
+  const two = words.slice(0, 2).join(" ");
+  const one = words[0];
+  if (names.includes(two)) return [command.name, ...two.split(" ")];
+  if (one !== undefined && names.includes(one)) return [command.name, one];
+  if (one === undefined && command.defaultSubcommand !== undefined)
+    return [command.name, command.defaultSubcommand];
+  return [command.name];
 }

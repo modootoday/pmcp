@@ -26,6 +26,18 @@ export const initSpec: CommandSpec = {
 };
 export const hooksSpec: CommandSpec = {
   name: "hooks",
+  defaultSubcommand: "list",
+  subcommands: [
+    { name: "list", describe: "List compiled policies per runtime and event" },
+    {
+      name: "test",
+      describe: "Simulate one native hook call, or run a fixtures file",
+    },
+    {
+      name: "report",
+      describe: "Summarise the guard lines in the project log",
+    },
+  ],
   describe:
     "List compiled policies or simulate a native hook without a runtime",
   usage:

@@ -9,10 +9,10 @@ export { tuiOptions } from "./options.js";
 
 const allowed: Readonly<Record<string, readonly string[]>> = {
   launch: ["config", "runtime", "yes", "new"],
-  plan: ["config", "runtime"],
-  recovery: ["config"],
-  "start-worker": ["config", "runtime", "memory-mb"],
-  doctor: [],
+  plan: ["config", "runtime", "json"],
+  recovery: ["config", "json"],
+  "start-worker": ["config", "runtime", "memory-mb", "json"],
+  doctor: ["json"],
 };
 
 // The tmux view operations of releases up to 0.17.4; named in the usage error so an old

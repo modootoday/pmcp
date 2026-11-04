@@ -272,6 +272,38 @@
     }
   },
   "schemas": {
+    "envelope": {
+      "type": "object",
+      "required": ["schema", "ok", "data", "errors"],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "pattern": "^pmcp\\.[a-z0-9-]+(\\.[a-z0-9-]+)*\\.v[0-9]+$"
+        },
+        "ok": { "type": "boolean" },
+        "data": {},
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": {
+                "enum": [
+                  "failure",
+                  "usage",
+                  "missing_optional",
+                  "differences",
+                  "busy"
+                ]
+              },
+              "message": { "$ref": "#/$defs/string" }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "status": {
       "type": "object",
       "required": [

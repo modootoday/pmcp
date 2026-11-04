@@ -315,7 +315,7 @@ it("dispatches available and dry-run install against an offline catalog", async 
       ui,
     }),
   ).toBe(0);
-  expect(JSON.parse(out).matches).toHaveLength(1);
+  expect(JSON.parse(out).data.matches).toHaveLength(1);
   out = "";
   expect(
     await dispatch(
@@ -332,7 +332,7 @@ it("dispatches available and dry-run install against an offline catalog", async 
       { cwd: root, ui },
     ),
   ).toBe(0);
-  expect(JSON.parse(out).status).toBe("planned");
+  expect(JSON.parse(out).data.status).toBe("planned");
   expect(err).toBe("");
   expect(readFileSync(join(root, "package.json"), "utf8")).toBe(before);
 });

@@ -138,12 +138,12 @@ describe("after a delivery from a desk", () => {
     const result = await run(desk, "deliver", "--json");
     const line = result.out
       .split("\n")
-      .find((text) => text.startsWith('{"ok"'));
+      .find((text) => text.startsWith('{"schema"'));
     return {
       desk,
       before,
       code: result.code,
-      receipt: JSON.parse(line!) as DeliverReceipt,
+      receipt: JSON.parse(line!).data as DeliverReceipt,
     };
   }
 

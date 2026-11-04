@@ -3,6 +3,11 @@ import { jsonOption } from "../options/inspection.js";
 
 export const mcpSpec: CommandSpec = {
   name: "mcp",
+  subcommands: [
+    { name: "login", describe: "Sign a shared remote MCP server in" },
+    { name: "logout", describe: "Clear its stored credentials" },
+    { name: "status", describe: "Presence, expiry and scopes; never tokens" },
+  ],
   describe: "Manage the project's shared remote MCP authentication",
   usage: "pmcp mcp <login|logout|status> <name> [--config <file>]",
   options: [

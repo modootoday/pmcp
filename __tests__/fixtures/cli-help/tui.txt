@@ -3,8 +3,9 @@ pmcp tui
 
   pmcp tui [--config <file>] [--runtime <id>] | plan | recovery | doctor | start-worker --runtime <id>
 
+  --json               Print the result as one JSON envelope on stdout.
   --memory-mb <count>  Worker memory reservation
-  --config <file>      Project pmcp.toml
+  --config <file>      A pmcp.toml to read instead of the nearest one.
   --runtime <runtime>  Native runtime ID for main launch or worker start
   -y, --yes            Confirm the first native runtime start
   --new                Create a workspace after the previous group is stopped

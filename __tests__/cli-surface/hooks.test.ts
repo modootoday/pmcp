@@ -23,7 +23,7 @@ it("shows what an observed guard found, though the call is allowed", async (t) =
   ];
   const json = await run(...args, "--json");
   expect(json.code).toBe(0);
-  const report = JSON.parse(json.out);
+  const report = JSON.parse(json.out).data;
   expect(report.decision.verdict).toBeUndefined();
   const row = report.policies.find(
     (entry: { policy: string }) => entry.policy === "shell.runaway_regex",
@@ -45,7 +45,7 @@ it("lists compiled runtime/event bindings with modes and TOML sources", async (t
   const { run } = fixture(t, config);
   const result = await run("hooks", "list", "--json");
   expect(result.code).toBe(0);
-  expect(JSON.parse(result.out).policies).toContainEqual(
+  expect(JSON.parse(result.out).data.policies).toContainEqual(
     expect.objectContaining({
       runtime: "codex",
       event: "before_tool",
@@ -75,7 +75,7 @@ it.for([
       "--json",
     );
     expect(result.code).toBe(0);
-    const report = JSON.parse(result.out);
+    const report = JSON.parse(result.out).data;
     expect(report.decision.verdict).toBe(verdict);
     expect(report.policies).toContainEqual(
       expect.objectContaining({
@@ -113,7 +113,7 @@ it("runs pause policies against isolated seed state and leaves the seed unchange
     "--json",
   );
   expect(result.code).toBe(0);
-  expect(JSON.parse(result.out).decision.verdict).toBe("deny");
+  expect(JSON.parse(result.out).data.decision.verdict).toBe("deny");
   expect(readFileSync(path, "utf8")).toBe(seed);
 });
 

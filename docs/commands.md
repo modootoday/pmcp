@@ -51,9 +51,22 @@ pmcp hooks report --switch-check shell.heredoc [--since 2d] [--json]
 
 `report` summarises the guard lines the hook bundle writes to the project log at debug level (`[logging] level = "debug"`, or `PMCP_LOG=debug`). For each guard and runtime it counts the runs, what the guard found before its mode (`raw`: allow, deny, ask) and what the call got, the modes seen, the sessions, and the p50, p95 and longest durations. Sessions matching a `[hooks.report] exclude_sessions` regex (replays, smoke runs) are left out and counted. `--since` takes a duration such as `10m`, `2h` or `3d`, or an ISO time. `--switch-check <guard>` lists instead the calls that guard found something in and let through, because it was in `observe` or `warn`: what `deny` would have refused. The log holds no command, prompt or transcript text, so neither does the report. `--json` prints `{version, since?, lines, sessions, excluded, guards}`, or `{version, guard, refused}` with `--switch-check`.
 
-## Read command JSON schemas
+## JSON output
 
-These opt-in snapshots write one JSON object and a newline to stdout, with `version: 1`. No color or human summary is mixed into stdout. Errors remain on stderr. Without the flag, existing human output is retained, including MCP status's original unversioned object and logs' JSONL stream. Schemas are named in [schemas.json](https://pmcp.build/commands/schemas.json); each entry under `schemas` uses the shared root `$defs`. Consumers must allow unknown fields inside session, decision and log records. Tokens are never part of an auth status object.
+Every command that prints a result takes `--json` and then writes exactly one line to standard output, a JSON envelope, whether it succeeded or failed:
+
+```json
+{"schema":"pmcp.hooks.list.v1","ok":true,"data":{"version":1,"policies":[]},"errors":[]}
+```
+
+- `schema` is `pmcp.<command>[.<subcommand>].v1`, such as `pmcp.status.v1`, `pmcp.git.worktree.list.v1` or `pmcp.models.v1`. A change that removes or retypes a field gets a new version.
+- `ok` is true exactly when the exit code is 0 (see [Exit codes](#exit-codes)); `status` with drift prints its report with `ok: false` and exit 4.
+- `data` is the command's result: the object the tables below describe, the array `models` lists, or `null` when the command failed before it had one.
+- `errors` lists `{code, message}` for each error the command reported; `code` names the exit code (`failure`, `usage`, `missing_optional`, `differences`, `busy`). A usage error such as an unknown option still prints an envelope, with `data: null`.
+
+No colour or human text is mixed into standard output; the same errors also go to standard error. Without `--json` every command prints human output (`mcp status` and the `tui` receipts included). `mailbox` and `harness` are machine protocols: they always print their own JSON receipts (`{ok, data}` and `{schemaVersion, ok, ...}`), take no `--json`, and are unchanged. `logs` without `--json` keeps its JSONL stream.
+
+The `data` of these commands has a published schema in [schemas.json](https://pmcp.build/commands/schemas.json), with `version: 1` inside `data`; each entry under `schemas` uses the shared root `$defs`, and `envelope` describes the wrapper. Consumers must allow unknown fields inside session, decision and log records. Tokens are never part of an auth status object.
 
 | Command                    | Schema            | Fields after version                                                                                                                                          |
 | -------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |

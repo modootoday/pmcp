@@ -3,6 +3,9 @@ import { jsonOption, nearestConfigOption } from "../options/inspection.js";
 
 export const heavySpec: CommandSpec = {
   name: "heavy",
+  subcommands: [
+    { name: "status", describe: "The lease, its holder and waiters" },
+  ],
   describe:
     "Run a heavy command within the host-wide budget, by lane, once the host has room",
   usage:

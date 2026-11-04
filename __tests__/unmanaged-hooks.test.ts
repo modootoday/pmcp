@@ -154,7 +154,7 @@ describe("native hook entries pmcp does not own", () => {
     );
     const doctor = await cli(root, "doctor", "--json");
     expect(doctor.code).toBe(1);
-    expect(JSON.parse(doctor.out).findings).toContainEqual(
+    expect(JSON.parse(doctor.out).data.findings).toContainEqual(
       expect.objectContaining({
         check: "native hooks pmcp does not own",
         status: "fail",

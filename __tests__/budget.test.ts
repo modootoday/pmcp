@@ -57,7 +57,7 @@ describe("[budget]", () => {
     );
     expect((await cli(root, "project", "--check")).code).toBe(0);
     const status = await cli(root, "status", "--json");
-    expect(JSON.parse(status.out).budget).toEqual({
+    expect(JSON.parse(status.out).data.budget).toEqual({
       rows: [
         { key: "root_bytes", subject: "AGENTS.md", value: 14, limit: 14 },
         { key: "root_lines", subject: "AGENTS.md", value: 3, limit: 3 },
@@ -96,7 +96,7 @@ describe("[budget]", () => {
   it("leaves status unchanged without the table and refuses a bad one", async (t) => {
     const root = project(t, "");
     expect(
-      JSON.parse((await cli(root, "status", "--json")).out),
+      JSON.parse((await cli(root, "status", "--json")).out).data,
     ).not.toHaveProperty("budget");
     expect(() => readBudget({ root_bytes: -1 })).toThrow(
       "[budget] root_bytes must be a whole number",

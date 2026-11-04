@@ -25,6 +25,19 @@ export const JSON_VERBS: readonly string[] = [
 
 export const sessionsSpec: CommandSpec = {
   name: "sessions",
+  defaultSubcommand: "status",
+  subcommands: [
+    { name: "status", describe: "Live sessions, pause, broadcasts and leases" },
+    { name: "pause", describe: "Refuse edits in every other session" },
+    { name: "resume", describe: "Lift the pause" },
+    { name: "broadcast", describe: "Deliver a note once to every session" },
+    { name: "unbroadcast", describe: "Withdraw the broadcasts" },
+    { name: "sweep", describe: "Remove records whose process is gone" },
+    { name: "send", describe: "Send a message to sessions" },
+    { name: "inbox", describe: "List your messages" },
+    { name: "ack", describe: "Acknowledge messages by id" },
+    { name: "reply", describe: "Answer a message" },
+  ],
   describe:
     "Show and coordinate the live sessions of this workspace: pause, broadcast, sweep",
   usage:

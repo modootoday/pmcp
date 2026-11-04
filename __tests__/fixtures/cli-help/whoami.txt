@@ -3,5 +3,5 @@ pmcp whoami
 
   pmcp whoami [--json]
 
-  --json  Print the answer as JSON.
+  --json  Print the result as one JSON envelope on stdout.
 

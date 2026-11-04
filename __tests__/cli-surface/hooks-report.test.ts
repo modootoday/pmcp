@@ -55,7 +55,7 @@ it("counts raw verdicts, sessions and durations per guard and runtime", async (t
   logs(root, LINES);
   const result = await run("hooks", "report", "--json");
   expect(result.code).toBe(0);
-  const report = JSON.parse(result.out);
+  const report = JSON.parse(result.out).data;
   expect(report).toMatchObject({ lines: 4, sessions: 3, excluded: 1 });
   expect(report.guards).toEqual([
     {
@@ -92,7 +92,7 @@ it("--switch-check lists what an observed guard would have refused", async (t) =
     "--json",
   );
   expect(result.code).toBe(0);
-  const found = JSON.parse(result.out).refused;
+  const found = JSON.parse(result.out).data.refused;
   expect(found.map((row: { session: string }) => row.session)).toEqual([
     "aaaa1111-s",
     "bbbb2222-s",
@@ -134,7 +134,7 @@ it("--since leaves older lines out, and a bad exclude regex is refused", async (
     "2026-10-26T00:00:00Z",
     "--json",
   );
-  expect(JSON.parse(result.out).sessions).toBe(1);
+  expect(JSON.parse(result.out).data.sessions).toBe(1);
   writeFileSync(
     join(root, "pmcp.toml"),
     config('[hooks.report]\nexclude_sessions = ["("]\n'),

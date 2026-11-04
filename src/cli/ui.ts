@@ -78,6 +78,8 @@ export class Ui {
   private readonly quiet: boolean;
   private readonly options: UiOptions;
   private view: Ui | undefined;
+  private captured: string[] | undefined;
+  private noted: string[] | undefined;
   readonly colour: boolean;
   readonly ascii: boolean;
 
@@ -94,10 +96,14 @@ export class Ui {
   // The same formatting aimed at stdout and never silenced: a command's result, which
   // -q must not erase and a pipe must receive. Diagnostics stay on this Ui (stderr).
   get results(): Ui {
+    const stdout: Stream = {
+      write: (text) => this.data(text),
+      isTTY: this.out.isTTY === true,
+    };
     this.view ??= new Ui({
       ...this.options,
-      stdout: this.out,
-      stderr: this.out,
+      stdout,
+      stderr: stdout,
       quiet: false,
     });
     return this.view;
@@ -110,7 +116,28 @@ export class Ui {
 
   // Separate diagnostics so redirected data stays machine-readable.
   data(text: string): void {
+    if (this.captured) {
+      this.captured.push(text);
+      return;
+    }
     this.out.write(text);
+  }
+
+  // Under --json the command's stdout is held and its errors noted, so one envelope
+  // can carry both; release() hands them back and writes again go straight out.
+  capture(): void {
+    this.captured = [];
+    this.noted = [];
+  }
+
+  release(): { printed: string; errors: string[] } {
+    const result = {
+      printed: (this.captured ?? []).join(""),
+      errors: this.noted ?? [],
+    };
+    this.captured = undefined;
+    this.noted = undefined;
+    return result;
   }
 
   line(text = ""): void {
@@ -142,6 +169,9 @@ export class Ui {
   message(kind: Kind, text: string, detail?: string): void {
     const mark = this.paint(SYMBOL[kind], KIND_COLOUR[kind], "bold");
     const tail = detail === undefined ? "" : ` ${this.paint(detail, "dim")}`;
+    if (kind === "error" && this.noted) {
+      this.noted.push(detail === undefined ? text : `${text}: ${detail}`);
+    }
     // Keep errors visible under quiet mode so failed operations remain observable.
     if (kind === "error" && this.quiet) {
       this.err.write(this.text(`${mark} ${text}${tail}\n`));

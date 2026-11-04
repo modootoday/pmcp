@@ -24,6 +24,10 @@ export const whoamiSpec: CommandSpec = {
   describe: "Whether this machine is signed in, and to what",
   usage: "pmcp whoami [--json]",
   options: [
-    { name: "json", describe: "Print the answer as JSON.", boolean: true },
+    {
+      name: "json",
+      describe: "Print the result as one JSON envelope on stdout.",
+      boolean: true,
+    },
   ],
 };

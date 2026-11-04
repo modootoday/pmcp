@@ -189,7 +189,7 @@ describe("gate logs", () => {
         env: process.env,
       }),
     ).toBe(0);
-    const receipt = JSON.parse(out) as DeliverReceipt;
+    const receipt = JSON.parse(out).data as DeliverReceipt;
     expect(receipt.gate!.logs).toBe(
       join(state, "gate-logs", receipt.replayed!),
     );

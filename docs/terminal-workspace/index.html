@@ -100,6 +100,8 @@ Config budget changes apply to a new group; existing groups keep their grants.</
 <p><code>pmcp tui launch --yes</code> explicitly confirms the first start without the prompt.
 Launch still requires a supported interactive terminal. <code>pmcp tui plan</code> reports
 resolved settings and saved paths without writing or invoking a provider.
+<code>plan</code>, <code>doctor</code>, <code>recovery</code> and <code>start-worker</code> print their receipt as text; add
+<code>--json</code> for the <a href="/commands/#json-output">JSON envelope</a>.
 The launcher checkpoint lives under XDG_STATE_HOME/pmcp/launcher, or
 ~/.local/state/pmcp/launcher, with private file permissions.</p>
 <p>Reopening never adopts an unrelated session or restarts a stopped main. A

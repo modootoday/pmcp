@@ -18,7 +18,9 @@ it("reports projection drift with the same problems as project check without wri
   });
   const result = await run("status", "--json");
   expect(result.code).toBe(4);
-  expect(JSON.parse(result.out).projection.problems).toEqual(checked.problems);
+  expect(JSON.parse(result.out).data.projection.problems).toEqual(
+    checked.problems,
+  );
   expect(readFileSync(join(root, "pmcp.toml"), "utf8")).toBe(before);
 });
 
@@ -34,7 +36,7 @@ it("reports live state and unseen broadcasts without acknowledging them", async 
   store.broadcast.post({ by: "operator", text: "notice" });
   const result = await run("sessions", "status", "--json");
   expect(result.code).toBe(0);
-  const state = JSON.parse(result.out);
+  const state = JSON.parse(result.out).data;
   expect(state.version).toBe(1);
   expect(state.live).toHaveLength(1);
   expect(state.pause.reason).toBe("freeze");
@@ -48,7 +50,9 @@ it("returns logs as a versioned JSON snapshot and tolerates a missing explicit f
     t,
     '[hooks]\nerror_log = ".state/errors.jsonl"\n',
   );
-  expect(JSON.parse((await run("logs", "--json")).out).records).toEqual([]);
+  expect(JSON.parse((await run("logs", "--json")).out).data.records).toEqual(
+    [],
+  );
   mkdirSync(join(root, ".state"), { recursive: true });
   writeFileSync(
     join(root, ".state/errors.jsonl"),
@@ -60,5 +64,5 @@ it("returns logs as a versioned JSON snapshot and tolerates a missing explicit f
   );
   const result = await run("logs", "--json", "--since", "1h");
   expect(result.code).toBe(0);
-  expect(JSON.parse(result.out).records[0].msg).toBe("problem");
+  expect(JSON.parse(result.out).data.records[0].msg).toBe("problem");
 });

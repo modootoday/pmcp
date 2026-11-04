@@ -47,7 +47,7 @@ describe("a CLI command run inside a runtime", () => {
     const { run, runIn, state } = project(t);
     const sent = JSON.parse(
       (await run("sessions", "send", "--json", "--to", "all", "hi")).output,
-    );
+    ).data;
     const env = { CODEX_THREAD_ID: "01aaaaaa-codex-0001" };
     expect((await runIn(env, "sessions", "ack", sent.id)).code).toBe(0);
     expect(
@@ -55,7 +55,7 @@ describe("a CLI command run inside a runtime", () => {
     ).toBe(true);
     const reply = JSON.parse(
       (await runIn(env, "sessions", "reply", "--json", sent.id, "ok")).output,
-    );
+    ).data;
     expect(reply.from).toEqual({ session: "01aaaaaa-codex-0001" });
   });
 
@@ -63,7 +63,7 @@ describe("a CLI command run inside a runtime", () => {
     const { run, runIn } = project(t);
     const sent = JSON.parse(
       (await run("sessions", "send", "--json", "--to", "all", "hi")).output,
-    );
+    ).data;
     const result = await runIn({ GEMINI_CLI: "1" }, "sessions", "ack", sent.id);
     expect(result.output).toMatch(
       /running inside gemini but its session is unknown; acting as operator/u,
@@ -97,7 +97,7 @@ describe("pmcp sessions send, inbox, ack and reply", () => {
           "deploy",
         )
       ).output,
-    );
+    ).data;
     expect(sent).toMatchObject({
       to: ["alias:kit"],
       subject: "deploy",
@@ -106,27 +106,27 @@ describe("pmcp sessions send, inbox, ack and reply", () => {
     });
     const inbox = JSON.parse(
       (await run("sessions", "inbox", "--json", "--by", "kit")).output,
-    );
+    ).data;
     expect(inbox.map((m: { id: string }) => m.id)).toEqual([sent.id]);
     expect(
       JSON.parse(
         (await run("sessions", "inbox", "--json", "--by", "bo")).output,
-      ),
+      ).data,
     ).toEqual([]);
     expect((await run("sessions", "ack", "--by", "kit", sent.id)).code).toBe(0);
     expect(
       JSON.parse(
         (await run("sessions", "inbox", "--json", "--by", "kit")).output,
-      ),
+      ).data,
     ).toEqual([]);
     const all = JSON.parse(
       (await run("sessions", "inbox", "--json", "--all", "--by", "kit")).output,
-    );
+    ).data;
     expect(all[0]).toMatchObject({ id: sent.id, acked: true });
     const reply = JSON.parse(
       (await run("sessions", "reply", "--json", "--by", "kit", sent.id, "done"))
         .output,
-    );
+    ).data;
     expect(reply).toMatchObject({
       to: ["alias:operator"],
       replyTo: sent.id,
@@ -147,7 +147,7 @@ describe("pmcp sessions send, inbox, ack and reply", () => {
     for (const kind of ["desk", "worktree"]) {
       const to = `${kind}:.claude/worktrees/a`;
       const sent = await run("sessions", "send", "--json", "--to", to, "hi");
-      expect(JSON.parse(sent.output).to).toEqual([
+      expect(JSON.parse(sent.output).data.to).toEqual([
         `${kind}:${join(root, ".claude/worktrees/a")}`,
       ]);
     }
@@ -168,7 +168,7 @@ describe("pmcp sessions send, inbox, ack and reply", () => {
           "x",
         )
       ).output,
-    );
+    ).data;
     await run("sessions", "ack", "--by", "kit", sent.id);
     const file = join(state, "messages", `${sent.id}.json`);
     const message = JSON.parse(readFileSync(file, "utf8"));

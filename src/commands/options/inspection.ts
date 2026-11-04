@@ -13,6 +13,6 @@ export const nearestConfigOption: OptionSpec = {
 };
 export const jsonOption: OptionSpec = {
   name: "json",
-  describe: "Print the documented versioned JSON schema.",
+  describe: "Print the result as one JSON envelope on stdout.",
   boolean: true,
 };

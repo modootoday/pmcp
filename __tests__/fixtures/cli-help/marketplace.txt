@@ -5,5 +5,5 @@ pmcp marketplace
 
   --runtime <runtime>   Native plugin format: claude, codex, gemini, grok or agy.
   --output <directory>  New directory for the selected plugin; existing paths are preserved.
-  --json                Print machine-readable results.
+  --json                Print the result as one JSON envelope on stdout.
 

@@ -22,6 +22,6 @@ pmcp index
   --pooling <mean|cls>         Custom model's pooling method
   --local-only                 Refuse model downloads
   --force                      Re-encode the selected model even when descriptions match
-  --json                       Emit JSON rather than a summary.
+  --json                       Print the result as one JSON envelope on stdout.
   --dry-run                    Report what would be encoded and write nothing.
 

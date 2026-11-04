@@ -27,7 +27,7 @@ it("redacts credentials in both MCP status and the aggregate screen", async (t) 
   );
   const individual = await run("mcp", "status", "remote", "--json");
   expect(individual.code).toBe(0);
-  expect(JSON.parse(individual.out)).toEqual({
+  expect(JSON.parse(individual.out).data).toEqual({
     version: 1,
     name: "remote",
     present: true,
@@ -36,7 +36,7 @@ it("redacts credentials in both MCP status and the aggregate screen", async (t) 
   });
   const aggregate = await run("status", "--json");
   expect(aggregate.code).toBe(0);
-  expect(JSON.parse(aggregate.out).mcp[0].present).toBe(true);
+  expect(JSON.parse(aggregate.out).data.mcp[0].present).toBe(true);
   expect(individual.out + aggregate.out).not.toContain("never-print");
   expect(
     authStatus("absent", "https://example.invalid/mcp", {
@@ -69,7 +69,7 @@ it("counts only errors from the last hour without pruning or acknowledging state
   const path = join(root, ".state/errors.jsonl");
   writeFileSync(path, contents);
   const result = await run("status", "--json");
-  expect(JSON.parse(result.out).errors).toHaveLength(1);
+  expect(JSON.parse(result.out).data.errors).toHaveLength(1);
   expect(readFileSync(path, "utf8")).toBe(contents);
 });
 
@@ -95,7 +95,7 @@ it("does not execute custom guard commands during a hook simulation", async (t) 
     "--json",
   );
   expect(result.code).toBe(0);
-  expect(JSON.parse(result.out).policies[0]).toMatchObject({
+  expect(JSON.parse(result.out).data.policies[0]).toMatchObject({
     policy: "custom.external",
     skipped: true,
   });
@@ -121,7 +121,7 @@ it("keeps a real pause and registry unchanged while evaluating synthetic lifecyc
   );
   expect(result.code).toBe(0);
   expect(
-    JSON.parse(result.out).decision.context?.join(" ") ?? "",
+    JSON.parse(result.out).data.decision.context?.join(" ") ?? "",
   ).not.toContain("real-state");
   expect(readFileSync(join(root, ".state/pause.json"), "utf8")).toBe(before);
   expect(store.registry.list()).toEqual([]);
@@ -132,7 +132,7 @@ it("keeps git worktree listing human output and adds a JSON snapshot", async (t)
   execFileSync("git", ["init", "-q", "-b", "main", root]);
   const result = await run("git", "worktree", "list", "--json");
   expect(result.code).toBe(0);
-  expect(JSON.parse(result.out).worktrees[0]).toMatchObject({
+  expect(JSON.parse(result.out).data.worktrees[0]).toMatchObject({
     path: root,
     main: true,
   });

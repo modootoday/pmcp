@@ -173,7 +173,7 @@ describe("read-only native memory metadata", () => {
         ui,
       }),
     ).toBe(0);
-    expect(JSON.parse(output)).toEqual({
+    expect(JSON.parse(output).data).toEqual({
       findings: [
         { tool: "project", check: "outputs match sources", status: "ok" },
       ],

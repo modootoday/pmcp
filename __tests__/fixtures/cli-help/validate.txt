@@ -11,5 +11,5 @@ pmcp validate
   --workspace <dir>    A workspace root, or a glob of them: each root and every member its workspaces globs name. Repeatable.
   --config <file>      A pmcp.toml to read instead of the nearest one.
   --no-config          Ignore pmcp.toml; CLI defaults and the given flags apply.
-  --json               Emit JSON rather than a table.
+  --json               Print the result as one JSON envelope on stdout.
 

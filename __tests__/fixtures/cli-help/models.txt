@@ -3,5 +3,5 @@ pmcp models
 
   pmcp models [--json]
 
-  --json  Emit preset metadata as JSON
+  --json  Print the result as one JSON envelope on stdout.
 

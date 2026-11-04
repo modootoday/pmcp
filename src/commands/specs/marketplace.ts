@@ -2,6 +2,10 @@ import type { CommandSpec } from "../../cli/command.js";
 
 export const marketplaceSpec: CommandSpec = {
   name: "marketplace",
+  subcommands: [
+    { name: "list", describe: "The bundled free plugins" },
+    { name: "export", describe: "Write one plugin in a runtime's format" },
+  ],
   describe: "List free public plugins or export a selected native plugin",
   usage:
     "pmcp marketplace list | export <plugin> --runtime <runtime> --output <directory> [--json]",
@@ -19,7 +23,7 @@ export const marketplaceSpec: CommandSpec = {
     },
     {
       name: "json",
-      describe: "Print machine-readable results.",
+      describe: "Print the result as one JSON envelope on stdout.",
       boolean: true,
     },
   ],

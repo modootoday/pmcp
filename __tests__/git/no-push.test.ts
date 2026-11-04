@@ -29,8 +29,11 @@ async function noPush(cwd: string) {
   const line = out
     .join("")
     .split("\n")
-    .find((text) => text.startsWith('{"ok"'));
-  return { code, receipt: JSON.parse(line ?? "null") as DeliverReceipt };
+    .find((text) => text.startsWith('{"schema"'));
+  return {
+    code,
+    receipt: (line ? JSON.parse(line).data : null) as DeliverReceipt,
+  };
 }
 
 it("--no-push replays and gates, then moves nothing and takes no lease", async () => {

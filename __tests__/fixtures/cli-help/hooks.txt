@@ -4,7 +4,7 @@ pmcp hooks
   pmcp hooks list [--runtime claude|codex] [--json] | test --runtime claude|codex --event <event> [--command <text> | --path <path> | --tool <name>] [--session-state <file>] [--json] | test --fixtures <file> [--json] | report [--since <when>] [--switch-check <guard>] [--json]
 
   --config <file>         A pmcp.toml to read instead of the nearest one.
-  --json                  Print the documented versioned JSON schema.
+  --json                  Print the result as one JSON envelope on stdout.
   --fixtures <file>       Run these cases through the projected hook entry for every wired runtime.
   --since <when>          Report only log lines from this long ago (10m, 2h, 3d) or this ISO time.
   --switch-check <guard>  List the calls this guard found something in but let through.

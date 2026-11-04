@@ -17,5 +17,9 @@ export const REMOTE_OPTIONS: readonly OptionSpec[] = [
     describe: "Use a saved catalog response without network access.",
     placeholder: "<file>",
   },
-  { name: "json", describe: "Print machine-readable results.", boolean: true },
+  {
+    name: "json",
+    describe: "Print the result as one JSON envelope on stdout.",
+    boolean: true,
+  },
 ];

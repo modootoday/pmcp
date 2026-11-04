@@ -126,11 +126,11 @@ describe("a pmcp.lock a merge left unreadable", () => {
       "pmcp.lock holds git conflict markers (line 4)",
     );
     const doctor = await cli("doctor", "--json", "--tool", "claude");
-    expect(JSON.parse(doctor.out).findings[0]).toMatchObject({
+    expect(JSON.parse(doctor.out).data.findings[0]).toMatchObject({
       check: "outputs match sources",
       status: "fail",
     });
-    expect(JSON.parse(doctor.out).findings[0].detail).toContain(
+    expect(JSON.parse(doctor.out).data.findings[0].detail).toContain(
       "conflict markers",
     );
   });

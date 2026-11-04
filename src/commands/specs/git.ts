@@ -3,6 +3,28 @@ import { configOption, jsonOption } from "../options/inspection.js";
 
 export const gitSpec: CommandSpec = {
   name: "git",
+  subcommands: [
+    {
+      name: "worktree create",
+      describe: "Make a linked worktree on a new branch",
+    },
+    {
+      name: "worktree list",
+      describe: "The main checkout and each linked worktree",
+    },
+    {
+      name: "worktree sync",
+      describe: "Move this worktree onto the mainline",
+    },
+    {
+      name: "deliver",
+      describe: "Replay, gate and push commits to the mainline",
+    },
+    {
+      name: "sync",
+      describe: "Move the main checkout or a desk to the mainline",
+    },
+  ],
   describe:
     "Create and sync worktrees, deliver commits to the mainline, sync the main checkout",
   usage:

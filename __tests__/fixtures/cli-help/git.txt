@@ -3,7 +3,7 @@ pmcp git
 
   pmcp git worktree create <alias> | worktree list | worktree sync | deliver [<commit>...] | sync
 
-  --json           Print the documented versioned JSON schema.
+  --json           Print the result as one JSON envelope on stdout.
   --config <file>  A pmcp.toml to read instead of the nearest one.
   --base <ref>     Start a new worktree from this ref instead of the upstream
   --during-pause   Deliver although the sessions are paused

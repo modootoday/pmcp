@@ -3,7 +3,7 @@ pmcp mcp
 
   pmcp mcp <login|logout|status> <name> [--config <file>]
 
-  --json                     Print the documented versioned JSON schema.
+  --json                     Print the result as one JSON envelope on stdout.
   --config <file>            A pmcp.toml to read instead of the nearest one.
   --code <callback-or-code>  Complete a pending login with a callback URL or authorization code.
   --no-wait                  Print the authorization URL and save a pending login for later completion.

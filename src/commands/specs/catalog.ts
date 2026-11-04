@@ -9,7 +9,11 @@ export const listSpec: CommandSpec = {
     "pmcp list [--root <dir>] [--scope <prefix>] [--marketplace <dir>] [--package <dir>] [--workspace <dir|glob>] [--config <file> | --no-config] [--json]",
   options: [
     ...CATALOG_OPTIONS,
-    { name: "json", describe: "Emit JSON rather than a table.", boolean: true },
+    {
+      name: "json",
+      describe: "Print the result as one JSON envelope on stdout.",
+      boolean: true,
+    },
   ],
 };
 
@@ -28,7 +32,7 @@ export const indexSpec: CommandSpec = {
     },
     {
       name: "json",
-      describe: "Emit JSON rather than a summary.",
+      describe: "Print the result as one JSON envelope on stdout.",
       boolean: true,
     },
     {
@@ -44,7 +48,11 @@ export const modelsSpec: CommandSpec = {
   describe: "List embedding presets without loading or downloading models",
   usage: "pmcp models [--json]",
   options: [
-    { name: "json", describe: "Emit preset metadata as JSON", boolean: true },
+    {
+      name: "json",
+      describe: "Print the result as one JSON envelope on stdout.",
+      boolean: true,
+    },
   ],
 };
 
@@ -56,6 +64,10 @@ export const validateSpec: CommandSpec = {
     "pmcp validate [<skill-dir>...] [--root <dir>] [--marketplace <dir>] [--package <dir>] [--workspace <dir>] [--config <file> | --no-config] [--json]",
   options: [
     ...CATALOG_OPTIONS,
-    { name: "json", describe: "Emit JSON rather than a table.", boolean: true },
+    {
+      name: "json",
+      describe: "Print the result as one JSON envelope on stdout.",
+      boolean: true,
+    },
   ],
 };

@@ -7,7 +7,7 @@ pmcp install
   --project <dir>             Project directory containing package.json.
   --api <origin>              Catalog API origin.
   --catalog <file>            Use a saved catalog response without network access.
-  --json                      Print machine-readable results.
+  --json                      Print the result as one JSON envelope on stdout.
   --dry-run                   Show the plan without installing or changing files.
   -y, --yes                   Approve the displayed project and lockfile changes.
   --all                       Select all matching skill packages.

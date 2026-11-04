@@ -3,6 +3,7 @@ import { configOption } from "../options/inspection.js";
 
 export const mailboxSpec: CommandSpec = {
   name: "mailbox",
+  protocol: true,
   describe: "Manage opt-in local peer mail and launcher credentials",
   usage: "pmcp mailbox operation [--config <file>] [options]",
   options: [

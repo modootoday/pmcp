@@ -1,7 +1,8 @@
-import type { Command } from "../cli/command.js";
+import type { Command, CommandContext } from "../cli/command.js";
 import { ArgumentError } from "../cli/command.js";
 import { ConfigError } from "../config.js";
 import { parseTui } from "./tui/invocation.js";
+import { renderReceipt } from "./tui/render.js";
 import { tuiSpec } from "./specs/terminal.js";
 import { unsupportedHost, unsupportedReceipt } from "../harness/platform.js";
 
@@ -18,13 +19,22 @@ function failed(error: unknown) {
   };
 }
 
+// A person reads the receipt as lines; --json keeps the object for a script.
+function printReceipt(context: CommandContext, receipt: unknown): void {
+  if (context.args.flags.has("json")) {
+    context.ui.data(`${JSON.stringify(receipt)}\n`);
+    return;
+  }
+  renderReceipt(context.ui.results, receipt);
+}
+
 export const tuiCommand: Command = {
   ...tuiSpec,
   async run(context) {
     const invocation = parseTui(context.args);
     const unsupported = unsupportedHost();
     if (unsupported) {
-      context.ui.data(`${JSON.stringify(unsupportedReceipt(unsupported))}\n`);
+      printReceipt(context, unsupportedReceipt(unsupported));
       return 1;
     }
     try {
@@ -61,11 +71,11 @@ export const tuiCommand: Command = {
               );
       }
       if (invocation.action !== "launch" || receipt.ok !== true)
-        context.ui.data(`${JSON.stringify(receipt)}\n`);
+        printReceipt(context, receipt);
       return receipt.ok === true ? 0 : 1;
     } catch (error) {
       if (error instanceof ConfigError) throw new ArgumentError(error.message);
-      context.ui.data(`${JSON.stringify(failed(error))}\n`);
+      printReceipt(context, failed(error));
       return 1;
     }
   },

@@ -74,6 +74,15 @@ fetch in <code>pmcp git deliver</code> or <code>pmcp git sync</code> now exits 1
 than 2. A CI step that treated any non-zero code as failure needs no change; one that tested
 for <code>2</code> to detect drift should test for <code>4</code>. See
 <a href="/commands/#exit-codes">Exit codes</a>.</p>
+<p><strong><code>--json</code> prints one envelope.</strong> Every <code>--json</code> output is now one line,
+<code>{&quot;schema&quot;:&quot;pmcp.&lt;command&gt;[.&lt;subcommand&gt;].v1&quot;,&quot;ok&quot;:…,&quot;data&quot;:…,&quot;errors&quot;:[…]}</code>, and it is
+printed on failure too (before, a failure printed nothing on standard output). What a
+command printed before is <code>data</code>, unchanged, <code>version: 1</code> included: read <code>.data.policies</code>
+where you read <code>.policies</code>, <code>.data</code> where <code>models --json</code> gave a bare array. <code>ok</code> mirrors
+exit code 0, and <code>errors</code> carries the messages that went to standard error. <code>mcp status</code>
+and the <code>tui plan</code>, <code>tui doctor</code>, <code>tui recovery</code> and <code>tui start-worker</code> receipts are human
+text unless <code>--json</code> is given; before, they always printed JSON. <code>mailbox</code> and <code>harness</code>
+keep their JSON receipts unchanged. See <a href="/commands/#json-output">JSON output</a>.</p>
 <h2 id="from-02212-to-02213">From 0.22.12 to 0.22.13</h2>
 <p><strong>A gate command that exits 75 makes <code>pmcp git deliver</code> exit 75.</strong> 75 now means a test stage
 under <code>pmcp heavy</code> never got the host lease: deliver reports &quot;gate not run: host busy,

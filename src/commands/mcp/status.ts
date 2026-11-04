@@ -5,9 +5,16 @@ import { serverFrom } from "./server.js";
 export function run(context: CommandContext): number {
   const { name, url } = serverFrom(context);
   const result = status(name, url, context.env);
-  const output = context.args.flags.has("json")
-    ? { version: 1, name, ...result }
-    : result;
-  context.ui.data(JSON.stringify(output) + "\n");
+  if (context.args.flags.has("json")) {
+    context.ui.data(JSON.stringify({ version: 1, name, ...result }) + "\n");
+    return 0;
+  }
+  const expiry = result.expiresAt ? `; expires ${result.expiresAt}` : "";
+  const scopes = result.scopes.length
+    ? `; scopes ${result.scopes.join(" ")}`
+    : "";
+  context.ui.results.line(
+    `${name}: ${result.present ? "signed in" : "not signed in"}${expiry}${scopes}`,
+  );
   return 0;
 }

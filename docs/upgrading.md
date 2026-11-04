@@ -36,6 +36,16 @@ than 2. A CI step that treated any non-zero code as failure needs no change; one
 for `2` to detect drift should test for `4`. See
 [Exit codes](commands.md#exit-codes).
 
+**`--json` prints one envelope.** Every `--json` output is now one line,
+`{"schema":"pmcp.<command>[.<subcommand>].v1","ok":…,"data":…,"errors":[…]}`, and it is
+printed on failure too (before, a failure printed nothing on standard output). What a
+command printed before is `data`, unchanged, `version: 1` included: read `.data.policies`
+where you read `.policies`, `.data` where `models --json` gave a bare array. `ok` mirrors
+exit code 0, and `errors` carries the messages that went to standard error. `mcp status`
+and the `tui plan`, `tui doctor`, `tui recovery` and `tui start-worker` receipts are human
+text unless `--json` is given; before, they always printed JSON. `mailbox` and `harness`
+keep their JSON receipts unchanged. See [JSON output](commands.md#json-output).
+
 ## From 0.22.12 to 0.22.13
 
 **A gate command that exits 75 makes `pmcp git deliver` exit 75.** 75 now means a test stage

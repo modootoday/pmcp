@@ -31,11 +31,27 @@ export interface CommandContext {
 }
 
 // Keep help metadata separate so help and completion do not load command dependencies.
+export interface SubcommandSpec {
+  // One word, or two for a nested verb such as "worktree create".
+  readonly name: string;
+  readonly describe: string;
+  readonly usage?: string;
+  // Names of the command's options that apply; absent means all of them.
+  readonly options?: readonly string[];
+  readonly examples?: readonly string[];
+}
+
 export interface CommandSpec {
   readonly name: string;
   readonly describe: string;
   readonly usage: string;
   readonly options?: readonly OptionSpec[];
+  readonly subcommands?: readonly SubcommandSpec[];
+  // The subcommand that runs when none is named, which also names its JSON schema.
+  readonly defaultSubcommand?: string;
+  readonly examples?: readonly string[];
+  // Prints its own JSON receipts as a machine protocol, so --json adds no envelope.
+  readonly protocol?: boolean;
 }
 
 // Keep published exit meanings stable for callers that branch on them.

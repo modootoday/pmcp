@@ -5,6 +5,18 @@ import { nearestConfigOption } from "../options/inspection.js";
 
 export const projectSpec: CommandSpec = {
   name: "project",
+  subcommands: [
+    { name: "add", describe: "Add a skill or agent and project" },
+    { name: "remove", describe: "Remove an asset and project" },
+    {
+      name: "import-mcp",
+      describe: "Import MCP servers from a native config",
+    },
+    {
+      name: "exec-mcp",
+      describe: "Start a declared MCP server; projected entries run this",
+    },
+  ],
   describe: "Write each agent tool's native files from .agents/ and pmcp.toml",
   usage:
     "pmcp project [--check] | pmcp project add <skill|agent> | pmcp project remove <name> | pmcp project import-mcp --source <tool>:<file> [--name <alias>] [--write] | pmcp project exec-mcp <alias>",
@@ -57,7 +69,11 @@ export const doctorSpec: CommandSpec = {
       repeat: true,
       placeholder: "<name>",
     },
-    { name: "json", describe: "Emit JSON rather than a table.", boolean: true },
+    {
+      name: "json",
+      describe: "Print the result as one JSON envelope on stdout.",
+      boolean: true,
+    },
     {
       name: "memory",
       describe:
