@@ -399,3 +399,79 @@ describe("fails closed", () => {
     expect(selectAffected(ws.root, config(), "HEAD~1", "HEAD").all).toBe(true);
   });
 });
+
+describe("root workspaces globs", () => {
+  const regroup = (
+    workspaces: unknown,
+    extra: Record<string, unknown> = {},
+  ): ReturnType<typeof workspace> => {
+    const ws = workspace();
+    ws.write(
+      "package.json",
+      JSON.stringify({
+        name: "root",
+        workspaces,
+        devDependencies: { typescript: "5.0.0" },
+        ...extra,
+      }),
+    );
+    ws.commit("regroup");
+    return ws;
+  };
+  const select = (
+    ws: ReturnType<typeof workspace>,
+    overrides: Parameters<typeof config>[0] = {},
+  ) =>
+    selectAffected(
+      ws.root,
+      config({ lockfile, ...overrides }),
+      "HEAD~1",
+      "HEAD",
+    );
+
+  it("selects the members an added glob brings in and fires on_member_change", () => {
+    const ws = regroup(["packages/*", "tools/*", "examples/*"]);
+    expect(select(ws, { onMemberChange: ["packages/a"] })).toMatchObject({
+      all: false,
+      changed: ["examples/fixture", "packages/a"],
+      workspaceMembers: { added: ["examples/fixture"], removed: [] },
+    });
+  });
+
+  it("reports the members a removed glob drops and fires on_member_change", () => {
+    const ws = regroup(["packages/*"]);
+    expect(select(ws, { onMemberChange: ["packages/a"] })).toMatchObject({
+      all: false,
+      changed: ["packages/a"],
+      workspaceMembers: { added: [], removed: ["tools/c"] },
+    });
+  });
+
+  it("keeps ALL when another root field changes with the globs", () => {
+    const ws = regroup(["packages/*", "tools/*", "examples/*"], {
+      overrides: { x: "1" },
+    });
+    expect(select(ws)).toMatchObject({
+      all: true,
+      reason: "root package.json overrides changed",
+    });
+  });
+
+  it("keeps ALL for a workspaces value it cannot read", () => {
+    const ws = regroup({ nohoist: ["x"] });
+    expect(select(ws)).toMatchObject({ all: true });
+  });
+
+  it("ignores the globs entirely when inert_root_fields lists workspaces, as in 0.24.1", () => {
+    const ws = regroup(["packages/*", "tools/*", "examples/*"]);
+    const selection = select(ws, {
+      onMemberChange: ["packages/a"],
+      lockfile: {
+        ...lockfile,
+        inertRootFields: [...lockfile.inertRootFields, "workspaces"],
+      },
+    });
+    expect(selection).toMatchObject({ all: false, changed: [], members: [] });
+    expect(selection.workspaceMembers).toBeUndefined();
+  });
+});

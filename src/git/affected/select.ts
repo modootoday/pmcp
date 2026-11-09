@@ -23,6 +23,11 @@ export interface Selection {
   readonly unmapped: readonly string[];
   // Changed root dependencies and the [git.affected.root_dependencies] key that mapped each.
   readonly rootDependencies?: readonly RootDependencyHit[];
+  // Members a change to the root workspaces globs added or removed.
+  readonly workspaceMembers?: {
+    readonly added: readonly string[];
+    readonly removed: readonly string[];
+  };
 }
 
 const ALL = (reason: string, extra: Partial<Selection> = {}): Selection => ({
@@ -154,6 +159,15 @@ function mapChanges(
   for (const hit of lock.mapped ?? [])
     for (const dir of hit.members) changed.add(dir);
   const mapped = lock.mapped?.length ? { rootDependencies: lock.mapped } : {};
+  const regrouped = lock.workspaces
+    ? memberSetChange(root, base, dirs)
+    : { added: [], removed: [] };
+  if ("error" in regrouped)
+    return ALL(`members at ${base} unreadable: ${regrouped.error}`, at);
+  regrouped.added.forEach((dir) => changed.add(dir));
+  const moved = regrouped.added.length + regrouped.removed.length > 0;
+  if (moved) for (const dir of config.onMemberChange) changed.add(dir);
+  const workspaceChange = moved ? { workspaceMembers: regrouped } : {};
 
   const ignored = matcher(config.ignore);
   const included = ordered(config.include);
@@ -204,7 +218,12 @@ function mapChanges(
   // A named member that is not one (retired, or a fixture) would hand the runner a target it lacks.
   const list = [...changed].filter((dir) => dirs.has(dir)).sort();
   if (unmapped.length > 0 && config.unmapped === "all")
-    return ALL(`unmapped ${unmapped[0]}`, { ...at, unmapped, ...mapped });
+    return ALL(`unmapped ${unmapped[0]}`, {
+      ...at,
+      unmapped,
+      ...mapped,
+      ...workspaceChange,
+    });
   // Tests are not widened to consumers, so a tests-only answer skips reading every source.
   const wide =
     config.consumers && !testsOnly ? withConsumers(tree, members, list) : list;
@@ -215,5 +234,28 @@ function mapChanges(
     members: wide,
     unmapped,
     ...mapped,
+    ...workspaceChange,
+  };
+}
+
+// Members the changed workspaces globs added (present at head only) or removed (at base only).
+// A removed member is gone from the head's member list, so it is reported, not selected.
+function memberSetChange(
+  root: string,
+  base: string,
+  dirs: ReadonlySet<string>,
+):
+  { added: readonly string[]; removed: readonly string[] } | { error: string } {
+  let before: Set<string>;
+  try {
+    before = new Set(
+      workspaceMembers(HeadTree.open(root, base)).map((member) => member.dir),
+    );
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : String(error) };
+  }
+  return {
+    added: [...dirs].filter((dir) => !before.has(dir)).sort(),
+    removed: [...before].filter((dir) => !dirs.has(dir)).sort(),
   };
 }

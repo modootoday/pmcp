@@ -23,6 +23,8 @@ export interface LockfileDelta {
   readonly all: string | null;
   readonly direct: readonly string[];
   readonly mapped?: readonly RootDependencyHit[];
+  // The root workspaces globs changed (both readable): the caller compares the member sets.
+  readonly workspaces?: boolean;
 }
 
 // The first key naming the dependency: the name itself, or a trailing-* prefix.

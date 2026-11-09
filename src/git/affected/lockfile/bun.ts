@@ -1,3 +1,4 @@
+import { workspacePatterns } from "../members.js";
 import {
   isToolchain,
   rootMapping,
@@ -132,12 +133,22 @@ function addReverseEdges(lock: Lock, reverse: Map<string, Set<string>>): void {
   }
 }
 
+function readable(manifest: Json | null): boolean {
+  try {
+    workspacePatterns(manifest ?? {});
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function rootDelta(
   base: Json | null,
   head: Json | null,
   input: LockfileInput,
   seeds: Set<string>,
   rootNames: Set<string>,
+  moved: { workspaces: boolean },
 ): string | null {
   const fields = new Set([
     ...Object.keys(base ?? {}),
@@ -146,6 +157,11 @@ function rootDelta(
   for (const field of fields) {
     if (same(base?.[field], head?.[field])) continue;
     if (input.config.inertRootFields.includes(field)) continue;
+    // Changed member globs select the members they add or remove; the caller compares them.
+    if (field === "workspaces" && readable(base) && readable(head)) {
+      moved.workspaces = true;
+      continue;
+    }
     if (!DEP_FIELDS.includes(field))
       return `root package.json ${field} changed`;
   }
@@ -172,8 +188,22 @@ function lockDelta(input: LockfileInput): LockfileDelta {
     return { all: "no root package.json at one revision", direct: [] };
   const seeds = new Set<string>();
   const rootNames = new Set<string>();
-  const rootAll = rootDelta(basePkg, headPkg, input, seeds, rootNames);
+  const moved = { workspaces: false };
+  const rootAll = rootDelta(basePkg, headPkg, input, seeds, rootNames, moved);
   if (rootAll !== null) return { all: rootAll, direct: [] };
+  const answer = lockOnly(input, seeds, rootNames, read, lock);
+  return moved.workspaces && answer.all === null
+    ? { ...answer, workspaces: true }
+    : answer;
+}
+
+function lockOnly(
+  input: LockfileInput,
+  seeds: Set<string>,
+  rootNames: Set<string>,
+  read: (rev: string, path: string) => string | null,
+  lock: (text: string | null) => Lock | null,
+): LockfileDelta {
   const baseLock = lock(read(input.base, "bun.lock"));
   const headLock = lock(read(input.head, "bun.lock"));
   if ((baseLock === null) !== (headLock === null))

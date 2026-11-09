@@ -252,6 +252,14 @@ trailing `*` matches a prefix) every member builds with: a change to one selects
 root field outside the dependency fields and `inert_root_fields` (default `scripts`,
 `description`, `version`) or a lockfile that does not parse.
 
+A change to the root `workspaces` globs does not select `ALL` by itself: the members are listed at
+both revisions, the members the globs added are selected, the ones they dropped are reported
+in `--json` as `workspaceMembers` (`added`, `removed`; a dropped member is no longer one, so it
+is not run), and `on_member_change` is selected when either list is not empty. A `workspaces`
+value that is not a list of globs (or `{packages}` holding one) at either revision, or another
+non-inert root field changing with it, still selects `ALL`. Listing `workspaces` in
+`inert_root_fields` ignores the field entirely, as before, with no member comparison.
+
 A dependency of the root `package.json` itself (a CLI the root's scripts or git hooks run)
 belongs to no member, so without more the lockfile adapter selects only the members whose own
 resolution of it moved. `[git.affected.root_dependencies]` (it needs `[git.affected.lockfile]`)
