@@ -32,6 +32,7 @@ import {
   usageStats,
   type UsageStat,
 } from "../lease/usage.js";
+import { requireOperatorFor } from "../sessions/operator-cli.js";
 import { heavySpec } from "./specs/host.js";
 
 function settings(context: CommandContext): LeaseSettings {
@@ -164,6 +165,7 @@ async function run(context: CommandContext): Promise<number> {
     if (now) throw new ArgumentError("--now runs at once; it is not submitted");
     return submitTicket(context, lease, args.passthrough);
   }
+  if (now) requireOperatorFor(context, "pmcp heavy --now");
   const ticket = one(args, "ticket");
   let result: TicketResult | null = null;
   const config = one(args, "config") ?? findConfig(context.cwd);

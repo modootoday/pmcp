@@ -111,6 +111,15 @@ export interface Submit {
   readonly runner: (ticket: string) => readonly string[];
   readonly cwd: string;
   readonly env: Readonly<Record<string, string | undefined>>;
+  // The submitting session: the detached runner has a session of its own.
+  readonly session?: string;
+}
+
+export function ticketOwner(dir: string, id: string): string | null {
+  const request = readJson<{ session?: unknown }>(
+    join(ticketDir(dir, id), "request.json"),
+  );
+  return typeof request?.session === "string" ? request.session : null;
 }
 
 export function submit(request: Submit): string {
@@ -123,6 +132,7 @@ export function submit(request: Submit): string {
     ticket: id,
     label: request.label,
     cwd: request.cwd,
+    ...(request.session ? { session: request.session } : {}),
     created: new Date().toISOString(),
   });
   const log = openSync(join(path, "log"), "a");

@@ -20,7 +20,7 @@ import {
   approveHost,
   type ApproveInput,
 } from "../../src/harness/host/approve.js";
-import { agentContext } from "../../src/harness/host/operator.js";
+import { agentContext } from "../../src/sessions/agent-context.js";
 import { project } from "../../src/project/apply.js";
 import { readSpec } from "../../src/project/spec.js";
 

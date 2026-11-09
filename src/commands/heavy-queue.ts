@@ -16,9 +16,11 @@ import {
 import { leasePaths } from "../lease/files.js";
 import { sessionOf } from "../lease/queue.js";
 import { statusJson } from "../lease/status-json.js";
+import { requireOperatorFor } from "../sessions/operator-cli.js";
 import {
   cancel as cancelTicket,
   ticketExists,
+  ticketOwner,
   writeResult,
 } from "../lease/tickets.js";
 
@@ -76,6 +78,7 @@ export function queuePromote(
     throw new ArgumentError(
       "promote starts a job at once: pass --now --reason <text>",
     );
+  requireOperatorFor(context, "pmcp heavy promote --now");
   const paths = leasePaths(settings.dir);
   return report(
     context,
@@ -124,8 +127,16 @@ export function queueCancel(
     return EXIT.ok;
   }
   const running = findRunning(paths, id);
+  const force = context.args.flags.has("force");
+  const owner =
+    (ticket ? ticketOwner(settings.dir, id) : null) ?? running?.session;
+  if (force && owner !== undefined && owner !== who(context).session)
+    requireOperatorFor(
+      context,
+      `pmcp heavy cancel --force on another session's job (${owner})`,
+    );
   if (running !== null && !ticket) {
-    if (!context.args.flags.has("force")) {
+    if (!force) {
       context.ui.error(`${id} is running; --force stops it`);
       return EXIT.failure;
     }
@@ -137,7 +148,7 @@ export function queueCancel(
     context.ui.error(waiting.why);
     return EXIT.failure;
   }
-  const done = cancelTicket(settings.dir, id, context.args.flags.has("force"));
+  const done = cancelTicket(settings.dir, id, force);
   if (done === "running") {
     context.ui.error(`${id} is running; --force stops it`);
     return EXIT.failure;

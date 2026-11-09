@@ -8,6 +8,7 @@ import { installSpec } from "../install.js";
 import { syncMainline, syncMainlineResult } from "../mainline/sync.js";
 import { gateTreePath, leaseSpecs, type GitSetup } from "../setup.js";
 import type { Reporter } from "../types.js";
+import { requireOperatorFor } from "../../sessions/operator-cli.js";
 import { checkoutKind, syncDesk } from "../worktrees/desk.js";
 import { off, type Action } from "./types.js";
 
@@ -94,6 +95,8 @@ export const mainlineDeliver: Action = (setup, context, report) => {
       );
     return synced;
   };
+  if (context.args.flags.has("during-pause"))
+    requireOperatorFor(context, "pmcp git deliver --during-pause");
   return deliver({
     ctx,
     named: context.args.positional.slice(1),

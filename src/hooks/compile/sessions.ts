@@ -22,6 +22,7 @@ const KEYS = [
   "leases",
   "roles",
   "mailbox",
+  "operator",
 ];
 const MODES: readonly Mode[] = ["deny", "ask", "warn", "off"];
 

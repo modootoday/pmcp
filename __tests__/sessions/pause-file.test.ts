@@ -21,6 +21,7 @@ import { RUNTIMES } from "../../src/hooks/runtimes/index.js";
 import { project } from "../../src/project/apply.js";
 import { readSpec } from "../../src/project/spec.js";
 import { readStoreSettings } from "../../src/sessions/settings.js";
+import { operatorToken } from "../operator-token.js";
 
 function temp(t: TestContext): string {
   const dir = realpathSync(mkdtempSync(join(tmpdir(), "pmcp-pause-file-")));
@@ -59,6 +60,7 @@ describe("[sessions] pause_file", () => {
 
   it("is where pmcp sessions pause writes and status reads", async (t) => {
     const root = temp(t);
+    const operator = operatorToken(temp(t));
     writeFileSync(
       join(root, "pmcp.toml"),
       [
@@ -68,7 +70,7 @@ describe("[sessions] pause_file", () => {
         "[git.mainline.gate]",
         'tree = "/nonexistent/gate/tree"',
         'tree_env = "GATE_TREE"',
-        "",
+        operator.toml,
       ].join("\n"),
     );
     const gateDir = join(root, "gate");
@@ -78,7 +80,7 @@ describe("[sessions] pause_file", () => {
       const ui = new Ui({ stdout: capture, stderr: capture });
       const code = await dispatch(argv, {
         cwd: root,
-        env: { HOME: root, GATE_TREE: join(gateDir, "tree") },
+        env: { HOME: root, GATE_TREE: join(gateDir, "tree"), ...operator.env },
         ui,
       });
       return { code, output };

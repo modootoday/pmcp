@@ -12,6 +12,35 @@ ahead of or behind the mainline no longer sets `drift` or the exit code; it is c
 the summary line and in the new `data.lagging` field. A script that relied on exit 4 to
 notice worktree lag reads `lagging` from `pmcp status --json` instead.
 
+**Operator verbs run only as the operator.** `pmcp sessions pause` and `resume`,
+`pmcp heavy --now` (and `PMCP_HEAVY_NOW`), `pmcp heavy promote --now`,
+`pmcp heavy cancel --force` on another session's job and `pmcp git deliver --during-pause`
+now exit 1 inside an agent session, with a line telling the agent to ask you. From your own
+terminal nothing changes. A script or cron job that runs one of them has no terminal: give
+it an operator token,
+
+```toml
+[sessions.operator]
+via = "token"
+token_file = "~/.config/pmcp/operator-token"   # outside the project, chmod 600
+```
+
+and run it with `PMCP_OPERATOR_TOKEN` set to the file's contents. A gate or hook that ran
+`pmcp heavy --now` for its own stages should use the `gate` or `hook` profile, or a reason
+in `[host.lease] skip_always`, instead.
+
+**`--by` no longer defaults to `operator`.** `pmcp sessions broadcast`, `send` and `reply`
+sign with the agent session they run in, or with `operator` only from the operator's
+terminal; `--by operator` anywhere else exits 2. A command run inside a runtime whose
+session pmcp cannot find (Gemini CLI, OpenCode) now exits 2 asking for `--session <id>` or
+`--by <name>` instead of acting as the operator.
+
+**The `pmcp.operator_verbs` guard is on with any session feature.** A project that declares
+`[sessions.registry]`, `[sessions.pause]` or another session table gets it in deny mode;
+run `pmcp project` once so the hook policy carries it (`pmcp project --check` reports the
+drift until then). Turn it off with
+`[hooks.guards.pmcp.operator_verbs]` `mode = "off"`.
+
 ## From 0.23 to 0.24
 
 **A lease skip no longer covers a bulk job.** `PMCP_HEAVY_DISABLE=<reason>` (or the

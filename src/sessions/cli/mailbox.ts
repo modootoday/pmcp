@@ -10,10 +10,13 @@ import {
 import { inferSession } from "../identity.js";
 import { ancestors } from "../liveness.js";
 import { inboxKey, normalizeSelector } from "../mailbox/select.js";
+import { isOperator } from "../operator-cli.js";
 import { pmcpCommand } from "../projector-cli.js";
 import type { Message, Recipient, SessionStore } from "../types.js";
 import { wakeRecipients } from "../wake/index.js";
 import { storeFrom } from "./verbs.js";
+
+const OPERATOR = "operator";
 
 function mailboxOf(context: CommandContext): SessionStore {
   const { store } = storeFrom(context);
@@ -24,8 +27,8 @@ function mailboxOf(context: CommandContext): SessionStore {
   return store;
 }
 
-// --session, else --by, else the session this command runs inside, else the operator. Inside a
-// runtime whose session cannot be found, say so rather than act as the operator silently.
+// --session, else --by, else the session this command runs inside, else the operator, who must
+// pass the operator check: inside a runtime whose session cannot be found, ask for --session.
 function sessionOf(
   context: CommandContext,
   store: SessionStore,
@@ -34,19 +37,32 @@ function sessionOf(
   if (given || one(context.args, "by")) return given;
   const found = inferSession(context.env, store.registry.list(), ancestors());
   if (!found.session && found.runtime)
-    context.ui.warn(
-      `running inside ${found.runtime} but its session is unknown; acting as operator. Pass --session <id> (the id is in the mailbox notice).`,
+    throw new ArgumentError(
+      `running inside ${found.runtime} but its session is unknown; pass --session <id> (the id is in the mailbox notice) or --by <name>`,
     );
   return found.session;
+}
+
+function aliasOf(
+  context: CommandContext,
+  session: string | undefined,
+  own: string | undefined,
+): string | undefined {
+  const by = one(context.args, "by");
+  if (by !== undefined && by !== OPERATOR) return by;
+  if (by === undefined && (session || own)) return own;
+  if (isOperator(context)) return OPERATOR;
+  throw new ArgumentError(
+    by === OPERATOR
+      ? "--by operator is for the operator's own terminal; name yourself with --by <name>"
+      : "say who you are with --session <id> or --by <name>: no agent session or operator terminal was found",
+  );
 }
 
 function caller(context: CommandContext, store: SessionStore): Recipient {
   const session = sessionOf(context, store);
   const record = session ? store.registry.get(session) : null;
-  const alias =
-    one(context.args, "by") ??
-    record?.alias ??
-    (session ? undefined : "operator");
+  const alias = aliasOf(context, session, record?.alias);
   const roles = Array.isArray(record?.["roles"])
     ? (record["roles"] as string[])
     : [];

@@ -22,7 +22,8 @@ pmcp sessions
     --json            Print the result as one JSON envelope on stdout.
     --config <file>   A pmcp.toml to read instead of the nearest one.
     --by <name>       Who pauses, broadcasts or sends; that session is exempt.
-                      Default operator.
+                      Default: the agent session this runs in; operator only
+                      from the operator's terminal.
     --to <selector>   Message recipients: all, session:<id>, alias:<name>,
                       role:<name> or worktree:<path> (desk:<path> also works).
                       Repeatable.

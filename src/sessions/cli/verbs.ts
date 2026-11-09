@@ -5,8 +5,13 @@ import {
   type CommandContext,
 } from "../../cli/command.js";
 import { findConfig, readConfig } from "../../config.js";
+import { inferSession } from "../identity.js";
+import { ancestors } from "../liveness.js";
+import { isOperator, requireOperatorFor } from "../operator-cli.js";
 import { openStore, readStoreSettings } from "../settings.js";
 import type { SessionStore } from "../types.js";
+
+const OPERATOR = "operator";
 
 export function storeFrom(context: CommandContext): {
   store: SessionStore;
@@ -38,12 +43,30 @@ function text(context: CommandContext, verb: string): string {
   return words;
 }
 
+// --by names who acts. Only the operator acts as operator, so an agent cannot sign as one; an
+// agent session without --by acts as itself.
+export function actor(context: CommandContext, store: SessionStore): string {
+  const given = one(context.args, "by");
+  if (given !== undefined && given !== OPERATOR) return given;
+  if (given === undefined) {
+    const found = inferSession(context.env, store.registry.list(), ancestors());
+    if (found.session) return found.session;
+  }
+  if (isOperator(context)) return OPERATOR;
+  throw new ArgumentError(
+    given === OPERATOR
+      ? "--by operator is for the operator's own terminal; name yourself with --by <name>"
+      : "say who acts with --by <name>: no agent session or operator terminal was found",
+  );
+}
+
 export function change(context: CommandContext, verb: string): number {
   const { store } = storeFrom(context);
-  const by = one(context.args, "by") ?? "operator";
+  if (verb === "pause" || verb === "resume")
+    requireOperatorFor(context, `pmcp sessions ${verb}`);
   if (verb === "pause") {
     const reason = text(context, verb);
-    store.pause.write({ by, reason });
+    store.pause.write({ by: one(context.args, "by") ?? OPERATOR, reason });
     context.ui.line(`paused: ${reason}`);
     return 0;
   }
@@ -54,7 +77,7 @@ export function change(context: CommandContext, verb: string): number {
   }
   if (verb === "broadcast") {
     const message = text(context, verb);
-    store.broadcast.post({ by, text: message });
+    store.broadcast.post({ by: actor(context, store), text: message });
     context.ui.line(`broadcast: ${message}`);
     return 0;
   }

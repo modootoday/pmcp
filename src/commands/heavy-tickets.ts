@@ -5,6 +5,7 @@ import {
   type CommandContext,
 } from "../cli/command.js";
 import { BUSY_EXIT, type LeaseSettings } from "../lease/config.js";
+import { sessionOf } from "../lease/queue.js";
 import {
   logTail,
   submit,
@@ -40,6 +41,7 @@ export function submitTicket(
     ],
     cwd: context.cwd,
     env: context.env,
+    session: sessionOf(context.env, context.cwd),
   });
   context.ui.data(`${id}\n`);
   return EXIT.ok;

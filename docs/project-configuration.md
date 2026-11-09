@@ -61,7 +61,7 @@ ignored.
 | `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[hooks.checks.*]`, `[hooks.failure]`, `[hooks.report]`, `[hooks.test]`                                                            | [Hooks](hooks.md)                                                       |
 | `[budget]`                                                                                                                                                                                   | [Budget](#budget)                                                       |
 | `[[hooks.shell]]`, `[[hooks.edit]]`                                                                                                                                                          | [Deprecated shell guards](hooks.md#deprecated-shell-guards)             |
-| `[sessions]`, `[sessions.registry]`, `[sessions.pause]`, `[sessions.broadcast]`, `[sessions.mailbox]`, `[sessions.leases.<name>]`, `[sessions.roles.<name>]`                                 | [Sessions](#sessions)                                                   |
+| `[sessions]`, `[sessions.registry]`, `[sessions.pause]`, `[sessions.broadcast]`, `[sessions.mailbox]`, `[sessions.leases.<name>]`, `[sessions.roles.<name>]`, `[sessions.operator]`                                 | [Sessions](#sessions)                                                   |
 | `[git]`, `[git.shared_checkout]`, `[git.worktrees]`, `[git.worktrees.sync]`, `[git.mainline]`, `[git.mainline.gate]`, `[git.mainline.deliver]`, `[git.mainline.sync]`, `[git.submodules]`    | [Git workflow](git-workflow.md)                                         |
 | `[logging]`, `[logging.components]`                                                                                                                                                          | [Logging](#logging)                                                     |
 | `[permissions.claude]`                                                                                                                                                                       | [Claude permission rules](#claude-permission-rules)                     |
@@ -337,7 +337,7 @@ on every admission, so running weight never exceeds the budget and a crashed
 job frees its share.
 
 `pmcp heavy --now --reason <text>` (or `PMCP_HEAVY_NOW=<reason>` in a script) is
-the emergency bypass: the command starts at once, outside the lanes, the budget
+the operator's emergency bypass ([the operator](#the-operator)): the command starts at once, outside the lanes, the budget
 and the host check, and never exits 75, but it needs a reason, is logged as a
 `bypass` line, shows as `bypass running` in status and counts its weight, so the
 other jobs' admission sees its load. It is not the off switch below.
@@ -627,6 +627,34 @@ lives in one directory shared by every checkout of the repository.
 
 These tables have no `mode`, except pause. Without `[sessions.registry]` no
 session is recorded, and `[ui.claude]` refuses to project.
+
+### The operator
+
+The operator is you: the person who governs the agent sessions. A few verbs are yours alone,
+because an agent running them would govern the others: `pmcp sessions pause` and `resume`,
+`pmcp heavy --now` (and `PMCP_HEAVY_NOW`), `pmcp heavy promote --now`,
+`pmcp heavy cancel --force` on another session's job, and `pmcp git deliver --during-pause`.
+Signing a broadcast or a message as `operator` is yours too. `[sessions.operator]` says how
+pmcp recognises you:
+
+| Key          | Type   | Default | Meaning                                                                                                                                                                                                                                                         |
+| ------------ | ------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `via`        | string | `"tty"` | `"tty"`: an interactive terminal (standard input) with no agent runtime among the command's parent processes and no agent's environment markers. `"token"`: `PMCP_OPERATOR_TOKEN` equals the contents of `token_file`, wherever the command runs (a script, cron). |
+| `token_file` | path   | none    | With `via = "token"`: absolute or `~/…`, outside the project, readable by its owner only (mode 600); pmcp refuses a file others can read.                                                                                                                        |
+
+```toml
+[sessions.operator]
+via = "token"
+token_file = "~/.config/pmcp/operator-token"
+```
+
+Run from an agent session, an operator verb exits 1 with
+`<verb> is the operator's to run: <why>. Ask the operator to run it from their own terminal`,
+and changes nothing; the agent relays the request to you. With any session feature declared,
+the `pmcp.operator_verbs` guard ([Hooks](hooks.md)) also refuses these command lines in the
+agent's runtime, before they run. Every session runs as the same user, so this stops
+instructed agents and accidents rather than a determined process: for a hard boundary run the
+agents under another user, where a token file only you can read keeps them out.
 
 ### `[sessions.mailbox]`
 

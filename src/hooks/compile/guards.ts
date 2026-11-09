@@ -12,7 +12,7 @@ const MODES: readonly Mode[] = [
   "off",
   "graded",
 ];
-const GROUPS = ["shell", "git"];
+const GROUPS = ["shell", "git", "pmcp"];
 
 function readGuard(id: string, raw: unknown): CompiledGuard | null {
   const policy = GUARDS[id];

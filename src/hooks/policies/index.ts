@@ -21,6 +21,7 @@ import { sharedCheckout } from "./workspace/shared-checkout.js";
 import { mainlineDeliver } from "./workspace/mainline-deliver.js";
 import { worktreeSync } from "./workspace/worktree-sync.js";
 import { hostLease } from "./host/lease.js";
+import { operatorVerbs } from "./pmcp/operator-verbs.js";
 
 const byId = (list: readonly Policy<any>[]) =>
   Object.fromEntries(list.map((policy) => [policy.id, policy]));
@@ -37,6 +38,7 @@ export const GUARDS: Readonly<Record<PolicyId, Policy<any>>> = byId([
   forcedBranchMove,
   gateBypassEnv,
   stageAll,
+  operatorVerbs,
 ]);
 
 export const FEATURES: Readonly<Record<PolicyId, Policy<any>>> = byId([

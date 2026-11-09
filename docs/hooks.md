@@ -85,6 +85,7 @@ call: `policy`, `session`, `verdict` (what the call got) and, under `data`, `raw
 | `[hooks.guards.git.forced_branch_move]`    | deny         | deny, ask, warn, observe, off         | Forcing a branch that is checked out in another working tree.                                                                                                                                                                                                    |
 | `[hooks.guards.git.gate_bypass_env]`       | deny         | deny, ask, warn, observe, off         | Setting a named gate-bypass variable where it takes effect, and optionally `--no-verify` on any git command.                                                                                                                                                     |
 | `[hooks.guards.git.stage_all]`             | deny         | deny, ask, warn, observe, off         | `git add -A`, `git add .`, `git commit -a` and similar; stage explicit paths.                                                                                                                                                                                    |
+| `[hooks.guards.pmcp.operator_verbs]`       | deny         | deny, ask, warn, observe, off         | The operator verbs: `pmcp sessions pause` and `resume`, `pmcp heavy --now` and `promote --now`, `pmcp heavy cancel --force`, `pmcp git deliver --during-pause`, and setting `PMCP_HEAVY_NOW` or `PMCP_OPERATOR_TOKEN`. On by itself with any session feature.     |
 
 Options:
 
@@ -330,7 +331,7 @@ table for your project, with Codex trust.
 | `[git.shared_checkout]`, `[git.worktrees.sync]`, `[git.mainline.deliver]`                      | measured                   | measured                                 |
 | heredoc, compose_teardown, push_without_verify, forced_branch_move, gate_bypass_env, stage_all | measured                   | measured                                 |
 | in_place_edit, stdin_interpreter, secret_exfiltration (ask)                                    | ask not measured           | ask lowered by `ask_fallback`            |
-| host_approval                                                                                  | works; not live-measured   | works; not live-measured                 |
+| host_approval, operator_verbs                                                                  | works; not live-measured   | works; not live-measured                 |
 | `[hooks.checks.after_edit]`                                                                    | measured                   | measured                                 |
 | `[hooks.checks.on_stop]`                                                                       | measured, in the same turn | at the next prompt                       |
 | `[[hooks.guards.custom]]`                                                                      | not measured               | not measured                             |

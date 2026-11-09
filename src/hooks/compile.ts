@@ -9,6 +9,7 @@ import { readHooksTable } from "./compile/hooks-table.js";
 import { readHostLease } from "./compile/host-lease.js";
 import { declaresPtyHost } from "../project/host-spec.js";
 import { readSessions } from "./compile/sessions.js";
+import { readOperatorSettings } from "../sessions/operator.js";
 import { asTable, type CompiledHooks, type Table } from "./compile/types.js";
 import { readWorkspace } from "./compile/workspace.js";
 import { readWorktreeSync } from "./compile/worktree-sync.js";
@@ -41,6 +42,15 @@ function hostGuard(host: unknown, guards: Table): CompiledGuard | null {
   return { id: "shell.host_approval", mode: "deny", options: {} };
 }
 
+// Session governance turns pmcp.operator_verbs on, so a session cannot pause, resume or bypass
+// the others; a [hooks.guards.pmcp] operator_verbs entry, even mode off, takes over instead.
+function operatorGuard(declared: boolean, guards: Table): CompiledGuard | null {
+  if (!declared) return null;
+  const pmcp = asTable(guards["pmcp"], "[hooks.guards.pmcp]");
+  if (pmcp["operator_verbs"] !== undefined) return null;
+  return { id: "pmcp.operator_verbs", mode: "deny", options: {} };
+}
+
 export function compileHooks(
   tables: ProjectTables,
   options: CompileOptions,
@@ -50,6 +60,8 @@ export function compileHooks(
   const guardsTable = asTable(hooks["guards"], "[hooks.guards]");
   const entries = readCustom(options.root, hooks, guardsTable);
   const sessions = readSessions(tables.sessions, tables.git);
+  readOperatorSettings(tables.sessions, options.root);
+  const operator = operatorGuard(sessions.declared, guardsTable);
   const workspace = readWorkspace(tables.git, options.root);
   const deskSync = readWorktreeSync(tables, options.root);
   const directPush = readMainlineDeliver(tables, options.root);
@@ -80,6 +92,7 @@ export function compileHooks(
     ...(directPush ? [directPush] : []),
     ...(host ? [host] : []),
     ...(heavy ? [heavy] : []),
+    ...(operator ? [operator] : []),
     ...readGuards(guardsTable),
     ...readChecks(hooks["checks"]),
   ];

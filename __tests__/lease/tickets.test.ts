@@ -128,6 +128,14 @@ describe("pmcp heavy submit", () => {
     until(() => existsSync(flag), 15_000);
     until(() => ticketView(dir, long)?.state === "running", 10_000);
     expect(pmcpSync(["heavy", "cancel", long], cwd, env).status).toBe(1);
+    const other = pmcpSync(["heavy", "cancel", long, "--force"], cwd, {
+      ...env,
+      CLAUDE_CODE_SESSION_ID: "another-session",
+    });
+    expect(other.status).toBe(1);
+    expect(other.stderr).toContain(
+      "pmcp heavy cancel --force on another session's job",
+    );
     expect(
       pmcpSync(["heavy", "cancel", long, "--force"], cwd, env).status,
     ).toBe(0);

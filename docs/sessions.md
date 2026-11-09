@@ -33,8 +33,15 @@ pmcp sessions sweep   # drop records whose process is gone
 
 While paused, every other session's edits and mutating commands are refused; reading and
 planning continue. A broadcast reaches each running session once, as context. `--by <name>`
-names who pauses or broadcasts; that session is exempt, and without it the sender is
-`operator`.
+names who pauses or broadcasts; that session is exempt. Without it a broadcast is signed by
+the agent session it runs in, or by `operator` from your own terminal.
+
+Pause and resume are [operator verbs](project-configuration.md#the-operator): pmcp runs them
+only from your terminal (or with your operator token), refuses them inside an agent session
+with a line telling the agent to ask you, and the `pmcp.operator_verbs` guard refuses them in
+the agent's runtime before they start. The same holds for `pmcp heavy --now`,
+`pmcp heavy promote --now`, `pmcp heavy cancel --force` on another session's job and
+`pmcp git deliver --during-pause`.
 
 ## Send a message to one session
 

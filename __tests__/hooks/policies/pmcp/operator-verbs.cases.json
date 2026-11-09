@@ -1,0 +1,31 @@
+{
+  "blocked": [
+    "pmcp sessions pause \"release freeze\"",
+    "pmcp sessions resume",
+    "pmcp -q sessions pause incident --by kit",
+    "npx @modootoday/pmcp sessions resume",
+    "node dist/cli.js sessions pause x",
+    "pmcp heavy --now --reason \"prod is down\" -- npm test",
+    "pmcp heavy promote 7f3a --now --reason blocker",
+    "pmcp heavy cancel 7f3a --force",
+    "pmcp git deliver --during-pause",
+    "cd app && pmcp git deliver abc --during-pause --json",
+    "PMCP_HEAVY_NOW=fix pmcp heavy -- npm test",
+    "export PMCP_HEAVY_NOW=fix",
+    "PMCP_OPERATOR_TOKEN=abc pmcp sessions broadcast hi",
+    "bash -c \"pmcp sessions pause x\"",
+    "env PMCP_HEAVY_NOW=x pmcp heavy -- true"
+  ],
+  "allowed": [
+    "pmcp sessions",
+    "pmcp sessions status --json",
+    "pmcp sessions broadcast \"main moved\"",
+    "pmcp heavy -- npm test",
+    "pmcp heavy cancel 7f3a",
+    "pmcp heavy -- ./run --now",
+    "pmcp heavy priority 7f3a gate --reason blocker",
+    "pmcp git deliver",
+    "grep -rn \"sessions pause\" docs",
+    "echo pmcp heavy --now"
+  ]
+}

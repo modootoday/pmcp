@@ -24,6 +24,7 @@ import {
   shellHolder,
   until,
 } from "./fixture.js";
+import { operatorToken } from "../operator-token.js";
 
 const children: ChildProcess[] = [];
 afterEach(() => {
@@ -70,8 +71,13 @@ describe("usage records", () => {
   });
 
   it("are written for a success, a failure, a timeout and a bypass", () => {
-    const { base, dir, env } = scratch();
-    const cwd = project(base, leaseToml(dir, "max_wait = 1\n"));
+    const { base, dir, env: agent } = scratch();
+    const operator = operatorToken(base);
+    const env = { ...agent, ...operator.env };
+    const cwd = project(
+      base,
+      `${leaseToml(dir, "max_wait = 1\n")}${operator.toml}`,
+    );
     expect(pmcpSync(["heavy", "--", "true"], cwd, env).status).toBe(0);
     expect(
       pmcpSync(["heavy", "--", "sh", "-c", "exit 3"], cwd, env).status,
@@ -199,8 +205,23 @@ describe("pmcp heavy --now", () => {
   });
 
   it("refuses without a reason, takes one from PMCP_HEAVY_NOW, and never exits 75", () => {
-    const { base, dir, env } = scratch();
-    const cwd = project(base, leaseToml(dir, "max_wait = 1\n"));
+    const { base, dir, env: agent } = scratch();
+    const operator = operatorToken(base);
+    const env = { ...agent, ...operator.env };
+    const cwd = project(
+      base,
+      `${leaseToml(dir, "max_wait = 1\n")}${operator.toml}`,
+    );
+    const refused = pmcpSync(
+      ["heavy", "--now", "--reason", "x", "--", "true"],
+      cwd,
+      { ...agent, CLAUDE_CODE_SESSION_ID: "agent" },
+    );
+    expect(refused.status).toBe(1);
+    expect(refused.stderr).toContain(
+      "pmcp heavy --now is the operator's to run",
+    );
+    expect(refused.stderr).toContain("Ask the operator");
     expect(pmcpSync(["heavy", "--now", "--", "true"], cwd, env).status).toBe(2);
     expect(
       pmcpSync(["heavy", "--reason", "x", "--", "true"], cwd, env).status,

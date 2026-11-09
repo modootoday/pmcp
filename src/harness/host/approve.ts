@@ -7,7 +7,10 @@ import {
   writeApproval,
   type Approval,
 } from "../../project/host-approval.js";
-import { agentContext, type ProcessView } from "./operator.js";
+import {
+  agentContext,
+  type ProcessView,
+} from "../../sessions/agent-context.js";
 
 export interface ApproveInput {
   readonly root: string;

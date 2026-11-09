@@ -14,6 +14,7 @@ import { describe, expect, it, type TestContext } from "vitest";
 
 import { Ui } from "../../src/cli/ui.js";
 import { dispatch } from "../../src/commands/index.js";
+import { operatorToken } from "../operator-token.js";
 
 const CLI = join(import.meta.dirname, "../../dist/cli.js");
 
@@ -23,9 +24,10 @@ function project(
 ) {
   const root = mkdtempSync(join(tmpdir(), "pmcp-mailbox-cli-"));
   t.onTestFinished(() => rmSync(root, { recursive: true, force: true }));
+  const operator = operatorToken();
   writeFileSync(
     join(root, "pmcp.toml"),
-    `[sessions]\nstate_dir = ".state"\n${mailbox}`,
+    `[sessions]\nstate_dir = ".state"\n${mailbox}${operator.toml}`,
   );
   const runIn = async (env: Record<string, string>, ...argv: string[]) => {
     let output = "";
@@ -33,13 +35,13 @@ function project(
     const ui = new Ui({ stdout: capture, stderr: capture });
     const code = await dispatch(argv, {
       cwd: root,
-      env: { HOME: root, ...env },
+      env: { HOME: root, ...operator.env, ...env },
       ui,
     });
     return { code, output };
   };
   const run = (...argv: string[]) => runIn({}, ...argv);
-  return { root, run, runIn, state: join(root, ".state") };
+  return { root, run, runIn, operator, state: join(root, ".state") };
 }
 
 describe("a CLI command run inside a runtime", () => {
@@ -59,15 +61,37 @@ describe("a CLI command run inside a runtime", () => {
     expect(reply.from).toEqual({ session: "01aaaaaa-codex-0001" });
   });
 
-  it("warns instead of acting as the operator silently when the session is unknown", async (t) => {
+  it("refuses to act as the operator when the session is unknown", async (t) => {
     const { run, runIn } = project(t);
     const sent = JSON.parse(
       (await run("sessions", "send", "--json", "--to", "all", "hi")).output,
     ).data;
     const result = await runIn({ GEMINI_CLI: "1" }, "sessions", "ack", sent.id);
+    expect(result.code).toBe(2);
     expect(result.output).toMatch(
-      /running inside gemini but its session is unknown; acting as operator/u,
+      /running inside gemini but its session is unknown; pass --session <id>/u,
     );
+  });
+
+  it("sends as operator only from the operator, never on a forged --by", async (t) => {
+    const { runIn } = project(t);
+    const plain = { PMCP_OPERATOR_TOKEN: "" };
+    const unsigned = await runIn(
+      plain,
+      "sessions",
+      "send",
+      "--to",
+      "all",
+      "hi",
+    );
+    expect(unsigned.code).toBe(2);
+    expect(unsigned.output).toContain("say who you are with --session");
+    const forged = await runIn(
+      { CODEX_THREAD_ID: "01aaaaaa-codex-0001", PMCP_OPERATOR_TOKEN: "" },
+      ...["sessions", "send", "--by", "operator", "--to", "all", "hi"],
+    );
+    expect(forged.code).toBe(2);
+    expect(forged.output).toContain("--by operator is for the operator");
   });
 });
 
@@ -187,12 +211,16 @@ describe("pmcp sessions send, inbox, ack and reply", () => {
   });
 
   it("reads the body from stdin when it is -", async (t) => {
-    const { root, state } = project(t);
+    const { root, state, operator } = project(t);
     const code = await new Promise<number>((resolve) => {
       const child = spawn(
         process.execPath,
-        [CLI, "sessions", "send", "--to", "all", "-"],
-        { cwd: root, stdio: ["pipe", "ignore", "ignore"] },
+        [CLI, "sessions", "send", "--by", "kit", "--to", "all", "-"],
+        {
+          cwd: root,
+          env: { ...process.env, ...operator.env },
+          stdio: ["pipe", "ignore", "ignore"],
+        },
       );
       child.on("close", (status) => resolve(status ?? 1));
       child.stdin.end("line one\nline two\n");

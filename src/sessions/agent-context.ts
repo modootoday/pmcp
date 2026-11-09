@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 
-import { ancestors } from "../../sessions/liveness.js";
+import { ancestors } from "./liveness.js";
 
 // Markers a coding agent or pmcp-pty leaves in the environment of what it runs. A same-user
 // process can drop them, so this check stops instructed agents and accidents, nothing more.
@@ -9,10 +9,15 @@ const ENV_MARKERS = [
   "PMCP_PTY_SESSION",
   "CLAUDECODE",
   "CLAUDE_CODE_ENTRYPOINT",
+  "CLAUDE_CODE_SESSION_ID",
   "CODEX_THREAD_ID",
   "CODEX_SANDBOX",
   "GEMINI_CLI",
   "GROK_SESSION_ID",
+  "GROK_AGENT",
+  "ANTIGRAVITY_AGENT",
+  "ANTIGRAVITY_CONVERSATION_ID",
+  "OPENCODE",
   "AI_AGENT",
 ];
 

@@ -15,6 +15,7 @@ import {
   shellHolder,
   until,
 } from "./fixture.js";
+import { operatorToken } from "../operator-token.js";
 
 // Queue control by id: the waiter record is the source of truth, rewritten under the admission
 // lock and read by the waiting process on its next poll; every change is logged.
@@ -50,7 +51,8 @@ function fullBudget(dir: string): ChildProcess {
 describe("queue control", () => {
   it("promote starts a waiter at once with the budget full, logged with who and why", async () => {
     const { base, dir, env } = scratch();
-    const cwd = project(base, leaseToml(dir));
+    const operator = operatorToken(base);
+    const cwd = project(base, `${leaseToml(dir)}${operator.toml}`);
     fullBudget(dir);
     const trace = join(base, "ran");
     const job = pmcp(
@@ -72,11 +74,20 @@ describe("queue control", () => {
     expect(
       pmcpSync(["heavy", "promote", id, "--reason", "x"], cwd, env).status,
     ).toBe(2);
-    const promoted = pmcpSync(
-      ["heavy", "promote", id, "--now", "--reason", "release blocker"],
-      cwd,
-      env,
+    const promote = [
+      "heavy",
+      "promote",
+      id,
+      "--now",
+      "--reason",
+      "release blocker",
+    ];
+    const agent = pmcpSync(promote, cwd, env);
+    expect(agent.status).toBe(1);
+    expect(agent.stderr).toContain(
+      "pmcp heavy promote --now is the operator's to run",
     );
+    const promoted = pmcpSync(promote, cwd, { ...env, ...operator.env });
     expect(promoted.status).toBe(0);
     expect((await done).code).toBe(0);
     expect(existsSync(trace)).toBe(true);

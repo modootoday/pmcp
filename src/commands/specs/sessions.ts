@@ -125,7 +125,7 @@ export const sessionsSpec: CommandSpec = {
     {
       name: "by",
       describe:
-        "Who pauses, broadcasts or sends; that session is exempt. Default operator.",
+        "Who pauses, broadcasts or sends; that session is exempt. Default: the agent session this runs in; operator only from the operator's terminal.",
       placeholder: "<name>",
     },
     {
