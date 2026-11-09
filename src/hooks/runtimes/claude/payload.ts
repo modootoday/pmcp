@@ -1,6 +1,6 @@
 import { isAbsolute, resolve } from "node:path";
 
-import type { HookInput } from "../../contract.js";
+import type { EditRequest, HookInput } from "../../contract.js";
 import { NEUTRAL_EVENTS, toolKind } from "./events.js";
 
 type Raw = Record<string, unknown>;
@@ -84,8 +84,42 @@ function toolFields(
       native: name,
       ...(kind === "shell" ? { command: text(input["command"]) ?? "" } : {}),
       paths,
+      ...editFields(name, input, paths),
     },
   };
+}
+
+type Replacement = NonNullable<EditRequest["replacements"]>[number];
+
+function replacement(value: unknown): Replacement | null {
+  const item = object(value);
+  const old = text(item["old_string"]);
+  const next = text(item["new_string"]);
+  if (old === undefined || next === undefined) return null;
+  return { old, new: next, all: item["replace_all"] === true };
+}
+
+// Write carries the whole text; Edit and MultiEdit carry replacements in the current file.
+function editFields(
+  name: string,
+  input: Raw,
+  paths: readonly string[],
+): { edit?: EditRequest } {
+  const path = paths[0];
+  if (path === undefined) return {};
+  if (name === "Write") {
+    const content = text(input["content"]);
+    return content === undefined ? {} : { edit: { path, content } };
+  }
+  const list =
+    name === "Edit"
+      ? [replacement(input)]
+      : name === "MultiEdit" && Array.isArray(input["edits"])
+        ? (input["edits"] as unknown[]).map(replacement)
+        : null;
+  if (list === null || list.length === 0 || list.some((item) => !item))
+    return {};
+  return { edit: { path, replacements: list as Replacement[] } };
 }
 
 function stopFields(

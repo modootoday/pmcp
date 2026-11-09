@@ -50,6 +50,16 @@ export interface ShellRedirect {
   readonly target: string;
 }
 
+export interface EditRequest {
+  readonly path: string;
+  readonly content?: string;
+  readonly replacements?: readonly {
+    readonly old: string;
+    readonly new: string;
+    readonly all: boolean;
+  }[];
+}
+
 export interface HookInput {
   readonly contract: 2;
   readonly runtime: RuntimeId;
@@ -76,6 +86,9 @@ export interface HookInput {
     // Why the command is not shell syntax; set instead of steps.
     readonly syntaxError?: string;
     readonly paths: readonly string[];
+    // What an edit asks for, when the runtime's payload says: the whole new text, or
+    // replacements in the file as it stands, in order. Absent when it cannot say.
+    readonly edit?: EditRequest;
   };
   readonly prompt?: string;
   readonly stop?: { readonly lastMessage?: string; readonly active?: boolean };

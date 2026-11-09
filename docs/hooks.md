@@ -215,6 +215,60 @@ A command that needs to end a session's turn with a check of its own (tests, a
 linter, a generated-file check) is a custom guard with `on = "stop"` and
 `mode = "warn"`.
 
+## `[[hooks.guards.external]]`
+
+A checker the project already has (a document linter, a size or schema check)
+judges each file an agent edits whose path a glob matches, and its own JSON
+answer becomes the guard's verdict. Unlike a custom guard it needs no adapter
+script and speaks no pmcp protocol: pmcp passes the path (and, with `stdin`,
+the new text) and reads the checker's exit code and `items`. It runs in the hook
+bundle for every `[hooks] targets` runtime.
+
+| Key          | Type      | Default     | Meaning                                                                                                                                      |
+| ------------ | --------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`       | string    | required    | `^[a-z0-9][a-z0-9-]*$`, unique among external guards; the guard id is `external.<name>`.                                                     |
+| `paths`      | glob list | required    | Project-relative globs (`*` within a segment, `**` across segments); an edited file that matches one is checked. Other edits do not run it.  |
+| `command`    | argv list | required    | The checker. Each `{path}` is replaced by the edited file's project-relative path; with no `{path}`, the path is added as the last argument. |
+| `timeout_ms` | integer   | `15000`     | 100 to 60000, for all the files of one edit together.                                                                                        |
+| `mode`       | string    | `"observe"` | `deny`, `warn`, `observe` or `off`. A new external guard starts in `observe`; move it to `deny` once its hits are measured.                  |
+| `stdin`      | boolean   | `false`     | Send the file's new text on stdin, so the edit is checked before it is written (see below).                                                  |
+| `on_error`   | string    | `"allow"`   | What a checker that cannot answer means in `deny` mode: `allow` lets the edit through with a log line, `deny` refuses it.                    |
+
+When it runs. With `stdin = true`, before the write, when the runtime's payload
+says what the edit writes: the whole new text, or replacements pmcp applies to
+the file as it stands (Claude Code's `Write`, `Edit` and `MultiEdit`). A `deny`
+then refuses the edit before anything is written. When the payload cannot say
+(another runtime's patch, a replacement whose old text is not in the file), the
+check runs after the write instead, with the file's text from disk on stdin, and
+a `deny` reaches the agent as feedback on the edit. Without `stdin`, it always
+runs after the write and the checker reads the file itself.
+
+The command runs in the project root with only `PATH`, `HOME` and `LANG`, once
+per matched file. Exit 0 passes. Exit 1 is a finding, and stdout must then be a
+JSON object with a non-empty `items` array: each item a string, or an object with
+`message` and optionally `path`, `line` and `rule`, shown as
+`path:line: rule: message`, up to 20 lines. Anything else (exit 2 or another
+code, exit 1 without such JSON, a checker that cannot start or runs past
+`timeout_ms`) is a checker error: logged at warn, said to a `warn` session once
+per session, and in `deny` mode refused only with `on_error = "deny"`.
+
+`deny` refuses a finding, `warn` gives it to the agent as context, and `observe`
+logs it for `pmcp hooks report`. The numbers a size checker judges can live in
+[`[budgets]`](project-configuration.md#budgets), so a project keeps one place for
+them:
+
+```toml
+[budgets]
+"**/AGENTS.md" = { bytes = 4096 }
+
+[[hooks.guards.external]]
+name = "doc-budget"
+paths = ["**/AGENTS.md", ".agents/rules/*.md"]
+command = ["node_modules/.bin/doc-check", "--stdin-path", "{path}", "--json"]
+stdin = true
+mode = "warn"
+```
+
 ## `[hooks.report]`
 
 Read by [`pmcp hooks report`](commands.md#hooks) alone; it changes nothing in the

@@ -1,5 +1,6 @@
 export function sourceFor(id: string): string {
   if (id.startsWith("custom.")) return "hooks.guards.custom";
+  if (id.startsWith("external.")) return "hooks.guards.external";
   if (id.startsWith("checks.")) return "hooks." + id;
   if (
     id.startsWith("sessions.") ||

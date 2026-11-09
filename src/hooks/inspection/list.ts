@@ -1,5 +1,11 @@
 import type { CompiledPolicy } from "../compiled.js";
-import { POLICIES, customMode, customPolicy } from "../policies/index.js";
+import {
+  POLICIES,
+  customMode,
+  customPolicy,
+  externalId,
+  externalPolicy,
+} from "../policies/index.js";
 import type { Mode, NeutralEvent, RuntimeId } from "../contract.js";
 import { sourceFor } from "./source.js";
 import { RUNTIMES } from "../runtimes/index.js";
@@ -28,7 +34,13 @@ export function policyRows(
         options: {},
         mode: customMode(entry),
       }));
-    return [...guards, ...custom].flatMap((entry) => {
+    const external = (compiled.external ?? []).map((entry) => ({
+      id: externalId(entry),
+      policy: externalPolicy(entry),
+      options: {},
+      mode: entry.mode as Mode,
+    }));
+    return [...guards, ...custom, ...external].flatMap((entry) => {
       const events =
         entry.policy.eventsFor?.(entry.policy.options(entry.options)) ??
         entry.policy.events;

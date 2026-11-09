@@ -45,6 +45,19 @@ export interface CompiledCustom {
   readonly mode?: Exclude<Mode, "graded" | "off">;
 }
 
+// [[hooks.guards.external]]: a project checker run on each edited path its globs match.
+export interface CompiledExternal {
+  readonly name: string;
+  readonly paths: readonly string[];
+  readonly command: readonly string[];
+  readonly timeoutMs: number;
+  readonly mode: "deny" | "warn" | "observe";
+  // The new text goes on stdin, so an edit is checked before it is written.
+  readonly stdin?: true;
+  // A checker that cannot answer refuses the edit only with "deny"; absent means allow.
+  readonly onError?: "deny";
+}
+
 export interface CompiledPolicy {
   readonly contract: 2;
   // Set by readCompiled from the lock-verified hash; never written to policy.json.
@@ -69,6 +82,8 @@ export interface CompiledPolicy {
   };
   readonly guards: readonly CompiledGuard[];
   readonly custom: readonly CompiledCustom[];
+  // Only when declared, so other projects keep the same policy.json and hash.
+  readonly external?: readonly CompiledExternal[];
 
   readonly lowering: Readonly<
     Partial<Record<RuntimeId, { readonly ask: AskFallback }>>

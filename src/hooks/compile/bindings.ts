@@ -1,6 +1,6 @@
 import type { CompiledPolicy } from "../compiled.js";
 import type { NeutralEvent, RuntimeId, ToolKind } from "../contract.js";
-import { customPolicy, POLICIES } from "../policies/index.js";
+import { customPolicy, externalPolicy, POLICIES } from "../policies/index.js";
 import type { Policy } from "../policies/types.js";
 import { RUNTIMES } from "../runtimes/index.js";
 import type { NativeBinding } from "../runtimes/types.js";
@@ -30,7 +30,10 @@ function listeners(policy: CompiledPolicy, id: RuntimeId): Listener[] {
   const custom = policy.custom
     .filter((entry) => entry.targets.includes(id))
     .map((entry) => listening(customPolicy(entry), {}));
-  return [...guards, ...custom];
+  const external = (policy.external ?? []).map((entry) =>
+    listening(externalPolicy(entry), {}),
+  );
+  return [...guards, ...custom, ...external];
 }
 
 export function bindingsFor(
@@ -56,6 +59,7 @@ export function bindingsFor(
   const slowest = Math.max(
     tries,
     ...policy.custom.map((entry) => entry.timeoutMs),
+    ...(policy.external ?? []).map((entry) => entry.timeoutMs),
   );
   // Startup (loading the bundle, reading the store) comes on top of the slowest evaluation.
   const timeoutSec = Math.max(

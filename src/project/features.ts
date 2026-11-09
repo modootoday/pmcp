@@ -76,6 +76,7 @@ export function featureRows(
   const active = new Set([
     ...(policy?.guards ?? []).map((guard) => guard.id),
     ...(policy?.custom ?? []).map((entry) => `custom.${entry.name}`),
+    ...(policy?.external ?? []).map((entry) => `external.${entry.name}`),
   ]);
   return featureCatalog(policy).map((needs) => {
     const on = active.has(needs.id);

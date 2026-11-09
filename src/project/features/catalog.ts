@@ -84,5 +84,11 @@ export function featureCatalog(policy: CompiledPolicy | null): FeatureNeeds[] {
     outputs: [outputFor(entry.event)] as Output[],
     fields: [],
   }));
-  return [...features, ...guards, ...checks, ...custom];
+  const external = (policy?.external ?? []).map((entry) => ({
+    id: `external.${entry.name}`,
+    events: ["before_tool", "after_tool"] as NeutralEvent[],
+    outputs: ["deny", "feedback"] as Output[],
+    fields: [],
+  }));
+  return [...features, ...guards, ...checks, ...custom, ...external];
 }

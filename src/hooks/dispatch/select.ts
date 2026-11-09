@@ -1,6 +1,11 @@
 import type { CompiledPolicy } from "../compiled.js";
 import type { HookInput } from "../contract.js";
-import { customMode, customPolicy, POLICIES } from "../policies/index.js";
+import {
+  customMode,
+  customPolicy,
+  externalPolicy,
+  POLICIES,
+} from "../policies/index.js";
 import type { Policy } from "../policies/types.js";
 import type { Selected } from "./run-policy.js";
 
@@ -52,5 +57,12 @@ export function selectPolicies(
     mode: customMode(entry),
     options: {},
   }));
-  return [...guards, ...custom].filter((selected) => listens(selected, input));
+  const external = (compiled.external ?? []).map((entry) => ({
+    policy: externalPolicy(entry),
+    mode: entry.mode,
+    options: {},
+  }));
+  return [...guards, ...custom, ...external].filter((selected) =>
+    listens(selected, input),
+  );
 }

@@ -58,8 +58,9 @@ ignored.
 | `[marketplaces.<name>]`                                                                                                                                                                      | [Marketplaces](#marketplaces)                                           |
 | `[targets]`, `[skills.<name>]`, `[agents.<name>.<tool>]`, `[rules.packages]`                                                                                                                 | [Native files for each agent tool](#native-files-for-each-agent-tool)   |
 | `[mcp.<alias>]`                                                                                                                                                                              | [Unified project MCP configuration](#unified-project-mcp-configuration) |
-| `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[hooks.checks.*]`, `[hooks.failure]`, `[hooks.report]`, `[hooks.test]`                                                            | [Hooks](hooks.md)                                                       |
+| `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[[hooks.guards.external]]`, `[hooks.checks.*]`, `[hooks.failure]`, `[hooks.report]`, `[hooks.test]`                               | [Hooks](hooks.md)                                                       |
 | `[budget]`                                                                                                                                                                                   | [Budget](#budget)                                                       |
+| `[budgets]`                                                                                                                                                                                  | [Budgets](#budgets)                                                     |
 | `[[hooks.shell]]`, `[[hooks.edit]]`                                                                                                                                                          | [Deprecated shell guards](hooks.md#deprecated-shell-guards)             |
 | `[sessions]`, `[sessions.registry]`, `[sessions.pause]`, `[sessions.broadcast]`, `[sessions.mailbox]`, `[sessions.leases.<name>]`, `[sessions.roles.<name>]`, `[sessions.operator]`          | [Sessions](#sessions)                                                   |
 | `[git]`, `[git.shared_checkout]`, `[git.worktrees]`, `[git.worktrees.sync]`, `[git.mainline]`, `[git.mainline.gate]`, `[git.mainline.deliver]`, `[git.mainline.sync]`, `[git.submodules]`    | [Git workflow](git-workflow.md)                                         |
@@ -799,6 +800,27 @@ root_lines = 300
 package_bytes = 8000
 skills_max = 40
 forbid_paths = [".spec/**", "docs/adr"]
+```
+
+A project whose document limits another checker judges leaves those keys out of
+`[budget]` and keeps the numbers in `[budgets]` instead.
+
+## Budgets
+
+`[budgets]` holds byte and line limits per path glob, so the numbers live in one
+place while another tool judges them. Each key is a project-relative glob, as in
+`forbid_paths`, and each value an inline table with `bytes`, `lines` or both
+(whole numbers from 1); any other key, or an entry with neither, is a
+configuration error. pmcp validates the table and judges none of it: neither
+`project --check` nor `status` measures it. A checker reads it from `pmcp.toml`
+at the TOML path `budgets` (how overlapping globs combine is the checker's), and
+an [external guard](hooks.md#hooksguardsexternal) can run that checker on every
+edit of a matching file.
+
+```toml
+[budgets]
+"**/AGENTS.md" = { bytes = 4096 }
+"AGENTS.md" = { bytes = 12288, lines = 200 }
 ```
 
 ## Logging

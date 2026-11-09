@@ -11,6 +11,7 @@ import { readGitConfig } from "../git/config.js";
 import { readPermissions, type PermissionSpec } from "./permissions.js";
 import { readHost, type HostSpec } from "./host-spec.js";
 import { readBudget, type BudgetSettings } from "./budget.js";
+import { readBudgets } from "./budgets.js";
 import { envNames } from "../native/env-names.js";
 import { TOOLS, type Tool } from "./tools.js";
 
@@ -235,6 +236,8 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
   let budget: BudgetSettings | null;
   try {
     budget = readBudget(raw["budget"]);
+    // Only validated: another checker judges them.
+    readBudgets(raw["budgets"]);
   } catch (error) {
     throw new ConfigError(path, (error as Error).message);
   }

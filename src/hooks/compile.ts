@@ -4,6 +4,7 @@ import type { CompiledGuard, CompiledPolicy } from "./compiled.js";
 import { bindingsFor, loweringFor } from "./compile/bindings.js";
 import { legacyEntries, pinnedEntries, readCustom } from "./compile/custom.js";
 import { readGuards } from "./compile/guards.js";
+import { readExternal } from "./compile/external.js";
 import { readChecks } from "./compile/checks.js";
 import { readHooksTable } from "./compile/hooks-table.js";
 import { readHostLease } from "./compile/host-lease.js";
@@ -59,6 +60,7 @@ export function compileHooks(
   const table = readHooksTable(hooks, options.tools);
   const guardsTable = asTable(hooks["guards"], "[hooks.guards]");
   const entries = readCustom(options.root, hooks, guardsTable);
+  const external = readExternal(guardsTable["external"]);
   const sessions = readSessions(tables.sessions, tables.git);
   readOperatorSettings(tables.sessions, options.root);
   const operator = operatorGuard(sessions.declared, guardsTable);
@@ -121,6 +123,7 @@ export function compileHooks(
     },
     guards,
     custom: pinnedEntries(options.root, entries, table.targets),
+    ...(external.length > 0 ? { external } : {}),
     lowering: loweringFor(table.targets, table.askFallback, asks),
   };
   // A runtime that runs another target's hooks projects nothing of its own, so no call runs twice.

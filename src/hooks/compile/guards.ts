@@ -44,7 +44,7 @@ function readGuard(id: string, raw: unknown): CompiledGuard | null {
 export function readGuards(guards: Table): CompiledGuard[] {
   const found: CompiledGuard[] = [];
   for (const [group, value] of Object.entries(guards)) {
-    if (group === "custom") continue;
+    if (group === "custom" || group === "external") continue;
     if (!GROUPS.includes(group))
       throw new Error(`unknown guard group hooks.guards.${group}`);
     for (const [name, raw] of Object.entries(
