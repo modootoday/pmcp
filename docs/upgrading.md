@@ -5,7 +5,7 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
-## From 0.25.0 to the next release
+## From 0.25 to 0.26
 
 **`pmcp status` no longer judges `[budget]`.** It still shows each limit beside what it
 measured and how many are over, in the summary and in `data.budget`, but an exceeded limit
