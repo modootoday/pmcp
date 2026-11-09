@@ -114,6 +114,7 @@ default log level.</p>
 <tr><td><code>[hooks.guards.shell.secret_exfiltration]</code></td><td>graded</td><td>deny, ask, warn, observe, off, graded</td><td>Reading a credential asks; sending one over the network, or changing a live one, denies.</td></tr>
 <tr><td><code>[hooks.guards.shell.host_approval]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>host approve</code>, and commands or edits touching the host approvals directory. On by itself when <code>[host]</code> is declared.</td></tr>
 <tr><td><code>[hooks.guards.shell.runaway_regex]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>A grep pattern that can hold a core for minutes: a repetition count over the threshold (<code>\{0,2500\}</code>, <code>{0,2500}</code> with <code>-E</code> or <code>-P</code>), or a <code>-P</code> group quantified inside a quantifier such as <code>(a+)+</code>. ripgrep (<code>rg</code>) matches in linear time and is never refused.</td></tr>
+<tr><td><code>[hooks.guards.shell.self_matching_wait]</code></td><td>observe</td><td>deny, ask, warn, observe, off</td><td>A <code>while</code>, <code>until</code> or <code>for</code> loop that polls with <code>pgrep -f</code>, <code>pkill -f</code>, <code>pidwait -f</code> or <code>ps | grep</code> (also inside <code>$( )</code> or <code>bash -c</code>): the pattern matches the shell running the loop, whose command line holds it, so the wait may never end. <code>ps -p</code>, <code>ps -C</code> and <code>pgrep</code> without <code>-f</code> pass. The reason points to <code>pmcp wait --pid</code>, <code>pmcp wait --until no-process:&lt;text&gt;</code> and <code>pmcp heavy wait &lt;ticket&gt;</code>. Starts in observe; set <code>mode = &quot;deny&quot;</code> once a week of hits is measured.</td></tr>
 <tr><td><code>[hooks.guards.git.push_without_verify]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>git push --no-verify</code>.</td></tr>
 <tr><td><code>[hooks.guards.git.forced_branch_move]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>Forcing a branch that is checked out in another working tree.</td></tr>
 <tr><td><code>[hooks.guards.git.gate_bypass_env]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>Setting a named gate-bypass variable where it takes effect, and optionally <code>--no-verify</code> on any git command.</td></tr>
@@ -219,6 +220,49 @@ the shell adapter runs neither, and keeps the earlier contract below.</p>
 <p>A command that needs to end a session&#39;s turn with a check of its own (tests, a
 linter, a generated-file check) is a custom guard with <code>on = &quot;stop&quot;</code> and
 <code>mode = &quot;warn&quot;</code>.</p>
+<h2 id="hooksguardsexternal"><code>[[hooks.guards.external]]</code></h2>
+<p>A checker the project already has (a document linter, a size or schema check)
+judges each file an agent edits whose path a glob matches, and its own JSON
+answer becomes the guard&#39;s verdict. Unlike a custom guard it needs no adapter
+script and speaks no pmcp protocol: pmcp passes the path (and, with <code>stdin</code>,
+the new text) and reads the checker&#39;s exit code and <code>items</code>. It runs in the hook
+bundle for every <code>[hooks] targets</code> runtime.</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>name</code></td><td>string</td><td>required</td><td><code>^[a-z0-9][a-z0-9-]*$</code>, unique among external guards; the guard id is <code>external.&lt;name&gt;</code>.</td></tr>
+<tr><td><code>paths</code></td><td>glob list</td><td>required</td><td>Project-relative globs (<code>*</code> within a segment, <code>**</code> across segments); an edited file that matches one is checked. Other edits do not run it.</td></tr>
+<tr><td><code>command</code></td><td>argv list</td><td>required</td><td>The checker. Each <code>{path}</code> is replaced by the edited file&#39;s project-relative path; with no <code>{path}</code>, the path is added as the last argument.</td></tr>
+<tr><td><code>timeout_ms</code></td><td>integer</td><td><code>15000</code></td><td>100 to 60000, for all the files of one edit together.</td></tr>
+<tr><td><code>mode</code></td><td>string</td><td><code>&quot;observe&quot;</code></td><td><code>deny</code>, <code>warn</code>, <code>observe</code> or <code>off</code>. A new external guard starts in <code>observe</code>; move it to <code>deny</code> once its hits are measured.</td></tr>
+<tr><td><code>stdin</code></td><td>boolean</td><td><code>false</code></td><td>Send the file&#39;s new text on stdin, so the edit is checked before it is written (see below).</td></tr>
+<tr><td><code>on_error</code></td><td>string</td><td><code>&quot;allow&quot;</code></td><td>What a checker that cannot answer means in <code>deny</code> mode: <code>allow</code> lets the edit through with a log line, <code>deny</code> refuses it.</td></tr></tbody></table></div>
+<p>When it runs. With <code>stdin = true</code>, before the write, when the runtime&#39;s payload
+says what the edit writes: the whole new text, or replacements pmcp applies to
+the file as it stands (Claude Code&#39;s <code>Write</code>, <code>Edit</code> and <code>MultiEdit</code>). A <code>deny</code>
+then refuses the edit before anything is written. When the payload cannot say
+(another runtime&#39;s patch, a replacement whose old text is not in the file), the
+check runs after the write instead, with the file&#39;s text from disk on stdin, and
+a <code>deny</code> reaches the agent as feedback on the edit. Without <code>stdin</code>, it always
+runs after the write and the checker reads the file itself.</p>
+<p>The command runs in the project root with only <code>PATH</code>, <code>HOME</code> and <code>LANG</code>, once
+per matched file. Exit 0 passes. Exit 1 is a finding, and stdout must then be a
+JSON object with a non-empty <code>items</code> array: each item a string, or an object with
+<code>message</code> and optionally <code>path</code>, <code>line</code> and <code>rule</code>, shown as
+<code>path:line: rule: message</code>, up to 20 lines. Anything else (exit 2 or another
+code, exit 1 without such JSON, a checker that cannot start or runs past
+<code>timeout_ms</code>) is a checker error: logged at warn, said to a <code>warn</code> session once
+per session, and in <code>deny</code> mode refused only with <code>on_error = &quot;deny&quot;</code>.</p>
+<p><code>deny</code> refuses a finding, <code>warn</code> gives it to the agent as context, and <code>observe</code>
+logs it for <code>pmcp hooks report</code>. The numbers a size checker judges can live in
+<a href="/project-configuration/#budgets"><code>[budgets]</code></a>, so a project keeps one place for
+them:</p>
+<pre><code>[budgets]
+&quot;**/AGENTS.md&quot; = { bytes = 4096 }
+
+[[hooks.guards.external]]
+name = &quot;doc-budget&quot;
+paths = [&quot;**/AGENTS.md&quot;, &quot;.agents/rules/*.md&quot;]
+command = [&quot;node_modules/.bin/doc-check&quot;, &quot;--stdin-path&quot;, &quot;{path}&quot;, &quot;--json&quot;]
+stdin = true
+mode = &quot;warn&quot;</code></pre>
 <h2 id="hooksreport"><code>[hooks.report]</code></h2>
 <p>Read by <a href="/commands/#hooks"><code>pmcp hooks report</code></a> alone; it changes nothing in the
 hooks.</p>

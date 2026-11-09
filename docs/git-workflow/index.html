@@ -93,10 +93,16 @@ session&#39;s lease, or a git operation in progress holds the desk where it is
 (exit 1, with the reason). In a scratch worktree it moves nothing (exit 2).</p>
 <p>Both kinds check out a submodule the move adds, such as a directory split into its
 own repository. When that path still holds files from before and git ignores all of
-them (install or build output), they are moved under the git dir
-(<code>pmcp-displaced/&lt;time&gt;/&lt;path&gt;</code>), never deleted, and the line says to run the
-install again. A file git does not ignore leaves the submodule unchecked, and the
-line names the path.</p>
+them (install or build output), they are moved out of the checkout to
+<code>$XDG_STATE_HOME/pmcp/displaced/&lt;project id&gt;/&lt;UTC time&gt;/&lt;path&gt;</code> (<code>~/.local/state</code>
+without <code>XDG_STATE_HOME</code>; the project id is the one the state directory uses, shared
+by every worktree of the repository), never deleted, and the line names that
+directory and says to run the install again. Nothing under the checkout or its git
+dir holds them, so a scan of the tree, <code>git clean</code> or a new worktree never meets
+them; remove a directory there once the install has run. A file git does not ignore
+leaves the submodule unchecked, and the line names the path. Releases up to 0.25.0
+kept them under the git dir in <code>pmcp-displaced/</code>; pmcp no longer writes there, and
+what is there can be moved or removed by hand.</p>
 <p><code>[git.mainline.gate]</code>: <code>command</code> (argv; no gate when missing), <code>tree</code> (the
 gate&#39;s worktree, default <code>&lt;state dir&gt;/gate/tree</code>; a relative path is relative to
 the main checkout, like <code>state_dir</code>), <code>lock_wait_seconds</code>
@@ -150,7 +156,9 @@ from the mainline or a branch tracking it, <code>--all</code>, <code>--mirror</c
 refspecs, and a push to a URL. A dry run, another branch, a tag, another
 remote and a submodule&#39;s own push pass), <code>during_pause</code> (<code>&quot;refuse&quot;</code> default or <code>&quot;allow&quot;</code>),
 <code>lease_wait_seconds</code> (default <code>3600</code>), <code>notify</code> (argv run after a
-delivery), <code>gate</code> and <code>push_env</code>.</p>
+delivery), <code>gate</code> and <code>push_env</code>. When the project declares
+<a href="/project-configuration/#owners"><code>[[owners]]</code></a>, delivery first prints one line
+for each owner whose paths the commits touch; it never stops the delivery.</p>
 <p>A commit is already on the mainline when <code>git cherry</code> finds the same patch there,
 or when it only moves submodule pins, each to a commit that the mainline&#39;s pin for
 that path equals or contains. Containment is read in the submodule&#39;s checkout,
@@ -254,6 +262,27 @@ their consumers. <code>adapter = &quot;bun&quot;</code> is the one implemented. 
 trailing <code>*</code> matches a prefix) every member builds with: a change to one selects <code>ALL</code>, as does a
 root field outside the dependency fields and <code>inert_root_fields</code> (default <code>scripts</code>,
 <code>description</code>, <code>version</code>) or a lockfile that does not parse.</p>
+<p>A change to the root <code>workspaces</code> globs does not select <code>ALL</code> by itself: the members are listed at
+both revisions, the members the globs added are selected, the ones they dropped are reported
+in <code>--json</code> as <code>workspaceMembers</code> (<code>added</code>, <code>removed</code>; a dropped member is no longer one, so it
+is not run), and <code>on_member_change</code> is selected when either list is not empty. A <code>workspaces</code>
+value that is not a list of globs (or <code>{packages}</code> holding one) at either revision, or another
+non-inert root field changing with it, still selects <code>ALL</code>. Listing <code>workspaces</code> in
+<code>inert_root_fields</code> ignores the field entirely, as before, with no member comparison.</p>
+<p>A dependency of the root <code>package.json</code> itself (a CLI the root&#39;s scripts or git hooks run)
+belongs to no member, so without more the lockfile adapter selects only the members whose own
+resolution of it moved. <code>[git.affected.root_dependencies]</code> (it needs <code>[git.affected.lockfile]</code>)
+names the members that use each one: a key is a package name, or a prefix ending in <code>*</code>, and
+its value the member directories, an empty list meaning no member is affected.</p>
+<pre><code>[git.affected.root_dependencies]
+&quot;@modootoday/pmcp&quot; = [&quot;tools/husky-hook-runner&quot;, &quot;tools/pmcp-verify&quot;]
+&quot;eslint-*&quot; = []</code></pre>
+<p>Once the table is declared, every root dependency whose range changed, or whose resolved
+package (or anything below it) moved in the lockfile, must be mapped: the mapped members are
+selected beside the members whose resolution moved (and their consumers with
+<code>consumers = true</code>), and one changed root dependency the table does not map selects <code>ALL</code>,
+naming it. <code>--json</code> lists the mappings that applied in <code>rootDependencies</code>
+(<code>name</code>, the <code>key</code> that matched, <code>members</code>). A name in <code>toolchain</code> still selects <code>ALL</code> first.</p>
 <p>Consumer edges are a member&#39;s <code>dependencies</code>, <code>peerDependencies</code> and <code>optionalDependencies</code>, the
 <code>devDependencies</code> its production source under <code>src/</code> imports (all of them when its
 <code>tsconfig.json</code> <code>exclude</code> names no tests), the member whose tsconfig preset it extends, and

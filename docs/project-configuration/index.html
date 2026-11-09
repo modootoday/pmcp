@@ -83,8 +83,10 @@ ignored.</p>
 <tr><td><code>[marketplaces.&lt;name&gt;]</code></td><td><a href="#marketplaces">Marketplaces</a></td></tr>
 <tr><td><code>[targets]</code>, <code>[skills.&lt;name&gt;]</code>, <code>[agents.&lt;name&gt;.&lt;tool&gt;]</code>, <code>[rules.packages]</code></td><td><a href="#native-files-for-each-agent-tool">Native files for each agent tool</a></td></tr>
 <tr><td><code>[mcp.&lt;alias&gt;]</code></td><td><a href="#unified-project-mcp-configuration">Unified project MCP configuration</a></td></tr>
-<tr><td><code>[hooks]</code>, <code>[hooks.guards.*]</code>, <code>[[hooks.guards.custom]]</code>, <code>[hooks.checks.*]</code>, <code>[hooks.failure]</code>, <code>[hooks.report]</code>, <code>[hooks.test]</code></td><td><a href="/hooks/">Hooks</a></td></tr>
+<tr><td><code>[hooks]</code>, <code>[hooks.guards.*]</code>, <code>[[hooks.guards.custom]]</code>, <code>[[hooks.guards.external]]</code>, <code>[hooks.checks.*]</code>, <code>[hooks.failure]</code>, <code>[hooks.report]</code>, <code>[hooks.test]</code></td><td><a href="/hooks/">Hooks</a></td></tr>
 <tr><td><code>[budget]</code></td><td><a href="#budget">Budget</a></td></tr>
+<tr><td><code>[budgets]</code></td><td><a href="#budgets">Budgets</a></td></tr>
+<tr><td><code>[[owners]]</code></td><td><a href="#owners">Owners</a></td></tr>
 <tr><td><code>[[hooks.shell]]</code>, <code>[[hooks.edit]]</code></td><td><a href="/hooks/#deprecated-shell-guards">Deprecated shell guards</a></td></tr>
 <tr><td><code>[sessions]</code>, <code>[sessions.registry]</code>, <code>[sessions.pause]</code>, <code>[sessions.broadcast]</code>, <code>[sessions.mailbox]</code>, <code>[sessions.leases.&lt;name&gt;]</code>, <code>[sessions.roles.&lt;name&gt;]</code>, <code>[sessions.operator]</code></td><td><a href="#sessions">Sessions</a></td></tr>
 <tr><td><code>[git]</code>, <code>[git.shared_checkout]</code>, <code>[git.worktrees]</code>, <code>[git.worktrees.sync]</code>, <code>[git.mainline]</code>, <code>[git.mainline.gate]</code>, <code>[git.mainline.deliver]</code>, <code>[git.mainline.sync]</code>, <code>[git.submodules]</code></td><td><a href="/git-workflow/">Git workflow</a></td></tr>
@@ -306,7 +308,8 @@ load_grace = 600</code></pre>
 <tr><td><code>io.weights.&lt;lane&gt;</code></td><td>integer</td><td>gate 500, hook 300, interactive 100, bulk 25</td><td>The scope&#39;s <code>io.weight</code> per lane (1 to 10000).</td></tr>
 <tr><td><code>io.max.&lt;lane&gt;</code></td><td>string</td><td>none</td><td>An <code>io.max</code> line for the lane&#39;s scopes, such as <code>&quot;259:0 wbps=50000000&quot;</code>; the device is this host&#39;s to name.</td></tr>
 <tr><td><code>settle_window</code></td><td>seconds</td><td><code>60</code></td><td>After a leased job ends, its own leftover IO may hold the queue only this long: then a waiter starts on a moderately busy host (below <code>hard_factor</code>). <code>0</code> turns it off.</td></tr>
-<tr><td><code>usage_cap</code></td><td>bytes</td><td><code>5000000</code></td><td><code>usage.jsonl</code> (one record per run) moves to <code>usage.jsonl.1</code> past this size.</td></tr></tbody></table></div>
+<tr><td><code>usage_cap</code></td><td>bytes</td><td><code>5000000</code></td><td><code>usage.jsonl</code> (one record per run) moves to <code>usage.jsonl.1</code> past this size.</td></tr>
+<tr><td><code>job_log_bytes</code></td><td>bytes</td><td><code>4194304</code></td><td>Each job&#39;s stdout and stderr are kept in its ticket (<code>&lt;dir&gt;/tickets/&lt;id&gt;/log</code>), moving to <code>log.1</code> past this size; <code>pmcp heavy result &lt;id&gt; --log</code> prints them. <code>0</code> keeps nothing for blocking runs, which then write to the terminal directly; a submitted job always keeps its output.</td></tr></tbody></table></div>
 <p>Lanes, in the order a short budget goes to them: <code>gate</code> (a land&#39;s gate),
 <code>hook</code> (commit-hook work, a short slot that skips the host wait unless the host
 is past <code>hard_factor</code>), <code>interactive</code> (the tests, builds and
@@ -657,14 +660,32 @@ message to <code>all</code>, and the mailbox delivers it instead of
 are still written, so <code>pmcp sessions status</code>, the session list and the
 Claude Code session panes read broadcasts as before. <code>unbroadcast</code> withdraws those
 messages too.</p>
+<h2 id="owners">Owners</h2>
+<p><code>[[owners]]</code> says who looks after a path, so an agent that edits or delivers it
+is told whom to tell. It only informs and never refuses.</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>paths</code></td><td>glob list</td><td>required</td><td>Globs relative to the directory holding <code>pmcp.toml</code>, as in <code>[budget] forbid_paths</code>; a directory covers what is below it.</td></tr>
+<tr><td><code>owner</code></td><td>string</td><td>required</td><td>The person, team or session that looks after them.</td></tr>
+<tr><td><code>note</code></td><td>string</td><td>none</td><td>What to do, such as whom to ask first.</td></tr>
+<tr><td><code>mode</code></td><td>string</td><td><code>&quot;warn&quot;</code></td><td><code>warn</code> tells the agent; <code>observe</code> only logs that the path was edited.</td></tr></tbody></table></div>
+<p>With <code>warn</code>, an agent that edits a matching file gets one line of context after
+the edit, <code>pmcp owners: &lt;path&gt; belongs to &lt;owner&gt;: &lt;note&gt;</code>, once per owner per
+session; <code>pmcp git deliver</code> prints the same line, with how many more delivered
+paths matched, for each owner its commits touch. Declaring <code>[[owners]]</code> projects
+the hook bundle. <a href="/commands/#owners"><code>pmcp owners &lt;path&gt;</code></a> answers for any path.</p>
+<pre><code>[[owners]]
+paths = [&quot;services/auth&quot;, &quot;services/billing&quot;]
+owner = &quot;hub team&quot;
+note = &quot;tell them before you land a change here&quot;</code></pre>
 <h2 id="git-workflow">Git workflow</h2>
 <p>Worktrees, delivery to the mainline and main checkout sync: <a href="/git-workflow/">Git workflow</a>.</p>
 <h2 id="budget">Budget</h2>
 <p><code>[budget]</code> sets limits on what every agent session loads and on paths the
 project keeps out of its tree. <code>pmcp project --check</code> exits 4 when one is
-exceeded, naming each, and <code>pmcp status</code> shows the measurements beside the
-limits (its JSON gains <code>budget: {rows, problems}</code>, and an exceeded limit counts
-as drift). Every key is optional; nothing is checked without the table.</p>
+exceeded, naming each, and <code>pmcp status</code> reports the measurements beside the
+limits (its JSON gains <code>budget: {rows, problems}</code>) without judging them: an
+exceeded limit is not drift and leaves its exit code alone, so <code>project --check</code>
+stays the one judge. Every key is optional; nothing is checked without the
+table.</p>
 <div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Meaning</th></tr></thead><tbody><tr><td><code>root_bytes</code></td><td>integer</td><td>Largest size of each of <code>AGENTS.md</code>, <code>CLAUDE.md</code> and <code>GEMINI.md</code> at the root that is a file (a symbolic link to another is not measured twice).</td></tr>
 <tr><td><code>root_lines</code></td><td>integer</td><td>Largest line count of the same files.</td></tr>
 <tr><td><code>package_bytes</code></td><td>integer</td><td>Largest size of each tracked <code>AGENTS.md</code> below the root, and of each <code>[rules.packages] file</code>.</td></tr>
@@ -676,6 +697,21 @@ root_lines = 300
 package_bytes = 8000
 skills_max = 40
 forbid_paths = [&quot;.spec/**&quot;, &quot;docs/adr&quot;]</code></pre>
+<p>A project whose document limits another checker judges leaves those keys out of
+<code>[budget]</code> and keeps the numbers in <code>[budgets]</code> instead.</p>
+<h2 id="budgets">Budgets</h2>
+<p><code>[budgets]</code> holds byte and line limits per path glob, so the numbers live in one
+place while another tool judges them. Each key is a project-relative glob, as in
+<code>forbid_paths</code>, and each value an inline table with <code>bytes</code>, <code>lines</code> or both
+(whole numbers from 1); any other key, or an entry with neither, is a
+configuration error. pmcp validates the table and judges none of it: neither
+<code>project --check</code> nor <code>status</code> measures it. A checker reads it from <code>pmcp.toml</code>
+at the TOML path <code>budgets</code> (how overlapping globs combine is the checker&#39;s), and
+an <a href="/hooks/#hooksguardsexternal">external guard</a> can run that checker on every
+edit of a matching file.</p>
+<pre><code>[budgets]
+&quot;**/AGENTS.md&quot; = { bytes = 4096 }
+&quot;AGENTS.md&quot; = { bytes = 12288, lines = 200 }</code></pre>
 <h2 id="logging">Logging</h2>
 <div class="scroll"><table><thead><tr><th><code>[logging]</code> key</th><th>Type</th><th>Default</th><th>Allowed</th></tr></thead><tbody><tr><td><code>level</code></td><td>string</td><td><code>&quot;info&quot;</code></td><td><code>error</code>, <code>warn</code>, <code>info</code>, <code>debug</code>, <code>trace</code></td></tr>
 <tr><td><code>format</code></td><td>string</td><td><code>&quot;jsonl&quot;</code></td><td><code>jsonl</code> only</td></tr>
@@ -743,6 +779,9 @@ publish = [&quot;deploy&quot;, &quot;secret put&quot;, &quot;secret delete&quot;
 [hooks.guards.shell.runaway_regex]
 threshold = 255
 
+[hooks.guards.shell.self_matching_wait]
+mode = &quot;deny&quot;
+
 [hooks.guards.git.push_without_verify]
 
 [hooks.guards.git.forced_branch_move]
@@ -763,6 +802,11 @@ validator_glob = &quot;.agents/skills/*/scripts/validate.ts&quot;
 command = [&quot;node&quot;, &quot;{validator}&quot;]
 
 [hooks.checks.on_stop]
+
+[[owners]]
+paths = [&quot;services/auth&quot;]
+owner = &quot;hub team&quot;
+note = &quot;tell them before you land a change here&quot;
 
 [sessions]
 state_dir = &quot;.pmcp-state&quot;

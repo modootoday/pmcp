@@ -48,6 +48,16 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-0250-to-the-next-release">From 0.25.0 to the next release</h2>
+<p><strong><code>pmcp status</code> no longer judges <code>[budget]</code>.</strong> It still shows each limit beside what it
+measured and how many are over, in the summary and in <code>data.budget</code>, but an exceeded limit
+no longer sets <code>drift</code> or exit 4; only projection drift does. <code>pmcp project --check</code> still
+exits 4 over a limit. A script that relied on <code>pmcp status</code> failing over a budget runs
+<code>pmcp project --check</code>, or reads <code>data.budget.problems</code> from <code>pmcp status --json</code>.</p>
+<p><strong>A blocking <code>pmcp heavy</code> run keeps its command&#39;s output.</strong> The command&#39;s stdout and
+stderr now pass through pmcp, which copies them into the run&#39;s ticket, so the command sees
+pipes rather than a terminal (no colours or progress bars from tools that check). Set
+<code>[host.lease] job_log_bytes = 0</code> to keep the terminal and keep no copy.</p>
 <h2 id="from-024-to-025">From 0.24 to 0.25</h2>
 <p><strong><code>pmcp status</code> exits 4 only for projection drift or a budget overrun.</strong> A linked worktree
 ahead of or behind the mainline no longer sets <code>drift</code> or the exit code; it is counted in
