@@ -14,10 +14,12 @@ import { join } from "node:path";
 import { spawn } from "node:child_process";
 
 import { leasePaths, liveRecords, pidAlive } from "./files.js";
+import { readJobLog } from "./job-log.js";
 import type { Usage } from "./usage.js";
 
 // A submitted job: pmcp heavy submit returns a ticket at once and a detached runner (its own
-// session, so it outlives the caller) queues and runs the command under the same rules.
+// session, so it outlives the caller) queues and runs the command under the same rules. A
+// blocking run opens a ticket of its own, so its kept output is read back the same way.
 // tickets/<id>/ holds the request, the runner's pid, the output log and, once done, result.json.
 
 export function ticketExists(dir: string, id: string): boolean {
@@ -122,7 +124,9 @@ export function ticketOwner(dir: string, id: string): string | null {
   return typeof request?.session === "string" ? request.session : null;
 }
 
-export function submit(request: Submit): string {
+type TicketRequest = Pick<Submit, "dir" | "label" | "cwd" | "session">;
+
+function openTicket(request: TicketRequest, blocking: boolean): string {
   prune(request.dir);
   const id = `${Math.floor(Date.now() / 1000)}-${randomBytes(3).toString("hex")}`;
   const path = ticketDir(request.dir, id);
@@ -133,9 +137,29 @@ export function submit(request: Submit): string {
     label: request.label,
     cwd: request.cwd,
     ...(request.session ? { session: request.session } : {}),
+    ...(blocking ? { blocking: true } : {}),
     created: new Date().toISOString(),
   });
-  const log = openSync(join(path, "log"), "a");
+  return id;
+}
+
+// A blocking run gets a ticket too, so its output can be read back by id once it is done.
+export function blockingTicket(request: TicketRequest): string {
+  const id = openTicket(request, true);
+  writeFileSync(join(ticketDir(request.dir, id), "pid"), `${process.pid}\n`);
+  return id;
+}
+
+export function jobLogPath(dir: string, id: string): string {
+  return join(ticketDir(dir, id), "log");
+}
+
+export function submit(request: Submit): string {
+  const id = openTicket(request, false);
+  const path = ticketDir(request.dir, id);
+  // The runner keeps the job's output in log itself, bounded; this file holds only what the
+  // runner prints, such as a crash.
+  const log = openSync(join(path, "runner.log"), "a");
   const [bin, ...args] = request.runner(id);
   const child = spawn(bin!, args, {
     cwd: request.cwd,
@@ -195,8 +219,7 @@ export function recentTickets(dir: string): TicketView[] {
 
 export function logTail(dir: string, id: string, lines = 20): string {
   try {
-    const text = readFileSync(join(ticketDir(dir, id), "log"), "utf8");
-    return text
+    return readJobLog(jobLogPath(dir, id))
       .split("\n")
       .slice(-lines - 1)
       .join("\n");

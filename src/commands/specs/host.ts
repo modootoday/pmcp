@@ -25,10 +25,13 @@ export const heavySpec: CommandSpec = {
     },
     {
       name: "result",
-      describe: "The exit code and log of a finished ticket",
-      usage: "pmcp heavy result <ticket>",
-      options: ["config", "json"],
-      examples: ["pmcp heavy result 7f3a"],
+      describe: "A job's state and exit code, or with --log its kept output",
+      usage: "pmcp heavy result <id> [--log [--tail <n>]] [--json]",
+      options: ["log", "tail", "config", "json"],
+      examples: [
+        "pmcp heavy result 1794239701-482b9b",
+        "pmcp heavy result 1794239701-482b9b --log --tail 50",
+      ],
     },
     {
       name: "queue",
@@ -116,6 +119,17 @@ export const heavySpec: CommandSpec = {
     {
       name: "top",
       describe: "stats: only the n commands with the most runs.",
+      placeholder: "<n>",
+    },
+    {
+      name: "log",
+      describe:
+        "result: print the job's kept stdout and stderr instead of its state.",
+      boolean: true,
+    },
+    {
+      name: "tail",
+      describe: "result --log: only the last n lines.",
       placeholder: "<n>",
     },
     {

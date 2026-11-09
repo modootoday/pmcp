@@ -6,7 +6,9 @@ import {
 } from "../cli/command.js";
 import { BUSY_EXIT, type LeaseSettings } from "../lease/config.js";
 import { sessionOf } from "../lease/queue.js";
+import { readJobLog } from "../lease/job-log.js";
 import {
+  jobLogPath,
   logTail,
   submit,
   ticketView,
@@ -73,6 +75,16 @@ export function ticketResult(
   id: string | undefined,
 ): number {
   const view = viewOf(settings, id);
+  const tailText = one(context.args, "tail");
+  if (tailText !== undefined && !context.args.flags.has("log"))
+    throw new ArgumentError("--tail goes with --log");
+  if (context.args.flags.has("log")) {
+    const tail = tailText === undefined ? undefined : Number(tailText);
+    if (tail !== undefined && !(Number.isInteger(tail) && tail >= 1))
+      throw new ArgumentError("--tail is a whole number of at least 1");
+    context.ui.data(readJobLog(jobLogPath(settings.dir, view.id), tail));
+    return EXIT.ok;
+  }
   if (context.args.flags.has("json"))
     context.ui.data(`${JSON.stringify({ version: 1, ...view })}\n`);
   else context.ui.data(`${describe(view)}\n`);

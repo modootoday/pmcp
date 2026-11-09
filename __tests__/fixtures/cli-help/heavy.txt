@@ -8,7 +8,7 @@ pmcp heavy
   Subcommands
     submit    Queue a command and return its ticket at once
     wait      Wait for a submitted ticket to finish
-    result    The exit code and log of a finished ticket
+    result    A job's state and exit code, or with --log its kept output
     queue     The queued and running jobs by lane
     promote   Run a queued job now (emergency; logged)
     priority  Move a queued job to another lane or position
@@ -33,6 +33,9 @@ pmcp heavy
     --timeout <s>     wait: give up after this many seconds and exit 75.
     --force           cancel: also stop a job that is already running.
     --top <n>         stats: only the n commands with the most runs.
+    --log             result: print the job's kept stdout and stderr instead of
+                      its state.
+    --tail <n>        result --log: only the last n lines.
     --ticket <id>     Internal: the submitted ticket this run belongs to.
     --lane <lane>     Queue in this lane: gate, hook, interactive or bulk; a
                       short budget goes to them in that order (default: from the

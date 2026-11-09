@@ -13,6 +13,11 @@ no longer sets `drift` or exit 4; only projection drift does. `pmcp project --ch
 exits 4 over a limit. A script that relied on `pmcp status` failing over a budget runs
 `pmcp project --check`, or reads `data.budget.problems` from `pmcp status --json`.
 
+**A blocking `pmcp heavy` run keeps its command's output.** The command's stdout and
+stderr now pass through pmcp, which copies them into the run's ticket, so the command sees
+pipes rather than a terminal (no colours or progress bars from tools that check). Set
+`[host.lease] job_log_bytes = 0` to keep the terminal and keep no copy.
+
 ## From 0.24 to 0.25
 
 **`pmcp status` exits 4 only for projection drift or a budget overrun.** A linked worktree

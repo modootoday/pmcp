@@ -26,6 +26,7 @@ describe("[host.lease]", () => {
       maxLoad: availableParallelism(),
       maxIo: 8,
       ioWindow: "avg60",
+      jobLogBytes: 4194304,
       hardFactor: 2,
       holdWarn: 1800,
       heartbeat: 60,

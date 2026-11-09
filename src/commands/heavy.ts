@@ -14,10 +14,17 @@ import {
   type LeaseSettings,
 } from "../lease/config.js";
 import { LANES, leasePaths, type LeaseLane } from "../lease/files.js";
+import { DEFAULT_JOB_LOG_BYTES, JobLog } from "../lease/job-log.js";
+import { sessionOf } from "../lease/queue.js";
 import { runHeavy } from "../lease/run.js";
 import { leaseStatus } from "../lease/status.js";
 import { statusJson } from "../lease/status-json.js";
-import { writeResult, type TicketResult } from "../lease/tickets.js";
+import {
+  blockingTicket,
+  jobLogPath,
+  writeResult,
+  type TicketResult,
+} from "../lease/tickets.js";
 import type { Usage } from "../lease/usage.js";
 import {
   queueCancel,
@@ -177,7 +184,9 @@ async function run(context: CommandContext): Promise<number> {
     return submitTicket(context, lease, args.passthrough);
   }
   if (now) requireOperatorFor(context, "pmcp heavy --now");
-  const ticket = one(args, "ticket");
+  const submitted = one(args, "ticket");
+  const kept = keepOutput(context, lease, label, submitted);
+  const ticket = submitted ?? kept?.id;
   let result: TicketResult | null = null;
   const config = one(args, "config") ?? findConfig(context.cwd);
   const code = await runHeavy({
@@ -193,7 +202,11 @@ async function run(context: CommandContext): Promise<number> {
     argv: args.passthrough,
     cwd: context.cwd,
     env: context.env,
-    say,
+    say: (line: string) => {
+      say(line);
+      kept?.log.write(`pmcp heavy: ${line}\n`);
+    },
+    ...(kept ? { output: kept.log, echo: submitted === undefined } : {}),
     ...(ticket
       ? {
           onUsage: (usage: Usage) => {
@@ -202,6 +215,7 @@ async function run(context: CommandContext): Promise<number> {
         }
       : {}),
   });
+  kept?.log.close();
   if (ticket)
     writeResult(
       lease.dir,
@@ -209,7 +223,41 @@ async function run(context: CommandContext): Promise<number> {
       result ?? { version: 1, ticket, exit: code, outcome: "ran" },
       true,
     );
+  if (kept && submitted === undefined && code !== 0)
+    say(`output kept: pmcp heavy result ${kept.id} --log`);
   return code;
+}
+
+// A submitted job's runner keeps its output in the ticket; a blocking run opens a ticket for
+// it unless job_log_bytes is 0. Keeping a copy never stops the run.
+function keepOutput(
+  context: CommandContext,
+  lease: LeaseSettings,
+  label: string | undefined,
+  submitted: string | undefined,
+): { id: string; log: JobLog } | null {
+  const cap = lease.jobLogBytes ?? DEFAULT_JOB_LOG_BYTES;
+  try {
+    if (submitted !== undefined)
+      return {
+        id: submitted,
+        log: new JobLog(
+          jobLogPath(lease.dir, submitted),
+          cap || DEFAULT_JOB_LOG_BYTES,
+        ),
+      };
+    // A disabled lease is a plain pass-through that writes nothing to its directory.
+    if (cap === 0 || !lease.enabled) return null;
+    const id = blockingTicket({
+      dir: lease.dir,
+      label: label ?? context.args.passthrough!.join(" "),
+      cwd: context.cwd,
+      session: sessionOf(context.env, context.cwd),
+    });
+    return { id, log: new JobLog(jobLogPath(lease.dir, id), cap) };
+  } catch {
+    return null;
+  }
 }
 
 export const heavyCommand: Command = { ...heavySpec, run };

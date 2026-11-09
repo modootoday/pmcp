@@ -38,7 +38,14 @@ export interface HeavyRun {
   readonly onUsage?: (usage: Usage) => void;
   // Whether the caller is the operator, for the operator skip reason.
   readonly operator?: () => boolean;
+  // Where the job's stdout and stderr are kept; echo false keeps them off the terminal.
+  readonly output?: { write(chunk: Buffer | string): void };
+  readonly echo?: boolean;
 }
+
+// Output still buffered when the job exits is read for at most this long; a background child
+// holding the pipes open must not hold the run.
+const DRAIN_MS = 2000;
 
 // A skip reason pmcp does not allow is a usage error: the command line or setup is wrong.
 const INVALID_EXIT = 2;
@@ -86,15 +93,26 @@ function execute(
   watch: Watch,
 ): Promise<number> {
   const [bin, ...rest] = argv;
+  const kept = run.output;
+  const echo = run.echo !== false;
   return new Promise((resolve) => {
     const child = spawn(bin ?? "true", rest, {
       cwd: run.cwd,
       env: { ...run.env, ...extra },
-      stdio: ["inherit", "inherit", watch.stderrHead ? "pipe" : "inherit"],
+      stdio: [
+        "inherit",
+        kept ? "pipe" : "inherit",
+        kept || watch.stderrHead ? "pipe" : "inherit",
+      ],
     });
     let head = "";
+    child.stdout?.on("data", (chunk: Buffer) => {
+      if (echo) process.stdout.write(chunk);
+      kept?.write(chunk);
+    });
     child.stderr?.on("data", (chunk: Buffer) => {
-      process.stderr.write(chunk);
+      if (echo) process.stderr.write(chunk);
+      kept?.write(chunk);
       if (head.length >= HEAD) return;
       head += chunk.toString("utf8");
       watch.stderrHead?.(head.slice(0, HEAD));
@@ -103,7 +121,10 @@ function execute(
     const forward = (signal: NodeJS.Signals) => child.kill(signal);
     for (const signal of SIGNALS) process.on(signal, forward);
     const timer = setInterval(() => watch.tick(child.pid), 1000);
+    let finished = false;
     const done = (code: number) => {
+      if (finished) return;
+      finished = true;
       clearInterval(timer);
       for (const signal of SIGNALS) process.off(signal, forward);
       resolve(code);
@@ -113,8 +134,13 @@ function execute(
       done(127);
     });
     child.on("exit", (code, signal) => {
-      if (code !== null) return done(code);
-      done(128 + ((signal && constants.signals[signal]) || 15));
+      const exit = code ?? 128 + ((signal && constants.signals[signal]) || 15);
+      if (!child.stdout && !child.stderr) return done(exit);
+      const drained = setTimeout(() => done(exit), DRAIN_MS);
+      child.on("close", () => {
+        clearTimeout(drained);
+        done(exit);
+      });
     });
   });
 }

@@ -5,6 +5,7 @@ import { child, Reader, table } from "../git/config/reader.js";
 import { expandPath } from "../sessions/paths.js";
 import { LANES, type LeaseLane } from "./files.js";
 import { DEFAULT_HEAVY, HEAVY_PRESET } from "./heavy-preset.js";
+import { DEFAULT_JOB_LOG_BYTES } from "./job-log.js";
 
 // [host.lease]: a host-wide budget for heavy commands. It trades throughput for stability: a
 // queued job waits instead of overflowing memory or IO beside the others.
@@ -69,6 +70,8 @@ export interface LeaseSettings {
   readonly io: IoSettings;
   // usage.jsonl is rotated to usage.jsonl.1 past this many bytes.
   readonly usageCap: number;
+  // A job's kept output is rotated past this many bytes; 0 keeps none for a blocking run.
+  readonly jobLogBytes?: number;
   // After a leased job ends, how long its leftover IO may hold the queue back.
   readonly settleWindow: number;
 }
@@ -105,6 +108,7 @@ const KEYS = [
   "guard",
   "io",
   "usage_cap",
+  "job_log_bytes",
   "settle_window",
   "skip_always",
   "skip_reasons",
@@ -371,6 +375,13 @@ export function readLeaseSettings(
     guard: read.oneOf("guard", ["observe", "warn", "deny", "off"], "observe"),
     io: ioSettings(path, child(path, raw, "host.lease", "io")),
     usageCap: read.int("usage_cap", 5_000_000),
+    jobLogBytes: whole(
+      path,
+      "host.lease",
+      "job_log_bytes",
+      raw["job_log_bytes"],
+      DEFAULT_JOB_LOG_BYTES,
+    ),
     settleWindow: whole(
       path,
       "host.lease",
