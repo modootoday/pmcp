@@ -5,6 +5,7 @@ import { bindingsFor, loweringFor } from "./compile/bindings.js";
 import { legacyEntries, pinnedEntries, readCustom } from "./compile/custom.js";
 import { readGuards } from "./compile/guards.js";
 import { readExternal } from "./compile/external.js";
+import { readOwnersGuard } from "./compile/owners.js";
 import { readChecks } from "./compile/checks.js";
 import { readHooksTable } from "./compile/hooks-table.js";
 import { readHostLease } from "./compile/host-lease.js";
@@ -27,6 +28,7 @@ export interface ProjectTables {
   readonly git?: unknown;
   readonly logging?: unknown;
   readonly host?: unknown;
+  readonly owners?: unknown;
 }
 
 export interface CompileOptions {
@@ -69,10 +71,12 @@ export function compileHooks(
   const directPush = readMainlineDeliver(tables, options.root);
   const host = hostGuard(tables.host, guardsTable);
   const heavy = readHostLease(tables.host, options.root);
+  const owned = readOwnersGuard(tables.owners);
   const enabled =
     table.enabled ||
     host !== null ||
     heavy !== null ||
+    owned !== null ||
     sessions.declared ||
     workspace.declared ||
     !!deskSync ||
@@ -95,6 +99,7 @@ export function compileHooks(
     ...(host ? [host] : []),
     ...(heavy ? [heavy] : []),
     ...(operator ? [operator] : []),
+    ...(owned ? [owned] : []),
     ...readGuards(guardsTable),
     ...readChecks(hooks["checks"]),
   ];

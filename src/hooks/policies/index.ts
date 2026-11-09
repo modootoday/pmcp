@@ -21,6 +21,7 @@ import type { Policy, PolicyId } from "./types.js";
 import { sharedCheckout } from "./workspace/shared-checkout.js";
 import { mainlineDeliver } from "./workspace/mainline-deliver.js";
 import { worktreeSync } from "./workspace/worktree-sync.js";
+import { owners } from "./workspace/owners.js";
 import { hostLease } from "./host/lease.js";
 import { operatorVerbs } from "./pmcp/operator-verbs.js";
 
@@ -54,6 +55,7 @@ export const FEATURES: Readonly<Record<PolicyId, Policy<any>>> = byId([
   worktreeSync,
   mainlineDeliver,
   hostLease,
+  owners,
 ]);
 
 export const POLICIES: Readonly<Record<PolicyId, Policy<any>>> = {

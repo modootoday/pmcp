@@ -3,6 +3,7 @@ export function sourceFor(id: string): string {
   if (id.startsWith("external.")) return "hooks.guards.external";
   if (id.startsWith("checks.")) return "hooks." + id;
   if (
+    id === "owners" ||
     id.startsWith("sessions.") ||
     id.startsWith("git.worktrees") ||
     id === "git.shared_checkout" ||

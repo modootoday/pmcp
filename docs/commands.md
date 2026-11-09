@@ -250,6 +250,15 @@ pmcp wait --until no-process:"vitest run"
 
 Sleep until every condition holds: `--pid` until that process has exited, `--until exists:<path>`, `gone:<path>`, `load-below:<n>` (1-minute load average) or `no-process:<text>` (no command line contains the text). It never matches itself or the shells that started it, which a loop around `pgrep -f` does, and it sleeps between checks (`--interval`, default 5 s) instead of spinning. Exit 0 once met, 75 after `--timeout` (default 3600 s), 2 for an unreadable condition.
 
+## owners
+
+```sh
+pmcp owners services/auth/src/login.ts
+pmcp owners docs --json
+```
+
+Name who looks after each path, from [`[[owners]]`](project-configuration.md#owners): one line per matching entry, `<path> belongs to <owner>: <note>`, or `<path>: no owner`. Paths are taken from the working directory and matched relative to the directory holding `pmcp.toml`. `--json` gives `paths`, each with `path` and `owners` (owner, note, mode). It only reads. Exit 0, or 2 without a path or a `pmcp.toml`, or with an invalid `[[owners]]`.
+
 ## completion
 
 ```sh

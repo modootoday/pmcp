@@ -1,7 +1,8 @@
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 
 import { NO_CONFIG } from "../cli/command.js";
-import { findConfig, readConfig } from "../config.js";
+import { ConfigError, findConfig, readConfig } from "../config.js";
+import { ownerNotices as noticesFor, readOwners } from "../hooks/owners.js";
 import { projectStateDir } from "../sessions/state-dir.js";
 import {
   resolveLeaseFiles,
@@ -22,6 +23,8 @@ export interface GitSetup {
   readonly leaseFiles: Readonly<Record<string, LeaseFiles>>;
   // [sessions] pause_file, resolved like the lease files; absent means the state dir's.
   readonly pauseFile?: string;
+  // [[owners]] notices for repository paths, when the project declares owners.
+  readonly ownerNotices?: (paths: Iterable<string>) => string[];
 }
 
 export function loadGit(
@@ -49,6 +52,20 @@ export function loadGit(
   );
   const leaseFiles = resolveLeaseFiles(settings.leaseFiles, dirname(tree));
   const pauseFile = resolvePauseFile(settings.pauseFile, dirname(tree));
+  let owners: ReturnType<typeof readOwners>;
+  try {
+    owners = readOwners(project.raw["owners"]);
+  } catch (error) {
+    throw new ConfigError(path, (error as Error).message);
+  }
+  // Globs are relative to the directory holding pmcp.toml; git names paths from the root.
+  const ownerNotices = (paths: Iterable<string>) =>
+    noticesFor(
+      owners,
+      [...paths].map((path) =>
+        relative(project.dir, join(ctx.root, path)).split(sep).join("/"),
+      ),
+    );
   return {
     config,
     ctx,
@@ -56,6 +73,7 @@ export function loadGit(
     gateTree: tree,
     leaseFiles,
     ...(pauseFile ? { pauseFile } : {}),
+    ...(owners.length > 0 ? { ownerNotices } : {}),
   };
 }
 

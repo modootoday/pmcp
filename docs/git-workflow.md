@@ -130,7 +130,9 @@ from the mainline or a branch tracking it, `--all`, `--mirror`, wildcard
 refspecs, and a push to a URL. A dry run, another branch, a tag, another
 remote and a submodule's own push pass), `during_pause` (`"refuse"` default or `"allow"`),
 `lease_wait_seconds` (default `3600`), `notify` (argv run after a
-delivery), `gate` and `push_env`.
+delivery), `gate` and `push_env`. When the project declares
+[`[[owners]]`](project-configuration.md#owners), delivery first prints one line
+for each owner whose paths the commits touch; it never stops the delivery.
 
 A commit is already on the mainline when `git cherry` finds the same patch there,
 or when it only moves submodule pins, each to a commit that the mainline's pin for

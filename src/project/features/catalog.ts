@@ -18,6 +18,7 @@ const NOTICE_EVENTS: Readonly<Record<string, readonly NeutralEvent[]>> = {
   "sessions.mailbox": ["session_start", "prompt", "before_tool"],
   "git.shared_checkout": ["session_start", "prompt", "before_tool"],
   "git.worktrees.sync": ["session_start", "prompt"],
+  owners: ["after_tool"],
 };
 
 const OUTPUTS: Readonly<Record<string, readonly Output[]>> = {
@@ -30,6 +31,7 @@ const OUTPUTS: Readonly<Record<string, readonly Output[]>> = {
   "git.shared_checkout": ["context"],
   "git.worktrees.sync": ["context"],
   "git.mainline.deliver": ["deny"],
+  owners: ["context"],
 };
 
 function guardOutputs(id: string, policy: CompiledPolicy | null): Output[] {

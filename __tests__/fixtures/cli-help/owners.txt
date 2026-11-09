@@ -1,0 +1,13 @@
+pmcp owners
+  Who looks after a path, from [[owners]] in pmcp.toml
+
+  pmcp owners <path>... [--config <file>] [--json]
+
+  Options
+    --config <file>  A pmcp.toml to read instead of the nearest one.
+    --json           Print the result as one JSON envelope on stdout.
+
+  Examples
+    pmcp owners services/auth/src/login.ts
+    pmcp owners docs --json
+

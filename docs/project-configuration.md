@@ -61,6 +61,7 @@ ignored.
 | `[hooks]`, `[hooks.guards.*]`, `[[hooks.guards.custom]]`, `[[hooks.guards.external]]`, `[hooks.checks.*]`, `[hooks.failure]`, `[hooks.report]`, `[hooks.test]`                               | [Hooks](hooks.md)                                                       |
 | `[budget]`                                                                                                                                                                                   | [Budget](#budget)                                                       |
 | `[budgets]`                                                                                                                                                                                  | [Budgets](#budgets)                                                     |
+| `[[owners]]`                                                                                                                                                                                 | [Owners](#owners)                                                       |
 | `[[hooks.shell]]`, `[[hooks.edit]]`                                                                                                                                                          | [Deprecated shell guards](hooks.md#deprecated-shell-guards)             |
 | `[sessions]`, `[sessions.registry]`, `[sessions.pause]`, `[sessions.broadcast]`, `[sessions.mailbox]`, `[sessions.leases.<name>]`, `[sessions.roles.<name>]`, `[sessions.operator]`          | [Sessions](#sessions)                                                   |
 | `[git]`, `[git.shared_checkout]`, `[git.worktrees]`, `[git.worktrees.sync]`, `[git.mainline]`, `[git.mainline.gate]`, `[git.mainline.deliver]`, `[git.mainline.sync]`, `[git.submodules]`    | [Git workflow](git-workflow.md)                                         |
@@ -772,6 +773,31 @@ are still written, so `pmcp sessions status`, the session list and the
 Claude Code session panes read broadcasts as before. `unbroadcast` withdraws those
 messages too.
 
+## Owners
+
+`[[owners]]` says who looks after a path, so an agent that edits or delivers it
+is told whom to tell. It only informs and never refuses.
+
+| Key     | Type      | Default  | Meaning                                                                                                                  |
+| ------- | --------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `paths` | glob list | required | Globs relative to the directory holding `pmcp.toml`, as in `[budget] forbid_paths`; a directory covers what is below it. |
+| `owner` | string    | required | The person, team or session that looks after them.                                                                       |
+| `note`  | string    | none     | What to do, such as whom to ask first.                                                                                   |
+| `mode`  | string    | `"warn"` | `warn` tells the agent; `observe` only logs that the path was edited.                                                    |
+
+With `warn`, an agent that edits a matching file gets one line of context after
+the edit, `pmcp owners: <path> belongs to <owner>: <note>`, once per owner per
+session; `pmcp git deliver` prints the same line, with how many more delivered
+paths matched, for each owner its commits touch. Declaring `[[owners]]` projects
+the hook bundle. [`pmcp owners <path>`](commands.md#owners) answers for any path.
+
+```toml
+[[owners]]
+paths = ["services/auth", "services/billing"]
+owner = "hub team"
+note = "tell them before you land a change here"
+```
+
 ## Git workflow
 
 Worktrees, delivery to the mainline and main checkout sync: [Git workflow](git-workflow.md).
@@ -924,6 +950,11 @@ validator_glob = ".agents/skills/*/scripts/validate.ts"
 command = ["node", "{validator}"]
 
 [hooks.checks.on_stop]
+
+[[owners]]
+paths = ["services/auth"]
+owner = "hub team"
+note = "tell them before you land a change here"
 
 [sessions]
 state_dir = ".pmcp-state"

@@ -31,6 +31,7 @@ pmcp — the skills your installed packages ship
                the host has room
   wait         Sleep until a process exits or a condition holds, never matching
                itself
+  owners       Who looks after a path, from [[owners]] in pmcp.toml
   mcp          Manage the project's shared remote MCP authentication
   validate     Check skills against the Agent Skills specification: given
                directories, or every skill the catalog reaches

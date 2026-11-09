@@ -113,6 +113,7 @@ export const mainlineDeliver: Action = (setup, context, report) => {
     afterDeliver,
     afterDeliverDesk,
     recordDelivery: deliveryEvents(setup),
+    ...(setup.ownerNotices ? { notices: setup.ownerNotices } : {}),
     pushPins: config.submodules?.push === "pins",
     ...(config.umask !== undefined ? { umask: config.umask } : {}),
     ...(context.args.flags.has("json")

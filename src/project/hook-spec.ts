@@ -35,6 +35,7 @@ export function readHooks(
         git: raw["git"],
         logging: raw["logging"],
         host: raw["host"],
+        owners: raw["owners"],
       },
       { root, tools },
     );

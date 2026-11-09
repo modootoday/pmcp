@@ -67,6 +67,8 @@ export interface DeliverOptions {
   // Where gate output is kept, a directory per tip: [git.mainline.gate] log_dir, else the state
   // dir's gate-logs (the command passes it), else gate-logs beside the gate tree.
   readonly logDir?: string;
+  // Lines naming who looks after the delivered paths; reported, never a refusal.
+  readonly notices?: (paths: Iterable<string>) => readonly string[];
 }
 
 export interface DeliverReceipt {
@@ -410,6 +412,7 @@ function deliverOnce(options: DeliverOptions): number {
   }
   const commits = undelivered(ctx.root, ctx.upstream, options.named);
   const touched = touchedPaths(ctx.root, commits);
+  for (const line of options.notices?.(touched) ?? []) report.info(line);
   // Nothing installs after a run that does not push, so it takes no lease.
   const leased = options.noPush
     ? []
