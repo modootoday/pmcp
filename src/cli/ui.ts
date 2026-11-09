@@ -35,6 +35,27 @@ export function wrap(
   return lines;
 }
 
+// One status record on a terminal of this width: wrapped under a hanging indent, and a word
+// wider than the room cut with the ellipsis, so no line runs past the edge.
+export function fitRecord(
+  record: string,
+  width: number,
+  ellipsis = "…",
+): string[] {
+  const line = record.replaceAll("\t", "  ");
+  if (line.length <= width) return [line];
+  const lead = line.length - line.trimStart().length;
+  const hang = Math.min(lead + 4, Math.floor(width / 2));
+  const room = width - hang;
+  return wrap(line.trimStart(), room, 0).map((part, at) => {
+    const cut =
+      part.length <= room
+        ? part
+        : `${part.slice(0, Math.max(0, room - ellipsis.length))}${ellipsis}`;
+    return `${" ".repeat(at === 0 ? lead : hang)}${cut}`;
+  });
+}
+
 export interface UiOptions {
   readonly stdout?: Stream;
   readonly stderr?: Stream;
@@ -273,6 +294,19 @@ export class Ui {
       );
       for (const line of lines.slice(1))
         this.line(`${pad}${this.paint(line, "dim")}`);
+    }
+  }
+
+  // Status records on stdout: fitted to a terminal's width, one whole line each elsewhere so
+  // grep and cut see whole records.
+  records(lines: readonly string[]): void {
+    const width = this.out.isTTY === true ? this.width("table") : undefined;
+    const ellipsis = this.ascii ? "..." : "…";
+    for (const record of lines) {
+      const line = this.text(record);
+      const parts =
+        width === undefined ? [line] : fitRecord(line, width, ellipsis);
+      this.data(`${parts.join("\n")}\n`);
     }
   }
 

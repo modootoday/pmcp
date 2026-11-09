@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { clampWidth, Ui, wrap } from "../src/cli/ui.js";
+import { clampWidth, fitRecord, Ui, wrap } from "../src/cli/ui.js";
 import { dispatch } from "../src/commands/index.js";
 import { COMMANDS } from "../src/commands/registry.js";
 
@@ -62,6 +62,31 @@ it("wraps a table on a terminal and stacks a name wider than its column", () => 
   fits(lines, 40);
   expect(lines).toContain("  a-name-far-wider-than-forty-percent");
   expect(lines).toContain("      described below");
+});
+
+it("fits status records to a terminal and keeps them whole off one", () => {
+  const record =
+    "waiter: pid 4242 since 12s cwd /a/very/long/workspace/path/that/goes/on label npm run build lane bulk";
+  const tty = ui({ COLUMNS: "40" }, true);
+  tty.ui.results.records([record, "short\tline"]);
+  const lines = tty.chunks.join("").split("\n").filter(Boolean);
+  for (const line of lines) expect(line.length).toBeLessThanOrEqual(40);
+  expect(lines.length).toBeGreaterThan(3);
+  expect(lines.at(-1)).toBe("short  line");
+  expect(lines.some((line) => line.endsWith("…"))).toBe(true);
+  const plain = ui({ COLUMNS: "40" }, false);
+  plain.ui.results.records([record, "short\tline"]);
+  expect(plain.chunks.join("")).toBe(`${record}\nshort\tline\n`);
+});
+
+it("hangs a wrapped record under its own indent", () => {
+  expect(fitRecord("  path  by one two three", 12)).toEqual([
+    "  path",
+    "      by one",
+    "      two",
+    "      three",
+  ]);
+  expect(fitRecord("x".repeat(30), 10, "...")).toEqual(["xxx..."]);
 });
 
 it("keeps every help page within 80 columns off a terminal and within COLUMNS on one", async () => {

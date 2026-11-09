@@ -57,10 +57,12 @@ export function queueList(context: CommandContext, settings: LeaseSettings) {
     return EXIT.ok;
   }
   if (snapshot.waiters.length === 0) context.ui.data("queue: empty\n");
-  for (const w of snapshot.waiters)
-    context.ui.data(
-      `${w.id} ${w.lane} position ${w.position} waited ${w.waited_s}s eta ${w.eta_s ?? "?"}s weight ${w.weight} pid ${w.pid} ${w.session ?? "-"} ${w.label}\n`,
-    );
+  context.ui.results.records(
+    snapshot.waiters.map(
+      (w) =>
+        `${w.id} ${w.lane} position ${w.position} waited ${w.waited_s}s eta ${w.eta_s ?? "?"}s weight ${w.weight} pid ${w.pid} ${w.session ?? "-"} ${w.label}`,
+    ),
+  );
   return EXIT.ok;
 }
 

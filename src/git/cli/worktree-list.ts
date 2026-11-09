@@ -7,13 +7,13 @@ export const worktreeList: Action = (setup, context) => {
     context.ui.data(JSON.stringify({ version: 1, worktrees: rows }) + "\n");
     return 0;
   }
-  for (const row of rows) {
-    const name = row.main ? "(main)" : (row.alias ?? "-");
-    const counts =
-      row.behind === undefined ? "-" : `-${row.behind}/+${row.ahead}`;
-    context.ui.data(
-      `${name}\t${row.branch ?? "(detached)"}\t${counts}\t${row.path}\n`,
-    );
-  }
+  context.ui.results.records(
+    rows.map((row) => {
+      const name = row.main ? "(main)" : (row.alias ?? "-");
+      const counts =
+        row.behind === undefined ? "-" : `-${row.behind}/+${row.ahead}`;
+      return `${name}\t${row.branch ?? "(detached)"}\t${counts}\t${row.path}`;
+    }),
+  );
   return 0;
 };

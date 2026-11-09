@@ -61,23 +61,35 @@ function statLine(stat: UsageStat): string {
   ].join("  ");
 }
 
+function top(context: CommandContext): number | undefined {
+  const text = one(context.args, "top");
+  if (text === undefined) return undefined;
+  const count = Number(text);
+  if (!Number.isInteger(count) || count < 1)
+    throw new ArgumentError("--top is a whole number of at least 1");
+  return count;
+}
+
 function stats(context: CommandContext): number {
   const records = readUsage(leasePaths(settings(context).dir).usage);
-  const found = usageStats(records);
+  const limit = top(context);
+  const found = usageStats(records).slice(0, limit);
   if (context.args.flags.has("json")) {
     context.ui.data(`${JSON.stringify(found)}\n`);
     return EXIT.ok;
   }
-  if (found.length === 0) context.ui.data("no usage recorded yet\n");
+  const lines: string[] = [];
+  if (found.length === 0) lines.push("no usage recorded yet");
   const { skipped, runs } = skipShare(records);
   if (runs > 0)
-    context.ui.data(
-      `skipped the lease: ${skipped} of ${runs} runs (${Math.round((skipped / runs) * 100)}%)\n`,
+    lines.push(
+      `skipped the lease: ${skipped} of ${runs} runs (${Math.round((skipped / runs) * 100)}%)`,
     );
-  context.ui.data(
-    "signature @ dir  samples  p50/p90 of wall, cpu, rss, read, write\n",
+  lines.push(
+    "signature @ dir  samples  p50/p90 of wall, cpu, rss, read, write",
   );
-  for (const stat of found) context.ui.data(`${statLine(stat)}\n`);
+  lines.push(...found.map(statLine));
+  context.ui.results.records(lines);
   return EXIT.ok;
 }
 
@@ -110,8 +122,9 @@ function subcommand(context: CommandContext): number | Promise<number> {
     context.ui.data(`${JSON.stringify(snapshot)}\n`);
     return EXIT.ok;
   }
-  for (const line of leaseStatus({ settings: lease, env: context.env }))
-    context.ui.data(`${line}\n`);
+  context.ui.results.records(
+    leaseStatus({ settings: lease, env: context.env }),
+  );
   return EXIT.ok;
 }
 

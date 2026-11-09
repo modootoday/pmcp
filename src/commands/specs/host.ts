@@ -68,9 +68,9 @@ export const heavySpec: CommandSpec = {
     {
       name: "stats",
       describe: "Recorded run times and weights per command",
-      usage: "pmcp heavy stats [--json]",
-      options: ["config", "json"],
-      examples: ["pmcp heavy stats"],
+      usage: "pmcp heavy stats [--top <n>] [--json]",
+      options: ["top", "config", "json"],
+      examples: ["pmcp heavy stats --top 10"],
     },
   ],
   describe:
@@ -112,6 +112,11 @@ export const heavySpec: CommandSpec = {
       name: "force",
       describe: "cancel: also stop a job that is already running.",
       boolean: true,
+    },
+    {
+      name: "top",
+      describe: "stats: only the n commands with the most runs.",
+      placeholder: "<n>",
     },
     {
       name: "ticket",

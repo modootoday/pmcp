@@ -29,7 +29,7 @@ export function status(context: CommandContext): number {
     return 0;
   }
   const lines = statusLines(store, context.cwd, leases, current, wakeable);
-  if (lines.length > 0) context.ui.data(lines.join("\n") + "\n");
+  context.ui.results.records(lines);
   if (lines.length === 0) context.ui.results.line("no live sessions");
   return 0;
 }

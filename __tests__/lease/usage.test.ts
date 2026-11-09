@@ -94,6 +94,31 @@ describe("usage records", () => {
     expect(records[0]!.wall_s).toBeGreaterThanOrEqual(0);
   }, 30_000);
 
+  it("are listed by stats, the most-run first, cut to --top", () => {
+    const { base, dir, env } = scratch();
+    const cwd = project(base, leaseToml(dir));
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, "usage.jsonl");
+    for (const [name, runs] of [
+      ["npm test", 3],
+      ["npm run build", 2],
+      ["cargo build", 1],
+    ] as const)
+      for (let at = 0; at < runs; at += 1)
+        appendUsage(file, usage({ signature: name }), 1_000_000);
+    const json = pmcpSync(["heavy", "stats", "--top", "2", "--json"], cwd, env);
+    expect(json.status).toBe(0);
+    expect(
+      (JSON.parse(json.stdout) as { data: { signature: string }[] }).data.map(
+        (stat) => stat.signature,
+      ),
+    ).toEqual(["npm test @ .", "npm run build @ ."]);
+    const text = pmcpSync(["heavy", "stats", "--top", "1"], cwd, env);
+    expect(text.stdout).toContain("npm test @ .");
+    expect(text.stdout).not.toContain("npm run build");
+    expect(pmcpSync(["heavy", "stats", "--top", "0"], cwd, env).status).toBe(2);
+  }, 30_000);
+
   it("rotate to usage.jsonl.1 at the size cap and read both", () => {
     const { dir } = scratch();
     mkdirSync(dir, { recursive: true });

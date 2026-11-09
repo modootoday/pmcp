@@ -32,6 +32,7 @@ pmcp heavy
                       change or cancel was needed; logged.
     --timeout <s>     wait: give up after this many seconds and exit 75.
     --force           cancel: also stop a job that is already running.
+    --top <n>         stats: only the n commands with the most runs.
     --ticket <id>     Internal: the submitted ticket this run belongs to.
     --lane <lane>     Queue in this lane: gate, hook, interactive or bulk; a
                       short budget goes to them in that order (default: from the
