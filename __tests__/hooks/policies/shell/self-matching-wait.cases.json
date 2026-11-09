@@ -1,0 +1,31 @@
+{
+  "blocked": [
+    "while pgrep -f foo; do sleep 5; done",
+    "until ! pgrep -f 'vitest run'; do sleep 5; done",
+    "while pgrep -af tsc >/dev/null; do sleep 10; done",
+    "while pkill -0 -f build; do sleep 2; done",
+    "while pgrep --full worker >/dev/null; do sleep 1; done",
+    "for i in $(seq 60); do pgrep -f build || break; sleep 2; done",
+    "while [ -n \"$(pgrep -f server)\" ]; do sleep 1; done",
+    "while ps aux | grep -v grep | grep -q vitest; do sleep 5; done",
+    "until ! ps -ef | grep -q '[t]sc'; do sleep 5; done",
+    "timeout 600 bash -c 'while pgrep -f bun; do sleep 3; done'",
+    "cd /repo && while true; do pgrep -f gate || break; sleep 5; done",
+    "while sleep 5; do /usr/bin/pgrep -f jest >/dev/null || break; done"
+  ],
+  "allowed": [
+    "pgrep -f foo",
+    "pgrep -af node | head",
+    "ps aux | grep vitest",
+    "while kill -0 \"$pid\" 2>/dev/null; do sleep 5; done",
+    "while pgrep -x node >/dev/null; do sleep 5; done",
+    "while ps -p \"$pid\" >/dev/null; do sleep 5; done",
+    "while ps -p 4242 | grep -q bun; do sleep 5; done",
+    "until curl -sf localhost:8080/health; do sleep 1; done",
+    "for pid in $(pgrep -f worker); do kill \"$pid\"; done",
+    "pmcp wait --until no-process:vitest --timeout 900",
+    "pmcp heavy wait 1794239701-482b9b",
+    "echo 'while pgrep -f foo; do sleep 5; done'",
+    "grep -rn 'pgrep -f' docs"
+  ]
+}

@@ -15,6 +15,7 @@ import { hostApproval } from "./shell/host-approval.js";
 import { inPlaceEdit } from "./shell/in-place-edit.js";
 import { runawayRegex } from "./shell/runaway-regex.js";
 import { secretExfiltration } from "./shell/secret-exfiltration.js";
+import { selfMatchingWait } from "./shell/self-matching-wait.js";
 import { stdinInterpreter } from "./shell/stdin-interpreter.js";
 import type { Policy, PolicyId } from "./types.js";
 import { sharedCheckout } from "./workspace/shared-checkout.js";
@@ -34,6 +35,7 @@ export const GUARDS: Readonly<Record<PolicyId, Policy<any>>> = byId([
   hostApproval,
   secretExfiltration,
   runawayRegex,
+  selfMatchingWait,
   pushWithoutVerify,
   forcedBranchMove,
   gateBypassEnv,

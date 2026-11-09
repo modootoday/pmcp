@@ -876,6 +876,9 @@ publish = ["deploy", "secret put", "secret delete"]
 [hooks.guards.shell.runaway_regex]
 threshold = 255
 
+[hooks.guards.shell.self_matching_wait]
+mode = "deny"
+
 [hooks.guards.git.push_without_verify]
 
 [hooks.guards.git.forced_branch_move]

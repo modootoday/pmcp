@@ -11,6 +11,7 @@ const SIMPLE = [
   ["shell.compose_teardown", "compose-teardown"],
   ["shell.host_approval", "host-approval"],
   ["shell.runaway_regex", "runaway-regex"],
+  ["shell.self_matching_wait", "self-matching-wait"],
 ] as const;
 
 describe.each(RUNTIMES)("shell guards on %s payloads", (runtime) => {

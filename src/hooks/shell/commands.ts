@@ -12,7 +12,7 @@ const MAX_DEPTH = 4;
 const MAX_ITEMS = 32;
 const MAX_UNROLLED = 128;
 
-function unwrap(words: readonly string[]): {
+export function unwrap(words: readonly string[]): {
   assigned: string[];
   words: string[];
 } {
