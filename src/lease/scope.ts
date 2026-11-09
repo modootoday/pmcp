@@ -113,8 +113,10 @@ async function weigh(
         settings.io.weights[lane],
         settings.io.max[lane],
       );
-      if (!set && settings.io.enabled === true)
+      if (!set.weight)
         say(`io control did not reach ${scope}; running without io.weight`);
+      if (set.max === "failed")
+        say(`io.max for the ${lane} lane was refused; the job runs without it`);
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, 100));

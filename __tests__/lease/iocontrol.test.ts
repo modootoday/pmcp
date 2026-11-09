@@ -44,13 +44,19 @@ describe("io control", () => {
     const root = tree("cpu io memory\n");
     const scope = join(root, SCOPE);
     // The fake kernel: io reaches the scope once its parent enables it.
-    expect(applyIo({ root, self: "" }, SCOPE, 25, "8:0 wbps=1000")).toBe(false);
+    expect(applyIo({ root, self: "" }, SCOPE, 25, "8:0 wbps=1000")).toEqual({
+      weight: false,
+      max: "failed",
+    });
     const parent = join(root, MANAGER, "app.slice");
     expect(readFileSync(join(parent, "cgroup.subtree_control"), "utf8")).toBe(
       "+io",
     );
     writeFileSync(join(scope, "cgroup.controllers"), "io memory pids\n");
-    expect(applyIo({ root, self: "" }, SCOPE, 25, "8:0 wbps=1000")).toBe(true);
+    expect(applyIo({ root, self: "" }, SCOPE, 25, "8:0 wbps=1000")).toEqual({
+      weight: true,
+      max: "set",
+    });
     expect(readFileSync(join(scope, "io.weight"), "utf8")).toBe("default 25");
     expect(readFileSync(join(scope, "io.max"), "utf8")).toBe("8:0 wbps=1000");
   });

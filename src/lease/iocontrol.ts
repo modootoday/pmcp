@@ -53,31 +53,45 @@ function enable(dir: string): void {
   }
 }
 
-// Turns io on down every parent of the scope, then sets the weight; false when io never reaches it.
+export interface IoApplied {
+  // Whether the lane's io.weight was written.
+  readonly weight: boolean;
+  // The io.max line: written, none configured, or refused.
+  readonly max: "set" | "unset" | "failed";
+}
+
+// Turns io on down every parent of the scope, then writes io.weight and io.max into the scope
+// itself: a user manager records IOWeight and IO*Max properties without applying them.
 export function applyIo(
   host: CgroupHost,
   scope: string,
   weight: number,
   max: string | undefined,
-): boolean {
+): IoApplied {
   const parts = scope.split("/").filter(Boolean);
   for (let at = 1; at < parts.length; at += 1)
     enable(join(host.root, ...parts.slice(0, at)));
   const dir = join(host.root, ...parts);
-  if (!controllers(dir).includes("io")) return false;
-  try {
-    writeFileSync(join(dir, "io.weight"), `default ${weight}`);
-    if (max) writeFileSync(join(dir, "io.max"), max);
-    return true;
-  } catch {
-    return false;
-  }
+  if (!controllers(dir).includes("io"))
+    return { weight: false, max: max ? "failed" : "unset" };
+  const write = (file: string, text: string) => {
+    try {
+      writeFileSync(join(dir, file), text);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const written = write("io.weight", `default ${weight}`);
+  if (!max) return { weight: written, max: "unset" };
+  return { weight: written, max: write("io.max", max) ? "set" : "failed" };
 }
 
+// The unit is named with its .scope suffix: systemctl show takes a bare name as a .service.
 export function scopeCgroup(unit: string): string | null {
   const run = spawnSync(
     "systemctl",
-    ["--user", "show", unit, "-p", "ControlGroup", "--value"],
+    ["--user", "show", `${unit}.scope`, "-p", "ControlGroup", "--value"],
     { encoding: "utf8" },
   );
   const path = run.status === 0 ? run.stdout.trim() : "";
