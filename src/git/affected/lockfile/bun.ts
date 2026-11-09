@@ -1,8 +1,10 @@
 import {
   isToolchain,
+  rootMapping,
   type LockfileAdapter,
   type LockfileInput,
   type LockfileDelta,
+  type RootDependencyHit,
 } from "./types.js";
 
 type Json = Record<string, unknown>;
@@ -135,6 +137,7 @@ function rootDelta(
   head: Json | null,
   input: LockfileInput,
   seeds: Set<string>,
+  rootNames: Set<string>,
 ): string | null {
   const fields = new Set([
     ...Object.keys(base ?? {}),
@@ -151,6 +154,7 @@ function rootDelta(
     if (isToolchain(name, input.config.toolchain))
       return `root toolchain dependency ${name} changed`;
     seeds.add(name);
+    rootNames.add(name);
   }
   return null;
 }
@@ -167,7 +171,8 @@ function lockDelta(input: LockfileInput): LockfileDelta {
   if (basePkg === null || headPkg === null)
     return { all: "no root package.json at one revision", direct: [] };
   const seeds = new Set<string>();
-  const rootAll = rootDelta(basePkg, headPkg, input, seeds);
+  const rootNames = new Set<string>();
+  const rootAll = rootDelta(basePkg, headPkg, input, seeds, rootNames);
   if (rootAll !== null) return { all: rootAll, direct: [] };
   const baseLock = lock(read(input.base, "bun.lock"));
   const headLock = lock(read(input.head, "bun.lock"));
@@ -205,14 +210,44 @@ function lockDelta(input: LockfileInput): LockfileDelta {
   const seen = new Set(seeds);
   const queue = [...seeds];
   while (queue.length > 0) {
-    for (const from of reverse.get(queue.pop()!) ?? []) {
+    const key = queue.pop()!;
+    for (const from of reverse.get(key) ?? []) {
+      // The root reached through key: key resolves one of its own dependencies.
+      if (from === "ws:") rootNames.add(lastName(key));
       if (seen.has(from)) continue;
       seen.add(from);
       if (!from.startsWith("ws:")) queue.push(from);
       else if (from !== "ws:") direct.add(from.slice(3));
     }
   }
-  return { all: null, direct: [...direct].sort() };
+  return mapRoot(input, rootNames, [...direct].sort());
+}
+
+function lastName(key: string): string {
+  const parent = parentKey(key);
+  return parent === null ? key : key.slice(parent.length + 1);
+}
+
+// Without [git.affected.root_dependencies] the root's own dependencies select nothing, as
+// before; with it each one must be mapped, and one that is not selects ALL.
+function mapRoot(
+  input: LockfileInput,
+  names: ReadonlySet<string>,
+  direct: readonly string[],
+): LockfileDelta {
+  const table = input.rootDependencies;
+  if (table === undefined || names.size === 0) return { all: null, direct };
+  const mapped: RootDependencyHit[] = [];
+  for (const name of [...names].sort()) {
+    const hit = rootMapping(name, table);
+    if (hit === null)
+      return {
+        all: `root dependency ${name} changed and [git.affected.root_dependencies] does not map it`,
+        direct: [],
+      };
+    mapped.push(hit);
+  }
+  return { all: null, direct, mapped };
 }
 
 export const bunLockfile: LockfileAdapter = {

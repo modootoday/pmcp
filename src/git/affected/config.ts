@@ -24,6 +24,9 @@ export interface AffectedConfig {
   readonly unmapped: Unmapped;
   readonly consumers: boolean;
   readonly lockfile?: LockfileConfig;
+  // Root package.json dependency name (a trailing * matches a prefix) to the members using it.
+  // Declared, it maps each root dependency change; one it does not map selects ALL.
+  readonly rootDependencies?: Readonly<Record<string, readonly string[]>>;
 }
 
 const DERIVE: readonly Derive[] = ["tsconfig", "vitest"];
@@ -32,22 +35,28 @@ function stringMap(path: string, name: string, value: unknown): Table {
   return table(path, name, value) ?? {};
 }
 
+function memberLists(
+  path: string,
+  name: string,
+  value: unknown,
+): Readonly<Record<string, readonly string[]>> {
+  const out: Record<string, readonly string[]> = {};
+  for (const [key, members] of Object.entries(stringMap(path, name, value))) {
+    if (!Array.isArray(members) || !members.every((m) => typeof m === "string"))
+      throw new ConfigError(
+        path,
+        `[${name}] "${key}" must be a list of member directories`,
+      );
+    out[key] = members as string[];
+  }
+  return out;
+}
+
 function readers(
   path: string,
   source: Table,
 ): Readonly<Record<string, readonly string[]>> {
-  const out: Record<string, readonly string[]> = {};
-  for (const [glob, members] of Object.entries(
-    stringMap(path, "git.affected.readers", source["readers"]),
-  )) {
-    if (!Array.isArray(members) || !members.every((m) => typeof m === "string"))
-      throw new ConfigError(
-        path,
-        `[git.affected.readers] "${glob}" must be a list of member directories`,
-      );
-    out[glob] = members as string[];
-  }
-  return out;
+  return memberLists(path, "git.affected.readers", source["readers"]);
 }
 
 function owners(path: string, source: Table): Readonly<Record<string, string>> {
@@ -102,6 +111,7 @@ export function readAffectedConfig(
     "unmapped",
     "consumers",
     "lockfile",
+    "root_dependencies",
   ]);
   const derive = read.list("derive");
   for (const name of derive)
@@ -111,6 +121,20 @@ export function readAffectedConfig(
         `[git.affected] derive accepts ${DERIVE.join(", ")}, not ${name}`,
       );
   const lockTable = child(path, source, "git.affected", "lockfile");
+  const rootDependencies =
+    source["root_dependencies"] === undefined
+      ? undefined
+      : memberLists(
+          path,
+          "git.affected.root_dependencies",
+          source["root_dependencies"],
+        );
+  // Only the lockfile adapter reads the root manifest's dependency fields.
+  if (rootDependencies && !lockTable)
+    throw new ConfigError(
+      path,
+      "[git.affected.root_dependencies] needs [git.affected.lockfile]",
+    );
   return {
     members: read.oneOf("members", ["workspaces"], "workspaces"),
     sharedInputs: read.list("shared_inputs"),
@@ -124,5 +148,6 @@ export function readAffectedConfig(
     unmapped: read.oneOf<Unmapped>("unmapped", ["all", "report"], "all"),
     consumers: read.bool("consumers", false),
     ...(lockTable ? { lockfile: lockfile(path, lockTable) } : {}),
+    ...(rootDependencies ? { rootDependencies } : {}),
   };
 }

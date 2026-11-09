@@ -268,6 +268,97 @@ describe("lockfile", () => {
   });
 });
 
+describe("root dependencies", () => {
+  const rootManifest = (deps: Record<string, string>): string =>
+    JSON.stringify({
+      name: "root",
+      workspaces: ["packages/*", "tools/*"],
+      devDependencies: { typescript: "5.0.0", ...deps },
+    });
+
+  // A root that already depends on deps at the base commit, then moves to next.
+  function bumped(
+    deps: Record<string, string>,
+    next: Record<string, string>,
+  ): ReturnType<typeof workspace> {
+    const ws = workspace();
+    ws.write("package.json", rootManifest(deps));
+    ws.commit("root dependencies");
+    ws.write("package.json", rootManifest(next));
+    ws.commit("bump");
+    return ws;
+  }
+
+  const select = (
+    ws: ReturnType<typeof workspace>,
+    rootDependencies: Record<string, string[]>,
+  ) =>
+    selectAffected(
+      ws.root,
+      config({ lockfile, rootDependencies }),
+      "HEAD~1",
+      "HEAD",
+    );
+
+  it("selects the members a mapped root dependency names, and says which key mapped it", () => {
+    const ws = bumped(
+      { "@modootoday/pmcp": "0.25.0" },
+      { "@modootoday/pmcp": "0.26.0" },
+    );
+    expect(select(ws, { "@modootoday/*": ["tools/c"] })).toMatchObject({
+      all: false,
+      changed: ["tools/c"],
+      rootDependencies: [
+        {
+          name: "@modootoday/pmcp",
+          key: "@modootoday/*",
+          members: ["tools/c"],
+        },
+      ],
+    });
+  });
+
+  it("keeps ALL when one changed root dependency is not mapped", () => {
+    const ws = bumped(
+      { "@modootoday/pmcp": "0.25.0", other: "1.0.0" },
+      { "@modootoday/pmcp": "0.26.0", other: "1.1.0" },
+    );
+    expect(select(ws, { "@modootoday/pmcp": ["tools/c"] })).toMatchObject({
+      all: true,
+      reason:
+        "root dependency other changed and [git.affected.root_dependencies] does not map it",
+    });
+  });
+
+  it("adds the members whose resolution moved in the lockfile to the mapped ones", () => {
+    const ws = workspace();
+    ws.write("package.json", rootManifest({ leftpad: "1.0.0" }));
+    ws.commit("root uses leftpad");
+    ws.write("package.json", rootManifest({ leftpad: "1.0.1" }));
+    ws.write(
+      "bun.lock",
+      lockText({ leftpad: "1.0.1", typescript: "5.0.0" }, { leftpad: "1.0.0" }),
+    );
+    ws.commit("bump leftpad");
+    expect(select(ws, { leftpad: ["tools/c"] })).toMatchObject({
+      all: false,
+      changed: ["packages/b", "tools/c"],
+    });
+  });
+
+  it("selects nothing for a root dependency mapped to an empty list", () => {
+    const ws = bumped(
+      { "@modootoday/pmcp": "0.25.0" },
+      { "@modootoday/pmcp": "0.26.0" },
+    );
+    expect(select(ws, { "@modootoday/pmcp": [] })).toMatchObject({
+      all: false,
+      changed: [],
+      members: [],
+    });
+  });
+});
+
 describe("parsers", () => {
   it("reads bun.lock trailing commas and comments outside strings only", () => {
     const lock = parseBunLock(

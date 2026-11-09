@@ -252,6 +252,25 @@ trailing `*` matches a prefix) every member builds with: a change to one selects
 root field outside the dependency fields and `inert_root_fields` (default `scripts`,
 `description`, `version`) or a lockfile that does not parse.
 
+A dependency of the root `package.json` itself (a CLI the root's scripts or git hooks run)
+belongs to no member, so without more the lockfile adapter selects only the members whose own
+resolution of it moved. `[git.affected.root_dependencies]` (it needs `[git.affected.lockfile]`)
+names the members that use each one: a key is a package name, or a prefix ending in `*`, and
+its value the member directories, an empty list meaning no member is affected.
+
+```toml
+[git.affected.root_dependencies]
+"@modootoday/pmcp" = ["tools/husky-hook-runner", "tools/pmcp-verify"]
+"eslint-*" = []
+```
+
+Once the table is declared, every root dependency whose range changed, or whose resolved
+package (or anything below it) moved in the lockfile, must be mapped: the mapped members are
+selected beside the members whose resolution moved (and their consumers with
+`consumers = true`), and one changed root dependency the table does not map selects `ALL`,
+naming it. `--json` lists the mappings that applied in `rootDependencies`
+(`name`, the `key` that matched, `members`). A name in `toolchain` still selects `ALL` first.
+
 Consumer edges are a member's `dependencies`, `peerDependencies` and `optionalDependencies`, the
 `devDependencies` its production source under `src/` imports (all of them when its
 `tsconfig.json` `exclude` names no tests), the member whose tsconfig preset it extends, and

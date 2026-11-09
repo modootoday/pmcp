@@ -6,6 +6,7 @@ import { readDelta, showFile, type Change, type Delta } from "./delta.js";
 import { deriveReaders } from "./derive.js";
 import { withConsumers } from "./graph.js";
 import { bunLockfile } from "./lockfile/bun.js";
+import type { LockfileDelta, RootDependencyHit } from "./lockfile/types.js";
 import { workspaceMembers, type Member } from "./members.js";
 import { HeadTree } from "./tree.js";
 
@@ -20,6 +21,8 @@ export interface Selection {
   // changed plus their consumers when [git.affected] consumers is on: what typechecks.
   readonly members: readonly string[];
   readonly unmapped: readonly string[];
+  // Changed root dependencies and the [git.affected.root_dependencies] key that mapped each.
+  readonly rootDependencies?: readonly RootDependencyHit[];
 }
 
 const ALL = (reason: string, extra: Partial<Selection> = {}): Selection => ({
@@ -68,7 +71,7 @@ function lockfileMembers(
   changes: readonly Change[],
   base: string,
   head: string,
-): { all: string | null; direct: readonly string[] } {
+): LockfileDelta {
   if (config.lockfile === undefined) return { all: null, direct: [] };
   const adapter = bunLockfile;
   if (!changes.some((change) => adapter.files.includes(change.path)))
@@ -78,6 +81,9 @@ function lockfileMembers(
     base,
     head,
     config: config.lockfile,
+    ...(config.rootDependencies
+      ? { rootDependencies: config.rootDependencies }
+      : {}),
   });
 }
 
@@ -145,6 +151,9 @@ function mapChanges(
   const direct = lock.direct.filter((dir) => dirs.has(dir));
   if (direct.length > 0)
     for (const dir of withConsumers(tree, members, direct)) changed.add(dir);
+  for (const hit of lock.mapped ?? [])
+    for (const dir of hit.members) changed.add(dir);
+  const mapped = lock.mapped?.length ? { rootDependencies: lock.mapped } : {};
 
   const ignored = matcher(config.ignore);
   const included = ordered(config.include);
@@ -195,9 +204,16 @@ function mapChanges(
   // A named member that is not one (retired, or a fixture) would hand the runner a target it lacks.
   const list = [...changed].filter((dir) => dirs.has(dir)).sort();
   if (unmapped.length > 0 && config.unmapped === "all")
-    return ALL(`unmapped ${unmapped[0]}`, { ...at, unmapped });
+    return ALL(`unmapped ${unmapped[0]}`, { ...at, unmapped, ...mapped });
   // Tests are not widened to consumers, so a tests-only answer skips reading every source.
   const wide =
     config.consumers && !testsOnly ? withConsumers(tree, members, list) : list;
-  return { all: false, ...at, changed: list, members: wide, unmapped };
+  return {
+    all: false,
+    ...at,
+    changed: list,
+    members: wide,
+    unmapped,
+    ...mapped,
+  };
 }

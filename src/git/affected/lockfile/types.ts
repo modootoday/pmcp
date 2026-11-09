@@ -6,13 +6,35 @@ export interface LockfileInput {
   readonly base: string;
   readonly head: string;
   readonly config: LockfileConfig;
+  // [git.affected.root_dependencies], when declared.
+  readonly rootDependencies?: Readonly<Record<string, readonly string[]>>;
+}
+
+// A changed root dependency and the mapping that answered for it.
+export interface RootDependencyHit {
+  readonly name: string;
+  readonly key: string;
+  readonly members: readonly string[];
 }
 
 // all names why everything is selected; otherwise direct lists member directories whose
-// resolution moved, before any consumer expansion.
+// resolution moved, before any consumer expansion, and mapped the root dependencies mapped.
 export interface LockfileDelta {
   readonly all: string | null;
   readonly direct: readonly string[];
+  readonly mapped?: readonly RootDependencyHit[];
+}
+
+// The first key naming the dependency: the name itself, or a trailing-* prefix.
+export function rootMapping(
+  name: string,
+  table: Readonly<Record<string, readonly string[]>>,
+): RootDependencyHit | null {
+  const keys = Object.keys(table);
+  const key =
+    keys.find((candidate) => candidate === name) ??
+    keys.find((candidate) => isToolchain(name, [candidate]));
+  return key === undefined ? null : { name, key, members: table[key]! };
 }
 
 export interface LockfileAdapter {
