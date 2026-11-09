@@ -66,8 +66,14 @@ pmcp sessions unbroadcast
 pmcp sessions sweep   # drop records whose process is gone</code></pre>
 <p>While paused, every other session&#39;s edits and mutating commands are refused; reading and
 planning continue. A broadcast reaches each running session once, as context. <code>--by &lt;name&gt;</code>
-names who pauses or broadcasts; that session is exempt, and without it the sender is
-<code>operator</code>.</p>
+names who pauses or broadcasts; that session is exempt. Without it a broadcast is signed by
+the agent session it runs in, or by <code>operator</code> from your own terminal.</p>
+<p>Pause and resume are <a href="/project-configuration/#the-operator">operator verbs</a>: pmcp runs them
+only from your terminal (or with your operator token), refuses them inside an agent session
+with a line telling the agent to ask you, and the <code>pmcp.operator_verbs</code> guard refuses them in
+the agent&#39;s runtime before they start. The same holds for <code>pmcp heavy --now</code>,
+<code>pmcp heavy promote --now</code>, <code>pmcp heavy cancel --force</code> on another session&#39;s job and
+<code>pmcp git deliver --during-pause</code>.</p>
 <h2 id="send-a-message-to-one-session">Send a message to one session</h2>
 <p>With <code>[sessions.mailbox]</code> declared, address a session by id, alias, role or linked worktree:</p>
 <pre><code>pmcp sessions send --to alias:reviewer --subject review &quot;Please check the config change&quot;

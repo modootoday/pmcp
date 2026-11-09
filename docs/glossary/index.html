@@ -63,7 +63,7 @@
 <tr><td>broadcast</td><td>Text every running session receives once, as context.</td></tr>
 <tr><td>sessions mailbox</td><td>Addressed messages between the sessions of one repository, <code>pmcp sessions send</code>. <a href="/sessions/">Run several agents</a></td></tr>
 <tr><td>local mailbox</td><td>Messages between actors that hold their own credentials, <code>pmcp mailbox</code>, across projects and hosts. <a href="/mailbox/">Local mailbox</a></td></tr>
-<tr><td><code>operator</code></td><td>A name, not a role: the default sender of <code>pmcp sessions pause</code>, <code>broadcast</code> and <code>send</code> (<code>--by</code>), and a mailbox actor you may register. The docs call the person &quot;you&quot;.</td></tr>
+<tr><td><code>operator</code></td><td>You, recognised by <code>[sessions.operator]</code>: your own terminal, or a token file agents cannot read. Only the operator runs the operator verbs or signs as <code>operator</code> (<code>--by</code>). The docs say &quot;you&quot;.</td></tr>
 <tr><td>runtime id</td><td>How each table names a native runtime; the ids differ between tables. <a href="/compatibility/#native-runtimes">Compatibility</a></td></tr>
 <tr><td>main and worker</td><td>In a terminal workspace or harness group, the session you mainly talk to and the ones it delegates to. <a href="/terminal-workspace/">Terminal workspace</a></td></tr>
 <tr><td>harness group</td><td>The sessions one pmcp-pty daemon hosts for <code>pmcp tui</code> or <code>pmcp harness</code>, with a budget and a generation that changes when the group is replaced. <a href="/terminal-harness/">Native terminal control</a></td></tr>

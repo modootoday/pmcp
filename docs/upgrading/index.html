@@ -48,6 +48,49 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="from-024-to-025">From 0.24 to 0.25</h2>
+<p><strong><code>pmcp status</code> exits 4 only for projection drift or a budget overrun.</strong> A linked worktree
+ahead of or behind the mainline no longer sets <code>drift</code> or the exit code; it is counted in
+the summary line and in the new <code>data.lagging</code> field. A script that relied on exit 4 to
+notice worktree lag reads <code>lagging</code> from <code>pmcp status --json</code> instead.</p>
+<p><strong>Operator verbs run only as the operator.</strong> <code>pmcp sessions pause</code> and <code>resume</code>,
+<code>pmcp heavy --now</code> (and <code>PMCP_HEAVY_NOW</code>), <code>pmcp heavy promote --now</code>,
+<code>pmcp heavy cancel --force</code> on another session&#39;s job and <code>pmcp git deliver --during-pause</code>
+now exit 1 inside an agent session, with a line telling the agent to ask you. From your own
+terminal nothing changes. A script or cron job that runs one of them has no terminal: give
+it an operator token,</p>
+<pre><code>[sessions.operator]
+via = &quot;token&quot;
+token_file = &quot;~/.config/pmcp/operator-token&quot;   # outside the project, chmod 600</code></pre>
+<p>and run it with <code>PMCP_OPERATOR_TOKEN</code> set to the file&#39;s contents. A gate or hook that ran
+<code>pmcp heavy --now</code> for its own stages should use the <code>gate</code> or <code>hook</code> profile, or a reason
+in <code>[host.lease] skip_always</code>, instead.</p>
+<p><strong><code>--by</code> no longer defaults to <code>operator</code>.</strong> <code>pmcp sessions broadcast</code>, <code>send</code> and <code>reply</code>
+sign with the agent session they run in, or with <code>operator</code> only from the operator&#39;s
+terminal; <code>--by operator</code> anywhere else exits 2. A command run inside a runtime whose
+session pmcp cannot find (Gemini CLI, OpenCode) now exits 2 asking for <code>--session &lt;id&gt;</code> or
+<code>--by &lt;name&gt;</code> instead of acting as the operator.</p>
+<p><strong>The <code>pmcp.operator_verbs</code> guard is on with any session feature.</strong> A project that declares
+<code>[sessions.registry]</code>, <code>[sessions.pause]</code> or another session table gets it in deny mode;
+run <code>pmcp project</code> once so the hook policy carries it (<code>pmcp project --check</code> reports the
+drift until then). Turn it off with
+<code>[hooks.guards.pmcp.operator_verbs]</code> <code>mode = &quot;off&quot;</code>.</p>
+<p><strong>Lease skip reasons are a closed set.</strong> <code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> (and the
+<code>legacy_skip_env</code> variable) is honoured only for <code>nested</code> (set by pmcp inside a leased job,
+and honoured only there), <code>operator</code> (only for the operator) and the names you list:</p>
+<pre><code>[host.lease]
+skip_reasons = [&quot;ci&quot;, &quot;subagent-no-lease&quot;]   # ordinary commands
+skip_always = [&quot;git-hook&quot;, &quot;gate-light&quot;]     # also bulk jobs; allowed as reasons too</code></pre>
+<p>Any other reason runs nothing and <code>pmcp heavy</code> exits 2 with the allowed list. A wrapper
+that read the old nested value <code>inside pmcp heavy &lt;pid&gt;</code> now sees <code>nested</code>; the old
+value is still read as <code>nested</code> until 0.26. Reasons are lower-case words, so a
+<code>skip_always</code> entry with spaces or capitals is now a configuration error.</p>
+<p><strong>A declared <code>[host.lease]</code> turns the <code>host.lease</code> guard on in observe.</strong> Without a
+<code>heavy</code> list, the table now gets pmcp&#39;s <code>&quot;default&quot;</code> preset (install, test, build and
+typecheck for npm, pnpm, yarn, bun and cargo), so the guard logs what it would refuse.
+Run <code>pmcp project</code> to project it; set <code>heavy = []</code> to keep the guard off. A finding an
+<code>observe</code> or <code>warn</code> guard let through is now logged at info: after a week,
+<code>pmcp hooks report --switch-check host.lease</code> shows what <code>guard = &quot;deny&quot;</code> would refuse.</p>
 <h2 id="from-023-to-024">From 0.23 to 0.24</h2>
 <p><strong>A lease skip no longer covers a bulk job.</strong> <code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> (or the
 <code>legacy_skip_env</code> variable) still runs an ordinary command at once, but a job in the bulk

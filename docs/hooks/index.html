@@ -103,7 +103,10 @@ nothing, no verdict and no context, even when the guard fails; use it to run a g
 beside a hook it will replace and compare. Every guard writes one debug log line per
 call: <code>policy</code>, <code>session</code>, <code>verdict</code> (what the call got) and, under <code>data</code>, <code>raw</code>
 (what the guard found: <code>allow</code>, <code>ask</code> or <code>deny</code>), <code>mode</code>, <code>tool</code> (the tool kind) and
-<code>native</code> (the runtime&#39;s tool name), never the command, the reason or the prompt.</p>
+<code>native</code> (the runtime&#39;s tool name), never the command, the reason or the prompt. A call
+an <code>observe</code> or <code>warn</code> guard found something in but let through is written at info
+instead, so <code>pmcp hooks report --switch-check &lt;guard&gt;</code> counts a week of observe at the
+default log level.</p>
 <div class="scroll"><table><thead><tr><th>Table</th><th>Default mode</th><th>Modes</th><th>Refuses</th></tr></thead><tbody><tr><td><code>[hooks.guards.shell.in_place_edit]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>sed -i</code>, <code>perl -i</code>, <code>awk -i inplace</code>: edits without a diff.</td></tr>
 <tr><td><code>[hooks.guards.shell.heredoc]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>Heredocs and here-strings, whose body the shell expands silently.</td></tr>
 <tr><td><code>[hooks.guards.shell.stdin_interpreter]</code></td><td>ask</td><td>deny, ask, warn, observe, off</td><td>An interpreter reading its program from stdin (<code>python3 -</code>, <code>cat x.py | python3</code>).</td></tr>
@@ -114,7 +117,8 @@ call: <code>policy</code>, <code>session</code>, <code>verdict</code> (what the 
 <tr><td><code>[hooks.guards.git.push_without_verify]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>git push --no-verify</code>.</td></tr>
 <tr><td><code>[hooks.guards.git.forced_branch_move]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>Forcing a branch that is checked out in another working tree.</td></tr>
 <tr><td><code>[hooks.guards.git.gate_bypass_env]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>Setting a named gate-bypass variable where it takes effect, and optionally <code>--no-verify</code> on any git command.</td></tr>
-<tr><td><code>[hooks.guards.git.stage_all]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>git add -A</code>, <code>git add .</code>, <code>git commit -a</code> and similar; stage explicit paths.</td></tr></tbody></table></div>
+<tr><td><code>[hooks.guards.git.stage_all]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td><code>git add -A</code>, <code>git add .</code>, <code>git commit -a</code> and similar; stage explicit paths.</td></tr>
+<tr><td><code>[hooks.guards.pmcp.operator_verbs]</code></td><td>deny</td><td>deny, ask, warn, observe, off</td><td>The operator verbs: <code>pmcp sessions pause</code> and <code>resume</code>, <code>pmcp heavy --now</code> and <code>promote --now</code>, <code>pmcp heavy cancel --force</code>, <code>pmcp git deliver --during-pause</code>, and setting <code>PMCP_HEAVY_NOW</code>, <code>PMCP_OPERATOR_TOKEN</code> or the lease skip <code>PMCP_HEAVY_DISABLE=operator</code>. On by itself with any session feature.</td></tr></tbody></table></div>
 <p>Options:</p>
 <ul>
 <li><code>[hooks.guards.shell.secret_exfiltration]</code>: <code>extra_secret_paths</code> (list of
@@ -300,7 +304,7 @@ table for your project, with Codex trust.</p>
 <tr><td><code>[git.shared_checkout]</code>, <code>[git.worktrees.sync]</code>, <code>[git.mainline.deliver]</code></td><td>measured</td><td>measured</td></tr>
 <tr><td>heredoc, compose_teardown, push_without_verify, forced_branch_move, gate_bypass_env, stage_all</td><td>measured</td><td>measured</td></tr>
 <tr><td>in_place_edit, stdin_interpreter, secret_exfiltration (ask)</td><td>ask not measured</td><td>ask lowered by <code>ask_fallback</code></td></tr>
-<tr><td>host_approval</td><td>works; not live-measured</td><td>works; not live-measured</td></tr>
+<tr><td>host_approval, operator_verbs</td><td>works; not live-measured</td><td>works; not live-measured</td></tr>
 <tr><td><code>[hooks.checks.after_edit]</code></td><td>measured</td><td>measured</td></tr>
 <tr><td><code>[hooks.checks.on_stop]</code></td><td>measured, in the same turn</td><td>at the next prompt</td></tr>
 <tr><td><code>[[hooks.guards.custom]]</code></td><td>not measured</td><td>not measured</td></tr>

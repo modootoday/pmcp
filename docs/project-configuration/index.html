@@ -86,7 +86,7 @@ ignored.</p>
 <tr><td><code>[hooks]</code>, <code>[hooks.guards.*]</code>, <code>[[hooks.guards.custom]]</code>, <code>[hooks.checks.*]</code>, <code>[hooks.failure]</code>, <code>[hooks.report]</code>, <code>[hooks.test]</code></td><td><a href="/hooks/">Hooks</a></td></tr>
 <tr><td><code>[budget]</code></td><td><a href="#budget">Budget</a></td></tr>
 <tr><td><code>[[hooks.shell]]</code>, <code>[[hooks.edit]]</code></td><td><a href="/hooks/#deprecated-shell-guards">Deprecated shell guards</a></td></tr>
-<tr><td><code>[sessions]</code>, <code>[sessions.registry]</code>, <code>[sessions.pause]</code>, <code>[sessions.broadcast]</code>, <code>[sessions.mailbox]</code>, <code>[sessions.leases.&lt;name&gt;]</code>, <code>[sessions.roles.&lt;name&gt;]</code></td><td><a href="#sessions">Sessions</a></td></tr>
+<tr><td><code>[sessions]</code>, <code>[sessions.registry]</code>, <code>[sessions.pause]</code>, <code>[sessions.broadcast]</code>, <code>[sessions.mailbox]</code>, <code>[sessions.leases.&lt;name&gt;]</code>, <code>[sessions.roles.&lt;name&gt;]</code>, <code>[sessions.operator]</code></td><td><a href="#sessions">Sessions</a></td></tr>
 <tr><td><code>[git]</code>, <code>[git.shared_checkout]</code>, <code>[git.worktrees]</code>, <code>[git.worktrees.sync]</code>, <code>[git.mainline]</code>, <code>[git.mainline.gate]</code>, <code>[git.mainline.deliver]</code>, <code>[git.mainline.sync]</code>, <code>[git.submodules]</code></td><td><a href="/git-workflow/">Git workflow</a></td></tr>
 <tr><td><code>[logging]</code>, <code>[logging.components]</code></td><td><a href="#logging">Logging</a></td></tr>
 <tr><td><code>[permissions.claude]</code></td><td><a href="#claude-permission-rules">Claude permission rules</a></td></tr>
@@ -261,8 +261,9 @@ max_io = 8
 budget = 4
 hold_warn = 1800
 hold_max = 3600
-heavy = [[&quot;npm&quot;, &quot;install&quot;], [&quot;npm&quot;, &quot;test&quot;], [&quot;cargo&quot;, &quot;build&quot;]]
+heavy = [&quot;default&quot;, [&quot;make&quot;, &quot;all&quot;]]
 guard = &quot;deny&quot;
+skip_reasons = [&quot;ci&quot;]
 
 [host.lease.lanes]
 interactive = 2
@@ -286,7 +287,8 @@ load_grace = 600</code></pre>
 <tr><td><code>marker_env</code></td><td>name</td><td><code>PMCP_HEAVY_LEASE</code></td><td>Set to the job&#39;s pid for the leased command; a nested <code>pmcp heavy</code> whose marker names a running job runs at once.</td></tr>
 <tr><td><code>legacy_marker_env</code></td><td>name</td><td>none</td><td>A second marker, set and honoured like <code>marker_env</code>, for a shell wrapper that shares <code>dir</code>.</td></tr>
 <tr><td><code>legacy_skip_env</code></td><td>name</td><td>none</td><td>A second skip variable, honoured like <code>PMCP_HEAVY_DISABLE</code>, and set for the leased command so a nested shell wrapper runs at once.</td></tr>
-<tr><td><code>skip_always</code></td><td>list of reasons</td><td><code>[]</code></td><td>Skip reasons honoured even for a bulk job, for callers that must never wait on the lease (a commit hook). A skip with any other reason does not cover a bulk job.</td></tr>
+<tr><td><code>skip_always</code></td><td>list of reasons</td><td><code>[]</code></td><td>Skip reasons honoured even for a bulk job, for callers that must never wait on the lease (a commit hook). They are allowed skip reasons too.</td></tr>
+<tr><td><code>skip_reasons</code></td><td>list of reasons</td><td><code>[]</code></td><td>The further reasons <code>PMCP_HEAVY_DISABLE</code> may carry for an ordinary command, beside the built-in <code>nested</code> and <code>operator</code>. Lower-case words (<code>a-z</code>, digits, <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>).</td></tr>
 <tr><td><code>max_load</code></td><td>number</td><td>the CPU count</td><td>A job starts only while the 1-minute load average is below this.</td></tr>
 <tr><td><code>max_io</code></td><td>number</td><td><code>8</code></td><td>And while IO pressure (<code>some</code>, the <code>io_window</code> average) is below this. A host without pressure files checks load only; one without a load average checks neither.</td></tr>
 <tr><td><code>io_window</code></td><td>string</td><td><code>avg60</code></td><td>Which pressure average the check reads: <code>avg10</code> follows spikes, <code>avg60</code> and <code>avg300</code> smooth them so the queue does not stall on a burst.</td></tr>
@@ -298,8 +300,8 @@ load_grace = 600</code></pre>
 <tr><td><code>memory_max</code></td><td>size</td><td>none</td><td>Runs each command in <code>systemd-run --user --scope -p MemoryMax=&lt;size&gt; -p MemorySwapMax=0</code> where that is available, so a runaway job is killed alone. Without a reachable user manager (no <code>XDG_RUNTIME_DIR</code>, or no manager socket in it, as under <code>env -i</code> or cron) the command runs without the scope and one line on stderr says why; if <code>systemd-run</code> still cannot reach the bus, the command runs once more without it. A missing scope never fails the command.</td></tr>
 <tr><td><code>heartbeat</code>, <code>poll</code></td><td>seconds</td><td><code>60</code>, <code>15</code></td><td>How often a waiter prints that it is still waiting, and how often the host is reread.</td></tr>
 <tr><td><code>profiles.&lt;name&gt;</code></td><td>table</td><td>gate 2700/600, hook 900/30</td><td><code>max_wait</code>, <code>load_grace</code> and <code>memory_max</code> for <code>pmcp heavy --profile &lt;name&gt;</code>. The <code>gate</code> and <code>hook</code> profiles also choose their lane. Any other profile starts from the top-level values.</td></tr>
-<tr><td><code>heavy</code></td><td>argv lists</td><td>none</td><td>The commands the <code>host.lease</code> guard expects under the lease, as argv prefixes. Empty, the guard is off. pmcp lists none of its own.</td></tr>
-<tr><td><code>guard</code></td><td>string</td><td><code>observe</code></td><td>The <code>host.lease</code> guard&#39;s mode: <code>observe</code> logs only, <code>warn</code> tells the agent, <code>deny</code> refuses with the command to run instead (<code>pmcp heavy -- &lt;command&gt;</code>), <code>off</code>. A command already wrapped passes.</td></tr>
+<tr><td><code>heavy</code></td><td>argv lists, or <code>&quot;default&quot;</code></td><td><code>&quot;default&quot;</code> with the table, none without</td><td>The commands the <code>host.lease</code> guard expects under the lease, as argv prefixes. <code>&quot;default&quot;</code>, alone or as an item of the list, names pmcp&#39;s preset: <code>install</code> (and <code>i</code>, <code>ci</code>), <code>test</code>, <code>build</code> and <code>typecheck</code> for npm, pnpm, yarn and bun (<code>&lt;manager&gt; run &lt;script&gt;</code> too), and <code>cargo build</code>, <code>test</code> and <code>check</code>. An empty list turns the guard off.</td></tr>
+<tr><td><code>guard</code></td><td>string</td><td><code>observe</code></td><td>The <code>host.lease</code> guard&#39;s mode: <code>observe</code> logs what it would have refused (at info, so <code>pmcp hooks report --switch-check host.lease</code> reads it at the default log level), <code>warn</code> tells the agent, <code>deny</code> refuses with the command to run instead (<code>pmcp heavy -- &lt;command&gt;</code>), <code>off</code>. A command already wrapped passes. Run a week in <code>observe</code>, read the report, then set <code>deny</code>.</td></tr>
 <tr><td><code>io.enabled</code></td><td><code>&quot;auto&quot;</code> or boolean</td><td><code>&quot;auto&quot;</code></td><td>Each leased job runs in its own <code>systemd-run --user</code> scope and gets its lane&#39;s <code>io.weight</code> where the cgroup v2 io controller reaches the user manager; elsewhere nothing changes. <code>true</code> also says when it could not; <code>false</code> never.</td></tr>
 <tr><td><code>io.weights.&lt;lane&gt;</code></td><td>integer</td><td>gate 500, hook 300, interactive 100, bulk 25</td><td>The scope&#39;s <code>io.weight</code> per lane (1 to 10000).</td></tr>
 <tr><td><code>io.max.&lt;lane&gt;</code></td><td>string</td><td>none</td><td>An <code>io.max</code> line for the lane&#39;s scopes, such as <code>&quot;259:0 wbps=50000000&quot;</code>; the device is this host&#39;s to name.</td></tr>
@@ -316,7 +318,7 @@ under a short lock beside the records, and dead processes&#39; records are dropp
 on every admission, so running weight never exceeds the budget and a crashed
 job frees its share.</p>
 <p><code>pmcp heavy --now --reason &lt;text&gt;</code> (or <code>PMCP_HEAVY_NOW=&lt;reason&gt;</code> in a script) is
-the emergency bypass: the command starts at once, outside the lanes, the budget
+the operator&#39;s emergency bypass (<a href="#the-operator">the operator</a>): the command starts at once, outside the lanes, the budget
 and the host check, and never exits 75, but it needs a reason, is logged as a
 <code>bypass</code> line, shows as <code>bypass running</code> in status and counts its weight, so the
 other jobs&#39; admission sees its load. It is not the off switch below.</p>
@@ -332,7 +334,13 @@ the configured ones.</p>
 <p><code>PMCP_HEAVY_DISABLE=&lt;reason&gt;</code> (or the <code>legacy_skip_env</code> variable) skips the
 lease for an ordinary command: <code>pmcp heavy</code> runs it at once, logs the reason,
 and keeps it as <code>skip</code> in the command&#39;s usage record, and the guard lets a
-command that sets it pass. The skip is bounded: a bulk job (an install, a
+command that sets it pass. The reason is one of a closed set: <code>nested</code>, which
+pmcp sets itself for a wrapper inside a leased job and honours only while a
+leased job encloses the command; <code>operator</code>, honoured only for
+<a href="#the-operator">the operator</a>; and the names in <code>skip_reasons</code> or <code>skip_always</code>.
+Any other reason runs nothing: <code>pmcp heavy</code> exits 2 naming the allowed reasons,
+logs a <code>skip-invalid</code> line and records <code>skip_invalid</code>, so the share of skipped
+runs reads by reason in <code>pmcp heavy stats</code>. The skip is bounded: a bulk job (an install, a
 whole test suite, a full build), put in the <code>bulk</code> lane by <code>--lane bulk</code> or by
 a <code>commands</code> entry, still queues in that lane, with a line on standard error
 saying the skip was not honoured and <code>skip_refused</code> in its usage record. The
@@ -346,7 +354,8 @@ that does not want the lease at all.</p>
 <p>A reason listed in <code>skip_always</code> is honoured for bulk jobs too, for a caller
 that must never wait on the lease, such as a commit hook:</p>
 <pre><code>[host.lease]
-skip_always = [&quot;git-hook&quot;]   # PMCP_HEAVY_DISABLE=git-hook runs even a bulk job at once</code></pre>
+skip_always = [&quot;git-hook&quot;]   # PMCP_HEAVY_DISABLE=git-hook runs even a bulk job at once
+skip_reasons = [&quot;ci&quot;]        # PMCP_HEAVY_DISABLE=ci runs an ordinary command at once</code></pre>
 <p>The files extend those of a shell wrapper that takes the same lock with
 <code>flock</code>: records hold <code>key=value</code> lines (<code>pid</code>, <code>since</code>, <code>started</code>, <code>cwd</code>,
 <code>label</code>, then pmcp&#39;s <code>lane</code>, <code>weight</code>, <code>queued</code>, <code>session</code>), and <code>heavy.log</code> has
@@ -537,6 +546,25 @@ lives in one directory shared by every checkout of the repository.</p>
 <tr><td><code>[sessions.roles.&lt;name&gt;]</code></td><td><code>agent_type</code> (default <code>&lt;name&gt;</code>, also matches <code>plugin:&lt;name&gt;</code>), <code>allow_edits</code> (default <code>false</code>), <code>allow_commands</code> (list of argv prefixes, default <code>[]</code>)</td><td>A subagent of that type may edit only if allowed and run only the listed commands. Claude only.</td></tr></tbody></table></div>
 <p>These tables have no <code>mode</code>, except pause. Without <code>[sessions.registry]</code> no
 session is recorded, and <code>[ui.claude]</code> refuses to project.</p>
+<h3 id="the-operator">The operator</h3>
+<p>The operator is you: the person who governs the agent sessions. A few verbs are yours alone,
+because an agent running them would govern the others: <code>pmcp sessions pause</code> and <code>resume</code>,
+<code>pmcp heavy --now</code> (and <code>PMCP_HEAVY_NOW</code>), <code>pmcp heavy promote --now</code>,
+<code>pmcp heavy cancel --force</code> on another session&#39;s job, and <code>pmcp git deliver --during-pause</code>.
+Signing a broadcast or a message as <code>operator</code> is yours too. <code>[sessions.operator]</code> says how
+pmcp recognises you:</p>
+<div class="scroll"><table><thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>via</code></td><td>string</td><td><code>&quot;tty&quot;</code></td><td><code>&quot;tty&quot;</code>: an interactive terminal (standard input) with no agent runtime among the command&#39;s parent processes and no agent&#39;s environment markers. <code>&quot;token&quot;</code>: <code>PMCP_OPERATOR_TOKEN</code> equals the contents of <code>token_file</code>, wherever the command runs (a script, cron).</td></tr>
+<tr><td><code>token_file</code></td><td>path</td><td>none</td><td>With <code>via = &quot;token&quot;</code>: absolute or <code>~/…</code>, outside the project, readable by its owner only (mode 600); pmcp refuses a file others can read.</td></tr></tbody></table></div>
+<pre><code>[sessions.operator]
+via = &quot;token&quot;
+token_file = &quot;~/.config/pmcp/operator-token&quot;</code></pre>
+<p>Run from an agent session, an operator verb exits 1 with
+<code>&lt;verb&gt; is the operator&#39;s to run: &lt;why&gt;. Ask the operator to run it from their own terminal</code>,
+and changes nothing; the agent relays the request to you. With any session feature declared,
+the <code>pmcp.operator_verbs</code> guard (<a href="/hooks/">Hooks</a>) also refuses these command lines in the
+agent&#39;s runtime, before they run. Every session runs as the same user, so this stops
+instructed agents and accidents rather than a determined process: for a hard boundary run the
+agents under another user, where a token file only you can read keeps them out.</p>
 <h3 id="sessionsmailbox"><code>[sessions.mailbox]</code></h3>
 <p>Addressed messages between sessions, and between you and them. A missing table leaves
 the mailbox off; a declared one, even empty, turns it on.</p>
