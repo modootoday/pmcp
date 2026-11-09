@@ -74,7 +74,7 @@ describe("[budget]", () => {
     });
   });
 
-  it("fails project --check over a limit or on a forbidden path, and status shows it", async (t) => {
+  it("fails project --check over a limit or on a forbidden path, and status only reports it", async (t) => {
     const root = project(
       t,
       '[budget]\nroot_lines = 2\npackage_bytes = 49\nskills_max = 0\nforbid_paths = ["docs/adr"]\n',
@@ -89,8 +89,11 @@ describe("[budget]", () => {
     ])
       expect(checked.out).toContain(line);
     const status = await cli(root, "status");
-    expect(status.code).toBe(4);
+    expect(status.code).toBe(0);
     expect(status.out).toContain("Budget: 4 over");
+    const json = JSON.parse((await cli(root, "status", "--json")).out).data;
+    expect(json.drift).toBe(false);
+    expect(json.budget.problems).toHaveLength(4);
   });
 
   it("leaves status unchanged without the table and refuses a bad one", async (t) => {

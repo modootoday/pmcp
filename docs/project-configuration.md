@@ -778,9 +778,11 @@ Worktrees, delivery to the mainline and main checkout sync: [Git workflow](git-w
 
 `[budget]` sets limits on what every agent session loads and on paths the
 project keeps out of its tree. `pmcp project --check` exits 4 when one is
-exceeded, naming each, and `pmcp status` shows the measurements beside the
-limits (its JSON gains `budget: {rows, problems}`, and an exceeded limit counts
-as drift). Every key is optional; nothing is checked without the table.
+exceeded, naming each, and `pmcp status` reports the measurements beside the
+limits (its JSON gains `budget: {rows, problems}`) without judging them: an
+exceeded limit is not drift and leaves its exit code alone, so `project --check`
+stays the one judge. Every key is optional; nothing is checked without the
+table.
 
 | Key             | Type      | Meaning                                                                                                                                                              |
 | --------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

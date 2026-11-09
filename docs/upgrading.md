@@ -5,6 +5,14 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.25.0 to the next release
+
+**`pmcp status` no longer judges `[budget]`.** It still shows each limit beside what it
+measured and how many are over, in the summary and in `data.budget`, but an exceeded limit
+no longer sets `drift` or exit 4; only projection drift does. `pmcp project --check` still
+exits 4 over a limit. A script that relied on `pmcp status` failing over a budget runs
+`pmcp project --check`, or reads `data.budget.problems` from `pmcp status --json`.
+
 ## From 0.24 to 0.25
 
 **`pmcp status` exits 4 only for projection drift or a budget overrun.** A linked worktree
