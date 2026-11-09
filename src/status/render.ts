@@ -55,14 +55,11 @@ export function renderStatus(
       state.broadcasts.filter((row) => row.unseenBy.length > 0).length +
       " unseen broadcast(s)",
   );
-  const drifted = report.worktrees.filter(
-    (row) => (row.behind ?? 0) > 0 || (row.ahead ?? 0) > 0,
-  );
   lines.push(
     "Linked worktrees: " +
       report.worktrees.length +
       "; " +
-      drifted.length +
+      report.lagging +
       " ahead/behind",
   );
   lines.push(

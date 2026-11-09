@@ -13,6 +13,7 @@ it("names linked worktrees as worktrees in the status summary", () => {
     projection: { drift: false, problems: [], outputs: 0 },
     sessions: { live: [], pause: null, leases: [], broadcasts: [] },
     worktrees: [{ behind: 1 }, { behind: 0, ahead: 0 }],
+    lagging: 1,
     mcp: [],
     errors: [],
   };

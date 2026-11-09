@@ -5,6 +5,13 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## From 0.24 to 0.25
+
+**`pmcp status` exits 4 only for projection drift or a budget overrun.** A linked worktree
+ahead of or behind the mainline no longer sets `drift` or the exit code; it is counted in
+the summary line and in the new `data.lagging` field. A script that relied on exit 4 to
+notice worktree lag reads `lagging` from `pmcp status --json` instead.
+
 ## From 0.23 to 0.24
 
 **A lease skip no longer covers a bulk job.** `PMCP_HEAVY_DISABLE=<reason>` (or the

@@ -32,14 +32,17 @@ export async function readStatus(
   const leases = Object.keys((sessions.leases ?? {}) as object);
   const worktrees = desks(config);
   const budget = spec.budget ? checkBudget(spec, spec.budget) : null;
-  const drift =
-    checked.code !== 0 ||
-    (budget?.problems.length ?? 0) > 0 ||
-    worktrees.some((row) => (row.behind ?? 0) > 0 || (row.ahead ?? 0) > 0);
+  // Only what pmcp project or the budget can fix sets drift (exit 4); linked worktrees ahead of
+  // or behind the mainline are live state in a multi-session workspace, reported apart.
+  const drift = checked.code !== 0 || (budget?.problems.length ?? 0) > 0;
+  const lagging = worktrees.filter(
+    (row) => (row.behind ?? 0) > 0 || (row.ahead ?? 0) > 0,
+  ).length;
   return {
     version: 1 as const,
     config: config.path,
     drift,
+    lagging,
     features: features(config, spec),
     projection: {
       drift: checked.code !== 0,
