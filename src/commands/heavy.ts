@@ -28,11 +28,12 @@ import {
 import { submitTicket, ticketResult, ticketWait } from "./heavy-tickets.js";
 import {
   readUsage,
+  skipReasons,
   skipShare,
   usageStats,
   type UsageStat,
 } from "../lease/usage.js";
-import { requireOperatorFor } from "../sessions/operator-cli.js";
+import { isOperator, requireOperatorFor } from "../sessions/operator-cli.js";
 import { heavySpec } from "./specs/host.js";
 
 function settings(context: CommandContext): LeaseSettings {
@@ -86,6 +87,16 @@ function stats(context: CommandContext): number {
     lines.push(
       `skipped the lease: ${skipped} of ${runs} runs (${Math.round((skipped / runs) * 100)}%)`,
     );
+  const reasons = skipReasons(records);
+  const counted = (counts: Readonly<Record<string, number>>) =>
+    Object.entries(counts)
+      .sort(([a, x], [b, y]) => y - x || a.localeCompare(b))
+      .map(([name, count]) => `${name} ${count}`)
+      .join(", ");
+  if (Object.keys(reasons.honoured).length > 0)
+    lines.push(`skip reasons: ${counted(reasons.honoured)}`);
+  if (Object.keys(reasons.invalid).length > 0)
+    lines.push(`refused skip reasons: ${counted(reasons.invalid)}`);
   lines.push(
     "signature @ dir  samples  p50/p90 of wall, cpu, rss, read, write",
   );
@@ -177,6 +188,7 @@ async function run(context: CommandContext): Promise<number> {
     ...(weight !== undefined ? { weight } : {}),
     ...(now ? { now: reason! } : {}),
     root: config ? dirname(config) : context.cwd,
+    operator: () => isOperator(context),
     ...(ticket ? { id: ticket } : {}),
     argv: args.passthrough,
     cwd: context.cwd,

@@ -22,6 +22,7 @@ describe("[host.lease]", () => {
       dir: join(homedir(), ".cache/pmcp/host"),
       markerEnv: "PMCP_HEAVY_LEASE",
       skipAlways: [],
+      skipReasons: [],
       maxLoad: availableParallelism(),
       maxIo: 8,
       ioWindow: "avg60",
@@ -141,6 +142,21 @@ describe("[host.lease]", () => {
     ).toEqual({ lane: "gate", weight: 4 });
   });
 
+  it("reads skip reasons and the heavy preset", () => {
+    const settings = read({
+      skip_reasons: ["ci", "gate-light"],
+      heavy: "default",
+    });
+    expect(settings.skipReasons).toEqual(["ci", "gate-light"]);
+    expect(settings.heavy).toContainEqual(["bun", "install"]);
+    expect(read({}).heavy).toEqual(settings.heavy);
+    expect(read({ heavy: [] }).heavy).toEqual([]);
+    expect(() => read({ skip_reasons: ["Whole Suite"] })).toThrow(
+      "skip_reasons must be a list of skip reasons",
+    );
+    expect(() => read({ heavy: "all" })).toThrow('heavy must be "default"');
+  });
+
   it("rejects unknown keys and malformed values", () => {
     expect(() => read({ max_wiat: 1 })).toThrow(
       "unknown key [host.lease] max_wiat",
@@ -171,10 +187,12 @@ describe("[host.lease]", () => {
     expect(() => readHost("pmcp.toml", { lease: { bad: 1 } })).toThrow(
       "unknown key [host.lease] bad",
     );
-    const compiled = compileHooks(
-      { host: { lease: {} } },
-      { root: "/p", tools: new Set() },
-    );
-    expect(compiled.policy).toBeNull();
+    const tools = { root: "/p", tools: new Set<string>() };
+    const off = compileHooks({ host: { lease: { heavy: [] } } }, tools);
+    expect(off.policy).toBeNull();
+    const preset = compileHooks({ host: { lease: {} } }, tools);
+    expect(preset.policy?.guards.map((guard) => guard.id)).toEqual([
+      "host.lease",
+    ]);
   });
 });

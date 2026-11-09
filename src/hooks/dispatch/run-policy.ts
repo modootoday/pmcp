@@ -101,8 +101,13 @@ export async function runPolicy(
     }
     const decision = applyMode(policy.id, raw, mode);
     // What the guard found and what the call got, so a guard in warn or observe can be compared
-    // with the hook it shadows. Never the command, the reason or the prompt.
-    log.debug("policy", {
+    // with the hook it shadows. Never the command, the reason or the prompt. A finding its mode
+    // let through is logged at info, so a week of observe is measured at the default level.
+    const letThrough =
+      (raw.verdict ?? "allow") !== "allow" &&
+      decision.verdict !== "deny" &&
+      decision.verdict !== raw.verdict;
+    log[letThrough ? "info" : "debug"]("policy", {
       raw: raw.verdict ?? "allow",
       mode,
       verdict: decision.verdict ?? "allow",

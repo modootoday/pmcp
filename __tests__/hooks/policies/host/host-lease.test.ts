@@ -57,9 +57,23 @@ describe("[host.lease] compiles host.lease", () => {
     ]);
   });
 
-  it("not at all without heavy commands, when disabled, or when off", () => {
+  it("from the default preset when [host.lease] names no heavy commands", () => {
+    const guards = compileHooks({ host: { lease: {} } }, tools).policy?.guards;
+    expect(guards).toHaveLength(1);
+    expect(guards![0]).toMatchObject({ id: "host.lease", mode: "observe" });
+    const heavy = (guards![0]!.options as { heavy: string[][] }).heavy;
+    expect(heavy).toContainEqual(["npm", "install"]);
+    expect(heavy).toContainEqual(["cargo", "check"]);
+    const extended = compileHooks(
+      { host: { lease: { heavy: ["default", ["make", "all"]] } } },
+      tools,
+    ).policy?.guards[0]?.options as { heavy: string[][] };
+    expect(extended.heavy).toEqual([...heavy, ["make", "all"]]);
+  });
+
+  it("not at all with an empty heavy list, when disabled, or when off", () => {
     for (const lease of [
-      {},
+      { heavy: [] },
       { enabled: false, heavy: [["bun", "install"]] },
       { guard: "off", heavy: [["bun", "install"]] },
     ])

@@ -17,7 +17,7 @@ export interface Usage {
   readonly lane: string;
   readonly weight: number;
   readonly start: "queue" | "grace" | "bypass" | "none";
-  readonly outcome: "ran" | "timeout" | "cancelled";
+  readonly outcome: "ran" | "timeout" | "cancelled" | "invalid";
   readonly exit: number;
   readonly wall_s: number;
   readonly user_s: number;
@@ -31,7 +31,9 @@ export interface Usage {
   readonly skip?: string;
   // Set when a skip was present but a bulk job queued anyway: the reason it carried.
   readonly skip_refused?: string;
-  // The variable that carried skip or skip_refused.
+  // Set when the skip's reason is not an allowed one, so nothing ran: the reason it carried.
+  readonly skip_invalid?: string;
+  // The variable that carried skip, skip_refused or skip_invalid.
   readonly skip_env?: string;
 }
 
@@ -120,6 +122,22 @@ export function skipShare(records: readonly Usage[]): {
   };
 }
 
+// Runs per skip reason, the refused ones apart, so the measured skips can be read by reason.
+export function skipReasons(records: readonly Usage[]): {
+  readonly honoured: Readonly<Record<string, number>>;
+  readonly invalid: Readonly<Record<string, number>>;
+} {
+  const honoured: Record<string, number> = {};
+  const invalid: Record<string, number> = {};
+  for (const record of records) {
+    if (record.skip !== undefined)
+      honoured[record.skip] = (honoured[record.skip] ?? 0) + 1;
+    if (record.skip_invalid !== undefined)
+      invalid[record.skip_invalid] = (invalid[record.skip_invalid] ?? 0) + 1;
+  }
+  return { honoured, invalid };
+}
+
 function percentile(values: number[], share: number): number {
   const sorted = [...values].sort((a, b) => a - b);
   return (
@@ -150,7 +168,9 @@ export function usageStats(records: readonly Usage[]): UsageStat[] {
         signature: key,
         samples: ran.length,
         failed: ran.filter((record) => record.exit !== 0).length,
-        timeouts: list.length - ran.length,
+        timeouts: list.filter(
+          (record) => record.outcome !== "ran" && record.outcome !== "invalid",
+        ).length,
         skipped: ran.filter((record) => record.skip !== undefined).length,
         p50: pick(0.5),
         p90: pick(0.9),

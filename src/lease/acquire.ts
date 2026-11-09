@@ -42,6 +42,7 @@ import {
 } from "./host.js";
 import { parkForSession, sessionOf } from "./queue.js";
 import { hostVerdict, type HostVerdict } from "./settle.js";
+import { allowedReasons, NESTED, skipRefusal } from "./skip.js";
 
 export type BusyReason = "queue" | "parked" | "host" | "legacy";
 
@@ -61,6 +62,12 @@ export type LeaseOutcome =
       readonly variable?: string;
     }
   | { readonly kind: "disabled" }
+  // A skip whose reason is not one pmcp or the project allows: nothing runs.
+  | {
+      readonly kind: "invalid";
+      readonly reason: string;
+      readonly variable: string;
+    }
   // Cancelled in the queue by pmcp heavy cancel.
   | { readonly kind: "cancelled"; readonly reason: string }
   | {
@@ -85,6 +92,8 @@ export interface AcquireOptions {
   readonly now?: string;
   // A submitted ticket's id; a blocking run gets one made.
   readonly id?: string;
+  // Whether the caller is the operator, asked only for the operator skip reason.
+  readonly operator?: () => boolean;
 }
 
 const STEP_SECONDS = 1;
@@ -273,8 +282,7 @@ function held(
   const env: Record<string, string> = { [settings.markerEnv]: pid };
   if (settings.legacyMarkerEnv) env[settings.legacyMarkerEnv] = pid;
   // A shell wrapper nested in this job cannot see it as its holder; it runs at once, logged.
-  if (settings.legacySkipEnv)
-    env[settings.legacySkipEnv] = `inside pmcp heavy ${pid}`;
+  if (settings.legacySkipEnv) env[settings.legacySkipEnv] = NESTED;
   let open = true;
   return {
     kind: "held",
@@ -293,6 +301,27 @@ export function acquireLease(options: AcquireOptions): LeaseOutcome {
   if (!settings.enabled) return { kind: "disabled" };
   const paths = leasePaths(settings.dir);
   const skip = skipSource(settings, env);
+  const invalid =
+    skip === null
+      ? null
+      : skipRefusal(settings, skip.reason, {
+          nested: () => reentrant(settings, env),
+          operator: () => options.operator?.() ?? false,
+        });
+  if (skip !== null && invalid !== null) {
+    // Inside a leased job the command already runs under that lease; the reason is moot.
+    if (reentrant(settings, env)) return { kind: "reentrant" };
+    say(
+      `${invalid} (${skip.variable}); allowed: ${allowedReasons(settings).join(", ")}. List a reason in [host.lease] skip_reasons, or run without ${skip.variable} and wait for the lease.`,
+    );
+    logEvent(
+      paths,
+      process.pid,
+      "skip-invalid",
+      `reason=${skip.reason} env=${skip.variable} cwd=${options.cwd} label=${label}`,
+    );
+    return { kind: "invalid", reason: skip.reason, variable: skip.variable };
+  }
   // A skip is for one ordinary command; a bulk job (an install, a whole suite) still queues,
   // unless the project lists the reason in skip_always (a caller that must never wait).
   const refused =

@@ -76,7 +76,7 @@ export async function run(context: CommandContext): Promise<number> {
   }
   if (summary.lines === 0)
     context.ui.results.line(
-      "no guard log lines; guards log at debug level ([logging] level or PMCP_LOG=debug)",
+      "no guard log lines; guards log every call at debug level ([logging] level or PMCP_LOG=debug), and only what an observe or warn guard let through at info",
     );
   for (const row of summary.guards) {
     const counts = (values: Readonly<Record<string, number>>) =>

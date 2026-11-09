@@ -118,7 +118,7 @@ describe("the lease files", () => {
     expect(outcome.env).toEqual({
       PMCP_HEAVY_LEASE: String(process.pid),
       OLD_HEAVY_LEASE: String(process.pid),
-      OLD_SKIP: `inside pmcp heavy ${process.pid}`,
+      OLD_SKIP: "nested",
     });
     const nested = { ...env, PMCP_HEAVY_LEASE: String(process.pid) };
     expect(acquireLease(options(dir, nested)).kind).toBe("reentrant");
@@ -130,17 +130,22 @@ describe("the lease files", () => {
     hold(dir);
     const said: string[] = [];
     const skipped = acquireLease(
-      options(dir, { ...env, PMCP_HEAVY_DISABLE: "unit test" }, {}, said),
+      options(
+        dir,
+        { ...env, PMCP_HEAVY_DISABLE: "unit-test" },
+        { skip_reasons: ["unit-test"] },
+        said,
+      ),
     );
     expect(skipped).toEqual({
       kind: "skipped",
-      reason: "unit test",
+      reason: "unit-test",
       variable: "PMCP_HEAVY_DISABLE",
     });
-    expect(said).toEqual(["running without the host lease: unit test"]);
+    expect(said).toEqual(["running without the host lease: unit-test"]);
     expect(logLines(dir).at(-1)).toMatch(
       new RegExp(
-        `^${STAMP}\t${process.pid}\tskip\treason=unit test env=PMCP_HEAVY_DISABLE cwd=/work/here label=unit job$`,
+        `^${STAMP}\t${process.pid}\tskip\treason=unit-test env=PMCP_HEAVY_DISABLE cwd=/work/here label=unit job$`,
         "u",
       ),
     );
@@ -148,7 +153,7 @@ describe("the lease files", () => {
       options(
         dir,
         { ...env, OLD_SKIP: "old" },
-        { legacy_skip_env: "OLD_SKIP" },
+        { legacy_skip_env: "OLD_SKIP", skip_always: ["old"] },
       ),
     );
     expect(legacy).toEqual({
@@ -157,6 +162,49 @@ describe("the lease files", () => {
       variable: "OLD_SKIP",
     });
     expect(logLines(dir).at(-1)).toContain("\tskip\treason=old env=OLD_SKIP ");
+  });
+
+  it("refuses a skip reason it does not allow, names the allowed ones and logs it", () => {
+    const { dir, env } = scratch();
+    const said: string[] = [];
+    const outcome = acquireLease(
+      options(
+        dir,
+        { ...env, PMCP_HEAVY_DISABLE: "because" },
+        { skip_reasons: ["ci"], skip_always: ["git-hook"] },
+        said,
+      ),
+    );
+    expect(outcome).toEqual({
+      kind: "invalid",
+      reason: "because",
+      variable: "PMCP_HEAVY_DISABLE",
+    });
+    expect(said[0]).toContain(
+      '"because" is not a lease skip reason (PMCP_HEAVY_DISABLE); allowed: nested, operator, ci, git-hook.',
+    );
+    expect(logLines(dir).at(-1)).toContain(
+      "\tskip-invalid\treason=because env=PMCP_HEAVY_DISABLE ",
+    );
+  });
+
+  it("honours nested only inside a leased job, and operator only for the operator", () => {
+    const { dir, env } = scratch();
+    const skip = (reason: string) => ({ ...env, PMCP_HEAVY_DISABLE: reason });
+    expect(acquireLease(options(dir, skip("nested"))).kind).toBe("invalid");
+    const outer = acquireLease(options(dir, env));
+    if (outer.kind !== "held") throw new Error(outer.kind);
+    expect(
+      acquireLease(options(dir, { ...skip("nested"), ...outer.env })),
+    ).toMatchObject({ kind: "skipped", reason: "nested" });
+    outer.release(0, 0);
+    const asOperator = (yes: boolean) =>
+      acquireLease({ ...options(dir, skip("operator")), operator: () => yes });
+    expect(asOperator(false).kind).toBe("invalid");
+    expect(asOperator(true)).toMatchObject({
+      kind: "skipped",
+      reason: "operator",
+    });
   });
 
   it("does nothing at all when the lease is disabled", () => {

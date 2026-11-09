@@ -20,7 +20,8 @@ afterEach(() => {
   for (const child of children.splice(0)) child.kill();
 });
 
-const BULK = 'commands = [{ argv = ["sleep"], lane = "bulk" }]\nmax_wait = 1\n';
+const BULK =
+  'commands = [{ argv = ["sleep"], lane = "bulk" }]\nmax_wait = 1\nskip_reasons = ["probe", "whole-suite", "install"]\n';
 
 describe("a bulk job nested in a leased job", () => {
   it("runs at once on the marker, even with a skip it would refuse", () => {
@@ -68,12 +69,12 @@ describe("the lease skip", () => {
     until(() => leaseHeld(leasePaths(dir)));
     const result = pmcpSync(["heavy", "--", "sleep", "0"], cwd, {
       ...env,
-      PMCP_HEAVY_DISABLE: "whole suite",
+      PMCP_HEAVY_DISABLE: "whole-suite",
     });
     // It queued behind the holder instead of running, and gave up at max_wait.
     expect(result.status).toBe(75);
     expect(result.stderr).toContain(
-      "the lease skip (whole suite) is not honoured for a bulk job",
+      "the lease skip (whole-suite) is not honoured for a bulk job",
     );
     expect(result.stderr).toContain("pmcp heavy --now --reason");
     const records = readUsage(join(dir, "usage.jsonl"));
@@ -86,10 +87,10 @@ describe("the lease skip", () => {
         r.skip_env,
       ]),
     ).toEqual([
-      ["bulk", "timeout", undefined, "whole suite", "PMCP_HEAVY_DISABLE"],
+      ["bulk", "timeout", undefined, "whole-suite", "PMCP_HEAVY_DISABLE"],
     ]);
     expect(readFileSync(join(dir, "heavy.log"), "utf8")).toContain(
-      "\tskip-refused\treason=whole suite env=PMCP_HEAVY_DISABLE ",
+      "\tskip-refused\treason=whole-suite env=PMCP_HEAVY_DISABLE ",
     );
   }, 30_000);
 
@@ -99,14 +100,17 @@ describe("the lease skip", () => {
       base,
       leaseToml(
         dir,
-        `${BULK}legacy_skip_env = "OLD_SKIP"\nskip_always = ["gate-land"]\n`,
+        `${BULK}legacy_skip_env = "OLD_SKIP"\nskip_always = ["gate-land"]\n`.replace(
+          '"install"]',
+          '"install", "old-suite"]',
+        ),
       ),
     );
     children.push(shellHolder(dir, 30));
     until(() => leaseHeld(leasePaths(dir)));
     const refused = pmcpSync(["heavy", "--", "sleep", "0"], cwd, {
       ...env,
-      OLD_SKIP: "old suite",
+      OLD_SKIP: "old-suite",
     });
     expect(refused.status).toBe(75);
     const honoured = pmcpSync(["heavy", "--", "true"], cwd, {
@@ -118,11 +122,11 @@ describe("the lease skip", () => {
     expect(
       records.map((r) => [r.outcome, r.skip, r.skip_refused, r.skip_env]),
     ).toEqual([
-      ["timeout", undefined, "old suite", "OLD_SKIP"],
+      ["timeout", undefined, "old-suite", "OLD_SKIP"],
       ["ran", "gate-land", undefined, "OLD_SKIP"],
     ]);
     const log = readFileSync(join(dir, "heavy.log"), "utf8");
-    expect(log).toContain("\tskip-refused\treason=old suite env=OLD_SKIP ");
+    expect(log).toContain("\tskip-refused\treason=old-suite env=OLD_SKIP ");
     expect(log).toContain("\tskip\treason=gate-land env=OLD_SKIP ");
   }, 30_000);
 
@@ -130,7 +134,10 @@ describe("the lease skip", () => {
     const { base, dir, env } = scratch();
     const cwd = project(
       base,
-      leaseToml(dir, 'max_wait = 1\nskip_always = ["gate-land"]\n'),
+      leaseToml(
+        dir,
+        'max_wait = 1\nskip_always = ["gate-land"]\nskip_reasons = ["install"]\n',
+      ),
     );
     children.push(shellHolder(dir, 30));
     until(() => leaseHeld(leasePaths(dir)));

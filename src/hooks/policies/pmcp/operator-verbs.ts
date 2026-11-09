@@ -8,6 +8,7 @@ import { noOptions, pass, type Policy } from "../types.js";
 const GLOBAL = new Set(["-q", "--quiet", "--color", "--no-color"]);
 // Variables that carry an operator act: an emergency run, or the operator's credential.
 const VARIABLES = ["PMCP_HEAVY_NOW", "PMCP_OPERATOR_TOKEN"];
+const OPERATOR_SKIP = "PMCP_HEAVY_DISABLE=operator";
 
 function launcher(word: string): boolean {
   const name = program(word);
@@ -59,6 +60,11 @@ function assigns(step: ShellStep): string | null {
 function found(step: ShellStep): string | null {
   const variable = assigns(step);
   if (variable) return `setting ${variable}`;
+  const skips =
+    (step.assigned.includes("PMCP_HEAVY_DISABLE") &&
+      step.raw.includes(OPERATOR_SKIP)) ||
+    (program(step.argv[0]) === "export" && step.argv.includes(OPERATOR_SKIP));
+  if (skips) return `the lease skip ${OPERATOR_SKIP}`;
   const words = pmcpWords(step.argv);
   return words ? verb(words) : null;
 }

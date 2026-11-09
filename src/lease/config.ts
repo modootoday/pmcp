@@ -4,6 +4,7 @@ import { ConfigError, findConfig, readConfig } from "../config.js";
 import { child, Reader, table } from "../git/config/reader.js";
 import { expandPath } from "../sessions/paths.js";
 import { LANES, type LeaseLane } from "./files.js";
+import { DEFAULT_HEAVY, HEAVY_PRESET } from "./heavy-preset.js";
 
 // [host.lease]: a host-wide budget for heavy commands. It trades throughput for stability: a
 // queued job waits instead of overflowing memory or IO beside the others.
@@ -40,6 +41,8 @@ export interface LeaseSettings {
   readonly legacySkipEnv?: string;
   // Skip reasons honoured even for a bulk job: callers that must never wait on the lease.
   readonly skipAlways: readonly string[];
+  // Further skip reasons honoured for an ordinary command; nested and operator are built in.
+  readonly skipReasons: readonly string[];
   readonly maxLoad: number;
   readonly maxIo: number;
   // Which IO pressure average the host check reads; a longer one does not stall on spikes.
@@ -104,6 +107,7 @@ const KEYS = [
   "usage_cap",
   "settle_window",
   "skip_always",
+  "skip_reasons",
 ];
 const SIZE = /^[1-9]\d*[KMGT]$/u;
 type Raw = Readonly<Record<string, unknown>>;
@@ -267,14 +271,37 @@ function ioSettings(path: string, raw: Raw | undefined): IoSettings {
   return { enabled: enabled as IoSettings["enabled"], weights, max };
 }
 
-function reasons(path: string, value: unknown): string[] {
+const REASON = /^[a-z][a-z0-9_.:-]{0,63}$/u;
+
+function reasons(path: string, key: string, value: unknown): string[] {
   if (value === undefined) return [];
   if (
     !Array.isArray(value) ||
-    !value.every((item) => typeof item === "string" && item !== "")
+    !value.every((item) => typeof item === "string" && REASON.test(item))
   )
-    fail(path, "[host.lease] skip_always must be a list of skip reasons");
+    fail(
+      path,
+      `[host.lease] ${key} must be a list of skip reasons: lower-case words such as "git-hook"`,
+    );
   return value as string[];
+}
+
+// "default" names the preset, alone or among argv prefixes; a declared [host.lease] without
+// heavy gets the preset, so the guard measures in observe until the project says otherwise.
+function heavyList(path: string, value: unknown, declared: boolean) {
+  if (value === undefined) return declared ? [...DEFAULT_HEAVY] : [];
+  const items = value === HEAVY_PRESET ? [value] : value;
+  if (!Array.isArray(items))
+    fail(
+      path,
+      `[host.lease] heavy must be "${HEAVY_PRESET}" or a list of argv prefixes`,
+    );
+  const preset = items.includes(HEAVY_PRESET);
+  const own = argvList(
+    path,
+    items.filter((item) => item !== HEAVY_PRESET),
+  );
+  return [...(preset ? DEFAULT_HEAVY : []), ...own];
 }
 
 function hardFactor(path: string, value: unknown): number {
@@ -291,7 +318,8 @@ export function readLeaseSettings(
   host: unknown,
 ): LeaseSettings {
   const root = table(path, "host", host) ?? {};
-  const raw = child(path, root, "host", "lease") ?? {};
+  const declared = child(path, root, "host", "lease");
+  const raw = declared ?? {};
   const read = new Reader(path, "host.lease", raw, KEYS);
   const memoryMax = memory(path, "host.lease", raw["memory_max"]);
   const base: LeaseProfile = {
@@ -310,7 +338,8 @@ export function readLeaseSettings(
     markerEnv: read.envName("marker_env") ?? "PMCP_HEAVY_LEASE",
     ...(legacyMarkerEnv ? { legacyMarkerEnv } : {}),
     ...(legacySkipEnv ? { legacySkipEnv } : {}),
-    skipAlways: reasons(path, raw["skip_always"]),
+    skipAlways: reasons(path, "skip_always", raw["skip_always"]),
+    skipReasons: reasons(path, "skip_reasons", raw["skip_reasons"]),
     maxLoad: read.positive("max_load") ?? availableParallelism(),
     maxIo: read.positive("max_io") ?? 8,
     ioWindow: read.oneOf("io_window", ["avg10", "avg60", "avg300"], "avg60"),
@@ -338,7 +367,7 @@ export function readLeaseSettings(
     tiny: argvList(path, raw["tiny"]),
     perSession: whole(path, "host.lease", "per_session", raw["per_session"], 1),
     profiles: profiles(path, child(path, raw, "host.lease", "profiles"), base),
-    heavy: argvList(path, raw["heavy"]),
+    heavy: heavyList(path, raw["heavy"], declared !== undefined),
     guard: read.oneOf("guard", ["observe", "warn", "deny", "off"], "observe"),
     io: ioSettings(path, child(path, raw, "host.lease", "io")),
     usageCap: read.int("usage_cap", 5_000_000),

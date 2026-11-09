@@ -14,7 +14,9 @@
     "export PMCP_HEAVY_NOW=fix",
     "PMCP_OPERATOR_TOKEN=abc pmcp sessions broadcast hi",
     "bash -c \"pmcp sessions pause x\"",
-    "env PMCP_HEAVY_NOW=x pmcp heavy -- true"
+    "env PMCP_HEAVY_NOW=x pmcp heavy -- true",
+    "PMCP_HEAVY_DISABLE=operator pmcp heavy -- npm test",
+    "export PMCP_HEAVY_DISABLE=operator"
   ],
   "allowed": [
     "pmcp sessions",
@@ -26,6 +28,8 @@
     "pmcp heavy priority 7f3a gate --reason blocker",
     "pmcp git deliver",
     "grep -rn \"sessions pause\" docs",
-    "echo pmcp heavy --now"
+    "echo pmcp heavy --now",
+    "PMCP_HEAVY_DISABLE=gate-light pmcp heavy -- npm test",
+    "echo PMCP_HEAVY_DISABLE=operator"
   ]
 }

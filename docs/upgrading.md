@@ -41,6 +41,28 @@ run `pmcp project` once so the hook policy carries it (`pmcp project --check` re
 drift until then). Turn it off with
 `[hooks.guards.pmcp.operator_verbs]` `mode = "off"`.
 
+**Lease skip reasons are a closed set.** `PMCP_HEAVY_DISABLE=<reason>` (and the
+`legacy_skip_env` variable) is honoured only for `nested` (set by pmcp inside a leased job,
+and honoured only there), `operator` (only for the operator) and the names you list:
+
+```toml
+[host.lease]
+skip_reasons = ["ci", "subagent-no-lease"]   # ordinary commands
+skip_always = ["git-hook", "gate-light"]     # also bulk jobs; allowed as reasons too
+```
+
+Any other reason runs nothing and `pmcp heavy` exits 2 with the allowed list. A wrapper
+that read the old nested value `inside pmcp heavy <pid>` now sees `nested`; the old
+value is still read as `nested` until 0.26. Reasons are lower-case words, so a
+`skip_always` entry with spaces or capitals is now a configuration error.
+
+**A declared `[host.lease]` turns the `host.lease` guard on in observe.** Without a
+`heavy` list, the table now gets pmcp's `"default"` preset (install, test, build and
+typecheck for npm, pnpm, yarn, bun and cargo), so the guard logs what it would refuse.
+Run `pmcp project` to project it; set `heavy = []` to keep the guard off. A finding an
+`observe` or `warn` guard let through is now logged at info: after a week,
+`pmcp hooks report --switch-check host.lease` shows what `guard = "deny"` would refuse.
+
 ## From 0.23 to 0.24
 
 **A lease skip no longer covers a bulk job.** `PMCP_HEAVY_DISABLE=<reason>` (or the

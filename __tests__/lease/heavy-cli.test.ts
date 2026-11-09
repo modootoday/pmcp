@@ -84,7 +84,10 @@ describe("pmcp heavy", () => {
     expect(disabled.status).toBe(4);
     expect(disabled.stderr).toContain("lease disabled");
     expect(existsSync(dir)).toBe(false);
-    const on = project(join(base, "on"), leaseToml(dir, "max_wait = 1\n"));
+    const on = project(
+      join(base, "on"),
+      leaseToml(dir, 'max_wait = 1\nskip_reasons = ["fixture"]\n'),
+    );
     holders.push(shellHolder(dir, 30));
     until(() => leaseHeld(leasePaths(dir)));
     const skipped = pmcpSync(["heavy", "--", "true"], on, {
@@ -94,6 +97,14 @@ describe("pmcp heavy", () => {
     expect(skipped.status).toBe(0);
     expect(readFileSync(join(dir, "heavy.log"), "utf8")).toContain(
       "\tskip\treason=fixture env=PMCP_HEAVY_DISABLE cwd=",
+    );
+    const invalid = pmcpSync(["heavy", "--", "true"], on, {
+      ...env,
+      PMCP_HEAVY_DISABLE: "whatever",
+    });
+    expect(invalid.status).toBe(2);
+    expect(invalid.stderr).toContain(
+      '"whatever" is not a lease skip reason (PMCP_HEAVY_DISABLE); allowed: nested, operator, fixture.',
     );
   }, 30_000);
 

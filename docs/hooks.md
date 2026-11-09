@@ -70,7 +70,10 @@ nothing, no verdict and no context, even when the guard fails; use it to run a g
 beside a hook it will replace and compare. Every guard writes one debug log line per
 call: `policy`, `session`, `verdict` (what the call got) and, under `data`, `raw`
 (what the guard found: `allow`, `ask` or `deny`), `mode`, `tool` (the tool kind) and
-`native` (the runtime's tool name), never the command, the reason or the prompt.
+`native` (the runtime's tool name), never the command, the reason or the prompt. A call
+an `observe` or `warn` guard found something in but let through is written at info
+instead, so `pmcp hooks report --switch-check <guard>` counts a week of observe at the
+default log level.
 
 | Table                                      | Default mode | Modes                                 | Refuses                                                                                                                                                                                                                                                          |
 | ------------------------------------------ | ------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -85,7 +88,7 @@ call: `policy`, `session`, `verdict` (what the call got) and, under `data`, `raw
 | `[hooks.guards.git.forced_branch_move]`    | deny         | deny, ask, warn, observe, off         | Forcing a branch that is checked out in another working tree.                                                                                                                                                                                                    |
 | `[hooks.guards.git.gate_bypass_env]`       | deny         | deny, ask, warn, observe, off         | Setting a named gate-bypass variable where it takes effect, and optionally `--no-verify` on any git command.                                                                                                                                                     |
 | `[hooks.guards.git.stage_all]`             | deny         | deny, ask, warn, observe, off         | `git add -A`, `git add .`, `git commit -a` and similar; stage explicit paths.                                                                                                                                                                                    |
-| `[hooks.guards.pmcp.operator_verbs]`       | deny         | deny, ask, warn, observe, off         | The operator verbs: `pmcp sessions pause` and `resume`, `pmcp heavy --now` and `promote --now`, `pmcp heavy cancel --force`, `pmcp git deliver --during-pause`, and setting `PMCP_HEAVY_NOW` or `PMCP_OPERATOR_TOKEN`. On by itself with any session feature.     |
+| `[hooks.guards.pmcp.operator_verbs]`       | deny         | deny, ask, warn, observe, off         | The operator verbs: `pmcp sessions pause` and `resume`, `pmcp heavy --now` and `promote --now`, `pmcp heavy cancel --force`, `pmcp git deliver --during-pause`, and setting `PMCP_HEAVY_NOW`, `PMCP_OPERATOR_TOKEN` or the lease skip `PMCP_HEAVY_DISABLE=operator`. On by itself with any session feature.     |
 
 Options:
 

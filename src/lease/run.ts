@@ -36,7 +36,12 @@ export interface HeavyRun {
   readonly id?: string;
   // Called with the run's usage record once it is written (a submitted ticket keeps it).
   readonly onUsage?: (usage: Usage) => void;
+  // Whether the caller is the operator, for the operator skip reason.
+  readonly operator?: () => boolean;
 }
+
+// A skip reason pmcp does not allow is a usage error: the command line or setup is wrong.
+const INVALID_EXIT = 2;
 
 function prefixed(argv: readonly string[], prefix: readonly string[]) {
   const name = (word = "") => word.slice(word.lastIndexOf("/") + 1);
@@ -156,7 +161,9 @@ function record(
 function skipFields(
   run: HeavyRun,
   outcome: LeaseOutcome,
-): Pick<Usage, "skip" | "skip_refused" | "skip_env"> {
+): Pick<Usage, "skip" | "skip_refused" | "skip_invalid" | "skip_env"> {
+  if (outcome.kind === "invalid")
+    return { skip_invalid: outcome.reason, skip_env: outcome.variable };
   if (outcome.kind === "skipped")
     return {
       skip: outcome.reason,
@@ -191,6 +198,18 @@ export async function runHeavy(run: HeavyRun): Promise<number> {
     outcome = { kind: "disabled" };
   } else {
     outcome = acquireLease({ ...run, label, lane, weight });
+  }
+  if (outcome.kind === "invalid") {
+    record(run, {
+      ...NOTHING,
+      lane,
+      weight,
+      start: "none",
+      outcome: "invalid",
+      exit: INVALID_EXIT,
+      ...skipFields(run, outcome),
+    });
+    return INVALID_EXIT;
   }
   if (outcome.kind === "cancelled") {
     record(run, {

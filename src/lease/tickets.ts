@@ -34,7 +34,7 @@ export interface TicketResult extends Partial<Usage> {
   readonly version: 1;
   readonly ticket: string;
   readonly exit: number;
-  readonly outcome: "ran" | "timeout" | "cancelled";
+  readonly outcome: "ran" | "timeout" | "cancelled" | "invalid";
 }
 
 export interface TicketView {
