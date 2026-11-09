@@ -61,10 +61,16 @@ session's lease, or a git operation in progress holds the desk where it is
 
 Both kinds check out a submodule the move adds, such as a directory split into its
 own repository. When that path still holds files from before and git ignores all of
-them (install or build output), they are moved under the git dir
-(`pmcp-displaced/<time>/<path>`), never deleted, and the line says to run the
-install again. A file git does not ignore leaves the submodule unchecked, and the
-line names the path.
+them (install or build output), they are moved out of the checkout to
+`$XDG_STATE_HOME/pmcp/displaced/<project id>/<UTC time>/<path>` (`~/.local/state`
+without `XDG_STATE_HOME`; the project id is the one the state directory uses, shared
+by every worktree of the repository), never deleted, and the line names that
+directory and says to run the install again. Nothing under the checkout or its git
+dir holds them, so a scan of the tree, `git clean` or a new worktree never meets
+them; remove a directory there once the install has run. A file git does not ignore
+leaves the submodule unchecked, and the line names the path. Releases up to 0.25.0
+kept them under the git dir in `pmcp-displaced/`; pmcp no longer writes there, and
+what is there can be moved or removed by hand.
 
 `[git.mainline.gate]`: `command` (argv; no gate when missing), `tree` (the
 gate's worktree, default `<state dir>/gate/tree`; a relative path is relative to

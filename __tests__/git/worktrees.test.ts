@@ -121,9 +121,22 @@ it("moves a worktree across a directory that became a gitlink, setting its ignor
   expect(sh(join(ctx.root, "brand"), "rev-parse", "HEAD")).toBe(
     sh(join(other, "brand"), "rev-parse", "HEAD"),
   );
-  expect(report.lines.join("\n")).toMatch(
+  const line = report.lines.join("\n");
+  expect(line).toMatch(
     /brand: new submodule checked out at \w+; its ignored files from before are in /u,
   );
+  const moved = /are in (\S+), so run/u.exec(line)?.[1] ?? "";
+  expect(
+    moved.startsWith(join(process.env["XDG_STATE_HOME"]!, "pmcp", "displaced")),
+  ).toBe(true);
+  expect(readFileSync(join(moved, "dist", "out.js"), "utf8")).toBe("built\n");
+  const common = sh(
+    ctx.root,
+    "rev-parse",
+    "--path-format=absolute",
+    "--git-common-dir",
+  );
+  expect(existsSync(join(common, "pmcp-displaced"))).toBe(false);
 });
 
 it("leaves a worktree with uncommitted changes where it is", () => {

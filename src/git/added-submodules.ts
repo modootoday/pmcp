@@ -1,4 +1,5 @@
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -8,6 +9,7 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 
+import { displacedDir } from "../sessions/state-dir.js";
 import { git, gitText, gitWithInput } from "./exec.js";
 
 const ADDED_GITLINK = /^:\d{6} 160000 [0-9a-f]{40} ([0-9a-f]{40}) [AT]\t(.+)$/u;
@@ -38,7 +40,7 @@ export function initAddedSubmodules(
 }
 
 // A path that was a plain directory keeps its ignored files (install and build output)
-// after the move. Ignored-only content is moved aside under the git dir, never deleted;
+// after the move. Ignored-only content is moved to the state directory, never deleted;
 // anything else is named for the operator.
 function initOne(
   root: string,
@@ -147,12 +149,23 @@ function restoreIgnoreFiles(
   return restored;
 }
 
-// Moves path under the git dir, where no checkout and no clean reaches it.
+// Moves path out of the checkout into the state directory. A state directory on another
+// file system takes a copy first, and the source goes only once the copy is complete.
 function displace(root: string, path: string): string {
-  const gitDir = gitText(root, ["rev-parse", "--absolute-git-dir"]);
   const stamp = new Date().toISOString().replace(/[:.]/gu, "-");
-  const target = join(gitDir, "pmcp-displaced", stamp, path);
+  const target = join(displacedDir(root), stamp, path);
   mkdirSync(dirname(target), { recursive: true });
-  renameSync(join(root, path), target);
+  const source = join(root, path);
+  try {
+    renameSync(source, target);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EXDEV") throw error;
+    cpSync(source, target, {
+      recursive: true,
+      verbatimSymlinks: true,
+      preserveTimestamps: true,
+    });
+    rmSync(source, { recursive: true, force: true });
+  }
   return target;
 }
