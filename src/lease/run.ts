@@ -1,6 +1,8 @@
 import { spawn } from "node:child_process";
 import { constants } from "node:os";
 
+import { holdOnClosedPipe } from "../cli/pipe.js";
+
 import { BUS_FAILURE, scoped } from "./scope.js";
 
 import {
@@ -120,11 +122,13 @@ function execute(
     void watch.started?.();
     const forward = (signal: NodeJS.Signals) => child.kill(signal);
     for (const signal of SIGNALS) process.on(signal, forward);
+    const release = holdOnClosedPipe();
     const timer = setInterval(() => watch.tick(child.pid), 1000);
     let finished = false;
     const done = (code: number) => {
       if (finished) return;
       finished = true;
+      release();
       clearInterval(timer);
       for (const signal of SIGNALS) process.off(signal, forward);
       resolve(code);

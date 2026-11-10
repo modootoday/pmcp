@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
 
-import { endQuietlyOnClosedPipe } from "../src/cli/pipe.js";
+import { endQuietlyOnClosedPipe, holdOnClosedPipe } from "../src/cli/pipe.js";
 
 const CLI = fileURLToPath(new URL("../src/cli.ts", import.meta.url));
 
@@ -18,6 +18,19 @@ it("ends with exit 0 when the reader closed the pipe, and rethrows other write e
   stream.emit("error", failure("EPIPE"));
   expect(exits).toEqual([0]);
   expect(() => stream.emit("error", failure("ENOSPC"))).toThrow("write ENOSPC");
+});
+
+it("leaves the exit to a held job while the pipe is closed, and ends with 0 once released", () => {
+  const stream = new EventEmitter();
+  const exits: number[] = [];
+  endQuietlyOnClosedPipe([stream], (code) => exits.push(code));
+  const release = holdOnClosedPipe();
+  stream.emit("error", failure("EPIPE"));
+  expect(exits).toEqual([]);
+  release();
+  release();
+  stream.emit("error", failure("EPIPE"));
+  expect(exits).toEqual([0]);
 });
 
 it("prints no stack trace when stdout is closed before the command writes", async () => {
