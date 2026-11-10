@@ -10,7 +10,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { diagnose, weightFinding } from "../../src/host/io/doctor.js";
+import {
+  diagnose,
+  measureRefusal,
+  weightFinding,
+} from "../../src/host/io/doctor.js";
 import { judgeCompare, type ReaderResult } from "../../src/host/io/jobs.js";
 import { modelLine, qosLine, type IoModel } from "../../src/host/io/model.js";
 import { ioPlan, planText } from "../../src/host/io/plan.js";
@@ -220,6 +224,22 @@ describe("io doctor", () => {
 
   it("reads no io.cost on a kernel without the files", () => {
     expect(liveCost(sysfs(null, null))).toEqual({ model: null, qos: null });
+  });
+});
+
+describe("measure gate", () => {
+  it("refuses while qos is ctrl=user and names the line that lifts the cap", () => {
+    const live = liveCost(sysfs(`${MODEL_LINE}\n`, LIVE_QOS));
+    expect(measureRefusal(live, "259:0")).toEqual([
+      "io.cost.qos on 259:0 is ctrl=user, so vrate is held to the current model and a probe would measure that cap",
+      "lift the cap for the measurement as root: echo '259:0 enable=1 ctrl=auto' > /sys/fs/cgroup/io.cost.qos",
+      "afterwards pmcp host io plan prints the capped qos line to restore",
+    ]);
+  });
+
+  it("lets the measurement go on to the lease under ctrl=auto", () => {
+    const live = liveCost(sysfs(`${MODEL_LINE}\n`, AUTO_QOS));
+    expect(measureRefusal(live, "259:0")).toBeNull();
   });
 });
 

@@ -110,6 +110,20 @@ export function diagnose(record: IoRecord | null, live: LiveCost): Finding[] {
     ]);
 }
 
+// A qos under ctrl=user holds vrate to the current model, so a probe would measure the cap.
+export function measureRefusal(
+  live: LiveCost,
+  device: string,
+): string[] | null {
+  const line = lineFor(live.qos ?? [], device);
+  if (line?.fields["ctrl"] !== "user") return null;
+  return [
+    `io.cost.qos on ${device} is ctrl=user, so vrate is held to the current model and a probe would measure that cap`,
+    `lift the cap for the measurement as root: echo '${device} enable=1 ctrl=auto' > /sys/fs/cgroup/io.cost.qos`,
+    "afterwards pmcp host io plan prints the capped qos line to restore",
+  ];
+}
+
 export function weightFinding(result: CompareResult): Finding {
   if (!result.valid || result.ratio === null)
     return {

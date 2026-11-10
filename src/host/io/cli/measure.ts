@@ -8,6 +8,7 @@ import {
   type CommandContext,
 } from "../../../cli/command.js";
 import { VERSION } from "../../../commands/version.js";
+import { measureRefusal } from "../doctor.js";
 import { modelLine } from "../model.js";
 import { modelOf, type Probes } from "../probe.js";
 import { recordPath, writeRecord, type DeviceRecord } from "../record.js";
@@ -57,11 +58,11 @@ export async function ioMeasure(context: CommandContext): Promise<number> {
     throw new ArgumentError(
       `${base} has ${Math.floor(free / 2 ** 20)} MiB free; the probe needs ${2 * SIZE_MB} MiB`,
     );
-  const qos = live.qos?.find((line) => line.device === device);
-  if (qos?.fields["ctrl"] === "user" && Number(qos.fields["max"]) <= 100)
-    context.ui.warn(
-      `io.cost.qos on ${device} caps vrate at the current model, so a faster disk reads as that model; set qos ctrl=auto first to measure past it`,
-    );
+  const capped = measureRefusal(live, device);
+  if (capped !== null) {
+    for (const line of capped) context.ui.error(line);
+    return EXIT.differences;
+  }
   const { code, result } = await underLease<Probes>(context, lease, {
     verb: "measure",
     job: {
