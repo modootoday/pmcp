@@ -21,7 +21,7 @@ import { serveSpec } from "./specs/serve.js";
 import { loginSpec, logoutSpec, whoamiSpec } from "./specs/session.js";
 import { harnessSpec, tuiSpec } from "./specs/terminal.js";
 import { gitSpec } from "./specs/git.js";
-import { heavySpec } from "./specs/host.js";
+import { heavySpec, hostSpec } from "./specs/host.js";
 import { waitSpec } from "./specs/wait.js";
 import { ownersSpec } from "./specs/owners.js";
 import { logsSpec } from "./specs/logs.js";
@@ -89,6 +89,7 @@ export const COMMANDS: readonly CommandEntry[] = [
     ...heavySpec,
     load: async () => (await import("./heavy.js")).heavyCommand,
   },
+  { ...hostSpec, load: async () => (await import("./host.js")).hostCommand },
   { ...waitSpec, load: async () => (await import("./wait.js")).waitCommand },
   {
     ...ownersSpec,

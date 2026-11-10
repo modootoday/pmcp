@@ -1,0 +1,30 @@
+pmcp host
+  Measure the disk and check the io.cost model the lease's io weights rely on
+
+  pmcp host io <measure|plan|doctor> [options]
+
+  Subcommands
+    io measure  Probe the disk under the host lease and record its io.cost model
+    io plan     Print the io.cost lines and a systemd unit to install as root
+    io doctor   Compare the live io.cost model and qos with the record
+
+  Run pmcp host <subcommand> --help for one subcommand's usage.
+
+  Options
+    --config <file>  A pmcp.toml to read instead of the nearest one.
+    --json           Print the result as one JSON envelope on stdout.
+    --dir <path>     measure: make the probe file on this directory's filesystem
+                     (default: the lease directory).
+    --seconds <n>    measure: seconds per probe pattern (default 8); doctor
+                     --weights: seconds the readers run (default 20).
+    --unit <name>    plan: print a drop-in for this oneshot unit instead of a
+                     unit of its own.
+    --weights        doctor: also run two readers at io.weight 25 and 100 under
+                     the host lease and compare them.
+    --probe <job>    Internal: the probe job a leased run executes.
+
+  Examples
+    pmcp host io measure
+    pmcp host io plan
+    pmcp host io doctor --weights
+

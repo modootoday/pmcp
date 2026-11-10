@@ -151,3 +151,72 @@ export const heavySpec: CommandSpec = {
     },
   ],
 };
+
+export const hostSpec: CommandSpec = {
+  name: "host",
+  examples: [
+    "pmcp host io measure",
+    "pmcp host io plan",
+    "pmcp host io doctor --weights",
+  ],
+  subcommands: [
+    {
+      name: "io measure",
+      describe:
+        "Probe the disk under the host lease and record its io.cost model",
+      usage: "pmcp host io measure [--dir <path>] [--seconds <n>] [--json]",
+      options: ["dir", "seconds", "config", "json"],
+      examples: ["pmcp host io measure --dir /var/tmp"],
+    },
+    {
+      name: "io plan",
+      describe: "Print the io.cost lines and a systemd unit to install as root",
+      usage: "pmcp host io plan [--unit <name>] [--json]",
+      options: ["unit", "config", "json"],
+      examples: ["pmcp host io plan --unit iocost.service"],
+    },
+    {
+      name: "io doctor",
+      describe: "Compare the live io.cost model and qos with the record",
+      usage: "pmcp host io doctor [--weights [--seconds <n>]] [--json]",
+      options: ["weights", "seconds", "config", "json"],
+      examples: ["pmcp host io doctor", "pmcp host io doctor --weights"],
+    },
+  ],
+  describe:
+    "Measure the disk and check the io.cost model the lease's io weights rely on",
+  usage: "pmcp host io <measure|plan|doctor> [options]",
+  options: [
+    nearestConfigOption,
+    jsonOption,
+    {
+      name: "dir",
+      describe:
+        "measure: make the probe file on this directory's filesystem (default: the lease directory).",
+      placeholder: "<path>",
+    },
+    {
+      name: "seconds",
+      describe:
+        "measure: seconds per probe pattern (default 8); doctor --weights: seconds the readers run (default 20).",
+      placeholder: "<n>",
+    },
+    {
+      name: "unit",
+      describe:
+        "plan: print a drop-in for this oneshot unit instead of a unit of its own.",
+      placeholder: "<name>",
+    },
+    {
+      name: "weights",
+      describe:
+        "doctor: also run two readers at io.weight 25 and 100 under the host lease and compare them.",
+      boolean: true,
+    },
+    {
+      name: "probe",
+      describe: "Internal: the probe job a leased run executes.",
+      placeholder: "<job>",
+    },
+  ],
+};

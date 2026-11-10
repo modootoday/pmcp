@@ -43,6 +43,8 @@ export interface HeavyRun {
   // Where the job's stdout and stderr are kept; echo false keeps them off the terminal.
   readonly output?: { write(chunk: Buffer | string): void };
   readonly echo?: boolean;
+  // The command makes its own scope, so the lane's scope and io settings are skipped.
+  readonly placed?: boolean;
 }
 
 // Output still buffered when the job exits is read for at most this long; a background child
@@ -276,17 +278,19 @@ export async function runHeavy(run: HeavyRun): Promise<number> {
   const memoryMax = run.settings.profiles[run.profile]?.memoryMax;
   const held = outcome.kind === "held" ? outcome : null;
   const sampler = new Sampler();
-  const { argv, started, unscoped } = scoped(
-    run.argv,
-    run.settings,
-    held ? lane : null,
-    memoryMax,
-    run.say,
-    (dir) => sampler.useCgroup(dir),
-    undefined,
-    undefined,
-    run.env,
-  );
+  const { argv, started, unscoped } = run.placed
+    ? { argv: run.argv, started: undefined, unscoped: undefined }
+    : scoped(
+        run.argv,
+        run.settings,
+        held ? lane : null,
+        memoryMax,
+        run.say,
+        (dir) => sampler.useCgroup(dir),
+        undefined,
+        undefined,
+        run.env,
+      );
   const warn = held ? holdWarner(run, epoch()) : () => {};
   const tick = (pid: number | undefined) => {
     warn();

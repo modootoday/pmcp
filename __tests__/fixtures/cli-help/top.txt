@@ -29,6 +29,8 @@ pmcp — the skills your installed packages ship
                the main checkout
   heavy        Run a heavy command within the host-wide budget, by lane, once
                the host has room
+  host         Measure the disk and check the io.cost model the lease's io
+               weights rely on
   wait         Sleep until a process exits or a condition holds, never matching
                itself
   owners       Who looks after a path, from [[owners]] in pmcp.toml
