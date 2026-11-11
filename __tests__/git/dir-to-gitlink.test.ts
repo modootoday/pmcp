@@ -199,8 +199,9 @@ describe("a delivery whose tip turns a directory into a gitlink", () => {
       env: process.env,
     });
     expect(code).toBe(0);
-    expect(sh(origin.bare, "rev-parse", "main")).toBe(
-      sh(topic, "rev-parse", "HEAD"),
+    // Delivery replays the commit, so its hash can differ from topic's; the tree may not.
+    expect(sh(origin.bare, "rev-parse", "main^{tree}")).toBe(
+      sh(topic, "rev-parse", "HEAD^{tree}"),
     );
     expect(sh(origin.main, "rev-parse", "HEAD")).toBe(before);
     expect(readFileSync(join(origin.main, "brand", "a.txt"), "utf8")).toBe(
