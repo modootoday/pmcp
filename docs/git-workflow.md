@@ -205,6 +205,15 @@ long as no edited or untracked file is one the pin changes. When one is, the
 submodule stays on the old pin and sync names the files; pmcp never restores,
 stashes or discards them.
 
+`dir_to_gitlink` decides what a sync does when the move turns a tracked directory
+that still holds files into a gitlink (an app split out into its own repository).
+`"adopt"` (the default) moves, then checks the new submodule out, setting ignored
+output aside. `"refuse"` leaves the checkout where it is, with the directory and
+its files untouched, and exits 1, so a separate step can adopt it; the optional
+`dir_to_gitlink_hint` is appended to the refusal to name that step. It applies to
+`pmcp git sync` in the main checkout and on desks, to `pmcp git worktree sync`,
+and to the sync after a delivery, which still reports the delivery as done.
+
 With `push = "pins"`, `pmcp git deliver` first makes sure every submodule commit the
 delivered commits pin is on that submodule's origin. A pin already on a remote branch
 needs nothing. Otherwise exactly the pinned commit is pushed to the submodule's

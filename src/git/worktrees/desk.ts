@@ -1,6 +1,7 @@
 import { relative } from "node:path";
 
 import { globPattern } from "../../glob.js";
+import type { DirToGitlinkPolicy } from "../dir-to-gitlink.js";
 import { gitText } from "../exec.js";
 import type { InstallSpec } from "../install.js";
 import type { SessionGate } from "../mainline/store.js";
@@ -30,6 +31,7 @@ export function checkoutKind(
 export interface DeskSyncOptions {
   readonly ctx: GitContext;
   readonly followSubmodules: boolean;
+  readonly dirToGitlink?: DirToGitlinkPolicy;
   readonly install?: InstallSpec;
   readonly store: SessionGate;
   readonly leases: readonly LeaseSpec[];
@@ -73,6 +75,9 @@ export function syncDesk(options: DeskSyncOptions): SyncResult {
   const moved = syncWorktree({
     ctx: options.ctx,
     followSubmodules: options.followSubmodules,
+    ...(options.dirToGitlink === undefined
+      ? {}
+      : { dirToGitlink: options.dirToGitlink }),
     report,
     ...(options.install === undefined ? {} : { install: options.install }),
     ...(options.umask === undefined ? {} : { umask: options.umask }),

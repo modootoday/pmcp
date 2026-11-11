@@ -12,7 +12,8 @@ import { dirname, join } from "node:path";
 import { displacedDir } from "../sessions/state-dir.js";
 import { git, gitText, gitWithInput } from "./exec.js";
 
-const ADDED_GITLINK = /^:\d{6} 160000 [0-9a-f]{40} ([0-9a-f]{40}) [AT]\t(.+)$/u;
+export const ADDED_GITLINK =
+  /^:\d{6} 160000 [0-9a-f]{40} ([0-9a-f]{40}) [AT]\t(.+)$/u;
 
 // Checks out each gitlink the move from..to adds, often a directory split into its own
 // repository. One line per gitlink.

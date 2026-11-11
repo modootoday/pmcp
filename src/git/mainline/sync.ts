@@ -11,6 +11,10 @@ import {
   withUmask,
 } from "../modes.js";
 import { initAddedSubmodules } from "../added-submodules.js";
+import {
+  dirToGitlinkRefusal,
+  type DirToGitlinkPolicy,
+} from "../dir-to-gitlink.js";
 import { followPins } from "../submodules.js";
 import type { GitContext, MainlineSyncConfig, Reporter } from "../types.js";
 import { resetKeepingIdenticalFiles } from "./identical-files.js";
@@ -20,6 +24,7 @@ export interface MainlineSyncOptions {
   readonly sync: MainlineSyncConfig;
   readonly followSubmodules: boolean;
   readonly sharedSubmodules?: readonly string[];
+  readonly dirToGitlink?: DirToGitlinkPolicy;
 
   readonly stateDir: string;
   readonly report: Reporter;
@@ -126,6 +131,16 @@ function syncOnce(options: MainlineSyncOptions): number {
   if (head === target) {
     report.info(`${ctx.mainline} already equals ${ctx.upstream}`);
     return install(options);
+  }
+  const replaced = dirToGitlinkRefusal(
+    ctx.root,
+    head,
+    target,
+    options.dirToGitlink,
+  );
+  if (replaced !== null) {
+    report.warn(replaced);
+    return 1;
   }
   const moved = sync.keepIdenticalFiles
     ? resetKeepingIdenticalFiles(ctx.root, target)

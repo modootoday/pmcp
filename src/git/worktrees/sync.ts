@@ -8,12 +8,17 @@ import {
   withUmask,
 } from "../modes.js";
 import { initAddedSubmodules } from "../added-submodules.js";
+import {
+  dirToGitlinkRefusal,
+  type DirToGitlinkPolicy,
+} from "../dir-to-gitlink.js";
 import { movableSubmodules, updateToPins } from "../submodules.js";
 import type { GitContext, Reporter } from "../types.js";
 
 export interface WorktreeSyncOptions {
   readonly ctx: GitContext;
   readonly followSubmodules: boolean;
+  readonly dirToGitlink?: DirToGitlinkPolicy;
   readonly install?: InstallSpec;
   readonly fetch?: boolean;
   readonly report: Reporter;
@@ -84,6 +89,16 @@ function syncOnce(options: WorktreeSyncOptions): WorktreeSyncResult {
     ? movableSubmodules(ctx.root)
     : [];
   const before = gitText(ctx.root, ["rev-parse", "HEAD"]);
+  const replaced = dirToGitlinkRefusal(
+    ctx.root,
+    before,
+    gitText(ctx.root, ["rev-parse", ctx.upstream]),
+    options.dirToGitlink,
+  );
+  if (replaced !== null) {
+    report.warn(replaced);
+    return "held";
+  }
   // Discard only landed copies so desk synchronization does not lose undelivered commits.
   const args =
     counted.ahead > 0

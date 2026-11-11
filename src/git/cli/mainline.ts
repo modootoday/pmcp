@@ -4,6 +4,7 @@ import { deliver, type DeliverReceipt } from "../mainline/deliver.js";
 import { deliveryEvents } from "../mainline/delivery-events.js";
 import { filesSessionGate } from "../mainline/store.js";
 import { detect } from "../detect.js";
+import { dirToGitlinkPolicy } from "../dir-to-gitlink.js";
 import { installSpec } from "../install.js";
 import { syncMainline, syncMainlineResult } from "../mainline/sync.js";
 import { gateTreePath, leaseSpecs, type GitSetup } from "../setup.js";
@@ -18,6 +19,7 @@ function deskSync(setup: GitSetup, report: Reporter) {
   return syncDesk({
     ctx: setup.ctx,
     followSubmodules: config.submodules?.follow === "clean_pins",
+    dirToGitlink: dirToGitlinkPolicy(config.submodules),
     store: filesSessionGate(setup.stateDir, setup.leaseFiles, setup.pauseFile),
     leases: leaseSpecs(config),
     report,
@@ -46,6 +48,7 @@ export const mainlineSync: Action = (setup, _context, report) => {
     sync,
     followSubmodules,
     sharedSubmodules,
+    dirToGitlink: dirToGitlinkPolicy(setup.config.submodules),
     stateDir,
     report,
     ...(setup.config.umask !== undefined ? { umask: setup.config.umask } : {}),
@@ -74,6 +77,7 @@ export const mainlineDeliver: Action = (setup, context, report) => {
       sync,
       followSubmodules,
       sharedSubmodules,
+      dirToGitlink: dirToGitlinkPolicy(config.submodules),
       stateDir,
       report,
       ...(config.umask !== undefined ? { umask: config.umask } : {}),
