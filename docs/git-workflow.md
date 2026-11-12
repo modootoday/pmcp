@@ -198,7 +198,12 @@ its name. Delivery events record the same hash and whether the stamp matches it.
 
 `[git.submodules]`: `follow = "clean_pins"` (the default when the table is
 present) moves submodules to the pinned commit when they are clean; `"off"`
-leaves them. Without the table submodules are not followed.
+leaves them. Without the table submodules are not followed. A clean submodule
+whose commits are all on its origin follows even when it lagged behind the old
+pin, and one that lacks the pinned commit fetches its origin first: git fetches
+submodule commits only when the parent's own fetch brings new commits, and a
+checkout sharing its refs (the main checkout, another desk) has usually fetched
+them already. A submodule with commits its origin lacks stays where it is.
 `shared` lists submodules other sessions also edit in the main checkout (an
 app kept in its own repository, for example): those move to the new pin even with uncommitted edits, as
 long as no edited or untracked file is one the pin changes. When one is, the
@@ -212,7 +217,11 @@ output aside. `"refuse"` leaves the checkout where it is, with the directory and
 its files untouched, and exits 1, so a separate step can adopt it; the optional
 `dir_to_gitlink_hint` is appended to the refusal to name that step. It applies to
 `pmcp git sync` in the main checkout and on desks, to `pmcp git worktree sync`,
-and to the sync after a delivery, which still reports the delivery as done.
+and to the sync after a delivery, which still reports the delivery as done. The
+main checkout usually adopts by a different step than a desk; when
+`dir_to_gitlink_main_hint` is set, its refusals (sync there and after a delivery)
+name that one instead. The exit code stays 1 because the checkout did not move:
+a script that runs sync must not go on as if it had.
 
 With `push = "pins"`, `pmcp git deliver` first makes sure every submodule commit the
 delivered commits pin is on that submodule's origin. A pin already on a remote branch

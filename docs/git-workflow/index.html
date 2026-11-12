@@ -217,7 +217,12 @@ compute and write themselves; the default <code>&quot;pmcp&quot;</code> hashes e
 its name. Delivery events record the same hash and whether the stamp matches it.</p>
 <p><code>[git.submodules]</code>: <code>follow = &quot;clean_pins&quot;</code> (the default when the table is
 present) moves submodules to the pinned commit when they are clean; <code>&quot;off&quot;</code>
-leaves them. Without the table submodules are not followed.
+leaves them. Without the table submodules are not followed. A clean submodule
+whose commits are all on its origin follows even when it lagged behind the old
+pin, and one that lacks the pinned commit fetches its origin first: git fetches
+submodule commits only when the parent&#39;s own fetch brings new commits, and a
+checkout sharing its refs (the main checkout, another desk) has usually fetched
+them already. A submodule with commits its origin lacks stays where it is.
 <code>shared</code> lists submodules other sessions also edit in the main checkout (an
 app kept in its own repository, for example): those move to the new pin even with uncommitted edits, as
 long as no edited or untracked file is one the pin changes. When one is, the
@@ -230,7 +235,11 @@ output aside. <code>&quot;refuse&quot;</code> leaves the checkout where it is, w
 its files untouched, and exits 1, so a separate step can adopt it; the optional
 <code>dir_to_gitlink_hint</code> is appended to the refusal to name that step. It applies to
 <code>pmcp git sync</code> in the main checkout and on desks, to <code>pmcp git worktree sync</code>,
-and to the sync after a delivery, which still reports the delivery as done.</p>
+and to the sync after a delivery, which still reports the delivery as done. The
+main checkout usually adopts by a different step than a desk; when
+<code>dir_to_gitlink_main_hint</code> is set, its refusals (sync there and after a delivery)
+name that one instead. The exit code stays 1 because the checkout did not move:
+a script that runs sync must not go on as if it had.</p>
 <p>With <code>push = &quot;pins&quot;</code>, <code>pmcp git deliver</code> first makes sure every submodule commit the
 delivered commits pin is on that submodule&#39;s origin. A pin already on a remote branch
 needs nothing. Otherwise exactly the pinned commit is pushed to the submodule&#39;s

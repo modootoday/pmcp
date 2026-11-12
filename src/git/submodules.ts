@@ -13,6 +13,19 @@ function hasCommit(dir: string, sha: string): boolean {
   return gitOk(dir, ["cat-file", "-e", `${sha}^{commit}`]);
 }
 
+// git's on-demand submodule fetch runs only when the parent's own fetch brings commits, and a
+// checkout sharing the parent's refs has usually fetched them first.
+function fetchedPin(dir: string, sha: string): boolean {
+  if (!hasCommit(dir, sha)) git(dir, ["fetch", "-q", "origin"]);
+  return hasCommit(dir, sha);
+}
+
+function pushed(dir: string): boolean {
+  return (
+    gitText(dir, ["rev-list", "--count", "HEAD", "--not", "--remotes"]) === "0"
+  );
+}
+
 // Files with uncommitted edits (or untracked) that the move to the pin would touch.
 function blocking(dir: string, head: string, pin: string): string[] {
   const local = git(dir, ["status", "--porcelain", "--untracked-files=all"])
@@ -37,14 +50,14 @@ function followOne(
   if (!existsSync(join(dir, ".git"))) return "not checked out, left alone";
   const head = gitText(dir, ["rev-parse", "HEAD"]);
   if (head === newPin) return `already at ${short}`;
-  if (head !== oldPin)
+  // A clean checkout whose commits are all pushed lost nothing by lagging, so it follows too.
+  if (head !== oldPin && !(clean(dir) && pushed(dir)))
     return `left at ${head.slice(0, 10)}: it was not on the old pin, so it holds other work`;
   // A shared checkout moves with its edits when they touch no file the pin changes; git
   // refuses otherwise, and nothing is ever restored or discarded here, only named.
   if (!shared && !clean(dir))
     return `left at the old pin: it has uncommitted changes`;
-  if (!hasCommit(dir, newPin)) git(dir, ["fetch", "-q", "origin"]);
-  if (!hasCommit(dir, newPin))
+  if (!fetchedPin(dir, newPin))
     return `left at the old pin: ${short} is not fetchable`;
   const branch = gitText(dir, ["symbolic-ref", "--short", "-q", "HEAD"]);
   const args = branch
@@ -98,14 +111,7 @@ export function movableSubmodules(root: string): string[] {
     .filter((path) => {
       const dir = join(root, path);
       if (!path || !existsSync(join(dir, ".git"))) return false;
-      const local = gitText(dir, [
-        "rev-list",
-        "--count",
-        "HEAD",
-        "--not",
-        "--remotes",
-      ]);
-      return clean(dir) && local === "0";
+      return clean(dir) && pushed(dir);
     });
 }
 
@@ -114,9 +120,9 @@ export function updateToPins(root: string, paths: readonly string[]): string[] {
   for (const path of paths) {
     const pin = gitText(root, ["rev-parse", `HEAD:${path}`]);
     const dir = join(root, path);
-    if (!pin || !hasCommit(dir, pin)) {
+    if (!pin || !fetchedPin(dir, pin)) {
       lines.push(
-        `${path}: left alone, ${pin.slice(0, 10) || "its pin"} is not in its checkout`,
+        `${path}: left alone, ${pin.slice(0, 10) || "its pin"} is not in its checkout or on its origin`,
       );
       continue;
     }

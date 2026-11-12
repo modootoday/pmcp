@@ -139,6 +139,30 @@ it("moves a worktree across a directory that became a gitlink, setting its ignor
   expect(existsSync(join(common, "pmcp-displaced"))).toBe(false);
 });
 
+it("fetches a submodule's new pin that its checkout lacks and moves it there", () => {
+  const { origin, ctx } = desk("pins");
+  const sub = remote();
+  const other = clone(origin, "pins-parent");
+  sh(other, "submodule", "add", "-q", sub.bare, "lib");
+  sh(other, "commit", "-q", "-m", "add lib");
+  sh(other, "push", "-q", "origin", "HEAD:main");
+  syncWorktree({ ctx, followSubmodules: true, report: recorder() });
+  const lib = join(other, "lib");
+  sh(lib, "checkout", "-q", "-B", "main", "origin/main");
+  const next = commit(lib, "lib.txt", "v2\n", "lib v2");
+  sh(lib, "push", "-q", "origin", "HEAD:main");
+  sh(other, "add", "lib");
+  sh(other, "commit", "-q", "-m", "bump lib");
+  sh(other, "push", "-q", "origin", "HEAD:main");
+  // The main checkout shares the desk's refs, so its fetch leaves the desk's own fetch nothing
+  // new and git's on-demand submodule fetch never runs there.
+  sh(origin.main, "fetch", "-q", "origin");
+  const report = recorder();
+  expect(syncWorktree({ ctx, followSubmodules: true, report })).toBe("moved");
+  expect(sh(join(ctx.root, "lib"), "rev-parse", "HEAD")).toBe(next);
+  expect(report.lines).toContain(`lib: moved to ${next.slice(0, 10)}`);
+});
+
 it("leaves a worktree with uncommitted changes where it is", () => {
   const { origin, ctx } = desk("gamma");
   const before = sh(ctx.root, "rev-parse", "HEAD");

@@ -142,11 +142,11 @@ function withSubmodule(): { origin: Remote; pin: () => string } {
   return { origin, pin };
 }
 
-function bumpSubmodule(origin: Remote): string {
-  const other = clone(origin, "bump");
+function bumpSubmodule(origin: Remote, name = "bump", text = "v2"): string {
+  const other = clone(origin, name);
   const lib = join(other, "lib");
   sh(lib, "checkout", "-q", "-B", "main", "origin/main");
-  const next = commit(lib, "lib.txt", "v2\n", "lib v2");
+  const next = commit(lib, "lib.txt", `${text}\n`, `lib ${text}`);
   sh(lib, "push", "-q", "origin", "HEAD:main");
   sh(other, "add", "lib");
   sh(other, "commit", "-q", "-m", "bump lib");
@@ -160,6 +160,32 @@ it("follows a clean submodule to its new pin", () => {
   const marker = join(origin.base, "installed");
   expect(sync(origin, origin.main, marking(marker))).toBe(0);
   expect(pin()).toBe(next);
+});
+
+it("follows a clean, pushed submodule that lagged behind the old pin", () => {
+  const { origin, pin } = withSubmodule();
+  const marker = join(origin.base, "installed");
+  bumpSubmodule(origin);
+  expect(sync(origin, origin.main, marking(marker), false)).toBe(0);
+  const next = bumpSubmodule(origin, "bump-again", "v3");
+  const report = recorder();
+  expect(sync(origin, origin.main, marking(marker), true, report)).toBe(0);
+  expect(pin()).toBe(next);
+  expect(report.lines).toContain(`lib: moved to ${next.slice(0, 10)}`);
+});
+
+it("leaves a submodule off the old pin that holds an unpushed commit", () => {
+  const { origin, pin } = withSubmodule();
+  const own = commit(join(origin.main, "lib"), "own.txt", "mine\n", "own");
+  bumpSubmodule(origin);
+  const report = recorder();
+  expect(
+    sync(origin, origin.main, marking(join(origin.base, "m")), true, report),
+  ).toBe(0);
+  expect(pin()).toBe(own);
+  expect(report.lines).toContain(
+    `lib: left at ${own.slice(0, 10)}: it was not on the old pin, so it holds other work`,
+  );
 });
 
 it("leaves submodules on the old pin when following is off", () => {
