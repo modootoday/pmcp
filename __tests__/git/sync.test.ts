@@ -174,6 +174,27 @@ it("follows a clean, pushed submodule that lagged behind the old pin", () => {
   expect(report.lines).toContain(`lib: moved to ${next.slice(0, 10)}`);
 });
 
+it("names a lagging submodule whose origin's branches cannot be read", () => {
+  const { origin, pin } = withSubmodule();
+  const marker = join(origin.base, "installed");
+  bumpSubmodule(origin);
+  expect(sync(origin, origin.main, marking(marker), false)).toBe(0);
+  bumpSubmodule(origin, "bump-again", "v3");
+  const lib = join(origin.main, "lib");
+  const before = pin();
+  sh(lib, "config", "--unset-all", "remote.origin.fetch");
+  sh(lib, "update-ref", "-d", "refs/remotes/origin/main");
+  sh(lib, "update-ref", "-d", "refs/remotes/origin/HEAD");
+  sh(lib, "remote", "set-url", "origin", join(origin.base, "gone.git"));
+  sh(origin.main, "config", "fetch.recurseSubmodules", "false");
+  const report = recorder();
+  expect(sync(origin, origin.main, marking(marker), true, report)).toBe(0);
+  expect(pin()).toBe(before);
+  expect(report.lines).toContain(
+    `lib: left at ${before.slice(0, 10)}: it was not on the old pin, and what its origin holds is unknown (no remote-tracking refs)`,
+  );
+});
+
 it("leaves a submodule off the old pin that holds an unpushed commit", () => {
   const { origin, pin } = withSubmodule();
   const own = commit(join(origin.main, "lib"), "own.txt", "mine\n", "own");

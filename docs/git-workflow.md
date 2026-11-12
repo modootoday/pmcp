@@ -203,7 +203,11 @@ whose commits are all on its origin follows even when it lagged behind the old
 pin, and one that lacks the pinned commit fetches its origin first: git fetches
 submodule commits only when the parent's own fetch brings new commits, and a
 checkout sharing its refs (the main checkout, another desk) has usually fetched
-them already. A submodule with commits its origin lacks stays where it is.
+them already. A submodule with commits its origin lacks stays where it is. A
+module with no fetch refspec (one cloned bare, for example) records nothing on a
+plain fetch, so sync fetches its origin's branches into remote-tracking refs with
+an explicit refspec and leaves the config alone; when even that fails, sync says
+what its origin holds is unknown.
 `shared` lists submodules other sessions also edit in the main checkout (an
 app kept in its own repository, for example): those move to the new pin even with uncommitted edits, as
 long as no edited or untracked file is one the pin changes. When one is, the

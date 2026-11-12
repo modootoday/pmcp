@@ -20,7 +20,15 @@ function fetchedPin(dir: string, sha: string): boolean {
   return hasCommit(dir, sha);
 }
 
+// A module cloned bare has no fetch refspec, so no fetch records its origin's branches and
+// every commit would look unpushed; fetch them once without touching the config.
+function trackOrigin(dir: string): void {
+  if (gitOk(dir, ["config", "--get", "remote.origin.fetch"])) return;
+  git(dir, ["fetch", "-q", "origin", "+refs/heads/*:refs/remotes/origin/*"]);
+}
+
 function pushed(dir: string): boolean {
+  trackOrigin(dir);
   return (
     gitText(dir, ["rev-list", "--count", "HEAD", "--not", "--remotes"]) === "0"
   );
@@ -52,7 +60,9 @@ function followOne(
   if (head === newPin) return `already at ${short}`;
   // A clean checkout whose commits are all pushed lost nothing by lagging, so it follows too.
   if (head !== oldPin && !(clean(dir) && pushed(dir)))
-    return `left at ${head.slice(0, 10)}: it was not on the old pin, so it holds other work`;
+    return gitText(dir, ["for-each-ref", "--count=1", "refs/remotes"])
+      ? `left at ${head.slice(0, 10)}: it was not on the old pin, so it holds other work`
+      : `left at ${head.slice(0, 10)}: it was not on the old pin, and what its origin holds is unknown (no remote-tracking refs)`;
   // A shared checkout moves with its edits when they touch no file the pin changes; git
   // refuses otherwise, and nothing is ever restored or discarded here, only named.
   if (!shared && !clean(dir))

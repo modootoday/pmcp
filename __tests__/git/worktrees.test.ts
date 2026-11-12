@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { beforeAll, expect, it } from "vitest";
 
 import { detect } from "../../src/git/detect.js";
+import { gitOk } from "../../src/git/exec.js";
 import { deliver } from "../../src/git/mainline/deliver.js";
 import type { SessionGate } from "../../src/git/mainline/store.js";
 import type { GitContext, WorktreesConfig } from "../../src/git/types.js";
@@ -139,14 +140,22 @@ it("moves a worktree across a directory that became a gitlink, setting its ignor
   expect(existsSync(join(common, "pmcp-displaced"))).toBe(false);
 });
 
-it("fetches a submodule's new pin that its checkout lacks and moves it there", () => {
-  const { origin, ctx } = desk("pins");
+function deskWithLib(alias: string): {
+  origin: ReturnType<typeof remote>;
+  ctx: GitContext;
+  other: string;
+} {
+  const { origin, ctx } = desk(alias);
   const sub = remote();
-  const other = clone(origin, "pins-parent");
+  const other = clone(origin, `${alias}-parent`);
   sh(other, "submodule", "add", "-q", sub.bare, "lib");
   sh(other, "commit", "-q", "-m", "add lib");
   sh(other, "push", "-q", "origin", "HEAD:main");
   syncWorktree({ ctx, followSubmodules: true, report: recorder() });
+  return { origin, ctx, other };
+}
+
+function bumpLib(origin: ReturnType<typeof remote>, other: string): string {
   const lib = join(other, "lib");
   sh(lib, "checkout", "-q", "-B", "main", "origin/main");
   const next = commit(lib, "lib.txt", "v2\n", "lib v2");
@@ -157,6 +166,27 @@ it("fetches a submodule's new pin that its checkout lacks and moves it there", (
   // The main checkout shares the desk's refs, so its fetch leaves the desk's own fetch nothing
   // new and git's on-demand submodule fetch never runs there.
   sh(origin.main, "fetch", "-q", "origin");
+  return next;
+}
+
+// A module adopted from a bare clone has no fetch refspec, so no fetch records its origin's
+// branches and every commit looked unpushed.
+it("follows a submodule whose module has no fetch refspec, leaving its config alone", () => {
+  const { origin, ctx, other } = deskWithLib("bare");
+  const lib = join(ctx.root, "lib");
+  sh(lib, "config", "--unset-all", "remote.origin.fetch");
+  sh(lib, "update-ref", "-d", "refs/remotes/origin/main");
+  sh(lib, "update-ref", "-d", "refs/remotes/origin/HEAD");
+  const next = bumpLib(origin, other);
+  const report = recorder();
+  expect(syncWorktree({ ctx, followSubmodules: true, report })).toBe("moved");
+  expect(sh(lib, "rev-parse", "HEAD")).toBe(next);
+  expect(gitOk(lib, ["config", "--get", "remote.origin.fetch"])).toBe(false);
+});
+
+it("fetches a submodule's new pin that its checkout lacks and moves it there", () => {
+  const { origin, ctx, other } = deskWithLib("pins");
+  const next = bumpLib(origin, other);
   const report = recorder();
   expect(syncWorktree({ ctx, followSubmodules: true, report })).toBe("moved");
   expect(sh(join(ctx.root, "lib"), "rev-parse", "HEAD")).toBe(next);
