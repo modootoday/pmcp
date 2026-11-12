@@ -44,8 +44,12 @@ import { isOperator, requireOperatorFor } from "../sessions/operator-cli.js";
 import { heavySpec } from "./specs/host.js";
 
 function settings(context: CommandContext): LeaseSettings {
+  const ignored = (key: string) =>
+    process.stderr.write(
+      `pmcp heavy: ignoring unknown key [host.lease] ${key}; a newer pmcp may know it, other pmcp commands still refuse it\n`,
+    );
   try {
-    return leaseSettingsFor(context.cwd, one(context.args, "config"));
+    return leaseSettingsFor(context.cwd, one(context.args, "config"), ignored);
   } catch (error) {
     if (error instanceof ConfigError) throw new ArgumentError(error.message);
     throw error;

@@ -5,6 +5,14 @@
 What to do when a release changes something you rely on. Each release's notes on GitHub
 Releases list its breaking changes and link here.
 
+## Adopting a release that adds a configuration key
+
+Pin the new release first and set its new `pmcp.toml` key in a later change, once
+every checkout that reads that `pmcp.toml` runs the new pmcp. An older pmcp refuses a
+key it does not know, and the commands that install the new release may run through
+it: a lease-wrapped install (`pmcp heavy`) only warns about an unknown top-level
+`[host.lease]` key from 0.30.1 on, and any other place still refuses one.
+
 ## From 0.25 to 0.26
 
 **`pmcp status` no longer judges `[budget]`.** It still shows each limit beside what it

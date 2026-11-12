@@ -48,6 +48,12 @@
 <p><a href="/">Back to the overview</a></p>
 <p>What to do when a release changes something you rely on. Each release&#39;s notes on GitHub
 Releases list its breaking changes and link here.</p>
+<h2 id="adopting-a-release-that-adds-a-configuration-key">Adopting a release that adds a configuration key</h2>
+<p>Pin the new release first and set its new <code>pmcp.toml</code> key in a later change, once
+every checkout that reads that <code>pmcp.toml</code> runs the new pmcp. An older pmcp refuses a
+key it does not know, and the commands that install the new release may run through
+it: a lease-wrapped install (<code>pmcp heavy</code>) only warns about an unknown top-level
+<code>[host.lease]</code> key from 0.30.1 on, and any other place still refuses one.</p>
 <h2 id="from-025-to-026">From 0.25 to 0.26</h2>
 <p><strong><code>pmcp status</code> no longer judges <code>[budget]</code>.</strong> It still shows each limit beside what it
 measured and how many are over, in the summary and in <code>data.budget</code>, but an exceeded limit

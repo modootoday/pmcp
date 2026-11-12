@@ -183,6 +183,26 @@ describe("[host.lease]", () => {
     );
   });
 
+  it("reports and skips an unknown [host.lease] key only for a caller that asks to", () => {
+    const ignored: string[] = [];
+    const settings = readLeaseSettings(
+      "pmcp.toml",
+      "/project",
+      { lease: { budget: 2, newer_key: true } },
+      (key) => ignored.push(key),
+    );
+    expect(ignored).toEqual(["newer_key"]);
+    expect(settings.budget).toBe(2);
+    expect(() =>
+      readLeaseSettings(
+        "pmcp.toml",
+        "/project",
+        { lease: { lanes: { fast: 1 } } },
+        () => {},
+      ),
+    ).toThrow("unknown key [host.lease.lanes] fast");
+  });
+
   it("does not declare a pmcp-pty host or its approval guard on its own", () => {
     const host = { lease: { heavy: [["bun", "install"]] } };
     expect(readHost("pmcp.toml", host)).toBeUndefined();

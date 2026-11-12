@@ -318,15 +318,28 @@ function hardFactor(path: string, value: unknown): number {
   return value;
 }
 
+// pmcp heavy wraps the install that brings a newer pmcp, so there a key only a newer release
+// knows is reported and skipped instead of refusing every install on the host.
+function knownKeys(raw: Raw, ignored?: (key: string) => void): Raw {
+  if (!ignored) return raw;
+  const kept: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(raw)) {
+    if (KEYS.includes(key)) kept[key] = value;
+    else ignored(key);
+  }
+  return kept;
+}
+
 // Without a table every default applies: the lease is on for every host that runs pmcp heavy.
 export function readLeaseSettings(
   path: string,
   dir: string,
   host: unknown,
+  ignored?: (key: string) => void,
 ): LeaseSettings {
   const root = table(path, "host", host) ?? {};
   const declared = child(path, root, "host", "lease");
-  const raw = declared ?? {};
+  const raw = knownKeys(declared ?? {}, ignored);
   const read = new Reader(path, "host.lease", raw, KEYS);
   const memoryMax = memory(path, "host.lease", raw["memory_max"]);
   const base: LeaseProfile = {
@@ -400,9 +413,15 @@ export function readLeaseSettings(
 export function leaseSettingsFor(
   cwd: string,
   configPath?: string,
+  ignored?: (key: string) => void,
 ): LeaseSettings {
   const path = configPath ?? findConfig(cwd);
   if (path === null) return readLeaseSettings("pmcp.toml", cwd, undefined);
   const config = readConfig(path);
-  return readLeaseSettings(config.path, config.dir, config.raw["host"]);
+  return readLeaseSettings(
+    config.path,
+    config.dir,
+    config.raw["host"],
+    ignored,
+  );
 }

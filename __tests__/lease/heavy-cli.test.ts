@@ -143,4 +143,21 @@ describe("pmcp heavy", () => {
       pmcpSync(["heavy", "--profile", "nope", "--", "true"], cwd, env).status,
     ).toBe(2);
   }, 30_000);
+
+  it("runs the install that brings a newer pmcp when pmcp.toml already names a key only it knows", () => {
+    const { base, dir, env } = scratch();
+    const cwd = project(base, leaseToml(dir, "gate_lone = true\n"));
+    const ran = join(base, "ran");
+    const install = pmcpSync(["heavy", "--", "touch", ran], cwd, env);
+    expect(install.status).toBe(0);
+    expect(existsSync(ran)).toBe(true);
+    expect(install.stderr).toContain(
+      "pmcp heavy: ignoring unknown key [host.lease] gate_lone",
+    );
+    expect(pmcpSync(["heavy", "status"], cwd, env).status).toBe(0);
+    const doctor = pmcpSync(["doctor"], cwd, env);
+    expect(`${doctor.stdout}${doctor.stderr}`).toContain(
+      "unknown key [host.lease] gate_lone",
+    );
+  }, 30_000);
 });

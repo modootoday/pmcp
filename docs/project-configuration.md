@@ -271,6 +271,11 @@ IO beside the others. Turn it off (`enabled = false`) on a host that runs one
 session at a time or has room for every job at once; keep it on where several
 agents share one machine. It is on by default, also without the table.
 
+`pmcp heavy` warns about a top-level `[host.lease]` key it does not know and
+runs without it, because the install it wraps may be the one that brings the
+pmcp that knows the key; every other command, and every nested lease table,
+still refuses an unknown key.
+
 ```toml
 [host.lease]
 max_load = 8

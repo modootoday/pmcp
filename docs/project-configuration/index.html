@@ -257,6 +257,10 @@ throughput for stability: a queued job waits instead of overflowing memory or
 IO beside the others. Turn it off (<code>enabled = false</code>) on a host that runs one
 session at a time or has room for every job at once; keep it on where several
 agents share one machine. It is on by default, also without the table.</p>
+<p><code>pmcp heavy</code> warns about a top-level <code>[host.lease]</code> key it does not know and
+runs without it, because the install it wraps may be the one that brings the
+pmcp that knows the key; every other command, and every nested lease table,
+still refuses an unknown key.</p>
 <pre><code>[host.lease]
 max_load = 8
 max_io = 8
