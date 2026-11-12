@@ -175,14 +175,17 @@ export function submodules(path: string, source: Table): SubmodulesConfig {
     "push",
     "dir_to_gitlink",
     "dir_to_gitlink_hint",
+    "dir_to_gitlink_main_hint",
   ]);
   const hint = read.string("dir_to_gitlink_hint");
+  const mainHint = read.string("dir_to_gitlink_main_hint");
   return {
     follow: read.oneOf("follow", ["clean_pins", "off"], "clean_pins"),
     shared: read.list("shared"),
     push: read.oneOf("push", ["pins", "off"], "off"),
     dirToGitlink: read.oneOf("dir_to_gitlink", ["adopt", "refuse"], "adopt"),
     ...(hint === undefined ? {} : { dirToGitlinkHint: hint }),
+    ...(mainHint === undefined ? {} : { dirToGitlinkMainHint: mainHint }),
   };
 }
 

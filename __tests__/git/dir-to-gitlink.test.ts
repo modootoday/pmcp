@@ -13,7 +13,10 @@ import { dispatch } from "../../src/commands/index.js";
 import type { ProjectConfig } from "../../src/config.js";
 import { readGitConfig } from "../../src/git/config.js";
 import { detect } from "../../src/git/detect.js";
-import type { DirToGitlinkPolicy } from "../../src/git/dir-to-gitlink.js";
+import {
+  dirToGitlinkPolicy,
+  type DirToGitlinkPolicy,
+} from "../../src/git/dir-to-gitlink.js";
 import { syncMainline } from "../../src/git/mainline/sync.js";
 import type { Reporter } from "../../src/git/types.js";
 import { syncWorktree } from "../../src/git/worktrees/sync.js";
@@ -153,6 +156,21 @@ describe("[git.submodules] dir_to_gitlink", () => {
     });
     expect(refused?.submodules?.dirToGitlink).toBe("refuse");
     expect(refused?.submodules?.dirToGitlinkHint).toBe("x");
+  });
+
+  it("gives the main checkout its own hint, falling back to the desk one", () => {
+    const both = read({
+      dir_to_gitlink: "refuse",
+      dir_to_gitlink_hint: "desk",
+      dir_to_gitlink_main_hint: "main",
+    })?.submodules;
+    expect(dirToGitlinkPolicy(both, "main").hint).toBe("main");
+    expect(dirToGitlinkPolicy(both, "desk").hint).toBe("desk");
+    const deskOnly = read({
+      dir_to_gitlink: "refuse",
+      dir_to_gitlink_hint: "desk",
+    })?.submodules;
+    expect(dirToGitlinkPolicy(deskOnly, "main").hint).toBe("desk");
   });
 
   it("takes only adopt or refuse", () => {

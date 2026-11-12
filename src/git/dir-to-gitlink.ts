@@ -15,13 +15,16 @@ export interface DirToGitlinkPolicy {
 
 export function dirToGitlinkPolicy(
   submodules: SubmodulesConfig | undefined,
+  checkout: "main" | "desk",
 ): DirToGitlinkPolicy {
   if (submodules === undefined) return { mode: "adopt" };
+  const hint =
+    checkout === "main"
+      ? (submodules.dirToGitlinkMainHint ?? submodules.dirToGitlinkHint)
+      : submodules.dirToGitlinkHint;
   return {
     mode: submodules.dirToGitlink,
-    ...(submodules.dirToGitlinkHint === undefined
-      ? {}
-      : { hint: submodules.dirToGitlinkHint }),
+    ...(hint === undefined ? {} : { hint }),
   };
 }
 

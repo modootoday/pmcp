@@ -12,7 +12,7 @@ export const worktreeSync: Action = (setup, _context, report) => {
   const result = syncWorktree({
     ctx,
     followSubmodules: config.submodules?.follow === "clean_pins",
-    dirToGitlink: dirToGitlinkPolicy(config.submodules),
+    dirToGitlink: dirToGitlinkPolicy(config.submodules, "desk"),
     report,
     ...(config.umask !== undefined ? { umask: config.umask } : {}),
     ...(install === undefined ? {} : { install }),

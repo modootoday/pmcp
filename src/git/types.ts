@@ -73,9 +73,11 @@ export interface SubmodulesConfig {
   // "pins": deliver pushes each submodule pin its commits set to that submodule's origin first.
   readonly push: "pins" | "off";
   // A move that turns a tracked directory with files into a gitlink: checked out after the
-  // move ("adopt") or refused before it ("refuse"), with the hint appended to the refusal.
+  // move ("adopt") or refused before it ("refuse"), with the hint appended to the refusal; the
+  // main checkout takes its own hint when one is set.
   readonly dirToGitlink: "adopt" | "refuse";
   readonly dirToGitlinkHint?: string;
+  readonly dirToGitlinkMainHint?: string;
 }
 
 export interface LeaseSpec {
