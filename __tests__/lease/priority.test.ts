@@ -87,6 +87,23 @@ describe("admission", () => {
       ]),
     ]).toEqual([6]);
   });
+
+  it("starts nothing beside a gate that runs or waits under gate_alone, tiny jobs aside", () => {
+    const alone = settings("/x", { gate_alone: true });
+    const waiters = [
+      job(1, "gate", 1),
+      job(2, "interactive", 2),
+      job(3, "bulk", 0),
+    ];
+    expect([...admissible(alone, [], waiters)]).toEqual([3, 1]);
+    expect([
+      ...admissible(alone, [job(9, "gate", 1)], [job(2, "interactive", 2)]),
+    ]).toEqual([]);
+    expect([
+      ...admissible(alone, [job(9, "hook", 1)], [job(2, "interactive", 2)]),
+    ]).toEqual([2]);
+    expect([...admissible(settings("/x"), [], waiters)]).toEqual([3, 1, 2]);
+  });
 });
 
 describe("lease lanes", () => {
@@ -173,6 +190,53 @@ describe("lease lanes", () => {
     expect(weight).toBe(0);
     expect(peak).toBeLessThanOrEqual(3);
     expect(peak).toBeGreaterThan(1);
+  }, 60_000);
+
+  it("lets a gate and a test held by a busy host start one after the other under gate_alone", async () => {
+    const { base, dir, env } = scratch();
+    writeFileSync(
+      join(base, "pressure"),
+      "some avg10=50 avg60=50 avg300=50 total=0\n",
+    );
+    const cwd = project(
+      base,
+      `[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 8\nload_grace = 0\ngate_alone = true\nheartbeat = 1\npoll = 1\nper_session = 0\n`,
+    );
+    const trace = join(base, "trace");
+    const queue: [string, string][] = [
+      ["test", "interactive"],
+      ["gate", "gate"],
+    ];
+    const runs = queue.map(([name, lane]) => {
+      const child = pmcp(
+        [
+          "heavy",
+          "--lane",
+          lane,
+          "--",
+          "sh",
+          "-c",
+          `echo "+${name}" >> ${trace}; sleep 0.5; echo "-${name}" >> ${trace}`,
+        ],
+        cwd,
+        env,
+      );
+      children.push(child);
+      return finished(child);
+    });
+    until(() => count(dir, "waiters") === queue.length, 20_000);
+    writeFileSync(
+      join(base, "pressure"),
+      "some avg10=0 avg60=0 avg300=0 total=0\n",
+    );
+    const results = await Promise.all(runs);
+    expect(results.map((result) => result.code)).toEqual([0, 0]);
+    expect(readFileSync(trace, "utf8").trim().split("\n")).toEqual([
+      "+gate",
+      "-gate",
+      "+test",
+      "-test",
+    ]);
   }, 60_000);
 
   it("ignores a dead waiter ahead and reports a bulk job held back by a live gate waiter", () => {

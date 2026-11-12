@@ -56,6 +56,8 @@ export interface LeaseSettings {
   readonly poll: number;
   // Running weight never exceeds the budget; budget 1 is one job at a time.
   readonly budget: number;
+  // While a gate runs or waits, no job of another lane starts; tiny jobs still do.
+  readonly gateAlone: boolean;
   readonly slots: Readonly<Record<LeaseLane, number>>;
   readonly weights: Readonly<Record<LeaseLane, number>>;
   // Lane and weight by argv prefix, for a command run without --lane or --weight.
@@ -98,6 +100,7 @@ const KEYS = [
   "poll",
   "memory_max",
   "budget",
+  "gate_alone",
   "lanes",
   "weights",
   "commands",
@@ -353,6 +356,7 @@ export function readLeaseSettings(
     heartbeat: read.int("heartbeat", 60),
     poll: read.int("poll", 15),
     budget: read.int("budget", 4),
+    gateAlone: read.bool("gate_alone", false),
     slots: perLane(
       path,
       "host.lease.lanes",

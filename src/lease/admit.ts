@@ -20,6 +20,7 @@ export function admissible(
   running: readonly LeaseRecord[],
   waiters: readonly LeaseRecord[],
 ): Set<number> {
+  const gateOnly = settings.gateAlone && gateWanted(running, waiters);
   const free = { ...settings.slots };
   let budget = settings.budget;
   for (const job of running) {
@@ -33,12 +34,24 @@ export function admissible(
   );
   for (const waiter of waiters) {
     if (waiter.weight === 0 || free[waiter.lane] <= 0) continue;
+    if (gateOnly && waiter.lane !== "gate") continue;
     if (waiter.weight > budget) break;
     free[waiter.lane] -= 1;
     budget -= waiter.weight;
     found.add(waiter.pid);
   }
   return found;
+}
+
+// A gate that runs or waits: with gate_alone no other weighted job starts beside it, or both
+// may enter on the same poll once the host calms, as a land's gate and a test run once did.
+function gateWanted(
+  running: readonly LeaseRecord[],
+  waiters: readonly LeaseRecord[],
+): boolean {
+  return [...running, ...waiters].some(
+    (job) => job.lane === "gate" && job.weight > 0,
+  );
 }
 
 export function runningWeight(running: readonly LeaseRecord[]): number {

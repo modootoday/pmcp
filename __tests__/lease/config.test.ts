@@ -32,6 +32,7 @@ describe("[host.lease]", () => {
       heartbeat: 60,
       poll: 15,
       budget: 4,
+      gateAlone: false,
       slots: { gate: 1, hook: 1, interactive: 2, bulk: 1 },
       weights: { gate: 1, hook: 1, interactive: 2, bulk: 3 },
       commands: [],
