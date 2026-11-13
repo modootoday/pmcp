@@ -1,6 +1,6 @@
 [package]
 name = "pmcp-tui"
-version = "0.30.1"
+version = "0.31.0"
 edition = "2024"
 description = "Terminal workspace for agent sessions hosted by pmcp-pty"
 publish = false
