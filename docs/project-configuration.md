@@ -940,6 +940,8 @@ mode = "deny"
 
 [hooks.guards.git.forced_branch_move]
 
+[hooks.guards.git.discard_work]
+
 [hooks.guards.git.stage_all]
 
 [hooks.guards.git.gate_bypass_env]

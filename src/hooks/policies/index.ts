@@ -1,3 +1,4 @@
+import { discardWork } from "./git/discard-work.js";
 import { forcedBranchMove } from "./git/forced-branch-move.js";
 import { gateBypassEnv } from "./git/gate-bypass-env.js";
 import { pushWithoutVerify } from "./git/push-without-verify.js";
@@ -39,6 +40,7 @@ export const GUARDS: Readonly<Record<PolicyId, Policy<any>>> = byId([
   selfMatchingWait,
   pushWithoutVerify,
   forcedBranchMove,
+  discardWork,
   gateBypassEnv,
   stageAll,
   operatorVerbs,

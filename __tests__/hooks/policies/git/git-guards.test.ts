@@ -42,7 +42,12 @@ function repoWithWorktree(t: TestContext) {
   return { main, desk: join(root, "desk") };
 }
 
-async function shellIn(runtime: RuntimeId, cwd: string, command: string) {
+async function shellIn(
+  runtime: RuntimeId,
+  cwd: string,
+  command: string,
+  policy = compiled([guard("git.forced_branch_move")]),
+) {
   const adapter = ADAPTERS[runtime];
   const payload = {
     ...fixture(runtime, "PreToolUse.Bash"),
@@ -50,9 +55,10 @@ async function shellIn(runtime: RuntimeId, cwd: string, command: string) {
     tool_input: { command },
   };
   const input = adapter.normalize("PreToolUse", payload, cwd)!;
-  const policy = compiled([guard("git.forced_branch_move")]);
   return decide(input, policy, { git: gitProbe });
 }
+
+const discard = compiled([guard("git.discard_work", "graded")]);
 
 describe.each(RUNTIMES)("git guards on %s payloads", (runtime) => {
   const push = cases("git", "push-without-verify");
@@ -125,5 +131,52 @@ describe.each(RUNTIMES)("git guards on %s payloads", (runtime) => {
     expect(
       (await shellIn(runtime, main, "git branch feature-2")).verdict,
     ).toBeUndefined();
+  });
+
+  it("git.discard_work denies discarding work in the shared checkout or another session's worktree", async (t) => {
+    const { main, desk } = repoWithWorktree(t);
+    const other = join(main, "..", "other");
+    execFileSync("git", ["worktree", "add", "-q", "-b", "other", other], {
+      cwd: main,
+      stdio: "pipe",
+    });
+    const denied = [
+      [main, "git reset --hard"],
+      [main, "git stash pop"],
+      [desk, `git -C ${main} clean -fd`],
+      [desk, `cd ${other} && git checkout -- src`],
+      [desk, `git -C ${other} restore .`],
+      [desk, `git -C ${main} stash`],
+    ];
+    for (const [cwd, command] of denied) {
+      const decision = await shellIn(runtime, cwd!, command!, discard);
+      expect(decision.verdict, command).toBe("deny");
+    }
+    expect(
+      (await shellIn(runtime, desk, `git -C ${main} reset --hard`, discard))
+        .reason,
+    ).toContain("the shared checkout");
+  });
+
+  it("git.discard_work only warns in the session's own worktree and passes what keeps work", async (t) => {
+    const { main, desk } = repoWithWorktree(t);
+    const own = await shellIn(runtime, desk, "git reset --hard", discard);
+    expect(own.verdict).toBeUndefined();
+    expect(own.context?.join("\n")).toContain(
+      "git reset --hard throws away uncommitted work",
+    );
+    const passed = [
+      [main, "git stash list"],
+      [main, "git reset --soft HEAD~1"],
+      [main, "git checkout main"],
+      [main, "git restore --staged src"],
+      [main, "git clean -n"],
+      [desk, "git status"],
+    ];
+    for (const [cwd, command] of passed) {
+      const decision = await shellIn(runtime, cwd!, command!, discard);
+      expect(decision.verdict, command).toBeUndefined();
+      expect(decision.context, command).toBeUndefined();
+    }
   });
 });
