@@ -19,6 +19,7 @@ export function admissible(
   settings: LeaseSettings,
   running: readonly LeaseRecord[],
   waiters: readonly LeaseRecord[],
+  now = Date.now(),
 ): Set<number> {
   const gateOnly = settings.gateAlone && gateWanted(running, waiters);
   const free = { ...settings.slots };
@@ -32,7 +33,7 @@ export function admissible(
   const found = new Set(
     waiters.filter((waiter) => waiter.weight === 0).map((w) => w.pid),
   );
-  for (const waiter of waiters) {
+  for (const waiter of admissionOrder(settings, waiters, now)) {
     if (waiter.weight === 0 || free[waiter.lane] <= 0) continue;
     if (gateOnly && waiter.lane !== "gate") continue;
     if (waiter.weight > budget) break;
@@ -41,6 +42,25 @@ export function admissible(
     found.add(waiter.pid);
   }
   return found;
+}
+
+const AHEAD: readonly LeaseRecord["lane"][] = ["gate", "hook"];
+
+// Past age_limit an interactive or bulk waiter goes ahead of both lanes, oldest first, so short
+// jobs that keep arriving cannot hold a heavy one back: it stops the rest until the budget fits
+// it. A land's gate and a commit's hook job, both short, still go first.
+export function admissionOrder(
+  settings: LeaseSettings,
+  waiters: readonly LeaseRecord[],
+  now: number,
+): LeaseRecord[] {
+  if (settings.ageLimit === 0) return [...waiters];
+  const first = waiters.filter((waiter) => AHEAD.includes(waiter.lane));
+  const later = waiters.filter((waiter) => !AHEAD.includes(waiter.lane));
+  const aged = (waiter: LeaseRecord) =>
+    now - waiter.queued >= settings.ageLimit * 1000;
+  const old = later.filter(aged).sort((a, b) => a.queued - b.queued);
+  return [...first, ...old, ...later.filter((waiter) => !aged(waiter))];
 }
 
 // A gate that runs or waits: with gate_alone no other weighted job starts beside it, or both

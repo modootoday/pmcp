@@ -58,6 +58,8 @@ export interface LeaseSettings {
   readonly budget: number;
   // While a gate runs or waits, no job of another lane starts; tiny jobs still do.
   readonly gateAlone: boolean;
+  // Seconds after which a waiter goes ahead of every lane but the gate; 0 keeps lane order.
+  readonly ageLimit: number;
   readonly slots: Readonly<Record<LeaseLane, number>>;
   readonly weights: Readonly<Record<LeaseLane, number>>;
   // Lane and weight by argv prefix, for a command run without --lane or --weight.
@@ -96,6 +98,7 @@ const KEYS = [
   "load_grace",
   "hold_warn",
   "hold_max",
+  "age_limit",
   "heartbeat",
   "poll",
   "memory_max",
@@ -370,6 +373,7 @@ export function readLeaseSettings(
     poll: read.int("poll", 15),
     budget: read.int("budget", 4),
     gateAlone: read.bool("gate_alone", false),
+    ageLimit: whole(path, "host.lease", "age_limit", raw["age_limit"], 600),
     slots: perLane(
       path,
       "host.lease.lanes",

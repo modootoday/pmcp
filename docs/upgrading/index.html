@@ -53,7 +53,14 @@ Releases list its breaking changes and link here.</p>
 every checkout that reads that <code>pmcp.toml</code> runs the new pmcp. An older pmcp refuses a
 key it does not know, and the commands that install the new release may run through
 it: a lease-wrapped install (<code>pmcp heavy</code>) only warns about an unknown top-level
-<code>[host.lease]</code> key from 0.30.1 on, and any other place still refuses one.</p>
+<code>[host.lease]</code> key from 0.30.1 on, and any other place still refuses one. From 0.32.0
+on, a refused key in a checkout whose <code>package.json</code> pins a newer pmcp than the one
+running says so and names the install to run.</p>
+<h2 id="from-031-to-032">From 0.31 to 0.32</h2>
+<p><strong>A long wait now outranks the lane order.</strong> A <code>pmcp heavy</code> waiter that has waited
+<code>[host.lease] age_limit</code> seconds (default 600) in the <code>interactive</code> or <code>bulk</code> lane goes ahead of
+both lanes (<code>gate</code> and <code>hook</code> still go first) and holds the budget until it fits, so a bulk install no longer waits behind an endless stream of
+interactive jobs. Set <code>age_limit = 0</code> to keep the plain lane order.</p>
 <h2 id="from-025-to-026">From 0.25 to 0.26</h2>
 <p><strong><code>pmcp status</code> no longer judges <code>[budget]</code>.</strong> It still shows each limit beside what it
 measured and how many are over, in the summary and in <code>data.budget</code>, but an exceeded limit

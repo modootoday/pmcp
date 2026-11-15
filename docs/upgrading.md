@@ -11,7 +11,16 @@ Pin the new release first and set its new `pmcp.toml` key in a later change, onc
 every checkout that reads that `pmcp.toml` runs the new pmcp. An older pmcp refuses a
 key it does not know, and the commands that install the new release may run through
 it: a lease-wrapped install (`pmcp heavy`) only warns about an unknown top-level
-`[host.lease]` key from 0.30.1 on, and any other place still refuses one.
+`[host.lease]` key from 0.30.1 on, and any other place still refuses one. From 0.32.0
+on, a refused key in a checkout whose `package.json` pins a newer pmcp than the one
+running says so and names the install to run.
+
+## From 0.31 to 0.32
+
+**A long wait now outranks the lane order.** A `pmcp heavy` waiter that has waited
+`[host.lease] age_limit` seconds (default 600) in the `interactive` or `bulk` lane goes ahead of
+both lanes (`gate` and `hook` still go first) and holds the budget until it fits, so a bulk install no longer waits behind an endless stream of
+interactive jobs. Set `age_limit = 0` to keep the plain lane order.
 
 ## From 0.25 to 0.26
 

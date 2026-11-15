@@ -104,6 +104,29 @@ describe("admission", () => {
     ]).toEqual([2]);
     expect([...admissible(settings("/x"), [], waiters)]).toEqual([3, 1, 2]);
   });
+
+  it("lets a bulk job that waited past age_limit hold the budget against new interactive jobs", () => {
+    const now = 10_000_000;
+    const at = (pid: number, lane: string, weight: number, queued: number) => ({
+      ...job(pid, lane, weight),
+      queued,
+    });
+    const running = [at(9, "interactive", 2, now - 5_000)];
+    const install = at(1, "bulk", 3, now - 1_039_000);
+    const short = at(2, "interactive", 2, now - 2_000);
+    const lease = settings("/x");
+    expect([...admissible(lease, running, [short, install], now)]).toEqual([]);
+    expect([...admissible(lease, [], [short, install], now)]).toEqual([1]);
+    const fresh = { ...install, queued: now - 30_000 };
+    expect([...admissible(lease, running, [short, fresh], now)]).toEqual([2]);
+    const off = settings("/x", { age_limit: 0 });
+    expect([...admissible(off, running, [short, install], now)]).toEqual([2]);
+    const gate = at(3, "gate", 1, now - 1_000);
+    const hook = at(4, "hook", 1, now - 1_000);
+    expect([
+      ...admissible(lease, running, [gate, hook, short, install], now),
+    ]).toEqual([3, 4]);
+  });
 });
 
 describe("lease lanes", () => {
