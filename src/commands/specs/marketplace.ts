@@ -1,4 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
+import { jsonOption } from "../options/common.js";
 
 export const marketplaceSpec: CommandSpec = {
   name: "marketplace",
@@ -39,10 +40,6 @@ export const marketplaceSpec: CommandSpec = {
         "New directory for the selected plugin; existing paths are preserved.",
       placeholder: "<directory>",
     },
-    {
-      name: "json",
-      describe: "Print the result as one JSON envelope on stdout.",
-      boolean: true,
-    },
+    jsonOption,
   ],
 };

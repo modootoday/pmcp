@@ -1,7 +1,7 @@
 import type { CommandSpec } from "../../cli/command.js";
 import { TOOLS } from "../../project/tools.js";
 import { CATALOG_OPTIONS } from "../options/catalog.js";
-import { nearestConfigOption } from "../options/inspection.js";
+import { configOption, jsonOption } from "../options/common.js";
 
 export const projectSpec: CommandSpec = {
   name: "project",
@@ -87,18 +87,14 @@ export const doctorSpec: CommandSpec = {
     "Ask each agent tool, through its own listing commands, whether it loads this project's assets",
   usage: "pmcp doctor [--tool <name>] [--json] [--memory]",
   options: [
-    nearestConfigOption,
+    configOption,
     {
       name: "tool",
       describe: `Check only this tool (${TOOLS.join(", ")}). Repeatable.`,
       repeat: true,
       placeholder: "<name>",
     },
-    {
-      name: "json",
-      describe: "Print the result as one JSON envelope on stdout.",
-      boolean: true,
-    },
+    jsonOption,
     {
       name: "memory",
       describe:

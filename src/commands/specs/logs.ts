@@ -1,5 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
-import { jsonOption, nearestConfigOption } from "../options/inspection.js";
+import { jsonOption, configOption } from "../options/common.js";
 
 export const logsSpec: CommandSpec = {
   name: "logs",
@@ -13,7 +13,7 @@ export const logsSpec: CommandSpec = {
     "pmcp logs [--session <id>] [--trace <id>] [--component <name>] [--level <level>] [--since <10m|ISO>] [--follow] [--pretty]",
   options: [
     jsonOption,
-    nearestConfigOption,
+    configOption,
     {
       name: "session",
       describe: "Only this session (a prefix is enough).",

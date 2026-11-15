@@ -1,5 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
-import { jsonOption, nearestConfigOption } from "../options/inspection.js";
+import { jsonOption, configOption } from "../options/common.js";
 
 export const SESSION_VERBS = [
   "status",
@@ -121,7 +121,7 @@ export const sessionsSpec: CommandSpec = {
   usage: "pmcp sessions [<subcommand>] [options]",
   options: [
     jsonOption,
-    nearestConfigOption,
+    configOption,
     {
       name: "by",
       describe:

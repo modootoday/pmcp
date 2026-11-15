@@ -1,4 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
+import { jsonOption } from "../options/common.js";
 
 export const loginSpec: CommandSpec = {
   name: "login",
@@ -26,11 +27,5 @@ export const whoamiSpec: CommandSpec = {
   examples: ["pmcp whoami", "pmcp whoami --json"],
   describe: "Whether this machine is signed in, and to what",
   usage: "pmcp whoami [--json]",
-  options: [
-    {
-      name: "json",
-      describe: "Print the result as one JSON envelope on stdout.",
-      boolean: true,
-    },
-  ],
+  options: [jsonOption],
 };

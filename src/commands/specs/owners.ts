@@ -1,5 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
-import { jsonOption, nearestConfigOption } from "../options/inspection.js";
+import { jsonOption, configOption } from "../options/common.js";
 
 export const ownersSpec: CommandSpec = {
   name: "owners",
@@ -9,5 +9,5 @@ export const ownersSpec: CommandSpec = {
   ],
   describe: "Who looks after a path, from [[owners]] in pmcp.toml",
   usage: "pmcp owners <path>... [--config <file>] [--json]",
-  options: [nearestConfigOption, jsonOption],
+  options: [configOption, jsonOption],
 };

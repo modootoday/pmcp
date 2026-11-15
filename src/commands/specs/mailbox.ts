@@ -1,5 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
-import { configOption } from "../options/inspection.js";
+import { configOption } from "../options/common.js";
 
 export const mailboxSpec: CommandSpec = {
   name: "mailbox",

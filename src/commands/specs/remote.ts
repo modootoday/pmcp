@@ -1,4 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
+import { dryRunOption } from "../options/common.js";
 import { REMOTE_OPTIONS } from "../options/remote.js";
 
 export const availableSpec: CommandSpec = {
@@ -23,11 +24,7 @@ export const previewSpec: CommandSpec = {
 
 const MANAGE_OPTIONS = [
   ...REMOTE_OPTIONS,
-  {
-    name: "dry-run",
-    describe: "Show the plan without installing or changing files.",
-    boolean: true,
-  },
+  dryRunOption("Show the plan without installing or changing files."),
   {
     name: "yes",
     describe: "Approve the displayed project and lockfile changes.",

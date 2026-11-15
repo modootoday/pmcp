@@ -1,5 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
-import { configOption, jsonOption } from "../options/inspection.js";
+import { configOption, jsonOption } from "../options/common.js";
 
 export const gitSpec: CommandSpec = {
   name: "git",

@@ -1,5 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
-import { jsonOption } from "../options/inspection.js";
+import { configOption, jsonOption } from "../options/common.js";
 
 export const mcpSpec: CommandSpec = {
   name: "mcp",
@@ -38,11 +38,7 @@ export const mcpSpec: CommandSpec = {
   usage: "pmcp mcp <subcommand> <name> [options]",
   options: [
     jsonOption,
-    {
-      name: "config",
-      describe: "A pmcp.toml to read instead of the nearest one.",
-      placeholder: "<file>",
-    },
+    configOption,
     {
       name: "code",
       describe:

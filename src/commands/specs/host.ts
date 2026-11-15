@@ -1,5 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
-import { jsonOption, nearestConfigOption } from "../options/inspection.js";
+import { jsonOption, configOption } from "../options/common.js";
 
 export const heavySpec: CommandSpec = {
   name: "heavy",
@@ -81,7 +81,7 @@ export const heavySpec: CommandSpec = {
   usage:
     "pmcp heavy [--label <text>] [--profile <name>] [--lane <lane>] [--weight <n>] [--now --reason <text>] -- <command...> | pmcp heavy <subcommand> [options]",
   options: [
-    nearestConfigOption,
+    configOption,
     jsonOption,
     {
       name: "label",
@@ -187,7 +187,7 @@ export const hostSpec: CommandSpec = {
     "Measure the disk and check the io.cost model the lease's io weights rely on",
   usage: "pmcp host io <measure|plan|doctor> [options]",
   options: [
-    nearestConfigOption,
+    configOption,
     jsonOption,
     {
       name: "dir",
