@@ -66,6 +66,8 @@ describe("queue control", () => {
     const listed = JSON.parse(
       pmcpSync(["heavy", "queue", "--json"], cwd, env).stdout,
     ).data;
+    expect(Object.keys(listed)).toEqual(["version", "schema", "waiters"]);
+    expect(listed.schema).toBe("pmcp.heavy.queue.v1");
     expect(listed.waiters[0]).toMatchObject({
       id,
       lane: "interactive",

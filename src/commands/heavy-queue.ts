@@ -15,7 +15,7 @@ import {
 } from "../lease/control.js";
 import { leasePaths } from "../lease/files.js";
 import { sessionOf } from "../lease/queue.js";
-import { statusJson } from "../lease/status-json.js";
+import { QUEUE_SCHEMA, statusJson } from "../lease/status-json.js";
 import { requireOperatorFor } from "../sessions/operator-cli.js";
 import {
   cancel as cancelTicket,
@@ -54,8 +54,10 @@ function report(context: CommandContext, result: ControlResult): number {
 export function queueList(context: CommandContext, settings: LeaseSettings) {
   const snapshot = statusJson(settings, context.env, () => []);
   if (context.args.flags.has("json")) {
-    const { version, schema, waiters } = snapshot;
-    context.ui.data(`${JSON.stringify({ version, schema, waiters })}\n`);
+    const { version, waiters } = snapshot;
+    context.ui.data(
+      `${JSON.stringify({ version, schema: QUEUE_SCHEMA, waiters })}\n`,
+    );
     return EXIT.ok;
   }
   if (snapshot.waiters.length === 0) context.ui.data("queue: empty\n");

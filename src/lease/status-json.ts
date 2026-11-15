@@ -18,6 +18,8 @@ import { recentTickets } from "./tickets.js";
 // reads (no record is pruned, nothing written) and samples /proc for a quarter second.
 
 export const STATUS_SCHEMA = "pmcp.heavy.status.v1";
+// pmcp heavy queue --json prints only the waiters, so it names its own shape.
+export const QUEUE_SCHEMA = "pmcp.heavy.queue.v1";
 
 export interface JobJson {
   readonly id: string | null;

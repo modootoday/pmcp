@@ -858,6 +858,16 @@
           }
         }
       }
+    },
+    "heavy-queue": {
+      "type": "object",
+      "required": ["version", "schema", "waiters"],
+      "properties": {
+        "version": { "const": 1 },
+        "schema": { "const": "pmcp.heavy.queue.v1" },
+        "waiters": { "$ref": "#/schemas/heavy-status/properties/waiters" }
+      },
+      "additionalProperties": false
     }
   }
 }
