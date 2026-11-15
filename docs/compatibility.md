@@ -31,6 +31,11 @@ unsigned; installed through npm they run as they are, since npm sets no quaranti
 | Antigravity (agy) | `antigravity`     | `antigravity`             | `agy`                       |
 | OpenCode          | `opencode`        | not available             | `opencode`                  |
 
+The columns are what pmcp writes. Where you name a runtime yourself (`[[host.sessions]] runtime`,
+`[tui] runtime` and `pmcp tui --runtime`, `pmcp marketplace export --runtime`, and a skill's
+`verified-runtimes`), any spelling in the row is accepted: `agy` or `antigravity`, `claude` or
+`claude-code`.
+
 Which hook features each runtime supports, as measured, is in
 [Runtime support](hooks.md#runtime-support). Provider login, folder trust and
 tool approvals stay in each runtime; pmcp never answers login, auth, trust or hook-review

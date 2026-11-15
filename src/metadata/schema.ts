@@ -1,16 +1,12 @@
 import { z } from "zod";
 
+import { PRODUCT_NAMES } from "../runtime/ids.js";
+
 // The default tier set ([catalog.validation] tiers), lowest first; the catalog-v1 rules that
 // depend on a tier know only these names.
 export const TIERS = ["open", "free", "paid", "internal"] as const;
 export type Tier = (typeof TIERS)[number];
-export const RUNTIMES = [
-  "claude-code",
-  "codex-cli",
-  "gemini-cli",
-  "grok-cli",
-  "antigravity",
-] as const;
+export const RUNTIMES = PRODUCT_NAMES;
 export const runtime = z.enum(RUNTIMES);
 export const version = z
   .string()

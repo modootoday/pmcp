@@ -8,7 +8,7 @@ import {
 import { publicMarketplaceRoot } from "../marketplace/builtin.js";
 import {
   exportPublicPlugin,
-  isNativePluginRuntime,
+  nativePluginRuntimeOf,
   publicPlugins,
 } from "../marketplace/export.js";
 import { marketplaceSpec } from "./specs/marketplace.js";
@@ -54,8 +54,8 @@ export const marketplaceCommand: Command = {
     const output = one(context.args, "output");
     if (!output)
       throw new ArgumentError("Provide --output for the exported plugin");
-    const runtime = one(context.args, "runtime");
-    if (!isNativePluginRuntime(runtime))
+    const runtime = nativePluginRuntimeOf(one(context.args, "runtime"));
+    if (!runtime)
       throw new ArgumentError(
         "Choose --runtime claude, codex, gemini, grok or agy",
       );

@@ -1,9 +1,19 @@
-import type { Runtime } from "../../runtime.js";
+import {
+  EXECUTABLES,
+  PRODUCT_OF,
+  type ProductName,
+} from "../../runtime/ids.js";
 
-export const runtimeExecutables: Readonly<Record<string, string>> = {
-  "codex-cli": "codex",
-  "claude-code": "claude",
-  "gemini-cli": "gemini",
-  "grok-cli": "grok",
-  antigravity: "agy",
-} satisfies Readonly<Record<Runtime, string>>;
+// The harness lists its runtimes in this order (capabilities, diagnostics, group checks).
+const ORDER: readonly ProductName[] = [
+  "codex-cli",
+  "claude-code",
+  "gemini-cli",
+  "grok-cli",
+  "antigravity",
+];
+
+export const runtimeExecutables: Readonly<Record<string, string>> =
+  Object.fromEntries(
+    ORDER.map((product) => [product, EXECUTABLES[PRODUCT_OF[product]]]),
+  );

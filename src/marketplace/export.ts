@@ -7,25 +7,32 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { EXECUTABLES, runtimeIdOf, type RuntimeId } from "../runtime/ids.js";
 import {
   containedPath,
   readLocalMarketplace,
   type LocalPlugin,
 } from "./local.js";
 
-export const NATIVE_PLUGIN_RUNTIMES = [
+// The runtimes with a native plugin format, named by their command as their plugin folders are.
+const NATIVE_IDS = [
   "claude",
   "codex",
   "gemini",
   "grok",
-  "agy",
+  "antigravity",
 ] as const;
-export type NativePluginRuntime = (typeof NATIVE_PLUGIN_RUNTIMES)[number];
+export const NATIVE_PLUGIN_RUNTIMES = NATIVE_IDS.map((id) => EXECUTABLES[id]);
+export type NativePluginRuntime =
+  (typeof EXECUTABLES)[(typeof NATIVE_IDS)[number]];
 
-export function isNativePluginRuntime(
+// Any spelling of a runtime with a native plugin format (agy or antigravity), or null.
+export function nativePluginRuntimeOf(
   value: string | undefined,
-): value is NativePluginRuntime {
-  return NATIVE_PLUGIN_RUNTIMES.includes(value as NativePluginRuntime);
+): NativePluginRuntime | null {
+  const id: RuntimeId | null = value ? runtimeIdOf(value) : null;
+  if (!id || !(NATIVE_IDS as readonly string[]).includes(id)) return null;
+  return EXECUTABLES[id as (typeof NATIVE_IDS)[number]];
 }
 
 export function publicPlugins(root: string): readonly LocalPlugin[] {

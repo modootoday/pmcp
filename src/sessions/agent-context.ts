@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 
+import { EXECUTABLES } from "../runtime/ids.js";
 import { ancestors } from "./liveness.js";
 
 // Markers a coding agent or pmcp-pty leaves in the environment of what it runs. A same-user
@@ -21,15 +22,8 @@ const ENV_MARKERS = [
   "AI_AGENT",
 ];
 
-const RUNTIMES = new Set([
-  "claude",
-  "codex",
-  "gemini",
-  "grok",
-  "opencode",
-  "agy",
-  "pmcp-pty",
-]);
+// Process names of an agent's ancestors: each runtime's command, and pmcp-pty itself.
+const RUNTIMES = new Set<string>([...Object.values(EXECUTABLES), "pmcp-pty"]);
 // Runtimes started through node show up by their package path, not their process name.
 const PACKAGES =
   /@openai\/codex|@google\/gemini-cli|opencode-ai|@anthropic-ai\/claude-code/u;

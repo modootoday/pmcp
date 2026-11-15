@@ -1,13 +1,6 @@
-export type RuntimeId =
-  "claude" | "codex" | "gemini" | "antigravity" | "grok" | "opencode";
-export const RUNTIME_IDS: readonly RuntimeId[] = [
-  "claude",
-  "codex",
-  "gemini",
-  "antigravity",
-  "grok",
-  "opencode",
-];
+import type { RuntimeId } from "../runtime/ids.js";
+
+export { RUNTIME_IDS, type RuntimeId } from "../runtime/ids.js";
 // Runtimes [hooks] targets defaults to; the others are opt-in by naming them in targets.
 export const DEFAULT_RUNTIME_IDS: readonly RuntimeId[] = ["claude", "codex"];
 

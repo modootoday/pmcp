@@ -7,6 +7,7 @@ import type { ProjectSpec } from "../spec.js";
 import type { Finding } from "./types.js";
 import type { DoctorOptions } from "./types.js";
 import { listed } from "./_shared.js";
+import { EXECUTABLES } from "../../runtime/ids.js";
 export function antigravity(
   spec: ProjectSpec,
   options: DoctorOptions,
@@ -34,7 +35,7 @@ export function antigravity(
   ];
   if (serversForTool(spec, "antigravity").length > 0) {
     const result = options.run(
-      "agy",
+      EXECUTABLES.antigravity,
       ["plugin", "validate", join(spec.root, ANTIGRAVITY_MCP_PLUGIN)],
       spec.root,
     );

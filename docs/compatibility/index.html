@@ -65,6 +65,10 @@ unsigned; installed through npm they run as they are, since npm sets no quaranti
 <tr><td>Grok Build</td><td><code>grok</code></td><td><code>grok-cli</code></td><td><code>grok</code></td></tr>
 <tr><td>Antigravity (agy)</td><td><code>antigravity</code></td><td><code>antigravity</code></td><td><code>agy</code></td></tr>
 <tr><td>OpenCode</td><td><code>opencode</code></td><td>not available</td><td><code>opencode</code></td></tr></tbody></table></div>
+<p>The columns are what pmcp writes. Where you name a runtime yourself (<code>[[host.sessions]] runtime</code>,
+<code>[tui] runtime</code> and <code>pmcp tui --runtime</code>, <code>pmcp marketplace export --runtime</code>, and a skill&#39;s
+<code>verified-runtimes</code>), any spelling in the row is accepted: <code>agy</code> or <code>antigravity</code>, <code>claude</code> or
+<code>claude-code</code>.</p>
 <p>Which hook features each runtime supports, as measured, is in
 <a href="/hooks/#runtime-support">Runtime support</a>. Provider login, folder trust and
 tool approvals stay in each runtime; pmcp never answers login, auth, trust or hook-review

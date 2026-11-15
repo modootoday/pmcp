@@ -8,17 +8,10 @@ import { ROOT_VAR } from "./_shared.js";
 import type { LaunchSpec } from "./types.js";
 import { httpEntry } from "./http.js";
 import { proxyDriver } from "./driver.js";
-
-const runtimeByTool: Readonly<Partial<Record<Tool, Runtime>>> = {
-  claude: "claude-code",
-  codex: "codex-cli",
-  gemini: "gemini-cli",
-  grok: "grok-cli",
-  antigravity: "antigravity",
-};
+import { productNameOf } from "../../runtime/ids.js";
 
 function mailboxRuntime(tool: Tool): Runtime {
-  const runtime = runtimeByTool[tool];
+  const runtime = productNameOf(tool);
   if (!runtime) {
     throw new ProjectError(
       "OpenCode mailbox runtime binding is not qualified; limit this server's targets",

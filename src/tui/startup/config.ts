@@ -3,6 +3,11 @@ import { resolve } from "node:path";
 import { ConfigError, findConfig, readConfig } from "../../config.js";
 import { runtimeExecutables } from "../../harness/runtimes/registry.js";
 import { locateExecutable } from "../../harness/adapters/process/executable.js";
+import {
+  productNameOf,
+  runtimeIdOf,
+  type ProductName,
+} from "../../runtime/ids.js";
 
 export interface StartupRequest {
   readonly cwd: string;
@@ -22,13 +27,21 @@ export interface StartupSettings {
   readonly groupFile?: string;
 }
 
-const preference = [
+// The runtime auto picks first when several are installed.
+const preference: readonly ProductName[] = [
   "codex-cli",
   "gemini-cli",
   "antigravity",
   "grok-cli",
   "claude-code",
-] as const;
+];
+
+// [tui] runtime and --runtime take any spelling (claude, claude-code, agy, ...).
+function productSpelling(name: string): string {
+  if (name === "auto") return name;
+  const id = runtimeIdOf(name);
+  return (id && productNameOf(id)) ?? name;
+}
 
 export function startupSettings(request: StartupRequest): StartupSettings {
   const path = request.config
@@ -70,7 +83,9 @@ export function startupSettings(request: StartupRequest): StartupSettings {
       fail(`${key} must be between ${min} and ${max}`);
     return Number(value);
   };
-  const configuredRuntime = string("runtime");
+  const configured = string("runtime");
+  const configuredRuntime =
+    configured === undefined ? undefined : productSpelling(configured);
   if (
     configuredRuntime !== undefined &&
     configuredRuntime !== "auto" &&
@@ -80,7 +95,11 @@ export function startupSettings(request: StartupRequest): StartupSettings {
   const available = preference.filter((runtime) =>
     locateExecutable(runtimeExecutables[runtime]!, request.cwd),
   );
-  let runtime = request.runtime ?? configuredRuntime ?? "auto";
+  const requested =
+    request.runtime === undefined
+      ? undefined
+      : productSpelling(request.runtime);
+  let runtime = requested ?? configuredRuntime ?? "auto";
   if (runtime === "auto") runtime = available[0] ?? "codex-cli";
   if (!Object.hasOwn(runtimeExecutables, runtime))
     fail("runtime must be a supported runtime ID");

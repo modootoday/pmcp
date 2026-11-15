@@ -1,21 +1,23 @@
 import { CLIENT_INFO_META_KEY } from "@modelcontextprotocol/server";
 
 import type { MetadataValue } from "./frontmatter.js";
+import {
+  PRODUCT_NAMES,
+  productNameOf,
+  runtimeIdOf,
+  type ProductName,
+} from "./runtime/ids.js";
 
-export const RUNTIMES = [
-  "claude-code",
-  "codex-cli",
-  "gemini-cli",
-  "grok-cli",
-  "antigravity",
-] as const;
+export const RUNTIMES = PRODUCT_NAMES;
 
-export type Runtime = (typeof RUNTIMES)[number];
+export type Runtime = ProductName;
 
 export const VERIFIED_RUNTIMES_KEY = "verified-runtimes";
 
-const isRuntime = (value: string): value is Runtime =>
-  (RUNTIMES as readonly string[]).includes(value);
+function productOf(word: string): Runtime | null {
+  const id = runtimeIdOf(word);
+  return id === null ? null : productNameOf(id);
+}
 
 function verifiedWords(raw: unknown): string[] {
   if (typeof raw === "string") return raw.split(/[\s,]+/u);
@@ -28,8 +30,8 @@ export function verifiedRuntimesOf(
 ): Runtime[] {
   const raw = metadata?.[VERIFIED_RUNTIMES_KEY];
   if (raw === undefined) return [];
-  const words = verifiedWords(raw);
-  return [...new Set(words.filter(isRuntime))];
+  const products = verifiedWords(raw).map(productOf);
+  return [...new Set(products.filter((name) => name !== null))];
 }
 
 const CLIENT_PATTERNS: readonly (readonly [RegExp, Runtime])[] = [

@@ -20,6 +20,7 @@ import {
   type DockerPreparation,
 } from "../docker/creation-plan.js";
 import { prepareCreation } from "../docker/creation.js";
+import { runtimeExecutables } from "../../runtimes/registry.js";
 
 export interface LaunchSpec {
   runtime: string;
@@ -216,14 +217,7 @@ export function cleanup(connection: Connection): void {
   if (connection.alive()) connection.call({ op: "shutdown" }, 30_000);
 }
 
-// The pmcp-pty screen profile for a harness runtime id; an unknown one reads the default.
+// pmcp-pty names a runtime's screen profile after its command; an unknown one reads the default.
 function profileOf(runtime: string): string {
-  const profiles: Record<string, string> = {
-    "codex-cli": "codex",
-    "claude-code": "claude",
-    "gemini-cli": "gemini",
-    "grok-cli": "grok",
-    antigravity: "agy",
-  };
-  return profiles[runtime] ?? "default";
+  return runtimeExecutables[runtime] ?? "default";
 }

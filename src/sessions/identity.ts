@@ -1,16 +1,17 @@
+import type { RuntimeId } from "../runtime/ids.js";
 import type { LiveRecord } from "./types.js";
 
 // What a shell tool sees of its session (measured 2026-10-20): Claude CLAUDE_CODE_SESSION_ID, Codex
 // CODEX_THREAD_ID, agy ANTIGRAVITY_CONVERSATION_ID, grok GROK_SESSION_ID; Gemini and OpenCode none.
 // Outer sessions' variables leak into nested runtimes, so the innermost runtime is listed first.
-const SESSION_VARIABLES: readonly (readonly [string, string])[] = [
+const SESSION_VARIABLES: readonly (readonly [RuntimeId, string])[] = [
   ["codex", "CODEX_THREAD_ID"],
   ["grok", "GROK_SESSION_ID"],
   ["antigravity", "ANTIGRAVITY_CONVERSATION_ID"],
   ["claude", "CLAUDE_CODE_SESSION_ID"],
 ];
 // Variables that show a command runs inside a runtime even when no session id is exposed.
-const MARKERS: readonly (readonly [string, string])[] = [
+const MARKERS: readonly (readonly [RuntimeId, string])[] = [
   ["codex", "CODEX_THREAD_ID"],
   ["grok", "GROK_AGENT"],
   ["antigravity", "ANTIGRAVITY_AGENT"],

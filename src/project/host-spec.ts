@@ -4,6 +4,12 @@ import { ConfigError } from "../config.js";
 import { readLeaseSettings } from "../lease/config.js";
 import { envNames } from "../native/env-names.js";
 import {
+  EXECUTABLES,
+  RUNTIME_IDS,
+  runtimeIdOf,
+  type Executable,
+} from "../runtime/ids.js";
+import {
   readHostBrowser,
   readHostDesktop,
   type HostBrowser,
@@ -13,15 +19,11 @@ import {
 // [host]: the sessions pmcp-pty runs for this project and what the operator lets it answer.
 // pmcp project writes it out; nothing takes effect until the operator approves the result.
 
-export const HOST_RUNTIMES = [
-  "claude",
-  "codex",
-  "gemini",
-  "agy",
-  "grok",
-  "opencode",
-] as const;
-export type HostRuntime = (typeof HOST_RUNTIMES)[number];
+// pmcp-pty starts a session by its runtime's command, so [host] stores the command name.
+export const HOST_RUNTIMES: readonly Executable[] = RUNTIME_IDS.map(
+  (id) => EXECUTABLES[id],
+);
+export type HostRuntime = Executable;
 
 export interface HostSession {
   readonly name: string;
@@ -87,11 +89,12 @@ function texts(path: string, where: string, value: unknown): string[] {
   return value.map((v, i) => text(path, `${where}[${i}]`, v));
 }
 
+// Any spelling of a runtime (antigravity or agy, claude or claude-code) is accepted.
 function runtime(path: string, where: string, value: unknown): HostRuntime {
-  const name = text(path, where, value);
-  if (!(HOST_RUNTIMES as readonly string[]).includes(name))
+  const id = runtimeIdOf(text(path, where, value));
+  if (id === null)
     fail(path, `${where} must be one of ${HOST_RUNTIMES.join(", ")}`);
-  return name as HostRuntime;
+  return EXECUTABLES[id];
 }
 
 // A project-relative directory, so the projection never holds a host path.
