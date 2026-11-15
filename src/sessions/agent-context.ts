@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 
-import { EXECUTABLES } from "../runtime/ids.js";
 import { ancestors } from "./liveness.js";
 
 // Markers a coding agent or pmcp-pty leaves in the environment of what it runs. A same-user
@@ -22,8 +21,17 @@ const ENV_MARKERS = [
   "AI_AGENT",
 ];
 
-// Process names of an agent's ancestors: each runtime's command, and pmcp-pty itself.
-const RUNTIMES = new Set<string>([...Object.values(EXECUTABLES), "pmcp-pty"]);
+// Each runtime's command and pmcp-pty itself. The hook bundle stays inside hooks, logging,
+// sessions and git, so this copies src/runtime/ids.ts; __tests__/runtime/ids.test.ts pins it.
+export const AGENT_PROCESS_NAMES: ReadonlySet<string> = new Set([
+  "claude",
+  "codex",
+  "gemini",
+  "grok",
+  "opencode",
+  "agy",
+  "pmcp-pty",
+]);
 // Runtimes started through node show up by their package path, not their process name.
 const PACKAGES =
   /@openai\/codex|@google\/gemini-cli|opencode-ai|@anthropic-ai\/claude-code/u;
@@ -50,7 +58,11 @@ function view(pid: number): ProcessView | null {
 function agentProcess(p: ProcessView): boolean {
   const first = p.cmdline.split(" ")[0] ?? "";
   const base = first.slice(first.lastIndexOf("/") + 1);
-  return RUNTIMES.has(p.name) || RUNTIMES.has(base) || PACKAGES.test(p.cmdline);
+  return (
+    AGENT_PROCESS_NAMES.has(p.name) ||
+    AGENT_PROCESS_NAMES.has(base) ||
+    PACKAGES.test(p.cmdline)
+  );
 }
 
 /** Why this process looks like it runs under an agent or pmcp-pty, or null. */

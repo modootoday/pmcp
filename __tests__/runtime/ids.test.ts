@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { RUNTIME_IDS as HOOK_RUNTIME_IDS } from "../../src/hooks/contract.js";
+import { AGENT_PROCESS_NAMES } from "../../src/sessions/agent-context.js";
 import {
   NATIVE_PLUGIN_RUNTIMES,
   nativePluginRuntimeOf,
@@ -16,6 +18,13 @@ import {
 } from "../../src/runtime/ids.js";
 
 describe("runtime ids", () => {
+  it("keeps the hook bundle's copies equal to the owner", () => {
+    expect(HOOK_RUNTIME_IDS).toEqual(RUNTIME_IDS);
+    expect([...AGENT_PROCESS_NAMES].sort()).toEqual(
+      [...Object.values(EXECUTABLES), "pmcp-pty"].sort(),
+    );
+  });
+
   it("resolves every spelling of a runtime to its id", () => {
     for (const id of RUNTIME_IDS) expect(runtimeIdOf(id)).toBe(id);
     expect(runtimeIdOf("agy")).toBe("antigravity");

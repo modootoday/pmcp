@@ -1,6 +1,15 @@
-import type { RuntimeId } from "../runtime/ids.js";
-
-export { RUNTIME_IDS, type RuntimeId } from "../runtime/ids.js";
+// The hook bundle takes nothing from outside hooks, logging, sessions and git, so it keeps this
+// copy of src/runtime/ids.ts; __tests__/runtime/ids.test.ts pins the two equal.
+export type RuntimeId =
+  "claude" | "codex" | "gemini" | "antigravity" | "grok" | "opencode";
+export const RUNTIME_IDS: readonly RuntimeId[] = [
+  "claude",
+  "codex",
+  "gemini",
+  "antigravity",
+  "grok",
+  "opencode",
+];
 // Runtimes [hooks] targets defaults to; the others are opt-in by naming them in targets.
 export const DEFAULT_RUNTIME_IDS: readonly RuntimeId[] = ["claude", "codex"];
 
