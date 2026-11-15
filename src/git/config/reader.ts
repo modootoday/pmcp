@@ -1,5 +1,6 @@
 import { ConfigError } from "../../config.js";
 import type { Argv } from "../types.js";
+import { newerPinHint } from "./newer-pin.js";
 
 export type Table = Readonly<Record<string, unknown>>;
 
@@ -13,7 +14,10 @@ export class Reader {
   ) {
     for (const key of Object.keys(table)) {
       if (!keys.includes(key))
-        throw new ConfigError(path, `unknown key [${name}] ${key}`);
+        throw new ConfigError(
+          path,
+          `unknown key [${name}] ${key}${newerPinHint(path)}`,
+        );
     }
   }
 
