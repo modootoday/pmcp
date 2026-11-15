@@ -56,6 +56,15 @@ it: a lease-wrapped install (<code>pmcp heavy</code>) only warns about an unknow
 <code>[host.lease]</code> key from 0.30.1 on, and any other place still refuses one. From 0.32.0
 on, a refused key in a checkout whose <code>package.json</code> pins a newer pmcp than the one
 running says so and names the install to run.</p>
+<h2 id="from-032-to-033">From 0.32 to 0.33</h2>
+<p><strong>A long wait also reaches grace sooner.</strong> A waiter that has waited <code>age_limit</code> seconds now
+counts as past its profile&#39;s <code>load_grace</code> when that is longer, so it may start into moderate
+overload (below <code>hard_factor</code> times <code>max_load</code> and <code>max_io</code>) while no leased job runs. A
+profile with <code>load_grace = 0</code> still has no grace.</p>
+<p><strong>Runtime names: any spelling where you type one.</strong> <code>[[host.sessions]] runtime</code>, <code>[tui] runtime</code>,
+<code>pmcp tui --runtime</code>, <code>pmcp marketplace export --runtime</code> and a skill&#39;s <code>verified-runtimes</code>
+accept every spelling of a runtime (<code>agy</code> or <code>antigravity</code>, <code>claude</code> or <code>claude-code</code>). What
+pmcp writes is unchanged.</p>
 <h2 id="from-031-to-032">From 0.31 to 0.32</h2>
 <p><strong>A long wait now outranks the lane order.</strong> A <code>pmcp heavy</code> waiter that has waited
 <code>[host.lease] age_limit</code> seconds (default 600) in the <code>interactive</code> or <code>bulk</code> lane goes ahead of

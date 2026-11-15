@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { acquireLease } from "../../src/lease/acquire.js";
 import { readHost } from "../../src/lease/host.js";
-import { hostVerdict } from "../../src/lease/settle.js";
+import { effectiveGrace, hostVerdict } from "../../src/lease/settle.js";
 import {
   finished,
   leaseToml,
@@ -72,6 +72,26 @@ describe("the host check", () => {
     expect(hostVerdict(lease, reading(20, 20), after(600))).toBe("severe");
     const off = settings("/x", { max_io: 8, settle_window: 0 });
     expect(hostVerdict(off, reading(12, 12), after(600))).toBe("wait");
+  });
+
+  it("lets a waiter past age_limit start on its grace below the hard limit, as 2026-11-15 needed", () => {
+    expect(effectiveGrace(900, 600)).toBe(600);
+    expect(effectiveGrace(30, 600)).toBe(30);
+    expect(effectiveGrace(0, 600)).toBe(0);
+    expect(effectiveGrace(900, 0)).toBe(900);
+    const install = {
+      ...waiting,
+      lane: "bulk",
+      weight: 3,
+      runningWeight: 0,
+      grace: effectiveGrace(900, 600),
+    };
+    const busy = reading(4, 10.78, 6);
+    expect(hostVerdict(lease, busy, { ...install, waited: 650 })).toBe("grace");
+    expect(hostVerdict(lease, busy, { ...install, waited: 300 })).toBe("wait");
+    expect(
+      hostVerdict(lease, reading(20, 20, 6), { ...install, waited: 650 }),
+    ).toBe("severe");
   });
 
   it("replays a release followed by lingering IO: the waiter starts after the window", async () => {

@@ -45,6 +45,13 @@ export function severe(settings: LeaseSettings, reading: HostReading): boolean {
   );
 }
 
+// A waiter past age_limit reaches its load_grace there, when its profile allows grace at all;
+// otherwise it heads the queue but still waits for the soft limit, as on 2026-11-15.
+export function effectiveGrace(loadGrace: number, ageLimit: number): number {
+  if (loadGrace === 0 || ageLimit === 0) return loadGrace;
+  return Math.min(loadGrace, ageLimit);
+}
+
 // Below the hard ceiling, three things start a job anyway: commit-hook work is short and
 // staged-only, so it does not wait on the host; a job that ended leaves its own IO behind for
 // a while, so settle_window after a release the queue moves on; and load_grace.

@@ -41,7 +41,7 @@ import {
   sleepSeconds,
 } from "./host.js";
 import { parkForSession, sessionOf } from "./queue.js";
-import { hostVerdict, type HostVerdict } from "./settle.js";
+import { effectiveGrace, hostVerdict, type HostVerdict } from "./settle.js";
 import { allowedReasons, NESTED, skipRefusal } from "./skip.js";
 
 export type BusyReason = "queue" | "parked" | "host" | "legacy";
@@ -199,7 +199,10 @@ function tryAdmit(
     const { running, waiters } = readQueue(paths);
     if (!admissible(options.settings, running, waiters).has(pid))
       return { admitted: false, verdict: "queue" };
-    const grace = options.settings.profiles[options.profile]!.loadGrace;
+    const grace = effectiveGrace(
+      options.settings.profiles[options.profile]!.loadGrace,
+      options.settings.ageLimit,
+    );
     const reading = readHost(hostSources(options.env));
     const released = lastRelease(paths);
     const verdict = hostVerdict(options.settings, reading, {

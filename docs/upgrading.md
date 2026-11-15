@@ -15,6 +15,18 @@ it: a lease-wrapped install (`pmcp heavy`) only warns about an unknown top-level
 on, a refused key in a checkout whose `package.json` pins a newer pmcp than the one
 running says so and names the install to run.
 
+## From 0.32 to 0.33
+
+**A long wait also reaches grace sooner.** A waiter that has waited `age_limit` seconds now
+counts as past its profile's `load_grace` when that is longer, so it may start into moderate
+overload (below `hard_factor` times `max_load` and `max_io`) while no leased job runs. A
+profile with `load_grace = 0` still has no grace.
+
+**Runtime names: any spelling where you type one.** `[[host.sessions]] runtime`, `[tui] runtime`,
+`pmcp tui --runtime`, `pmcp marketplace export --runtime` and a skill's `verified-runtimes`
+accept every spelling of a runtime (`agy` or `antigravity`, `claude` or `claude-code`). What
+pmcp writes is unchanged.
+
 ## From 0.31 to 0.32
 
 **A long wait now outranks the lane order.** A `pmcp heavy` waiter that has waited
