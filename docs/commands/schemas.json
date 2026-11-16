@@ -1060,6 +1060,65 @@
         }
       },
       "additionalProperties": false
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "modelId", "dtype", "dtypes", "dimensions", "revision", "encoder"],
+        "properties": {
+          "name": { "type": "string" },
+          "modelId": { "type": "string" },
+          "dtype": { "enum": ["q4", "q8", "fp32"] },
+          "dtypes": { "type": "array", "items": { "enum": ["q4", "q8", "fp32"] } },
+          "dimensions": { "type": "array", "items": { "type": "integer", "minimum": 1 } },
+          "revision": { "type": "string" },
+          "encoder": {
+            "type": "object",
+            "required": ["queryPrefix", "passagePrefix", "pooling"],
+            "properties": {
+              "queryPrefix": { "type": "string" },
+              "passagePrefix": { "type": "string" },
+              "pooling": { "enum": ["mean", "cls"] },
+              "projected": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "marketplace-list": {
+      "type": "object",
+      "required": ["marketplace", "plugins"],
+      "properties": {
+        "marketplace": { "type": "string" },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "version": { "type": "string" },
+              "description": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "marketplace-export": {
+      "type": "object",
+      "required": ["plugin", "runtime", "output", "files"],
+      "properties": {
+        "plugin": { "type": "string" },
+        "runtime": { "enum": ["claude", "codex", "gemini", "grok", "agy"] },
+        "output": { "type": "string" },
+        "files": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
     }
   }
 }

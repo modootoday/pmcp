@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, it } from "vitest";
 
+import { NATIVE_PLUGIN_RUNTIMES } from "../../src/marketplace/export.js";
 import { fixture } from "./helpers.js";
 import { validator } from "./json-schema.js";
 
@@ -111,6 +112,8 @@ it("matches what each command with a published schema prints", async (t) => {
     ["hooks-report", ["hooks", "report", "--switch-check", "git.stage_all"]],
     ["whoami", ["whoami"]],
     ["validate", ["validate", root]],
+    ["models", ["models"]],
+    ["marketplace-list", ["marketplace", "list"]],
   ];
   const printed: Record<string, unknown> = {};
   for (const [name, args] of cases) {
@@ -120,4 +123,24 @@ it("matches what each command with a published schema prints", async (t) => {
   // The fixture's [budget] table makes status print its optional budget, so that is checked too.
   expect((printed["status"] as { budget?: unknown }).budget).toBeDefined();
   expect(printed["heavy-stats"]).toHaveLength(1);
+  const plugins = (
+    printed["marketplace-list"] as { plugins: { name: string }[] }
+  ).plugins;
+  expect(plugins.length).toBeGreaterThan(0);
+  const exported = await data(
+    "marketplace",
+    "export",
+    plugins[0]!.name,
+    "--runtime",
+    "agy",
+    "--output",
+    join(root, "exported"),
+  );
+  expect(validate("marketplace-export", exported)).toEqual([]);
+});
+
+it("keeps the export schema's runtimes equal to the ones export accepts", () => {
+  expect(
+    document.schemas["marketplace-export"].properties.runtime.enum,
+  ).toEqual(NATIVE_PLUGIN_RUNTIMES);
 });
