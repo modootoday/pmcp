@@ -42,9 +42,26 @@ function filterFrom(context: CommandContext): LogFilter {
   }
 }
 
+// Records kept outside the project's log files, such as the host lease's, answer by filter.
+export type ExtraRecords = (filter: LogFilter) => LogLine[];
+
+function records(
+  location: LogLocation,
+  filter: LogFilter,
+  extra: ExtraRecords | undefined,
+): LogLine[] {
+  const own = readLogs(location.dir, filter, location.file);
+  const more = (extra?.(filter) ?? []).filter((line) => matches(line, filter));
+  if (more.length === 0) return own;
+  // Compared as times: "09.500Z" and "09Z" sort wrongly as text.
+  const at = (line: LogLine) => Date.parse(line.ts ?? "") || 0;
+  return [...own, ...more].sort((a, b) => at(a) - at(b));
+}
+
 export async function runLogs(
   context: CommandContext,
   location: LogLocation,
+  extra?: ExtraRecords,
 ): Promise<number> {
   const filter = filterFrom(context);
   if (context.args.flags.has("json")) {
@@ -55,7 +72,7 @@ export async function runLogs(
     context.ui.data(
       JSON.stringify({
         version: 1,
-        records: readLogs(location.dir, filter, location.file),
+        records: records(location, filter, extra),
       }) + "\n",
     );
     return 0;
@@ -64,7 +81,7 @@ export async function runLogs(
     context.ui.data(
       `${context.args.flags.has("pretty") ? pretty(line) : JSON.stringify(line)}\n`,
     );
-  readLogs(location.dir, filter, location.file).forEach(show);
+  records(location, filter, extra).forEach(show);
   if (!context.args.flags.has("follow")) return 0;
   const state = { file: "", offset: 0 };
   tail(location.dir, state, location.file);

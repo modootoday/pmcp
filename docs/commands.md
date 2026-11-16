@@ -194,10 +194,11 @@ Coordinate the live agent sessions of this repository and its worktrees, through
 pmcp logs --since 10m --level warn --pretty
 pmcp logs --session 4f92 --component hooks
 pmcp logs --trace 7cef825e8fbd8c3f
+pmcp logs --component lease --since 2h --level warn
 pmcp logs --follow
 ```
 
-Read this project's JSONL logs from the state directory, or the file `[hooks] error_log` names. Filters combine: `--session` takes an id prefix, `--trace` one hook call, `--component` a component and those below it, `--level` that level and more severe, `--since` a duration (`10m`, `2h`, `3d`) or an ISO time. Records print as JSON lines unless `--pretty`; `--follow` keeps printing until interrupted. Secret values, prompt text and environment values are redacted at write time, per [`[logging]`](project-configuration.md#logging). Exit 0, or 2 for an unusable filter or no `pmcp.toml`.
+Read this project's JSONL logs from the state directory, or the file `[hooks] error_log` names. Filters combine: `--session` takes an id prefix, `--trace` one hook call, `--component` a component and those below it, `--level` that level and more severe, `--since` a duration (`10m`, `2h`, `3d`) or an ISO time. Records print as JSON lines unless `--pretty`; `--follow` keeps printing until interrupted. Secret values, prompt text and environment values are redacted at write time, per [`[logging]`](project-configuration.md#logging). `--component lease` adds the host lease's records, read from its directory rather than this project's logs: each `heavy.log` event (acquired, released, skip, grace, timeout and the rest; refusals and timeouts at `warn`) and, as `lease.usage`, each finished run from `usage.jsonl`; `--follow` does not include them. Exit 0, or 2 for an unusable filter or no `pmcp.toml`.
 
 ## git
 
