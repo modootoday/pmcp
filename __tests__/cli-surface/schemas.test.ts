@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, it } from "vitest";
 
@@ -57,6 +57,29 @@ it("matches what each command with a published schema prints", async (t) => {
     join(root, "pmcp.toml"),
     `[targets]\ntools = ["claude"]\n[budget]\nroot_bytes = 16000\n[hooks.guards.git.stage_all]\n[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 1000\n[sessions]\nstate_dir = ".state"\n[sessions.registry]\n`,
   );
+  // Two finished runs, so heavy stats prints a row rather than an empty list.
+  mkdirSync(dir, { recursive: true });
+  const run1 = {
+    at: "2026-11-15T10:00:09.500Z",
+    signature: "bun install",
+    dir: ".",
+    user_s: 1.2,
+    sys_s: 0.3,
+    max_rss_kb: 50000,
+    read_bytes: 3e7,
+    write_bytes: 0,
+    source: "proc",
+    wall_s: 8,
+    lane: "bulk",
+    weight: 3,
+    start: "queue",
+    outcome: "ran",
+    exit: 0,
+  };
+  writeFileSync(
+    join(dir, "usage.jsonl"),
+    `${JSON.stringify(run1)}\n${JSON.stringify({ ...run1, wall_s: 22, exit: 1 })}\n`,
+  );
   const data = async (...args: string[]) => {
     const result = await run(...args, "--json");
     const envelope = JSON.parse(result.out);
@@ -83,6 +106,11 @@ it("matches what each command with a published schema prints", async (t) => {
     ["sessions-status", ["sessions", "status"]],
     ["heavy-status", ["heavy", "status"]],
     ["heavy-queue", ["heavy", "queue"]],
+    ["heavy-stats", ["heavy", "stats"]],
+    ["hooks-report", ["hooks", "report"]],
+    ["hooks-report", ["hooks", "report", "--switch-check", "git.stage_all"]],
+    ["whoami", ["whoami"]],
+    ["validate", ["validate", root]],
   ];
   const printed: Record<string, unknown> = {};
   for (const [name, args] of cases) {
@@ -91,4 +119,5 @@ it("matches what each command with a published schema prints", async (t) => {
   }
   // The fixture's [budget] table makes status print its optional budget, so that is checked too.
   expect((printed["status"] as { budget?: unknown }).budget).toBeDefined();
+  expect(printed["heavy-stats"]).toHaveLength(1);
 });

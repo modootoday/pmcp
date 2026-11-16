@@ -4,6 +4,23 @@
     "string": {
       "type": "string"
     },
+    "counts": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "usageMetrics": {
+      "type": "object",
+      "required": ["wall_s", "user_s", "sys_s", "max_rss_kb", "read_bytes", "write_bytes"],
+      "properties": {
+        "wall_s": { "type": "number" },
+        "user_s": { "type": "number" },
+        "sys_s": { "type": "number" },
+        "max_rss_kb": { "type": "number" },
+        "read_bytes": { "type": "number" },
+        "write_bytes": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
     "nullableString": {
       "type": [
         "string",
@@ -922,6 +939,125 @@
         "version": { "const": 1 },
         "schema": { "const": "pmcp.heavy.queue.v1" },
         "waiters": { "$ref": "#/schemas/heavy-status/properties/waiters" }
+      },
+      "additionalProperties": false
+    },
+    "whoami": {
+      "type": "object",
+      "required": ["signedIn"],
+      "properties": {
+        "signedIn": { "type": "boolean" },
+        "issuer": { "type": "string" },
+        "scope": { "type": "string" },
+        "expiresInMinutes": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "heavy-stats": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["signature", "samples", "failed", "timeouts", "skipped", "p50", "p90"],
+        "properties": {
+          "signature": { "type": "string" },
+          "samples": { "type": "integer", "minimum": 0 },
+          "failed": { "type": "integer", "minimum": 0 },
+          "timeouts": { "type": "integer", "minimum": 0 },
+          "skipped": { "type": "integer", "minimum": 0 },
+          "p50": { "$ref": "#/$defs/usageMetrics" },
+          "p90": { "$ref": "#/$defs/usageMetrics" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "hooks-report": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["version", "lines", "sessions", "excluded", "guards"],
+          "properties": {
+            "version": { "const": 1 },
+            "since": { "type": "string" },
+            "lines": { "type": "integer", "minimum": 0 },
+            "sessions": { "type": "integer", "minimum": 0 },
+            "excluded": { "type": "integer", "minimum": 0 },
+            "guards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["policy", "runtime", "calls", "raw", "verdict", "modes", "sessions", "durationMs"],
+                "properties": {
+                  "policy": { "type": "string" },
+                  "runtime": { "type": "string" },
+                  "calls": { "type": "integer", "minimum": 0 },
+                  "raw": { "$ref": "#/$defs/counts" },
+                  "verdict": { "$ref": "#/$defs/counts" },
+                  "modes": { "type": "array", "items": { "type": "string" } },
+                  "sessions": { "type": "integer", "minimum": 0 },
+                  "durationMs": {
+                    "type": "object",
+                    "required": ["p50", "p95", "max"],
+                    "properties": {
+                      "p50": { "type": "number" },
+                      "p95": { "type": "number" },
+                      "max": { "type": "number" }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["version", "guard", "refused"],
+          "properties": {
+            "version": { "const": 1 },
+            "guard": { "type": "string" },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["ts", "policy", "runtime", "session", "mode", "raw", "verdict", "durationMs"],
+                "properties": {
+                  "ts": { "type": "string" },
+                  "policy": { "type": "string" },
+                  "runtime": { "type": "string" },
+                  "session": { "type": "string" },
+                  "mode": { "type": "string" },
+                  "raw": { "type": "string" },
+                  "verdict": { "type": "string" },
+                  "tool": { "type": "string" },
+                  "durationMs": { "type": "number" }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "validate": {
+      "type": "object",
+      "required": ["findings"],
+      "properties": {
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "reason", "level"],
+            "properties": {
+              "path": { "type": "string" },
+              "reason": { "type": "string" },
+              "level": { "enum": ["error", "warning"] }
+            },
+            "additionalProperties": false
+          }
+        }
       },
       "additionalProperties": false
     }
