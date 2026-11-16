@@ -132,6 +132,18 @@
           "items": {
             "$ref": "#/$defs/broadcast"
           }
+        },
+        "restart": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "wake": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "null"]
+          }
         }
       },
       "additionalProperties": false
@@ -266,6 +278,20 @@
         },
         "reason": {
           "$ref": "#/$defs/nullableString"
+        },
+        "raw": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": ["verdict", "reason"],
+              "properties": {
+                "verdict": { "type": "string" },
+                "reason": { "$ref": "#/$defs/nullableString" }
+              },
+              "additionalProperties": false
+            },
+            { "type": "null" }
+          ]
         }
       },
       "additionalProperties": false
@@ -310,6 +336,7 @@
         "version",
         "config",
         "drift",
+        "lagging",
         "features",
         "projection",
         "sessions",
@@ -326,6 +353,35 @@
         },
         "drift": {
           "type": "boolean"
+        },
+        "lagging": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "budget": {
+          "type": "object",
+          "required": ["rows", "problems"],
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["key", "subject", "value", "limit"],
+                "properties": {
+                  "key": { "type": "string" },
+                  "subject": { "type": "string" },
+                  "value": { "type": "number" },
+                  "limit": { "type": "number" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "problems": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
         },
         "features": {
           "type": "array",
