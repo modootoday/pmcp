@@ -1119,6 +1119,160 @@
         "files": { "type": "integer", "minimum": 0 }
       },
       "additionalProperties": false
+    },
+    "owners": {
+      "type": "object",
+      "required": ["version", "paths"],
+      "properties": {
+        "version": { "const": 1 },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "owners"],
+            "properties": {
+              "path": { "type": "string" },
+              "owners": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["owner", "mode"],
+                  "properties": {
+                    "owner": { "type": "string" },
+                    "note": { "type": "string" },
+                    "mode": { "enum": ["warn", "observe"] }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "doctor": {
+      "type": "object",
+      "required": ["findings"],
+      "properties": {
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["tool", "check", "status"],
+            "properties": {
+              "tool": { "enum": ["claude", "codex", "gemini", "grok", "antigravity", "opencode", "project"] },
+              "check": { "type": "string" },
+              "status": { "enum": ["ok", "fail", "warn", "skip"] },
+              "detail": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["feature", "enabled", "projected", "claude", "codex", "codexTrust", "cells"],
+            "properties": {
+              "feature": { "type": "string" },
+              "enabled": { "enum": ["toml", "auto", "default-off"] },
+              "projected": { "enum": ["yes", "drift", "no", "-"] },
+              "claude": { "type": "string" },
+              "codex": { "type": "string" },
+              "codexTrust": { "type": "string" },
+              "cells": {
+                "type": "object",
+                "required": ["claude", "codex", "gemini", "antigravity", "grok", "opencode"],
+                "properties": {
+                  "claude": { "type": "string" },
+                  "codex": { "type": "string" },
+                  "gemini": { "type": "string" },
+                  "antigravity": { "type": "string" },
+                  "grok": { "type": "string" },
+                  "opencode": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "sessions-inbox": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "from", "to", "body", "createdAt", "expiresAt", "once", "acked"],
+        "properties": {
+          "id": { "type": "string" },
+          "from": {
+            "type": "object",
+            "properties": {
+              "session": { "type": "string" },
+              "alias": { "type": "string" }
+            }
+          },
+          "to": { "type": "array", "items": { "type": "string" } },
+          "subject": { "type": "string" },
+          "body": { "type": "string" },
+          "createdAt": { "type": "string" },
+          "expiresAt": { "type": "string" },
+          "replyTo": { "type": "string" },
+          "once": { "type": "boolean" },
+          "broadcastId": { "type": "string" },
+          "acked": { "type": "boolean" }
+        }
+      }
+    },
+    "heavy-result": {
+      "type": "object",
+      "required": ["version", "id", "state", "label", "pid", "position", "result"],
+      "properties": {
+        "version": { "const": 1 },
+        "id": { "type": "string", "pattern": "^\\d{10}-[0-9a-f]{6}$" },
+        "state": { "enum": ["queued", "running", "done", "lost"] },
+        "label": { "type": "string" },
+        "pid": { "type": ["integer", "null"], "minimum": 1 },
+        "position": { "type": ["integer", "null"], "minimum": 1 },
+        "result": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["version", "ticket", "exit", "outcome"],
+              "properties": {
+                "version": { "const": 1 },
+                "ticket": { "type": "string" },
+                "exit": { "type": "integer" },
+                "outcome": { "enum": ["ran", "timeout", "cancelled", "invalid"] },
+                "at": { "type": "string" },
+                "signature": { "type": "string" },
+                "dir": { "type": "string" },
+                "lane": { "type": "string" },
+                "weight": { "type": "number" },
+                "start": { "enum": ["queue", "grace", "bypass", "none"] },
+                "wall_s": { "type": "number" },
+                "user_s": { "type": "number" },
+                "sys_s": { "type": "number" },
+                "max_rss_kb": { "type": "number" },
+                "read_bytes": { "type": "number" },
+                "write_bytes": { "type": "number" },
+                "source": { "enum": ["cgroup", "proc", "none"] },
+                "skip": { "type": "string" },
+                "skip_refused": { "type": "string" },
+                "skip_invalid": { "type": "string" },
+                "skip_env": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

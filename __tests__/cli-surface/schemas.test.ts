@@ -3,6 +3,8 @@ import { join } from "node:path";
 import { expect, it } from "vitest";
 
 import { NATIVE_PLUGIN_RUNTIMES } from "../../src/marketplace/export.js";
+import { TOOLS } from "../../src/project/tools.js";
+import { RUNTIME_IDS } from "../../src/runtime/ids.js";
 import { fixture } from "./helpers.js";
 import { validator } from "./json-schema.js";
 
@@ -56,7 +58,7 @@ it("matches what each command with a published schema prints", async (t) => {
   const dir = join(root, "lease");
   writeFileSync(
     join(root, "pmcp.toml"),
-    `[targets]\ntools = ["claude"]\n[budget]\nroot_bytes = 16000\n[hooks.guards.git.stage_all]\n[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 1000\n[sessions]\nstate_dir = ".state"\n[sessions.registry]\n`,
+    `[targets]\ntools = ["claude"]\n[budget]\nroot_bytes = 16000\n[hooks.guards.git.stage_all]\n[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 1000\n[sessions]\nstate_dir = ".state"\n[sessions.registry]\n[sessions.mailbox]\n[[owners]]\npaths = ["src/**"]\nowner = "core"\nnote = "ask first"\n`,
   );
   // Two finished runs, so heavy stats prints a row rather than an empty list.
   mkdirSync(dir, { recursive: true });
@@ -80,6 +82,17 @@ it("matches what each command with a published schema prints", async (t) => {
   writeFileSync(
     join(dir, "usage.jsonl"),
     `${JSON.stringify(run1)}\n${JSON.stringify({ ...run1, wall_s: 22, exit: 1 })}\n`,
+  );
+  // One finished ticket carrying its run's usage, and one never started, whose result is null.
+  const done = join(dir, "tickets", "1763200000-a1b2c3");
+  const queued = join(dir, "tickets", "1763200001-d4e5f6");
+  mkdirSync(done, { recursive: true });
+  mkdirSync(queued, { recursive: true });
+  for (const ticket of [done, queued])
+    writeFileSync(join(ticket, "request.json"), '{"label":"install"}\n');
+  writeFileSync(
+    join(done, "result.json"),
+    `${JSON.stringify({ version: 1, ticket: "1763200000-a1b2c3", ...run1 })}\n`,
   );
   const data = async (...args: string[]) => {
     const result = await run(...args, "--json");
@@ -114,7 +127,12 @@ it("matches what each command with a published schema prints", async (t) => {
     ["validate", ["validate", root]],
     ["models", ["models"]],
     ["marketplace-list", ["marketplace", "list"]],
+    ["owners", ["owners", "src/a.ts", "docs/b.md"]],
+    ["doctor", ["doctor", "--tool", "claude"]],
+    ["heavy-result", ["heavy", "result", "1763200000-a1b2c3"]],
+    ["heavy-result", ["heavy", "result", "1763200001-d4e5f6"]],
   ];
+  await run("sessions", "send", "--session", "s1", "--to", "all", "hello");
   const printed: Record<string, unknown> = {};
   for (const [name, args] of cases) {
     printed[name] = await data(...args);
@@ -123,6 +141,12 @@ it("matches what each command with a published schema prints", async (t) => {
   // The fixture's [budget] table makes status print its optional budget, so that is checked too.
   expect((printed["status"] as { budget?: unknown }).budget).toBeDefined();
   expect(printed["heavy-stats"]).toHaveLength(1);
+  const inbox = await data("sessions", "inbox", "--all", "--session", "s1");
+  expect(validate("sessions-inbox", inbox)).toEqual([]);
+  expect(inbox).toHaveLength(1);
+  const owned = printed["owners"] as { paths: { owners: unknown[] }[] };
+  expect(owned.paths[0]!.owners).toHaveLength(1);
+  expect((printed["doctor"] as { features?: unknown }).features).toBeDefined();
   const plugins = (
     printed["marketplace-list"] as { plugins: { name: string }[] }
   ).plugins;
@@ -137,6 +161,15 @@ it("matches what each command with a published schema prints", async (t) => {
     join(root, "exported"),
   );
   expect(validate("marketplace-export", exported)).toEqual([]);
+});
+
+it("keeps the doctor schema's runtimes equal to the ones doctor checks", () => {
+  const doctor = document.schemas["doctor"].properties;
+  expect(doctor.findings.items.properties.tool.enum).toEqual([
+    ...TOOLS,
+    "project",
+  ]);
+  expect(doctor.features.items.properties.cells.required).toEqual(RUNTIME_IDS);
 });
 
 it("keeps the export schema's runtimes equal to the ones export accepts", () => {
