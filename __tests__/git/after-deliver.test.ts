@@ -7,6 +7,7 @@ import { dispatch } from "../../src/commands/index.js";
 import { readGitConfig } from "../../src/git/config.js";
 import type { DeliverReceipt } from "../../src/git/mainline/deliver.js";
 import type { ProjectConfig } from "../../src/config.js";
+import { validatePublished } from "../cli-surface/json-schema.js";
 import { commit, isolateGit, remote, sh, type Remote } from "./fixture.js";
 
 beforeAll(isolateGit);
@@ -30,10 +31,10 @@ async function deliverJson(cwd: string) {
     .join("")
     .split("\n")
     .find((text) => text.startsWith('{"schema"'));
-  return {
-    code,
-    receipt: (line ? JSON.parse(line).data : null) as DeliverReceipt,
-  };
+  const receipt = (line ? JSON.parse(line).data : null) as DeliverReceipt;
+  if (receipt !== null)
+    expect(validatePublished("git-deliver", receipt)).toEqual([]);
+  return { code, receipt };
 }
 
 // A linked worktree with one commit to deliver; the main checkout stays where it was.

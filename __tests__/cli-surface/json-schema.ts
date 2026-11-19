@@ -1,5 +1,8 @@
 // A validator for exactly the keywords docs/commands/schemas.json uses, so a published schema
 // is checked against what a command really prints; an unknown keyword fails loudly.
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 type Schema = Record<string, unknown>;
 
 const KNOWN = new Set([
@@ -104,3 +107,14 @@ export function validator(document: Schema) {
   return (name: string, value: unknown): string[] =>
     check(resolve(`#/schemas/${name}`), value, name);
 }
+
+export function publishedDocument(): Schema {
+  return JSON.parse(
+    readFileSync(
+      join(import.meta.dirname, "../../docs/commands/schemas.json"),
+      "utf8",
+    ),
+  ) as Schema;
+}
+
+export const validatePublished = validator(publishedDocument());

@@ -6,15 +6,10 @@ import { NATIVE_PLUGIN_RUNTIMES } from "../../src/marketplace/export.js";
 import { TOOLS } from "../../src/project/tools.js";
 import { RUNTIME_IDS } from "../../src/runtime/ids.js";
 import { fixture } from "./helpers.js";
-import { validator } from "./json-schema.js";
+import { publishedDocument, validatePublished } from "./json-schema.js";
 
-const document = JSON.parse(
-  readFileSync(
-    join(import.meta.dirname, "../../docs/commands/schemas.json"),
-    "utf8",
-  ),
-);
-const validate = validator(document);
+const document = publishedDocument() as Record<string, any>;
+const validate = validatePublished;
 
 const waiter = {
   id: "a",

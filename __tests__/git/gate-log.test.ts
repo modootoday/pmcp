@@ -18,6 +18,7 @@ import {
   type DeliverReceipt,
 } from "../../src/git/mainline/deliver.js";
 import { gateLog } from "../../src/git/mainline/gate.js";
+import { validatePublished } from "../cli-surface/json-schema.js";
 import {
   commit,
   isolateGit,
@@ -190,6 +191,7 @@ describe("gate logs", () => {
       }),
     ).toBe(0);
     const receipt = JSON.parse(out).data as DeliverReceipt;
+    expect(validatePublished("git-deliver", receipt)).toEqual([]);
     expect(receipt.gate!.logs).toBe(
       join(state, "gate-logs", receipt.replayed!),
     );

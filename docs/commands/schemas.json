@@ -386,6 +386,22 @@
         "targets": { "type": "array", "items": { "$ref": "#/$defs/remoteTarget" } }
       },
       "additionalProperties": false
+    },
+    "syncResult": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["from", "to", "code"],
+          "properties": {
+            "from": { "type": "string" },
+            "to": { "type": "string" },
+            "code": { "type": "integer" },
+            "reason": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
     }
   },
   "schemas": {
@@ -1477,6 +1493,39 @@
             { "type": "array", "items": { "type": "string" } }
           ]
         }
+      },
+      "additionalProperties": false
+    },
+    "git-deliver": {
+      "type": "object",
+      "required": ["ok", "code", "delivered", "upstream", "attempts", "replayed", "gate", "leases", "sync", "desk_sync"],
+      "properties": {
+        "ok": { "type": "boolean" },
+        "code": { "type": "integer" },
+        "delivered": { "$ref": "#/$defs/nullableString" },
+        "upstream": { "type": "string" },
+        "attempts": { "type": "integer", "minimum": 0 },
+        "replayed": { "$ref": "#/$defs/nullableString" },
+        "gate": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": ["exit", "log", "logs", "by"],
+              "properties": {
+                "exit": { "type": "integer" },
+                "log": { "$ref": "#/$defs/nullableString" },
+                "logs": { "$ref": "#/$defs/nullableString" },
+                "by": { "enum": ["command", "pre-push"] }
+              },
+              "additionalProperties": false
+            },
+            { "type": "null" }
+          ]
+        },
+        "leases": { "type": "array", "items": { "type": "string" } },
+        "sync": { "$ref": "#/$defs/syncResult" },
+        "desk_sync": { "$ref": "#/$defs/syncResult" },
+        "reason": { "type": "string" }
       },
       "additionalProperties": false
     }
