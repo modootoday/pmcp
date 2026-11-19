@@ -94,6 +94,34 @@ it("matches what each command with a published schema prints", async (t) => {
     join(done, "result.json"),
     `${JSON.stringify({ version: 1, ticket: "1763200000-a1b2c3", ...run1 })}\n`,
   );
+  // The bundled public catalog's first entry targets a package this project installs, so
+  // available prints a match and preview has a package to show.
+  const bundled = JSON.parse(
+    readFileSync(join(import.meta.dirname, "../../docs/catalog.json"), "utf8"),
+  ) as {
+    entries: {
+      delivery: { packageName: string };
+      targets: { packageName: string; verifiedVersions: string[] }[];
+    }[];
+  };
+  const entry = bundled.entries[0]!;
+  const target = entry.targets[0]!;
+  writeFileSync(
+    join(root, "package.json"),
+    JSON.stringify({
+      dependencies: { [target.packageName]: target.verifiedVersions[0] },
+    }),
+  );
+  mkdirSync(join(root, "node_modules", target.packageName), {
+    recursive: true,
+  });
+  writeFileSync(
+    join(root, "node_modules", target.packageName, "package.json"),
+    JSON.stringify({
+      name: target.packageName,
+      version: target.verifiedVersions[0],
+    }),
+  );
   const data = async (...args: string[]) => {
     const result = await run(...args, "--json");
     const envelope = JSON.parse(result.out);
@@ -131,6 +159,9 @@ it("matches what each command with a published schema prints", async (t) => {
     ["doctor", ["doctor", "--tool", "claude"]],
     ["heavy-result", ["heavy", "result", "1763200000-a1b2c3"]],
     ["heavy-result", ["heavy", "result", "1763200001-d4e5f6"]],
+    ["list", ["list"]],
+    ["available", ["available"]],
+    ["preview", ["preview", entry.delivery.packageName]],
   ];
   await run("sessions", "send", "--session", "s1", "--to", "all", "hello");
   const printed: Record<string, unknown> = {};
@@ -147,6 +178,12 @@ it("matches what each command with a published schema prints", async (t) => {
   const owned = printed["owners"] as { paths: { owners: unknown[] }[] };
   expect(owned.paths[0]!.owners).toHaveLength(1);
   expect((printed["doctor"] as { features?: unknown }).features).toBeDefined();
+  expect(
+    (printed["list"] as { skills: unknown[] }).skills.length,
+  ).toBeGreaterThan(0);
+  expect(
+    (printed["available"] as { matches: unknown[] }).matches.length,
+  ).toBeGreaterThan(0);
   const plugins = (
     printed["marketplace-list"] as { plugins: { name: string }[] }
   ).plugins;
@@ -161,7 +198,7 @@ it("matches what each command with a published schema prints", async (t) => {
     join(root, "exported"),
   );
   expect(validate("marketplace-export", exported)).toEqual([]);
-});
+}, 30_000);
 
 it("keeps the doctor schema's runtimes equal to the ones doctor checks", () => {
   const doctor = document.schemas["doctor"].properties;
