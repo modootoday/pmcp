@@ -1,14 +1,24 @@
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeAll, expect, it } from "vitest";
 
 import { Ui } from "../../src/cli/ui.js";
 import { dispatch } from "../../src/commands/index.js";
+import { validator } from "../cli-surface/json-schema.js";
 import { workspace } from "./affected-fixture.js";
 import { isolateGit } from "./fixture.js";
 
 beforeAll(isolateGit);
+
+const validate = validator(
+  JSON.parse(
+    readFileSync(
+      join(import.meta.dirname, "../../docs/commands/schemas.json"),
+      "utf8",
+    ),
+  ),
+);
 
 function capture(): { ui: Ui; out: string[]; err: string[] } {
   const out: string[] = [];
@@ -76,6 +86,23 @@ it("prints the versioned JSON shape", async () => {
     selected: ["packages/a"],
     changed: ["packages/a"],
   });
+  expect(validate("git-affected", parsed)).toEqual([]);
+  const all = capture();
+  await dispatch(
+    [
+      "git",
+      "affected",
+      "--base",
+      "HEAD~1",
+      "--json",
+      "--config",
+      scratchConfig("[catalog]\n"),
+    ],
+    { cwd: ws.root, ui: all.ui, env: process.env },
+  );
+  const everything = JSON.parse(all.out.join("")).data;
+  expect(everything.selected).toBe("ALL");
+  expect(validate("git-affected", everything)).toEqual([]);
 });
 
 it("answers ALL with exit 0 when nothing describes the workspace", async () => {

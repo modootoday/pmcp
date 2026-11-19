@@ -1435,6 +1435,50 @@
         "preview": { "$ref": "#/$defs/remotePreview" }
       },
       "additionalProperties": false
+    },
+    "git-affected": {
+      "type": "object",
+      "required": ["schema", "testsOnly", "all", "changed", "members", "unmapped", "selected"],
+      "properties": {
+        "schema": { "const": "pmcp.git.affected.v1" },
+        "testsOnly": { "type": "boolean" },
+        "all": { "type": "boolean" },
+        "reason": { "type": "string" },
+        "base": { "type": "string" },
+        "head": { "type": "string" },
+        "changed": { "type": "array", "items": { "type": "string" } },
+        "members": { "type": "array", "items": { "type": "string" } },
+        "unmapped": { "type": "array", "items": { "type": "string" } },
+        "rootDependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "key", "members"],
+            "properties": {
+              "name": { "type": "string" },
+              "key": { "type": "string" },
+              "members": { "type": "array", "items": { "type": "string" } }
+            },
+            "additionalProperties": false
+          }
+        },
+        "workspaceMembers": {
+          "type": "object",
+          "required": ["added", "removed"],
+          "properties": {
+            "added": { "type": "array", "items": { "type": "string" } },
+            "removed": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "selected": {
+          "anyOf": [
+            { "const": "ALL" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        }
+      },
+      "additionalProperties": false
     }
   }
 }
