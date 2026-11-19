@@ -15,6 +15,23 @@ it: a lease-wrapped install (`pmcp heavy`) only warns about an unknown top-level
 on, a refused key in a checkout whose `package.json` pins a newer pmcp than the one
 running says so and names the install to run.
 
+## From 0.33 to 0.34
+
+**`pmcp heavy queue --json` names its own schema.** Its data was labelled
+`pmcp.heavy.status.v1`, the name `pmcp heavy status --json` uses, although it carries only
+`version`, `schema` and `waiters`. It now says `pmcp.heavy.queue.v1`. A client that branches on
+the schema name and read the queue as a status snapshot should branch on the new name; the
+fields are unchanged.
+
+**Every `--json` command with a stable shape has a published schema.**
+`docs/commands/schemas.json` now describes, and the test suite checks against real output,
+the data of the commands listed in [Commands](commands.md). Three schemas gained fields the
+commands already printed: `restart` and `wake` in sessions, `lagging` and `budget` in status,
+and `raw` in a hooks test policy row. No output changed for them.
+
+**`pmcp logs --component lease`** also reads the host lease's own records. A plain
+`pmcp logs` is unchanged.
+
 ## From 0.32 to 0.33
 
 **A long wait also reaches grace sooner.** A waiter that has waited `age_limit` seconds now

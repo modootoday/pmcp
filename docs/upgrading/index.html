@@ -56,6 +56,19 @@ it: a lease-wrapped install (<code>pmcp heavy</code>) only warns about an unknow
 <code>[host.lease]</code> key from 0.30.1 on, and any other place still refuses one. From 0.32.0
 on, a refused key in a checkout whose <code>package.json</code> pins a newer pmcp than the one
 running says so and names the install to run.</p>
+<h2 id="from-033-to-034">From 0.33 to 0.34</h2>
+<p><strong><code>pmcp heavy queue --json</code> names its own schema.</strong> Its data was labelled
+<code>pmcp.heavy.status.v1</code>, the name <code>pmcp heavy status --json</code> uses, although it carries only
+<code>version</code>, <code>schema</code> and <code>waiters</code>. It now says <code>pmcp.heavy.queue.v1</code>. A client that branches on
+the schema name and read the queue as a status snapshot should branch on the new name; the
+fields are unchanged.</p>
+<p><strong>Every <code>--json</code> command with a stable shape has a published schema.</strong>
+<code>docs/commands/schemas.json</code> now describes, and the test suite checks against real output,
+the data of the commands listed in <a href="/commands/">Commands</a>. Three schemas gained fields the
+commands already printed: <code>restart</code> and <code>wake</code> in sessions, <code>lagging</code> and <code>budget</code> in status,
+and <code>raw</code> in a hooks test policy row. No output changed for them.</p>
+<p><strong><code>pmcp logs --component lease</code></strong> also reads the host lease&#39;s own records. A plain
+<code>pmcp logs</code> is unchanged.</p>
 <h2 id="from-032-to-033">From 0.32 to 0.33</h2>
 <p><strong>A long wait also reaches grace sooner.</strong> A waiter that has waited <code>age_limit</code> seconds now
 counts as past its profile&#39;s <code>load_grace</code> when that is longer, so it may start into moderate
