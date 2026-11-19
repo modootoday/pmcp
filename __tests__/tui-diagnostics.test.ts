@@ -1,5 +1,7 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { inspectTerminalHost } from "../src/tui/startup/diagnostics.js";
+import { unsupportedReceipt } from "../src/harness/platform.js";
+import { validatePublished } from "./cli-surface/json-schema.js";
 
 const mocks = vi.hoisted(() => ({ assertHost: vi.fn() }));
 vi.mock("../src/harness/adapters/systemd/admission.js", () => ({
@@ -9,6 +11,7 @@ vi.mock("../src/tui/startup/dependencies.js", () => ({
   dependencies: () => ({
     supported: true,
     platform: "linux",
+    node: "/fixture/node",
     pmcpPty: "/fixture/pmcp-pty",
     pmcpTui: "/fixture/pmcp-tui",
     systemctl: "/fixture/systemctl",
@@ -36,10 +39,18 @@ it("does not certify support when installed tools cannot reach the user manager"
   expect(inspectTerminalHost().remediation).toEqual([
     expect.stringContaining("systemctl --user status"),
   ]);
+  expect(validatePublished("tui-doctor", inspectTerminalHost())).toEqual([]);
+});
+
+it("publishes a failure shape every tui subcommand can print", () => {
+  expect(
+    validatePublished("tui-doctor", unsupportedReceipt("needs Linux")),
+  ).toEqual([]);
 });
 
 it("distinguishes executable discovery from native acceptance and authentication", () => {
   const receipt = inspectTerminalHost();
+  expect(validatePublished("tui-doctor", receipt)).toEqual([]);
   expect(receipt.supported).toBe(true);
   expect(receipt.pmcpTui).toBe("/fixture/pmcp-tui");
   expect(receipt.authenticationInspected).toBe(false);

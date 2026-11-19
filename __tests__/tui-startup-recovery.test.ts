@@ -3,7 +3,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { Group } from "../src/harness/contracts.js";
+import { planStartup } from "../src/tui/startup/entry.js";
 import { inspectStartupRecovery } from "../src/tui/startup/recovery.js";
+import { validatePublished } from "./cli-surface/json-schema.js";
 import {
   ensureStartupDirectory,
   saveStartup,
@@ -113,4 +115,33 @@ it("preserves an explicitly selected configuration in a stopped group's fresh-la
     `'pmcp' 'tui' '--new' '--config' '${config}'`,
   );
   expect(mocks.group.state).toBe("stopped");
+});
+
+it("prints recovery and plan receipts that match the published schemas", () => {
+  const receipts = [inspectStartupRecovery({ cwd })];
+  const plans = [planStartup({ cwd })];
+  save("creating");
+  receipts.push(inspectStartupRecovery({ cwd }));
+  save("starting");
+  receipts.push(inspectStartupRecovery({ cwd }));
+  plans.push(planStartup({ cwd }));
+  save("ready");
+  for (const state of ["ready", "paused", "stopped"] as const) {
+    mocks.group.state = state;
+    receipts.push(inspectStartupRecovery({ cwd }));
+  }
+  expect(receipts.map((receipt) => receipt.status)).toEqual([
+    "not-started",
+    "manual-inspection",
+    "starting",
+    "ready",
+    "paused",
+    "stopped",
+  ]);
+  for (const receipt of receipts)
+    expect(validatePublished("tui-recovery", receipt)).toEqual([]);
+  expect(plans[0]!.savedWorkspace).toBeNull();
+  expect(plans[1]!.savedWorkspace).not.toBeNull();
+  for (const plan of plans)
+    expect(validatePublished("tui-plan", plan)).toEqual([]);
 });

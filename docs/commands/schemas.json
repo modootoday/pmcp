@@ -443,6 +443,33 @@
         },
         { "type": "null" }
       ]
+    },
+    "tuiFailure": {
+      "type": "object",
+      "required": ["schemaVersion", "ok", "error"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "ok": { "const": false },
+        "error": { "type": "string" },
+        "hint": { "type": "string" },
+        "inputReplayed": { "const": false },
+        "resendAllowed": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "tuiStartupState": {
+      "type": "object",
+      "required": ["schemaVersion", "projectRoot", "phase", "runtime"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "projectRoot": { "type": "string" },
+        "phase": { "enum": ["creating", "starting", "view-pending", "ready"] },
+        "runtime": { "type": "string" },
+        "groupFile": { "type": "string" },
+        "generation": { "type": "string" },
+        "viewFile": { "type": "string" }
+      },
+      "additionalProperties": false
     }
   },
   "schemas": {
@@ -1669,6 +1696,112 @@
         }
       },
       "additionalProperties": false
+    },
+    "tui-doctor": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["schemaVersion", "ok", "platform", "node", "nodeSupported", "pmcpPty", "pmcpTui", "systemctl", "systemdRun", "memoryCapped", "supported", "userManagerAvailable", "runtimes", "qualification", "remediation", "nextCommands", "providerInvoked", "authenticationInspected"],
+          "properties": {
+            "schemaVersion": { "const": 1 },
+            "ok": { "const": true },
+            "platform": { "type": "string" },
+            "node": { "$ref": "#/$defs/nullableString" },
+            "nodeSupported": { "type": "boolean" },
+            "pmcpPty": { "$ref": "#/$defs/nullableString" },
+            "pmcpTui": { "$ref": "#/$defs/nullableString" },
+            "systemctl": { "$ref": "#/$defs/nullableString" },
+            "systemdRun": { "$ref": "#/$defs/nullableString" },
+            "memoryCapped": { "type": "boolean" },
+            "supported": { "type": "boolean" },
+            "userManagerAvailable": { "type": "boolean" },
+            "reason": { "type": "string" },
+            "runtimes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "executable", "installed", "nativeAcceptance", "authentication"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "executable": { "type": "string" },
+                  "installed": { "type": "boolean" },
+                  "path": { "type": "string" },
+                  "nativeAcceptance": { "const": "not-assessed" },
+                  "authentication": { "const": "not-inspected" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "qualification": { "type": "string" },
+            "remediation": { "type": "array", "items": { "type": "string" } },
+            "nextCommands": { "type": "array", "items": { "type": "string" } },
+            "providerInvoked": { "const": false },
+            "authenticationInspected": { "const": false }
+          },
+          "additionalProperties": false
+        },
+        { "$ref": "#/$defs/tuiFailure" }
+      ]
+    },
+    "tui-plan": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["schemaVersion", "ok", "settings", "savedWorkspace", "willStartRuntime", "runtimeExecutable", "providerInvoked"],
+          "properties": {
+            "schemaVersion": { "const": 1 },
+            "ok": { "const": true },
+            "settings": {
+              "type": "object",
+              "required": ["projectRoot", "runtime", "allowedRuntimes", "memoryMb", "sessionMemoryMb", "maxActive"],
+              "properties": {
+                "projectRoot": { "type": "string" },
+                "configFile": { "type": "string" },
+                "runtime": { "type": "string" },
+                "allowedRuntimes": { "type": "array", "items": { "type": "string" } },
+                "memoryMb": { "type": "integer", "minimum": 128 },
+                "sessionMemoryMb": { "type": "integer", "minimum": 32 },
+                "maxActive": { "type": "integer", "minimum": 1 },
+                "groupFile": { "type": "string" }
+              },
+              "additionalProperties": false
+            },
+            "savedWorkspace": { "anyOf": [{ "$ref": "#/$defs/tuiStartupState" }, { "type": "null" }] },
+            "willStartRuntime": { "type": "boolean" },
+            "runtimeExecutable": { "$ref": "#/$defs/nullableString" },
+            "providerInvoked": { "const": false }
+          },
+          "additionalProperties": false
+        },
+        { "$ref": "#/$defs/tuiFailure" }
+      ]
+    },
+    "tui-recovery": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["schemaVersion", "ok", "checkpoint", "projectRoot", "providerInvoked", "runtimeRestarted", "inputReplayed", "observedNativeProcesses", "status", "hint", "commands"],
+          "properties": {
+            "schemaVersion": { "const": 1 },
+            "ok": { "const": true },
+            "checkpoint": { "type": "string" },
+            "projectRoot": { "type": "string" },
+            "providerInvoked": { "const": false },
+            "runtimeRestarted": { "const": false },
+            "inputReplayed": { "const": false },
+            "observedNativeProcesses": { "const": false },
+            "status": { "enum": ["not-started", "manual-inspection", "creating", "starting", "view-pending", "ready", "paused", "stopped"] },
+            "phase": { "enum": ["creating", "starting", "view-pending", "ready"] },
+            "groupFile": { "type": "string" },
+            "generation": { "type": "string" },
+            "hint": { "type": "string" },
+            "commands": { "type": "array", "items": { "type": "string" } },
+            "commandsRequireExplicitAction": { "const": true }
+          },
+          "additionalProperties": false
+        },
+        { "$ref": "#/$defs/tuiFailure" }
+      ]
     }
   }
 }
