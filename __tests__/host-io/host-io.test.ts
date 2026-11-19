@@ -26,6 +26,8 @@ import {
   type DeviceRecord,
 } from "../../src/host/io/record.js";
 import { ioGaps, liveCost, wholeDisk } from "../../src/host/io/sysfs.js";
+import { doctorReport } from "../../src/host/io/cli/doctor.js";
+import { validatePublished } from "../cli-surface/json-schema.js";
 
 const MODEL: IoModel = {
   rbps: 274768515,
@@ -355,5 +357,60 @@ describe("whole disk", () => {
     expect(wholeDisk(sys, "259:1")).toBe("259:0");
     expect(wholeDisk(sys, "259:0")).toBe("259:0");
     expect(readFileSync(join(disk, "dev"), "utf8").trim()).toBe("259:0");
+  });
+});
+
+describe("published --json schemas", () => {
+  const rate = (iops: number): Rate => ({
+    ops: iops * 8,
+    seconds: 8,
+    iops,
+    bps: iops * 4096,
+  });
+
+  it("match what measure, plan and doctor print", () => {
+    const measured = entry({
+      probes: { wseq_1m_file: rate(284), rrand_4k_qd16: rate(2747) },
+      live_model: MODEL_LINE,
+      live_qos: QOS_LINE,
+    });
+    expect(
+      validatePublished("host-io-measure", { version: 1, ...measured }),
+    ).toEqual([]);
+    const record = { version: 1 as const, devices: { "259:0": measured } };
+    expect(
+      validatePublished("host-io-plan", { version: 1, ...ioPlan(record) }),
+    ).toEqual([]);
+    const live = liveCost(sysfs(`${MODEL_LINE}\n`, AUTO_QOS));
+    const weights = judgeCompare([
+      {
+        weight: 25,
+        cgroup: "/x/w25.scope",
+        gaps: [],
+        weightSet: true,
+        rate: rate(277),
+      },
+      {
+        weight: 100,
+        cgroup: "/x/w100.scope",
+        gaps: [],
+        weightSet: true,
+        rate: null,
+      },
+    ]);
+    const findings = [...diagnose(record, live), weightFinding(weights)];
+    expect(
+      validatePublished(
+        "host-io-doctor",
+        doctorReport("/lease/io-model.json", live, findings, weights),
+      ),
+    ).toEqual([]);
+    const bare = liveCost(sysfs(null, null));
+    expect(
+      validatePublished(
+        "host-io-doctor",
+        doctorReport("/lease/io-model.json", bare, [], null),
+      ),
+    ).toEqual([]);
   });
 });

@@ -2,12 +2,28 @@ import { EXIT, type CommandContext } from "../../../cli/command.js";
 import { diagnose, weightFinding, type Finding } from "../doctor.js";
 import type { CompareResult } from "../jobs.js";
 import { readRecord, recordPath } from "../record.js";
-import { liveCost, SYSFS } from "../sysfs.js";
+import { liveCost, SYSFS, type LiveCost } from "../sysfs.js";
 import { leaseOf, linuxOnly, probeDir, seconds, underLease } from "./shared.js";
 import { selfArgv } from "../jobs.js";
 import { userManager } from "../../../lease/scope.js";
 
 const COMPARE_MB = 512;
+
+export function doctorReport(
+  record: string,
+  live: LiveCost,
+  findings: readonly Finding[],
+  weights: CompareResult | null,
+) {
+  return {
+    version: 1,
+    record,
+    live_model: live.model,
+    live_qos: live.qos,
+    findings,
+    ...(weights ? { weights } : {}),
+  };
+}
 
 // Read-only unless --weights, which runs IO and so waits for the host lease like any heavy job.
 export async function ioDoctor(context: CommandContext): Promise<number> {
@@ -54,14 +70,7 @@ export async function ioDoctor(context: CommandContext): Promise<number> {
   const warned = findings.some((finding) => finding.level === "warn");
   if (json) {
     context.ui.data(
-      `${JSON.stringify({
-        version: 1,
-        record: recordPath(lease.dir),
-        live_model: live.model,
-        live_qos: live.qos,
-        findings,
-        ...(weights ? { weights } : {}),
-      })}\n`,
+      `${JSON.stringify(doctorReport(recordPath(lease.dir), live, findings, weights))}\n`,
     );
   } else {
     context.ui.results.records(

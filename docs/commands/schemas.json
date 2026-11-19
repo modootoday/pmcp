@@ -402,6 +402,47 @@
         },
         { "type": "null" }
       ]
+    },
+    "ioModel": {
+      "type": "object",
+      "required": ["rbps", "rseqiops", "rrandiops", "wbps", "wseqiops", "wrandiops"],
+      "properties": {
+        "rbps": { "type": "integer", "minimum": 1 },
+        "rseqiops": { "type": "integer", "minimum": 1 },
+        "rrandiops": { "type": "integer", "minimum": 1 },
+        "wbps": { "type": "integer", "minimum": 1 },
+        "wseqiops": { "type": "integer", "minimum": 1 },
+        "wrandiops": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "ioRate": {
+      "type": "object",
+      "required": ["ops", "seconds", "iops", "bps"],
+      "properties": {
+        "ops": { "type": "number", "minimum": 0 },
+        "seconds": { "type": "number", "minimum": 0 },
+        "iops": { "type": "number", "minimum": 0 },
+        "bps": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "ioCostLines": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["device", "fields"],
+            "properties": {
+              "device": { "type": "string" },
+              "fields": { "type": "object", "additionalProperties": { "type": "string" } }
+            },
+            "additionalProperties": false
+          }
+        },
+        { "type": "null" }
+      ]
     }
   },
   "schemas": {
@@ -1526,6 +1567,106 @@
         "sync": { "$ref": "#/$defs/syncResult" },
         "desk_sync": { "$ref": "#/$defs/syncResult" },
         "reason": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "host-io-measure": {
+      "type": "object",
+      "required": ["version", "device", "measured_at", "pmcp", "dir", "seconds", "size_mb", "model", "probes", "live_model", "live_qos"],
+      "properties": {
+        "version": { "const": 1 },
+        "device": { "type": "string", "pattern": "^\\d+:\\d+$" },
+        "measured_at": { "type": "string" },
+        "pmcp": { "type": "string" },
+        "dir": { "type": "string" },
+        "seconds": { "type": "number", "minimum": 0 },
+        "size_mb": { "type": "integer", "minimum": 1 },
+        "model": { "$ref": "#/$defs/ioModel" },
+        "probes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/ioRate" } },
+        "live_model": { "$ref": "#/$defs/nullableString" },
+        "live_qos": { "$ref": "#/$defs/nullableString" }
+      },
+      "additionalProperties": false
+    },
+    "host-io-plan": {
+      "type": "object",
+      "required": ["version", "devices", "unit", "apply"],
+      "properties": {
+        "version": { "const": 1 },
+        "devices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["device", "measured_at", "pmcp", "model_line", "qos_line"],
+            "properties": {
+              "device": { "type": "string" },
+              "measured_at": { "type": "string" },
+              "pmcp": { "type": "string" },
+              "model_line": { "type": "string" },
+              "qos_line": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "unit": {
+          "type": "object",
+          "required": ["path", "text"],
+          "properties": {
+            "path": { "type": "string" },
+            "text": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "apply": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "host-io-doctor": {
+      "type": "object",
+      "required": ["version", "record", "live_model", "live_qos", "findings"],
+      "properties": {
+        "version": { "const": 1 },
+        "record": { "type": "string" },
+        "live_model": { "$ref": "#/$defs/ioCostLines" },
+        "live_qos": { "$ref": "#/$defs/ioCostLines" },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["level", "device", "message"],
+            "properties": {
+              "level": { "enum": ["ok", "warn"] },
+              "device": { "$ref": "#/$defs/nullableString" },
+              "message": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "weights": {
+          "type": "object",
+          "required": ["valid", "readers", "ratio"],
+          "properties": {
+            "valid": { "type": "boolean" },
+            "readers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["weight", "cgroup", "gaps", "weightSet", "rate"],
+                "properties": {
+                  "weight": { "type": "integer", "minimum": 1 },
+                  "cgroup": { "type": "string" },
+                  "gaps": { "type": "array", "items": { "type": "string" } },
+                  "weightSet": { "type": "boolean" },
+                  "rate": { "anyOf": [{ "$ref": "#/$defs/ioRate" }, { "type": "null" }] }
+                },
+                "additionalProperties": false
+              }
+            },
+            "ratio": { "type": ["number", "null"] },
+            "problem": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
       },
       "additionalProperties": false
     }
