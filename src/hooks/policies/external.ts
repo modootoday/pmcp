@@ -3,6 +3,7 @@
 // per session and refusing only with on_error = "deny".
 
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 
@@ -76,6 +77,32 @@ function itemLine(item: unknown, path: string): string {
 
 type Checked = { items: string[] } | { error: string };
 
+const MAX_CACHE_ENTRIES = 128;
+const checkCache = new Map<string, { items: string[] }>();
+
+export function clearExternalCache(): void {
+  checkCache.clear();
+}
+
+function cacheKey(
+  entry: CompiledExternal,
+  projectRoot: string,
+  path: string,
+  body: string | undefined,
+): string | null {
+  let content = body;
+  if (content === undefined) {
+    try {
+      content = readFileSync(resolve(projectRoot, path), "utf8");
+    } catch {
+      return null;
+    }
+  }
+  return createHash("sha256")
+    .update(JSON.stringify([entry.name, entry.command, path, content]))
+    .digest("hex");
+}
+
 function check(
   entry: CompiledExternal,
   input: HookInput,
@@ -83,6 +110,11 @@ function check(
   body: string | undefined,
   timeoutMs: number,
 ): Checked {
+  const key = cacheKey(entry, input.projectRoot, path, body);
+  if (key) {
+    const cached = checkCache.get(key);
+    if (cached) return cached;
+  }
   const placed = entry.command.some((part) => part.includes("{path}"));
   const argv = placed
     ? entry.command.map((part) => part.replaceAll("{path}", path))
@@ -101,7 +133,14 @@ function check(
     maxBuffer: MAX_OUTPUT,
   });
   if (run.error) return { error: `${path}: ${run.error.message}` };
-  if (run.status === 0) return { items: [] };
+  if (run.status === 0) {
+    const ok = { items: [] };
+    if (key) {
+      if (checkCache.size >= MAX_CACHE_ENTRIES) checkCache.clear();
+      checkCache.set(key, ok);
+    }
+    return ok;
+  }
   if (run.status !== 1)
     return { error: `${path}: the checker exited ${run.status ?? run.signal}` };
   let items: unknown;
@@ -114,7 +153,12 @@ function check(
     return {
       error: `${path}: the checker exited 1 without JSON holding an items list`,
     };
-  return { items: items.map((item) => itemLine(item, path)) };
+  const found = { items: items.map((item) => itemLine(item, path)) };
+  if (key) {
+    if (checkCache.size >= MAX_CACHE_ENTRIES) checkCache.clear();
+    checkCache.set(key, found);
+  }
+  return found;
 }
 
 // With stdin the new text is checked before the write when the request says what it is, and

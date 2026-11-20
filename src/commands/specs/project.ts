@@ -85,7 +85,7 @@ export const doctorSpec: CommandSpec = {
   examples: ["pmcp doctor", "pmcp doctor --tool claude --json"],
   describe:
     "Ask each agent tool, through its own listing commands, whether it loads this project's assets",
-  usage: "pmcp doctor [--tool <name>] [--json] [--memory]",
+  usage: "pmcp doctor [--tool <name>] [--json] [--memory] [--fix]",
   options: [
     configOption,
     {
@@ -99,6 +99,12 @@ export const doctorSpec: CommandSpec = {
       name: "memory",
       describe:
         "Report native memory configuration metadata only; do not read memory bodies or check MCP connections.",
+      boolean: true,
+    },
+    {
+      name: "fix",
+      describe:
+        "Re-project drifted pmcp outputs before reporting; never changes native trust or auth.",
       boolean: true,
     },
   ],

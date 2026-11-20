@@ -2,6 +2,7 @@ import { homedir } from "node:os";
 
 import { ArgumentError, many, type Command } from "../cli/command.js";
 import { doctor, spawnRunner, type Finding } from "../project/doctor.js";
+import { project } from "../project/apply.js";
 import { featureRows } from "../project/features.js";
 import { memoryFindings } from "../project/memory.js";
 import { TOOLS, type Tool } from "../project/tools.js";
@@ -31,9 +32,23 @@ export const doctorCommand: Command = {
       ...(only.length > 0 ? { only: new Set(only as Tool[]) } : {}),
     };
     const spec = specFrom(context);
-    const findings = context.args.flags.has("memory")
+    let findings = context.args.flags.has("memory")
       ? memoryFindings(spec, options)
       : doctor(spec, options);
+    // --fix only repairs pmcp-owned projection drift; native trust and auth stay untouched.
+    if (
+      context.args.flags.has("fix") &&
+      !context.args.flags.has("memory") &&
+      findings.some(
+        (f) =>
+          f.tool === "project" &&
+          f.check === "outputs match sources" &&
+          f.status === "fail",
+      )
+    ) {
+      project(spec, { check: false });
+      findings = doctor(spec, options);
+    }
     // Limit the feature table to hook-enabled projects to preserve older doctor output.
     const features = spec.hookBundle ? featureRows(spec, options) : [];
     if (context.args.flags.has("json")) {
