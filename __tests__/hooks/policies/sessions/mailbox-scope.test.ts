@@ -5,6 +5,7 @@ import { describe, expect, it, type TestContext } from "vitest";
 
 import { readConfig } from "../../../../src/config.js";
 import { compileHooks } from "../../../../src/hooks/compile.js";
+import { mailbox } from "../../../../src/hooks/policies/sessions/mailbox.js";
 import { RUNTIMES } from "../../../../src/hooks/runtimes/index.js";
 import { project } from "../../../../src/project/apply.js";
 import { doctor } from "../../../../src/project/doctor.js";
@@ -105,7 +106,12 @@ describe("mailbox event scoping", () => {
     });
 
     const policy = compiled(
-      [guard("sessions.mailbox", "warn", { roles: {} })],
+      [
+        guard("sessions.mailbox", "warn", {
+          roles: {},
+          events: ["session_start", "prompt"],
+        }),
+      ],
       {
         targets: ["claude"],
         sessions: {
@@ -148,6 +154,29 @@ describe("mailbox event scoping", () => {
     const repeatDecision = await decide(promptInput, policy, { store });
     const renderedRepeat = adapter.render(promptInput, repeatDecision);
     expect(renderedRepeat.stdout).not.toContain("Deliver on prompt only.");
+  });
+
+  it("reads its events from the compiled guard, whatever was parsed last", () => {
+    const options = { hooks: { targets: ["claude"] } };
+    const tools = { root: "/w", tools: new Set(["claude"]) };
+    const scoped = compileHooks(
+      {
+        ...options,
+        sessions: { mailbox: { events: ["session_start", "prompt"] } },
+      },
+      tools,
+    );
+    compileHooks({ ...options, sessions: { mailbox: {} } }, tools);
+    const compiledGuard = scoped.policy?.guards.find(
+      (entry) => entry.id === "sessions.mailbox",
+    );
+    expect(compiledGuard?.options["events"]).toEqual([
+      "session_start",
+      "prompt",
+    ]);
+    expect(
+      mailbox.eventsFor?.(mailbox.options(compiledGuard?.options ?? {})),
+    ).toEqual(["session_start", "prompt"]);
   });
 
   it("keeps default 4-event behavior when events configuration is omitted", async () => {

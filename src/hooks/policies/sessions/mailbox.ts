@@ -6,14 +6,15 @@ import type { Recipient } from "../../../sessions/types.js";
 import type { HookInput } from "../../contract.js";
 import { pass, type Policy, type PolicyContext } from "../types.js";
 import {
-  configuredMailboxEvents,
   MAILBOX_EVENTS,
+  readMailboxEvents,
   type MailboxEvent,
 } from "../../../sessions/settings.js";
 
 export interface MailboxOptions {
   // Role name to the agent type that holds it, from [sessions.roles].
   readonly roles: Readonly<Record<string, string>>;
+  readonly events: readonly MailboxEvent[];
 }
 
 function rolesOf(
@@ -73,12 +74,17 @@ function heldForWake(
 export const mailbox: Policy<MailboxOptions> = {
   id: "sessions.mailbox",
   events: MAILBOX_EVENTS,
-  eventsFor: () => configuredMailboxEvents(),
+  eventsFor: (options) => options.events,
   fail: "open",
   defaultMode: "warn",
   options(raw) {
     const roles = (raw["roles"] ?? {}) as Record<string, unknown>;
+    const events =
+      raw["events"] === undefined
+        ? MAILBOX_EVENTS
+        : readMailboxEvents(raw["events"]);
     return {
+      events,
       roles: Object.fromEntries(
         Object.entries(roles).map(([name, value]) => {
           const type = (value as Record<string, unknown> | null)?.[
@@ -92,10 +98,7 @@ export const mailbox: Policy<MailboxOptions> = {
   evaluate(input, ctx) {
     const box = ctx.store.mailbox;
     if (!input.session.id || !box.settings.enabled) return pass;
-    const allowed =
-      (box.settings as { events?: readonly MailboxEvent[] }).events ??
-      MAILBOX_EVENTS;
-    if (!allowed.includes(input.event as MailboxEvent)) return pass;
+    if (!ctx.options.events.includes(input.event as MailboxEvent)) return pass;
     if (heldForWake(input, ctx)) return pass;
     const recipient = recipientOf(input, ctx);
     const unacked = box.inbox(recipient, Date.now());

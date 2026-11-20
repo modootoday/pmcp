@@ -89,15 +89,21 @@ export function readSessions(raw: unknown, git?: unknown): SessionsTable {
     );
     guards.push(guard("sessions.broadcast", options, "warn"));
   }
-  // The roles travel with the mailbox guard so role:<name> selectors resolve at delivery.
-  if (settings.mailbox?.enabled)
+  // The roles travel with the mailbox guard so role:<name> selectors resolve at delivery, and its
+  // events so the hook runtime binds and dispatches it without reading pmcp.toml.
+  if (settings.mailbox?.enabled) {
+    const events = settings.mailbox.events;
     guards.push(
       guard(
         "sessions.mailbox",
-        { roles: asTable(table["roles"] ?? {}, "[sessions.roles]") },
+        {
+          roles: asTable(table["roles"] ?? {}, "[sessions.roles]"),
+          ...(events ? { events } : {}),
+        },
         "warn",
       ),
     );
+  }
   return {
     ...settings,
     declared: guards.length > 0,
