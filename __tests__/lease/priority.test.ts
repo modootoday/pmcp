@@ -11,7 +11,9 @@ import {
   type LeaseRecord,
 } from "../../src/lease/files.js";
 import {
+  CASE_MS,
   finished,
+  HOLD_S,
   leaseToml,
   pmcp,
   project,
@@ -23,6 +25,10 @@ import {
 
 // A land gate waited 2,024 s behind test and build jobs, one session queued half the jobs, and
 // a grace once started a burst: lanes, a weight budget and a per-session cap answer those.
+// Jobs admitted together must still be running at the next admission poll (poll = 1 s) on a
+// slow host, or the budget is never seen filling.
+const OVERLAP_S = 3;
+
 const children: ChildProcess[] = [];
 afterEach(() => {
   for (const child of children.splice(0)) child.kill();
@@ -130,137 +136,149 @@ describe("admission", () => {
 });
 
 describe("lease lanes", () => {
-  it("hands a budget of one to gate, hook, interactive, then bulk, oldest first in each", async () => {
-    const { base, dir, env } = scratch();
-    const cwd = project(base, leaseToml(dir, "budget = 1\n"));
-    const trace = join(base, "trace");
-    const holder = shellHolder(dir, 60);
-    children.push(holder);
-    until(() => leaseHeld(leasePaths(dir)));
-    const queue: [string, string[]][] = [
-      ["b1", ["--lane", "bulk"]],
-      ["i1", []],
-      ["b2", ["--lane", "bulk"]],
-      ["h1", ["--profile", "hook"]],
-      ["i2", ["--lane", "interactive"]],
-      ["g1", ["--profile", "gate"]],
-    ];
-    const runs = queue.map(([name, flags], at) => {
-      const child = pmcp(
-        ["heavy", ...flags, "--", "sh", "-c", `echo ${name} >> ${trace}`],
-        cwd,
-        env,
-      );
-      children.push(child);
-      until(() => count(dir, "waiters") === at + 1, 15_000);
-      return finished(child);
-    });
-    holder.kill();
-    const results = await Promise.all(runs);
-    expect(results.map((result) => result.code)).toEqual([0, 0, 0, 0, 0, 0]);
-    expect(readFileSync(trace, "utf8").trim().split("\n")).toEqual([
-      "g1",
-      "h1",
-      "i1",
-      "i2",
-      "b1",
-      "b2",
-    ]);
-  }, 60_000);
+  it(
+    "hands a budget of one to gate, hook, interactive, then bulk, oldest first in each",
+    async () => {
+      const { base, dir, env } = scratch();
+      const cwd = project(base, leaseToml(dir, "budget = 1\n"));
+      const trace = join(base, "trace");
+      const holder = shellHolder(dir, HOLD_S);
+      children.push(holder);
+      until(() => leaseHeld(leasePaths(dir)));
+      const queue: [string, string[]][] = [
+        ["b1", ["--lane", "bulk"]],
+        ["i1", []],
+        ["b2", ["--lane", "bulk"]],
+        ["h1", ["--profile", "hook"]],
+        ["i2", ["--lane", "interactive"]],
+        ["g1", ["--profile", "gate"]],
+      ];
+      const runs = queue.map(([name, flags], at) => {
+        const child = pmcp(
+          ["heavy", ...flags, "--", "sh", "-c", `echo ${name} >> ${trace}`],
+          cwd,
+          env,
+        );
+        children.push(child);
+        until(() => count(dir, "waiters") === at + 1);
+        return finished(child);
+      });
+      holder.kill();
+      const results = await Promise.all(runs);
+      expect(results.map((result) => result.code)).toEqual([0, 0, 0, 0, 0, 0]);
+      expect(readFileSync(trace, "utf8").trim().split("\n")).toEqual([
+        "g1",
+        "h1",
+        "i1",
+        "i2",
+        "b1",
+        "b2",
+      ]);
+    },
+    CASE_MS,
+  );
 
-  it("never runs more weight than the budget, with every job registered at once and a busy host", async () => {
-    const { base, dir, env } = scratch();
-    writeFileSync(
-      join(base, "pressure"),
-      "some avg10=50 avg60=50 avg300=50 total=0\n",
-    );
-    const cwd = project(
-      base,
-      `[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 8\nload_grace = 0\nbudget = 3\nheartbeat = 1\npoll = 1\nper_session = 0\n[host.lease.lanes]\ninteractive = 6\n`,
-    );
-    const trace = join(base, "trace");
-    const weights = [1, 2, 1, 2, 1, 1];
-    const runs = weights.map((weight, at) => {
-      const child = pmcp(
-        [
-          "heavy",
-          "--weight",
-          String(weight),
-          "--",
-          "sh",
-          "-c",
-          `echo "+${weight}" >> ${trace}; sleep 0.5; echo "-${weight}" >> ${trace}`,
-        ],
-        cwd,
-        { ...env, JOB: String(at) },
+  it(
+    "never runs more weight than the budget, with every job registered at once and a busy host",
+    async () => {
+      const { base, dir, env } = scratch();
+      writeFileSync(
+        join(base, "pressure"),
+        "some avg10=50 avg60=50 avg300=50 total=0\n",
       );
-      children.push(child);
-      return finished(child);
-    });
-    until(() => count(dir, "waiters") === weights.length, 20_000);
-    writeFileSync(
-      join(base, "pressure"),
-      "some avg10=0 avg60=0 avg300=0 total=0\n",
-    );
-    const results = await Promise.all(runs);
-    expect(results.map((result) => result.code)).toEqual([0, 0, 0, 0, 0, 0]);
-    let weight = 0;
-    let peak = 0;
-    for (const line of readFileSync(trace, "utf8").trim().split("\n")) {
-      weight += Number(line);
-      peak = Math.max(peak, weight);
-    }
-    expect(weight).toBe(0);
-    expect(peak).toBeLessThanOrEqual(3);
-    expect(peak).toBeGreaterThan(1);
-  }, 60_000);
+      const cwd = project(
+        base,
+        `[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 8\nload_grace = 0\nbudget = 3\nheartbeat = 1\npoll = 1\nper_session = 0\n[host.lease.lanes]\ninteractive = 6\n`,
+      );
+      const trace = join(base, "trace");
+      const weights = [1, 2, 1, 2, 1, 1];
+      const runs = weights.map((weight, at) => {
+        const child = pmcp(
+          [
+            "heavy",
+            "--weight",
+            String(weight),
+            "--",
+            "sh",
+            "-c",
+            `echo "+${weight}" >> ${trace}; sleep ${OVERLAP_S}; echo "-${weight}" >> ${trace}`,
+          ],
+          cwd,
+          { ...env, JOB: String(at) },
+        );
+        children.push(child);
+        return finished(child);
+      });
+      until(() => count(dir, "waiters") === weights.length);
+      writeFileSync(
+        join(base, "pressure"),
+        "some avg10=0 avg60=0 avg300=0 total=0\n",
+      );
+      const results = await Promise.all(runs);
+      expect(results.map((result) => result.code)).toEqual([0, 0, 0, 0, 0, 0]);
+      let weight = 0;
+      let peak = 0;
+      for (const line of readFileSync(trace, "utf8").trim().split("\n")) {
+        weight += Number(line);
+        peak = Math.max(peak, weight);
+      }
+      expect(weight).toBe(0);
+      expect(peak).toBeLessThanOrEqual(3);
+      expect(peak).toBeGreaterThan(1);
+    },
+    CASE_MS,
+  );
 
-  it("lets a gate and a test held by a busy host start one after the other under gate_alone", async () => {
-    const { base, dir, env } = scratch();
-    writeFileSync(
-      join(base, "pressure"),
-      "some avg10=50 avg60=50 avg300=50 total=0\n",
-    );
-    const cwd = project(
-      base,
-      `[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 8\nload_grace = 0\ngate_alone = true\nheartbeat = 1\npoll = 1\nper_session = 0\n`,
-    );
-    const trace = join(base, "trace");
-    const queue: [string, string][] = [
-      ["test", "interactive"],
-      ["gate", "gate"],
-    ];
-    const runs = queue.map(([name, lane]) => {
-      const child = pmcp(
-        [
-          "heavy",
-          "--lane",
-          lane,
-          "--",
-          "sh",
-          "-c",
-          `echo "+${name}" >> ${trace}; sleep 0.5; echo "-${name}" >> ${trace}`,
-        ],
-        cwd,
-        env,
+  it(
+    "lets a gate and a test held by a busy host start one after the other under gate_alone",
+    async () => {
+      const { base, dir, env } = scratch();
+      writeFileSync(
+        join(base, "pressure"),
+        "some avg10=50 avg60=50 avg300=50 total=0\n",
       );
-      children.push(child);
-      return finished(child);
-    });
-    until(() => count(dir, "waiters") === queue.length, 20_000);
-    writeFileSync(
-      join(base, "pressure"),
-      "some avg10=0 avg60=0 avg300=0 total=0\n",
-    );
-    const results = await Promise.all(runs);
-    expect(results.map((result) => result.code)).toEqual([0, 0]);
-    expect(readFileSync(trace, "utf8").trim().split("\n")).toEqual([
-      "+gate",
-      "-gate",
-      "+test",
-      "-test",
-    ]);
-  }, 60_000);
+      const cwd = project(
+        base,
+        `[host.lease]\ndir = "${dir}"\nmax_load = 1000\nmax_io = 8\nload_grace = 0\ngate_alone = true\nheartbeat = 1\npoll = 1\nper_session = 0\n`,
+      );
+      const trace = join(base, "trace");
+      const queue: [string, string][] = [
+        ["test", "interactive"],
+        ["gate", "gate"],
+      ];
+      const runs = queue.map(([name, lane]) => {
+        const child = pmcp(
+          [
+            "heavy",
+            "--lane",
+            lane,
+            "--",
+            "sh",
+            "-c",
+            `echo "+${name}" >> ${trace}; sleep 0.5; echo "-${name}" >> ${trace}`,
+          ],
+          cwd,
+          env,
+        );
+        children.push(child);
+        return finished(child);
+      });
+      until(() => count(dir, "waiters") === queue.length);
+      writeFileSync(
+        join(base, "pressure"),
+        "some avg10=0 avg60=0 avg300=0 total=0\n",
+      );
+      const results = await Promise.all(runs);
+      expect(results.map((result) => result.code)).toEqual([0, 0]);
+      expect(readFileSync(trace, "utf8").trim().split("\n")).toEqual([
+        "+gate",
+        "-gate",
+        "+test",
+        "-test",
+      ]);
+    },
+    CASE_MS,
+  );
 
   it("ignores a dead waiter ahead and reports a bulk job held back by a live gate waiter", () => {
     const { dir, env } = scratch();

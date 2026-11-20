@@ -7,8 +7,11 @@ import { leaseHeld, leasePaths } from "../../src/lease/files.js";
 import { STATUS_SCHEMA, statusJson } from "../../src/lease/status-json.js";
 import { ticketView } from "../../src/lease/tickets.js";
 import {
+  CASE_MS,
+  HOLD_S,
   leaseToml,
   pmcpSync,
+  SETTLE_MS,
   project,
   scratch,
   settings,
@@ -24,123 +27,131 @@ afterEach(() => {
 });
 
 describe("pmcp heavy submit", () => {
-  it("returns a ticket at once while the budget is full, then runs it once there is room", () => {
-    const { base, dir, env } = scratch();
-    const cwd = project(base, leaseToml(dir));
-    const holder = shellHolder(dir, 60);
-    children.push(holder);
-    until(() => leaseHeld(leasePaths(dir)));
-    const out = join(base, "ran");
-    const begun = Date.now();
-    const submitted = pmcpSync(
-      [
-        "heavy",
-        "submit",
-        "--label",
-        "build",
-        "--",
-        "sh",
-        "-c",
-        `echo hi; touch ${out}; exit 4`,
-      ],
-      cwd,
-      env,
-    );
-    expect(submitted.status).toBe(0);
-    expect(Date.now() - begun).toBeLessThan(10_000);
-    const ticket = submitted.stdout.trim();
-    expect(ticket).toMatch(/^\d{10}-[0-9a-f]{6}$/u);
-    // The submitter has exited; the ticket waits in the queue on its own.
-    until(
-      () =>
-        ticketView(dir, ticket)?.state === "queued" &&
-        ticketView(dir, ticket)?.position === 1,
-      10_000,
-    );
-    const result = pmcpSync(["heavy", "result", ticket], cwd, env);
-    expect(result.stdout).toMatch(
-      new RegExp(`^${ticket} queued position 1 build`, "u"),
-    );
-    const snapshot = statusJson(settings(dir), env, () => []);
-    expect(snapshot.waiters).toHaveLength(1);
-    holder.kill();
-    const waited = pmcpSync(
-      ["heavy", "wait", ticket, "--timeout", "20"],
-      cwd,
-      env,
-    );
-    expect(waited.status).toBe(4);
-    expect(waited.stderr).toContain("hi");
-    expect(existsSync(out)).toBe(true);
-    const json = JSON.parse(
-      pmcpSync(["heavy", "result", ticket, "--json"], cwd, env).stdout,
-    ).data;
-    expect(json).toMatchObject({
-      version: 1,
-      id: ticket,
-      state: "done",
-      result: {
-        ticket,
-        exit: 4,
-        outcome: "ran",
-        signature: "sh",
-        lane: "interactive",
-        start: "queue",
-      },
-    });
-    for (const key of [
-      "wall_s",
-      "user_s",
-      "sys_s",
-      "max_rss_kb",
-      "read_bytes",
-      "write_bytes",
-    ])
-      expect(typeof json.result[key]).toBe("number");
-  }, 60_000);
+  it(
+    "returns a ticket at once while the budget is full, then runs it once there is room",
+    () => {
+      const { base, dir, env } = scratch();
+      const cwd = project(base, leaseToml(dir));
+      const holder = shellHolder(dir, HOLD_S);
+      children.push(holder);
+      until(() => leaseHeld(leasePaths(dir)));
+      const out = join(base, "ran");
+      const submitted = pmcpSync(
+        [
+          "heavy",
+          "submit",
+          "--label",
+          "build",
+          "--",
+          "sh",
+          "-c",
+          `echo hi; touch ${out}; exit 4`,
+        ],
+        cwd,
+        env,
+      );
+      expect(submitted.status).toBe(0);
+      // Returning while the holder still has the lease is what "at once" means here.
+      expect(leaseHeld(leasePaths(dir))).toBe(true);
+      const ticket = submitted.stdout.trim();
+      expect(ticket).toMatch(/^\d{10}-[0-9a-f]{6}$/u);
+      // The submitter has exited; the ticket waits in the queue on its own.
+      until(
+        () =>
+          ticketView(dir, ticket)?.state === "queued" &&
+          ticketView(dir, ticket)?.position === 1,
+        SETTLE_MS,
+      );
+      const result = pmcpSync(["heavy", "result", ticket], cwd, env);
+      expect(result.stdout).toMatch(
+        new RegExp(`^${ticket} queued position 1 build`, "u"),
+      );
+      const snapshot = statusJson(settings(dir), env, () => []);
+      expect(snapshot.waiters).toHaveLength(1);
+      holder.kill();
+      const waited = pmcpSync(
+        ["heavy", "wait", ticket, "--timeout", String(SETTLE_MS / 1000)],
+        cwd,
+        env,
+      );
+      expect(waited.status).toBe(4);
+      expect(waited.stderr).toContain("hi");
+      expect(existsSync(out)).toBe(true);
+      const json = JSON.parse(
+        pmcpSync(["heavy", "result", ticket, "--json"], cwd, env).stdout,
+      ).data;
+      expect(json).toMatchObject({
+        version: 1,
+        id: ticket,
+        state: "done",
+        result: {
+          ticket,
+          exit: 4,
+          outcome: "ran",
+          signature: "sh",
+          lane: "interactive",
+          start: "queue",
+        },
+      });
+      for (const key of [
+        "wall_s",
+        "user_s",
+        "sys_s",
+        "max_rss_kb",
+        "read_bytes",
+        "write_bytes",
+      ])
+        expect(typeof json.result[key]).toBe("number");
+    },
+    CASE_MS,
+  );
 
-  it("cancels a queued ticket, refuses a running one without --force, and times out a wait", () => {
-    const { base, dir, env } = scratch();
-    const cwd = project(base, leaseToml(dir));
-    const holder = shellHolder(dir, 60);
-    children.push(holder);
-    until(() => leaseHeld(leasePaths(dir)));
-    const queued = pmcpSync(
-      ["heavy", "submit", "--", "true"],
-      cwd,
-      env,
-    ).stdout.trim();
-    until(() => ticketView(dir, queued)?.position === 1, 10_000);
-    expect(
-      pmcpSync(["heavy", "wait", queued, "--timeout", "1"], cwd, env).status,
-    ).toBe(75);
-    expect(pmcpSync(["heavy", "cancel", queued], cwd, env).status).toBe(0);
-    expect(ticketView(dir, queued)?.result).toMatchObject({
-      outcome: "cancelled",
-    });
-    holder.kill();
-    const flag = join(base, "started");
-    const long = pmcpSync(
-      ["heavy", "submit", "--", "sh", "-c", `touch ${flag}; sleep 30`],
-      cwd,
-      env,
-    ).stdout.trim();
-    until(() => existsSync(flag), 15_000);
-    until(() => ticketView(dir, long)?.state === "running", 10_000);
-    expect(pmcpSync(["heavy", "cancel", long], cwd, env).status).toBe(1);
-    const other = pmcpSync(["heavy", "cancel", long, "--force"], cwd, {
-      ...env,
-      CLAUDE_CODE_SESSION_ID: "another-session",
-    });
-    expect(other.status).toBe(1);
-    expect(other.stderr).toContain(
-      "pmcp heavy cancel --force on another session's job",
-    );
-    expect(
-      pmcpSync(["heavy", "cancel", long, "--force"], cwd, env).status,
-    ).toBe(0);
-    expect(pmcpSync(["heavy", "result", "nope"], cwd, env).status).toBe(2);
-  }, 60_000);
+  it(
+    "cancels a queued ticket, refuses a running one without --force, and times out a wait",
+    () => {
+      const { base, dir, env } = scratch();
+      const cwd = project(base, leaseToml(dir));
+      const holder = shellHolder(dir, HOLD_S);
+      children.push(holder);
+      until(() => leaseHeld(leasePaths(dir)));
+      const queued = pmcpSync(
+        ["heavy", "submit", "--", "true"],
+        cwd,
+        env,
+      ).stdout.trim();
+      until(() => ticketView(dir, queued)?.position === 1, SETTLE_MS);
+      expect(
+        pmcpSync(["heavy", "wait", queued, "--timeout", "1"], cwd, env).status,
+      ).toBe(75);
+      expect(pmcpSync(["heavy", "cancel", queued], cwd, env).status).toBe(0);
+      expect(ticketView(dir, queued)?.result).toMatchObject({
+        outcome: "cancelled",
+      });
+      holder.kill();
+      const flag = join(base, "started");
+      const long = pmcpSync(
+        ["heavy", "submit", "--", "sh", "-c", `touch ${flag}; sleep 30`],
+        cwd,
+        env,
+      ).stdout.trim();
+      until(() => existsSync(flag), SETTLE_MS);
+      until(() => ticketView(dir, long)?.state === "running", SETTLE_MS);
+      expect(pmcpSync(["heavy", "cancel", long], cwd, env).status).toBe(1);
+      const other = pmcpSync(["heavy", "cancel", long, "--force"], cwd, {
+        ...env,
+        CLAUDE_CODE_SESSION_ID: "another-session",
+      });
+      expect(other.status).toBe(1);
+      expect(other.stderr).toContain(
+        "pmcp heavy cancel --force on another session's job",
+      );
+      expect(
+        pmcpSync(["heavy", "cancel", long, "--force"], cwd, env).status,
+      ).toBe(0);
+      expect(pmcpSync(["heavy", "result", "nope"], cwd, env).status).toBe(2);
+    },
+    CASE_MS,
+  );
 });
 
 describe("pmcp heavy status --json", () => {

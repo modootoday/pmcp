@@ -92,6 +92,12 @@ export function finished(
   );
 }
 
+// Each pmcp call here starts bun on src/cli.ts, which takes seconds on a loaded host. Waits are
+// guards against a hang, never assertions, and a holder must outlive a slow test: tests kill it.
+export const SETTLE_MS = 30_000;
+export const HOLD_S = 600;
+export const CASE_MS = 180_000;
+
 // Holds the lock the way a shell wrapper does: flock on the file, recorded as the holder.
 // -o keeps the lock out of sleep, so killing the flock process frees it.
 export function shellHolder(dir: string, seconds: number): ChildProcess {
@@ -110,7 +116,7 @@ export function shellHolder(dir: string, seconds: number): ChildProcess {
   return child;
 }
 
-export function until(check: () => boolean, ms = 5000): void {
+export function until(check: () => boolean, ms = SETTLE_MS): void {
   const deadline = Date.now() + ms;
   while (!check()) {
     if (Date.now() > deadline) throw new Error("condition not reached");
