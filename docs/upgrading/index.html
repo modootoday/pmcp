@@ -69,8 +69,7 @@ all four events unchanged. The events are compiled into the mailbox guard in
 <p><strong><code>[catalog] marketplaces</code> accepts arrays of alternative paths.</strong> An entry such as
 <code>[[&quot;packages/marketplace-family/public&quot;, &quot;packages/marketplace&quot;]]</code> reads the first
 alternative holding a <code>marketplace.json</code> and skips the rest so the catalog never
-duplicates plugins during directory transitions. <code>pmcp project</code>, <code>pmcp doctor</code> and
-<code>pmcp roots</code> report the path read.</p>
+duplicates plugins during directory transitions. <code>pmcp doctor</code> reports the path read.</p>
 <p><strong><code>pmcp git sync</code> and <code>pmcp git worktree sync</code> clean stray submodule checkouts.</strong>
 When they follow submodules, untracked directories whose <code>.git</code> is a file and that
 are no gitlink in <code>HEAD</code> are removed under the same safety conditions as removed
