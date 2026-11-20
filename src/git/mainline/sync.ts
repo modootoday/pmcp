@@ -15,7 +15,7 @@ import {
   dirToGitlinkRefusal,
   type DirToGitlinkPolicy,
 } from "../dir-to-gitlink.js";
-import { followPins } from "../submodules.js";
+import { cleanStrayCheckouts, followPins } from "../submodules.js";
 import type { GitContext, MainlineSyncConfig, Reporter } from "../types.js";
 import { resetKeepingIdenticalFiles } from "./identical-files.js";
 
@@ -130,6 +130,9 @@ function syncOnce(options: MainlineSyncOptions): number {
   const target = gitText(ctx.root, ["rev-parse", ctx.upstream]);
   if (head === target) {
     report.info(`${ctx.mainline} already equals ${ctx.upstream}`);
+    // A checkout an older sync left behind is cleared even when nothing moves.
+    if (options.followSubmodules)
+      for (const line of cleanStrayCheckouts(ctx.root)) report.info(line);
     return install(options);
   }
   const replaced = dirToGitlinkRefusal(

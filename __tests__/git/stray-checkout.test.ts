@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { detect } from "../../src/git/detect.js";
 import { syncMainline } from "../../src/git/mainline/sync.js";
 import { cleanStrayCheckouts, followPins } from "../../src/git/submodules.js";
+import { syncWorktree } from "../../src/git/worktrees/sync.js";
 import {
   clone,
   commit,
@@ -163,5 +164,71 @@ describe("stray submodule checkout cleanup on sync", () => {
     expect(report.lines.join("\n")).toContain(
       "stray: removed: its gitlink is gone, and its checkout was clean with every commit on its origin",
     );
+  });
+
+  it("removes a stray checkout an older sync left when the main checkout is already current", () => {
+    const origin = remote();
+    const lib = remote();
+    sh(origin.main, "submodule", "add", "-q", lib.bare, "stray");
+    sh(origin.main, "reset", "-q", "HEAD", "stray");
+    rmSync(join(origin.main, ".gitmodules"), { force: true });
+    const strayDir = join(origin.main, "stray");
+
+    const report = recorder();
+    const code = syncMainline({
+      ctx: detect(origin.main)!,
+      sync: {
+        installWhenChanged: [],
+        keepIdenticalFiles: true,
+        refuseWithUnlanded: true,
+      },
+      followSubmodules: true,
+      stateDir: join(origin.base, "state"),
+      report,
+    });
+    expect(code).toBe(0);
+    expect(report.lines.join("\n")).toContain("already equals");
+    expect(existsSync(strayDir)).toBe(false);
+  });
+
+  it("removes a stray checkout in a linked worktree that is already current", () => {
+    const origin = remote();
+    const lib = remote();
+    const desk = join(origin.base, "desk");
+    sh(origin.main, "worktree", "add", "-q", "-b", "desk", desk, "origin/main");
+    sh(desk, "submodule", "add", "-q", lib.bare, "stray");
+    sh(desk, "reset", "-q", "HEAD", "stray");
+    rmSync(join(desk, ".gitmodules"), { force: true });
+
+    const report = recorder();
+    const result = syncWorktree({
+      ctx: detect(desk)!,
+      followSubmodules: true,
+      fetch: true,
+      report,
+    });
+    expect(result).toBe("current");
+    expect(report.lines.join("\n")).toContain(
+      "stray: removed: its gitlink is gone, and its checkout was clean with every commit on its origin",
+    );
+    expect(existsSync(join(desk, "stray"))).toBe(false);
+  });
+
+  it("leaves a linked worktree's stray checkout alone when submodules are not followed", () => {
+    const origin = remote();
+    const lib = remote();
+    const desk = join(origin.base, "desk");
+    sh(origin.main, "worktree", "add", "-q", "-b", "desk", desk, "origin/main");
+    sh(desk, "submodule", "add", "-q", lib.bare, "stray");
+    sh(desk, "reset", "-q", "HEAD", "stray");
+    rmSync(join(desk, ".gitmodules"), { force: true });
+
+    syncWorktree({
+      ctx: detect(desk)!,
+      followSubmodules: false,
+      fetch: true,
+      report: recorder(),
+    });
+    expect(existsSync(join(desk, "stray"))).toBe(true);
   });
 });

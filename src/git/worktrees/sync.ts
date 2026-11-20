@@ -12,7 +12,11 @@ import {
   dirToGitlinkRefusal,
   type DirToGitlinkPolicy,
 } from "../dir-to-gitlink.js";
-import { movableSubmodules, updateToPins } from "../submodules.js";
+import {
+  cleanStrayCheckouts,
+  movableSubmodules,
+  updateToPins,
+} from "../submodules.js";
 import type { GitContext, Reporter } from "../types.js";
 
 export interface WorktreeSyncOptions {
@@ -74,6 +78,9 @@ function syncOnce(options: WorktreeSyncOptions): WorktreeSyncResult {
     throw new Error(`cannot compare HEAD with ${ctx.upstream}`);
   if (counted.behind === 0) {
     report.info(`already on ${ctx.upstream}`);
+    // A checkout an older sync left behind is cleared even when nothing moves.
+    if (options.followSubmodules)
+      for (const line of cleanStrayCheckouts(ctx.root)) report.info(line);
     if (options.install !== undefined)
       installIfStale(ctx.root, options.install, report);
     return "current";
@@ -118,6 +125,8 @@ function syncOnce(options: WorktreeSyncOptions): WorktreeSyncResult {
   for (const line of updateToPins(ctx.root, submodules)) report.info(line);
   if (options.followSubmodules) {
     for (const line of initAddedSubmodules(ctx.root, before, after))
+      report.info(line);
+    for (const line of cleanStrayCheckouts(ctx.root, new Set(submodules)))
       report.info(line);
   }
   if (options.umask !== undefined)
