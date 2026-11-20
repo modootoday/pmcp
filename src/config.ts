@@ -212,6 +212,28 @@ export function readConfig(path: string): ProjectConfig {
       catalog[key] = value;
       continue;
     }
+    if (key === "marketplaces") {
+      if (!Array.isArray(value))
+        throw new ConfigError(
+          absolute,
+          "[catalog] marketplaces must be a list",
+        );
+      catalog[key] = value.map((item) => {
+        if (typeof item === "string") return resolve(dir, item);
+        if (
+          Array.isArray(item) &&
+          item.length > 0 &&
+          item.every((sub) => typeof sub === "string" && sub.length > 0)
+        ) {
+          return item.map((sub) => resolve(dir, sub)).join(", ");
+        }
+        throw new ConfigError(
+          absolute,
+          "[catalog] marketplaces entries must be strings or non-empty string lists",
+        );
+      });
+      continue;
+    }
     const list = stringList(absolute, key, value);
     catalog[key] = key === "scopes" ? list : list.map((p) => resolve(dir, p));
   }

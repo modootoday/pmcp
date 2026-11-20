@@ -1,9 +1,5 @@
 // Share catalog options so flags keep the same meaning across commands.
 
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { parse } from "smol-toml";
-
 import {
   ArgumentError,
   EXIT,
@@ -17,81 +13,14 @@ import {
   type CatalogOptions,
   type SkillEntry,
 } from "../catalog.js";
-import { ConfigError, findConfig, type ProjectConfig } from "../config.js";
+import { type ProjectConfig } from "../config.js";
 import { publicMarketplaceRoot } from "../marketplace/builtin.js";
 import { resolveMarketplaceEntry } from "../project/spec.js";
-import { configFrom as baseConfigFrom } from "./config-from.js";
+import { configFrom } from "./config-from.js";
 import { CATALOG_OPTIONS } from "./options/catalog.js";
 import { jsonOption } from "./options/common.js";
 
-export { CATALOG_OPTIONS };
-
-export function configFrom(context: CommandContext): ProjectConfig | null {
-  try {
-    return baseConfigFrom(context);
-  } catch (error) {
-    if (context.args.flags.has("no-config")) return null;
-    const named = one(context.args, "config");
-    const path = named ?? findConfig(context.cwd);
-    if (path === null) return null;
-    try {
-      const absolute = resolve(path);
-      const dir = dirname(absolute);
-      const raw = parse(readFileSync(absolute, "utf8")) as Record<
-        string,
-        unknown
-      >;
-      const section = (raw["catalog"] ?? {}) as Record<string, unknown>;
-      const rawMarketplaces = section["marketplaces"] ?? raw["marketplaces"];
-      let marketplaces: string[] | undefined;
-      if (Array.isArray(rawMarketplaces)) {
-        marketplaces = rawMarketplaces.map((item) => {
-          if (typeof item === "string") return resolve(dir, item);
-          if (Array.isArray(item))
-            return item.map((sub) => resolve(dir, String(sub))).join(", ");
-          return String(item);
-        });
-      }
-      return {
-        path: absolute,
-        dir,
-        catalog: {
-          ...(section["builtin"] !== undefined
-            ? { builtin: Boolean(section["builtin"]) }
-            : {}),
-          ...(section["roots"] !== undefined
-            ? {
-                roots: (section["roots"] as string[]).map((r) =>
-                  resolve(dir, r),
-                ),
-              }
-            : {}),
-          ...(section["scopes"] !== undefined
-            ? { scopes: section["scopes"] as string[] }
-            : {}),
-          ...(section["workspaces"] !== undefined
-            ? {
-                workspaces: (section["workspaces"] as string[]).map((w) =>
-                  resolve(dir, w),
-                ),
-              }
-            : {}),
-          ...(section["packages"] !== undefined
-            ? {
-                packages: (section["packages"] as string[]).map((p) =>
-                  resolve(dir, p),
-                ),
-              }
-            : {}),
-          ...(marketplaces ? { marketplaces } : {}),
-        },
-        raw,
-      };
-    } catch {
-      throw error;
-    }
-  }
-}
+export { CATALOG_OPTIONS, configFrom };
 
 export function rootsFrom(context: CommandContext): readonly string[] {
   const given = many(context.args, "root");
