@@ -42,7 +42,9 @@ export const tuiCommand: Command = {
       if (invocation.action === "doctor") {
         const { inspectTerminalHost } =
           await import("../tui/startup/diagnostics.js");
-        receipt = inspectTerminalHost();
+        receipt = inspectTerminalHost({
+          uncapped: invocation.startup?.uncapped === true,
+        });
       } else if (invocation.action === "start-worker") {
         const { startWorkspaceWorker } =
           await import("../tui/startup/worker.js");

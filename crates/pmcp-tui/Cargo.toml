@@ -2,7 +2,10 @@
 name = "pmcp-tui"
 version = "0.34.1"
 edition = "2024"
+license = "Elastic-2.0"
 description = "Terminal workspace for agent sessions hosted by pmcp-pty"
+repository = "https://github.com/modootoday/pmcp"
+homepage = "https://pmcp.build"
 publish = false
 
 [dependencies]

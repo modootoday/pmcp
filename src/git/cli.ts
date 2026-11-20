@@ -28,7 +28,13 @@ async function action(positional: readonly string[]): Promise<Action> {
     return (await import("./cli/worktree-list.js")).worktreeList;
   if (sub === "sync")
     return (await import("./cli/worktree-sync.js")).worktreeSync;
-  throw unknownSubcommand("git worktree", sub, ["create", "list", "sync"]);
+  if (sub === "gc") return (await import("./cli/worktree-gc.js")).worktreeGc;
+  throw unknownSubcommand("git worktree", sub, [
+    "create",
+    "list",
+    "sync",
+    "gc",
+  ]);
 }
 
 async function run(context: CommandContext): Promise<number> {
@@ -40,11 +46,11 @@ async function run(context: CommandContext): Promise<number> {
     throw new ArgumentError("--tests-only and --head require git affected");
   if (
     context.args.flags.has("json") &&
-    !(verb === "worktree" && sub === "list") &&
+    !(verb === "worktree" && (sub === "list" || sub === "gc")) &&
     verb !== "deliver"
   )
     throw new ArgumentError(
-      "--json requires git worktree list, git deliver or git affected",
+      "--json requires git worktree list, git worktree gc, git deliver or git affected",
     );
   const act = await action(context.args.positional);
   const { loadGit } = await import("./setup.js");

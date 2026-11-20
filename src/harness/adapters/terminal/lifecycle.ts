@@ -31,6 +31,7 @@ export interface LaunchSpec {
   groupId: string;
   generation: string;
   role: "main" | "worker";
+  uncapped?: boolean;
   resource?: DockerResource;
   dockerPreparation?: DockerPreparation;
   // Names only; their values are read from this process when the session is spawned.
@@ -91,10 +92,9 @@ export async function start(
     records.directory,
     id,
   ];
-  // Linux caps each session in its own systemd scope inside the group's slice; macOS has no
-  // equivalent, so the gate runs uncapped there (doctor says so).
+  // Linux caps each session in its own systemd scope unless uncapped is opted in.
   const argv =
-    process.platform === "linux"
+    process.platform === "linux" && !spec.uncapped
       ? [
           "systemd-run",
           "--user",

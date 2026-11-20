@@ -13,18 +13,28 @@ export interface StartupRequest {
   readonly cwd: string;
   readonly config?: string;
   readonly runtime?: string;
+  readonly preset?: string;
   readonly fresh?: boolean;
+  readonly uncapped?: boolean;
+}
+
+export interface PresetWorker {
+  readonly runtime: string;
+  readonly memoryMb?: number;
 }
 
 export interface StartupSettings {
   readonly projectRoot: string;
   readonly configFile?: string;
   readonly runtime: string;
+  readonly preset?: string;
   readonly allowedRuntimes: readonly string[];
   readonly memoryMb: number;
   readonly sessionMemoryMb: number;
   readonly maxActive: number;
   readonly groupFile?: string;
+  readonly uncapped?: boolean;
+  readonly workers?: readonly PresetWorker[];
 }
 
 // The runtime auto picks first when several are installed.
@@ -64,19 +74,75 @@ export function startupSettings(request: StartupRequest): StartupSettings {
     "session_memory_mb",
     "max_active",
     "group_file",
+    "uncapped",
+    "presets",
   ]);
   for (const key of Object.keys(values)) {
     if (!allowed.has(key)) fail(`unknown key ${key}`);
   }
+  let presetValues: Record<string, unknown> = {};
+  let workers: PresetWorker[] | undefined;
+  if (request.preset !== undefined) {
+    const presets = values["presets"];
+    if (
+      !presets ||
+      typeof presets !== "object" ||
+      Array.isArray(presets) ||
+      !Object.hasOwn(presets, request.preset)
+    )
+      fail(`unknown preset ${request.preset}`);
+    const entry = (presets as Record<string, unknown>)[request.preset];
+    if (!entry || typeof entry !== "object" || Array.isArray(entry))
+      fail(`presets.${request.preset} must be a table`);
+    presetValues = entry as Record<string, unknown>;
+    const rawWorkers = presetValues["workers"];
+    if (rawWorkers !== undefined) {
+      if (!Array.isArray(rawWorkers))
+        return fail(`presets.${request.preset}.workers must be an array`);
+      workers = (rawWorkers as unknown[]).map((w, idx) => {
+        if (!w || typeof w !== "object" || Array.isArray(w))
+          return fail(
+            `presets.${request.preset}.workers[${idx}] must be a table`,
+          );
+        const rec = w as Record<string, unknown>;
+        const rawRuntime = rec["runtime"];
+        if (typeof rawRuntime !== "string" || !rawRuntime.trim())
+          return fail(
+            `presets.${request.preset}.workers[${idx}].runtime must be a string`,
+          );
+        const rt = productSpelling(rawRuntime);
+        if (!Object.hasOwn(runtimeExecutables, rt))
+          return fail(
+            `presets.${request.preset}.workers[${idx}].runtime unsupported`,
+          );
+        const mem = rec["memory_mb"];
+        if (
+          mem !== undefined &&
+          (typeof mem !== "number" ||
+            !Number.isSafeInteger(mem) ||
+            mem < 32 ||
+            mem > 1536)
+        )
+          return fail(
+            `presets.${request.preset}.workers[${idx}].memory_mb must be 32..1536`,
+          );
+        return {
+          runtime: rt,
+          ...(mem !== undefined ? { memoryMb: mem } : {}),
+        };
+      });
+    }
+  }
+  const effective: Record<string, unknown> = { ...values, ...presetValues };
   const string = (key: string): string | undefined => {
-    const value = values[key];
+    const value = effective[key];
     if (value === undefined) return undefined;
     if (typeof value !== "string" || !value.trim())
       fail(`${key} must be a non-empty string`);
     return value as string;
   };
   const integer = (key: string, fallback: number, min: number, max: number) => {
-    const value = values[key] ?? fallback;
+    const value = effective[key] ?? fallback;
     if (typeof value !== "number" || !Number.isSafeInteger(value))
       fail(`${key} must be an integer`);
     if (Number(value) < min || Number(value) > max)
@@ -108,10 +174,18 @@ export function startupSettings(request: StartupRequest): StartupSettings {
   if (sessionMemoryMb > memoryMb)
     fail("session memory exceeds the group budget");
   const groupFile = string("group_file");
+  const configuredUncapped = effective["uncapped"];
+  if (
+    configuredUncapped !== undefined &&
+    typeof configuredUncapped !== "boolean"
+  )
+    fail("uncapped must be a boolean");
+  const uncapped = request.uncapped ?? configuredUncapped ?? false;
   return {
     projectRoot: realpathSync(config?.dir ?? request.cwd),
     ...(config ? { configFile: config.path } : {}),
     runtime,
+    ...(request.preset ? { preset: request.preset } : {}),
     allowedRuntimes: [...new Set([...available, runtime])],
     memoryMb,
     sessionMemoryMb,
@@ -119,5 +193,7 @@ export function startupSettings(request: StartupRequest): StartupSettings {
     ...(groupFile
       ? { groupFile: resolve(config?.dir ?? request.cwd, groupFile) }
       : {}),
+    ...(uncapped ? { uncapped: true } : {}),
+    ...(workers ? { workers } : {}),
   };
 }

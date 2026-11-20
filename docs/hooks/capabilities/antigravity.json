@@ -122,7 +122,8 @@
         "stop"
       ],
       "deferred": {
-        "before_tool": "stop (continue at executionNum 0); V2 antigravity-context-before-599fce53"
+        "before_tool": "stop (continue at executionNum 0); V2 antigravity-context-before-599fce53",
+        "after_tool": "stop (continue at executionNum 0); deferred by dispatch/defer.ts"
       }
     },
     "stop_context": {

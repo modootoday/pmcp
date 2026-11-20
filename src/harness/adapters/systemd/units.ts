@@ -1,8 +1,10 @@
 import { command } from "../process/command.js";
+import { uncappedRequested } from "./admission.js";
 
-// Sessions get systemd scopes on Linux only; elsewhere no unit ever exists to be active.
-export function unitActive(unit: string): boolean {
-  if (process.platform !== "linux") return false;
+// Sessions get systemd scopes on capped Linux only; elsewhere no unit ever exists to be active.
+export function unitActive(unit: string, uncapped = false): boolean {
+  if (process.platform !== "linux" || uncapped || uncappedRequested())
+    return false;
   let state: string;
   try {
     state = command("systemctl", [
@@ -21,8 +23,8 @@ export function unitActive(unit: string): boolean {
   return ["active", "activating", "deactivating"].includes(state);
 }
 
-export function stopUnit(unit: string): void {
-  if (!unitActive(unit)) return;
+export function stopUnit(unit: string, uncapped = false): void {
+  if (!unitActive(unit, uncapped)) return;
   try {
     command("systemctl", ["--user", "stop", unit]);
   } catch (error) {

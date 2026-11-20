@@ -48,7 +48,7 @@ export function normalize(
   const cwd = text(args["Cwd"]) ?? text(workspaces[0]) ?? projectRoot;
   const name = text(call["name"]);
   const kind = name ? toolKind(name) : undefined;
-  const target = text(args["TargetFile"]);
+  const target = text(args["TargetFile"]) ?? text(args["Path"]);
   const paths = target
     ? [isAbsolute(target) ? target : resolve(cwd, target)]
     : [];

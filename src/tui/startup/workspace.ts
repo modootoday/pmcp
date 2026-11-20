@@ -77,6 +77,7 @@ export async function prepareWorkspace(
           allowedRuntimes: [...settings.allowedRuntimes],
           memoryMb: settings.memoryMb,
           maxActive: settings.maxActive,
+          ...(settings.uncapped ? { uncapped: true } : {}),
         },
       }),
     );

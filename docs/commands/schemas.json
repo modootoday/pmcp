@@ -1762,7 +1762,21 @@
                 "memoryMb": { "type": "integer", "minimum": 128 },
                 "sessionMemoryMb": { "type": "integer", "minimum": 32 },
                 "maxActive": { "type": "integer", "minimum": 1 },
-                "groupFile": { "type": "string" }
+                "groupFile": { "type": "string" },
+                "uncapped": { "type": "boolean" },
+                "preset": { "type": "string" },
+                "workers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["runtime"],
+                    "properties": {
+                      "runtime": { "type": "string" },
+                      "memoryMb": { "type": "integer", "minimum": 32 }
+                    },
+                    "additionalProperties": false
+                  }
+                }
               },
               "additionalProperties": false
             },
@@ -1799,6 +1813,31 @@
             "commandsRequireExplicitAction": { "const": true }
           },
           "additionalProperties": false
+        },
+        { "$ref": "#/$defs/tuiFailure" }
+      ]
+    },
+    "tui-start-worker": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["ok", "session", "role", "generation"],
+          "properties": {
+            "ok": { "const": true },
+            "session": {
+              "type": "object",
+              "required": ["id", "runtime", "role"],
+              "properties": {
+                "id": { "type": "string" },
+                "runtime": { "type": "string" },
+                "role": { "const": "worker" }
+              },
+              "additionalProperties": true
+            },
+            "role": { "const": "worker" },
+            "generation": { "type": "string" }
+          },
+          "additionalProperties": true
         },
         { "$ref": "#/$defs/tuiFailure" }
       ]

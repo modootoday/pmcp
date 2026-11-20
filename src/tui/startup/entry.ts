@@ -36,8 +36,8 @@ export async function launchStartup(
   request: StartupRequest,
   confirmed: boolean,
 ): Promise<Receipt> {
-  requireTerminal();
   let settings = startupSettings(request);
+  requireTerminal({ uncapped: settings.uncapped });
   const state = readStartup(
     startupFile(settings.projectRoot),
     settings.projectRoot,

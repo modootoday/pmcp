@@ -10,6 +10,7 @@ pmcp git
                      behind/ahead
     worktree sync    Move this worktree onto the mainline when that loses
                      nothing
+    worktree gc      Inspect or remove clean, fully landed linked worktrees
     deliver          Replay, gate and push commits to the mainline
     sync             Move the main checkout, or this desk, to the mainline
     affected         The workspace members a delta touches, with their consumers
@@ -25,6 +26,8 @@ pmcp git
     --tests-only     For affected, print changed members without their consumers
     --during-pause   Deliver although the sessions are paused
     --no-push        Replay and gate, then stop without pushing
+    --apply          For worktree gc, remove eligible clean worktrees instead of
+                     previewing
 
   Examples
     pmcp git worktree create review

@@ -34,13 +34,13 @@ function remediation(
   return steps;
 }
 
-export function inspectTerminalHost(): Receipt {
-  const tools = dependencies();
+export function inspectTerminalHost(options?: { uncapped?: boolean }): Receipt {
+  const tools = dependencies(options);
   let userManagerAvailable = false;
   let reason: string | undefined;
   try {
     if (!tools.supported) throw new Error("tui_dependencies_unavailable");
-    assertNativeHost();
+    assertNativeHost(options);
     userManagerAvailable = true;
   } catch (error) {
     reason = error instanceof Error ? error.message : "native_host_unavailable";

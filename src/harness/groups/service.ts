@@ -73,7 +73,8 @@ export async function createGroup(
     profile === "docker"
       ? loadDockerPolicy(input.dockerPolicyFile, projectRoot, allowedRuntimes)
       : undefined;
-  assertNativeHost();
+  const uncapped = input.uncapped === true;
+  assertNativeHost({ uncapped });
   const backend = createBackend();
   const group: Group = {
     schemaVersion: 1,
@@ -97,6 +98,7 @@ export async function createGroup(
       action: "configure",
       memoryMb,
       maxActive,
+      ...(uncapped ? { uncapped: true } : {}),
     });
   } catch (error) {
     try {

@@ -8,11 +8,11 @@ import {
 export { tuiOptions } from "./options.js";
 
 const allowed: Readonly<Record<string, readonly string[]>> = {
-  launch: ["config", "runtime", "yes", "new"],
-  plan: ["config", "runtime", "json"],
+  launch: ["config", "runtime", "preset", "yes", "new", "uncapped"],
+  plan: ["config", "runtime", "preset", "uncapped", "json"],
   recovery: ["config", "json"],
   "start-worker": ["config", "runtime", "memory-mb", "json"],
-  doctor: ["json"],
+  doctor: ["uncapped", "json"],
 };
 
 // The tmux view operations of releases up to 0.17.4; named in the usage error so an old
@@ -43,9 +43,11 @@ export interface TuiInvocation {
   startup?: {
     config?: string;
     runtime?: string;
+    preset?: string;
     fresh?: boolean;
     confirmed?: boolean;
     memoryMb?: number;
+    uncapped?: boolean;
   };
 }
 
@@ -76,7 +78,8 @@ export function parseTui(args: ParsedArgs): TuiInvocation {
       throw new ArgumentError(`--${key} requires an integer`);
     return Number(value);
   };
-  if (action === "doctor") return { action };
+  if (action === "doctor")
+    return { action, startup: { uncapped: args.flags.has("uncapped") } };
   if (action === "start-worker")
     return {
       action,
@@ -91,8 +94,10 @@ export function parseTui(args: ParsedArgs): TuiInvocation {
     startup: {
       config: one(args, "config"),
       runtime: one(args, "runtime"),
+      preset: one(args, "preset"),
       fresh: args.flags.has("new"),
       confirmed: args.flags.has("yes"),
+      ...(args.flags.has("uncapped") ? { uncapped: true } : {}),
     },
   };
 }

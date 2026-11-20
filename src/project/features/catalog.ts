@@ -12,7 +12,8 @@ export interface FeatureNeeds {
 }
 
 const NOTICE_EVENTS: Readonly<Record<string, readonly NeutralEvent[]>> = {
-  "sessions.registry": ["session_start", "before_tool", "session_end"],
+  // PID liveness handles cleanup when a runtime has no native session_end event.
+  "sessions.registry": ["session_start", "before_tool", "stop"],
   "sessions.pause": ["session_start", "prompt", "before_tool"],
   "sessions.broadcast": ["session_start", "prompt", "before_tool"],
   "sessions.mailbox": ["session_start", "prompt", "before_tool"],

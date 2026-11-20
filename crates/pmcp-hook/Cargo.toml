@@ -1,0 +1,18 @@
+[package]
+name = "pmcp-hook"
+version = "0.34.0"
+edition = "2024"
+license = "Elastic-2.0"
+description = "Fast native hook guard evaluator for compiled pmcp policies"
+repository = "https://github.com/modootoday/pmcp"
+homepage = "https://pmcp.build"
+
+[dependencies]
+regex = "1.13.1"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+sha2 = "0.10.9"
+
+[profile.release]
+opt-level = "s"
+lto = "thin"

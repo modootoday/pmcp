@@ -10,13 +10,16 @@ export const NATIVE_EVENTS: Readonly<Partial<Record<NeutralEvent, string>>> = {
   stop: "Stop",
 };
 
-// Names from the 1.3.3 recordings (run_command, write_to_file) and the tools agy lists.
+// Names from the 1.3.3 recordings (run_command, write_to_file) and current agy CLI tools.
 export const TOOL_KINDS: Readonly<Record<string, ToolKind>> = {
   run_command: "shell",
   write_to_file: "edit",
+  write_file: "edit",
+  edit_file: "edit",
   replace_file_content: "edit",
   multi_replace_file_content: "edit",
   view_file: "read",
+  read_file: "read",
   list_dir: "read",
   grep_search: "read",
 };

@@ -27,6 +27,13 @@ export const gitSpec: CommandSpec = {
       examples: ["pmcp git worktree sync"],
     },
     {
+      name: "worktree gc",
+      describe: "Inspect or remove clean, fully landed linked worktrees",
+      usage: "pmcp git worktree gc [--apply] [--json]",
+      options: ["apply", "config", "json"],
+      examples: ["pmcp git worktree gc", "pmcp git worktree gc --apply --json"],
+    },
+    {
       name: "deliver",
       describe: "Replay, gate and push commits to the mainline",
       usage:
@@ -83,6 +90,12 @@ export const gitSpec: CommandSpec = {
     {
       name: "no-push",
       describe: "Replay and gate, then stop without pushing",
+      boolean: true,
+    },
+    {
+      name: "apply",
+      describe:
+        "For worktree gc, remove eligible clean worktrees instead of previewing",
       boolean: true,
     },
   ],

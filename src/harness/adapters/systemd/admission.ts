@@ -7,12 +7,20 @@ import { locateExecutable } from "../process/executable.js";
 // session count still enforced.
 export const nativeHostTools = ["systemctl", "systemd-run"] as const;
 
-export function assertNativeHost(): void {
+export function uncappedRequested(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return env.PMCP_TUI_UNCAPPED === "1" || env.PMCP_TUI_UNCAPPED === "true";
+}
+
+export function assertNativeHost(options?: { uncapped?: boolean }): void {
   if (process.platform !== "linux" && process.platform !== "darwin")
     throw new Error("native_host_requires_linux_or_macos");
   if (!ptyBinary(process.env))
     throw new Error("native_host_tool_unavailable:pmcp-pty");
   if (process.platform !== "linux") return;
+  // Explicit opt-in lets Linux containers and non-systemd shells run uncapped like macOS.
+  if (options?.uncapped || uncappedRequested()) return;
   for (const executable of nativeHostTools) {
     if (!locateExecutable(executable))
       throw new Error(`native_host_tool_unavailable:${executable}`);

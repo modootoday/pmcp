@@ -19,6 +19,10 @@ pmcp tui
     --runtime <runtime>  Native runtime ID for main launch or worker start
     -y, --yes            Confirm the first native runtime start
     --new                Create a workspace after the previous group is stopped
+    --uncapped           Run Linux sessions without systemd memory caps when
+                         user systemd is unavailable
+    --preset <name>      Named [tui.presets.<name>] workspace preset from
+                         pmcp.toml
 
   Examples
     pmcp tui

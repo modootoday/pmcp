@@ -32,4 +32,15 @@ export const tuiOptions: readonly OptionSpec[] = [
     describe: "Create a workspace after the previous group is stopped",
     boolean: true,
   },
+  {
+    name: "uncapped",
+    describe:
+      "Run Linux sessions without systemd memory caps when user systemd is unavailable",
+    boolean: true,
+  },
+  {
+    name: "preset",
+    describe: "Named [tui.presets.<name>] workspace preset from pmcp.toml",
+    placeholder: "<name>",
+  },
 ];

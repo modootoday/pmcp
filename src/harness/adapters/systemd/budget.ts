@@ -5,6 +5,7 @@ import { integer, object, text } from "../../validation.js";
 import { openBackend } from "../terminal/backend.js";
 import { budgetSlice } from "../terminal/records.js";
 import { command } from "../process/command.js";
+import { uncappedRequested } from "./admission.js";
 import { unitActive } from "./units.js";
 import { resourceRunning } from "../docker/observation.js";
 import { resourceClaim } from "../docker/claims.js";
@@ -23,10 +24,18 @@ export async function budgetOperation(
       throw new Error("budget_already_initialized");
     const memoryMb = integer(operation.memoryMb, "memory_budget", 128, 4096);
     const maxActive = integer(operation.maxActive, "max_active", 1, 5);
+    const uncapped = Boolean(operation.uncapped || uncappedRequested());
     privateJson(backend.metadataPath, { ...metadata, budgetSlice: slice });
-    privateJson(path, { owner: backend.owner, slice, memoryMb, maxActive });
-    // The memory cap is a systemd slice, so Linux only; elsewhere maxActive still holds.
-    if (process.platform !== "linux") return { ok: true, memoryCapped: false };
+    privateJson(path, {
+      owner: backend.owner,
+      slice,
+      memoryMb,
+      maxActive,
+      ...(uncapped ? { uncapped: true } : {}),
+    });
+    // The memory cap is a systemd slice, so capped Linux only; elsewhere maxActive still holds.
+    if (process.platform !== "linux" || uncapped)
+      return { ok: true, memoryCapped: false };
     command("systemctl", ["--user", "start", slice]);
     command("systemctl", [
       "--user",
@@ -47,9 +56,10 @@ export async function budgetOperation(
     policy.slice !== slice
   )
     throw new Error("foreign_budget_policy");
+  const uncapped = Boolean(policy.uncapped || uncappedRequested());
   if (operation.action === "cleanup") {
     backend.cleanup();
-    if (process.platform === "linux") {
+    if (process.platform === "linux" && !uncapped) {
       command("systemctl", ["--user", "stop", slice]);
       command("systemctl", ["--user", "revert", slice]);
     }
@@ -68,11 +78,12 @@ export async function budgetOperation(
     )
       throw new Error("container_running_without_proxy");
     if (record.stoppedAt) {
-      if (unitActive(record.unit)) throw new Error("runtime_stop_unconfirmed");
+      if (unitActive(record.unit, uncapped))
+        throw new Error("runtime_stop_unconfirmed");
       return false;
     }
     const observation = backend.inspect(record.id);
-    if (!observation.alive && unitActive(record.unit))
+    if (!observation.alive && unitActive(record.unit, uncapped))
       throw new Error("runtime_lifecycle_uncertain");
     return observation.alive;
   });
@@ -100,7 +111,7 @@ export async function budgetOperation(
     integer(policy.memoryMb, "memory_budget", 128, 4096)
   )
     throw new Error("aggregate_memory_budget_exceeded");
-  if (resource || dockerPreparation)
+  if ((resource || dockerPreparation) && !uncapped)
     command("systemctl", [
       "--user",
       "set-property",
@@ -117,6 +128,7 @@ export async function budgetOperation(
     groupId: text(spec.groupId, "group_id"),
     generation: text(spec.generation, "generation"),
     role: spec.role as "main" | "worker",
+    ...(uncapped ? { uncapped: true } : {}),
     ...(resource ? { resource } : {}),
     ...(dockerPreparation ? { dockerPreparation } : {}),
     ...(Array.isArray(spec.envNames)
