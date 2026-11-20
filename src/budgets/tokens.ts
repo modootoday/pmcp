@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
 
+export * from "./audit.js";
+
 export interface TokenBudgetLimits {
   readonly maxTokens: number;
   readonly warnTokens?: number;

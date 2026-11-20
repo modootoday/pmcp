@@ -181,7 +181,7 @@ describe.runIf(hasBinary)("native-hook parity with TS policy engine", () => {
         guard(
           "git.gate_bypass_env",
           "deny",
-          (fixture.options as Record<string, unknown> | undefined) ?? {
+          (fixture as { options?: Record<string, unknown> }).options ?? {
             names: [
               "ACME_ALLOW_DIRECT_PUSH",
               "ACME_GATE_LOCK_HELD",

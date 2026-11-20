@@ -12,6 +12,7 @@ pub mod hud;
 pub mod input;
 pub mod keys;
 pub mod layout;
+pub mod mailbox_panel;
 mod panels;
 pub mod screen;
 pub mod state;
