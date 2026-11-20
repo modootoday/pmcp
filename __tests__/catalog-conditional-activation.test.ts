@@ -88,9 +88,9 @@ describe("createPathMatcher", () => {
   });
 
   it("matches directory prefixes for non-wildcard directory paths", () => {
-    const matcher = createPathMatcher(["packages/core"]);
-    expect(matcher("packages/core")).toBe(true);
-    expect(matcher("packages/core/src/index.ts")).toBe(true);
+    const matcher = createPathMatcher(["packages/kernel"]);
+    expect(matcher("packages/kernel")).toBe(true);
+    expect(matcher("packages/kernel/src/index.ts")).toBe(true);
     expect(matcher("packages/other/src/index.ts")).toBe(false);
   });
 
@@ -266,7 +266,7 @@ describe("lazy activation via loadConditionalEntries", () => {
     ];
 
     const results = await loadConditionalEntries(lazyEntries, [
-      "crates/core/src/lib.rs",
+      "crates/kernel/src/lib.rs",
     ]);
 
     expect(loadRust).toHaveBeenCalledTimes(1);

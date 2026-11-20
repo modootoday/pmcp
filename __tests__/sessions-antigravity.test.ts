@@ -62,7 +62,7 @@ describe("antigravity sessions.registry and owners support", () => {
           options: {
             entries: [
               {
-                paths: ["apps/billing/**"],
+                paths: ["services/billing/**"],
                 owner: "billing-team",
                 note: "check billing owner first",
                 mode: "warn",
@@ -98,14 +98,14 @@ describe("antigravity sessions.registry and owners support", () => {
         workspacePaths: [root],
         toolCall: {
           name: "edit_file",
-          args: { Path: join(root, "apps/billing/index.ts") },
+          args: { Path: join(root, "services/billing/index.ts") },
         },
       },
       root,
     );
     expect(editBefore?.tool?.kind).toBe("edit");
     expect(editBefore?.tool?.paths).toEqual([
-      join(root, "apps/billing/index.ts"),
+      join(root, "services/billing/index.ts"),
     ]);
     await dispatch(editBefore!, policy, deps);
     expect(store.registry.get("conv-agy-1")?.status).toBe("working");
@@ -117,7 +117,7 @@ describe("antigravity sessions.registry and owners support", () => {
         workspacePaths: [root],
         toolCall: {
           name: "edit_file",
-          args: { Path: join(root, "apps/billing/index.ts") },
+          args: { Path: join(root, "services/billing/index.ts") },
         },
       },
       root,
