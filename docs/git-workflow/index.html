@@ -222,7 +222,12 @@ whose commits are all on its origin follows even when it lagged behind the old
 pin, and one that lacks the pinned commit fetches its origin first: git fetches
 submodule commits only when the parent&#39;s own fetch brings new commits, and a
 checkout sharing its refs (the main checkout, another desk) has usually fetched
-them already. A submodule with commits its origin lacks stays where it is. A
+them already. A submodule with commits its origin lacks stays where it is. When
+the move removes a gitlink, git leaves its checkout behind as an untracked
+directory; sync removes it when its git dir is the parent&#39;s (a <code>.git</code> file), it is
+clean and its HEAD is on its origin. The git dir, with its objects, branches and
+stashes, stays, so a gitlink that returns checks out without a new clone.
+Otherwise sync leaves it and names the reason. A
 module with no fetch refspec (one cloned bare, for example) records nothing on a
 plain fetch, so sync fetches its origin&#39;s branches into remote-tracking refs with
 an explicit refspec and leaves the config alone; when even that fails, sync says
