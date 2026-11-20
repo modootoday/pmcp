@@ -1,9 +1,10 @@
-import { existsSync } from "node:fs";
+import { existsSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import { git, gitOk, gitText } from "./exec.js";
 
 const GITLINK = /^:160000 160000 ([0-9a-f]{40}) ([0-9a-f]{40}) M\t(.+)$/u;
+const DROPPED = /^:160000 000000 [0-9a-f]{40} 0{40} D\t(.+)$/u;
 
 function clean(dir: string): boolean {
   return git(dir, ["status", "--porcelain"]).stdout.trim() === "";
@@ -46,6 +47,24 @@ function blocking(dir: string, head: string, pin: string): string[] {
       .filter(Boolean),
   );
   return local.filter((path) => changed.has(path));
+}
+
+// git leaves a removed gitlink's checkout behind as an untracked directory. It goes only when
+// nothing in it is lost: its git dir lives in the parent's, no local edits, HEAD on its origin.
+function removeDropped(root: string, path: string): string {
+  const dir = join(root, path);
+  if (!existsSync(dir)) return "removed with its gitlink";
+  const dotGit = join(dir, ".git");
+  if (!existsSync(dotGit))
+    return "left as an untracked directory: its gitlink is gone, but it is not a checkout";
+  if (statSync(dotGit).isDirectory())
+    return "left as an untracked directory: its gitlink is gone, but its git dir is inside it";
+  if (!clean(dir))
+    return "left as an untracked directory: its gitlink is gone, but it has uncommitted changes";
+  if (!pushed(dir))
+    return "left as an untracked directory: its gitlink is gone, but it holds commits its origin does not have";
+  rmSync(dir, { recursive: true, force: true });
+  return "removed: its gitlink is gone, and its checkout was clean with every commit on its origin";
 }
 
 function followOne(
@@ -102,6 +121,11 @@ export function followPins(
   ]);
   const lines: string[] = [];
   for (const entry of raw.split("\n")) {
+    const dropped = DROPPED.exec(entry)?.[1];
+    if (dropped) {
+      lines.push(`${dropped}: ${removeDropped(root, dropped)}`);
+      continue;
+    }
     const match = GITLINK.exec(entry);
     if (!match) continue;
     const [, oldPin = "", newPin = "", path = ""] = match;
@@ -128,9 +152,13 @@ export function movableSubmodules(root: string): string[] {
 export function updateToPins(root: string, paths: readonly string[]): string[] {
   const lines: string[] = [];
   for (const path of paths) {
-    const pin = gitText(root, ["rev-parse", `HEAD:${path}`]);
+    const pin = gitText(root, ["rev-parse", "-q", "--verify", `HEAD:${path}`]);
     const dir = join(root, path);
-    if (!pin || !fetchedPin(dir, pin)) {
+    if (!pin) {
+      lines.push(`${path}: ${removeDropped(root, path)}`);
+      continue;
+    }
+    if (!fetchedPin(dir, pin)) {
       lines.push(
         `${path}: left alone, ${pin.slice(0, 10) || "its pin"} is not in its checkout or on its origin`,
       );

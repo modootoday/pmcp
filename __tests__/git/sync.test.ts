@@ -341,8 +341,8 @@ it("names a file git does not ignore in a directory that became a gitlink, and k
   );
 });
 
-// A gitlink removed upstream leaves its checkout behind; the same repository returns later
-// at a newer pin.
+// A gitlink removed upstream and followed by plain git leaves its checkout behind (pmcp sync
+// would remove a clean one); the same repository returns later at a newer pin.
 function gitlinkReturns(): { origin: Remote; pin: string } {
   const origin = remote();
   const sub = remote();
@@ -355,7 +355,8 @@ function gitlinkReturns(): { origin: Remote; pin: string } {
   sh(seed, "rm", "-q", "lib");
   sh(seed, "commit", "-q", "-m", "drop lib");
   sh(seed, "push", "-q", "origin", "HEAD:main");
-  expect(syncShared(origin, [], recorder())).toBe(0);
+  sh(origin.main, "pull", "-q", "--ff-only");
+  expect(existsSync(join(origin.main, "lib", ".git"))).toBe(true);
   const work = clone(sub, "lib-work");
   const pin = commit(work, "lib.txt", "v2\n", "lib v2");
   sh(work, "push", "-q", "origin", "HEAD:main");
