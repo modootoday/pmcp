@@ -57,12 +57,12 @@ pub fn scan_incremental(
             continue;
         };
         let hash = sha256_hex(&raw);
-        if let Some(prev) = previous.entries.get(rel) {
-            if prev.sha256 == hash {
-                reused += 1;
-                next.entries.insert(rel.clone(), prev.clone());
-                continue;
-            }
+        if let Some(prev) = previous.entries.get(rel)
+            && prev.sha256 == hash
+        {
+            reused += 1;
+            next.entries.insert(rel.clone(), prev.clone());
+            continue;
         }
         let text = String::from_utf8_lossy(&raw);
         let entry = IndexedSkill {
@@ -128,7 +128,7 @@ mod tests {
         assert_eq!(s2.removed, 0);
         assert!(s2.total_est_tokens > 0);
 
-        let (_, s3) = scan_incremental(&[a.clone()], &m2);
+        let (_, s3) = scan_incremental(std::slice::from_ref(&a), &m2);
         assert_eq!(s3.total, 1);
         assert_eq!(s3.reused, 1);
         assert_eq!(s3.removed, 1);

@@ -25,10 +25,10 @@ pub fn check_push_without_verify(cmd: &str) -> RawFinding {
     for (seg, _) in split_segments(cmd) {
         let toks = tokenize(&seg);
         let (inner, _) = unwrap_command(&toks);
-        if let Some(("push", args)) = git_subcommand(inner) {
-            if args.iter().any(|a| a == "--no-verify") {
-                return RawFinding::Deny("git push --no-verify is denied".into());
-            }
+        if let Some(("push", args)) = git_subcommand(inner)
+            && args.iter().any(|a| a == "--no-verify")
+        {
+            return RawFinding::Deny("git push --no-verify is denied".into());
         }
     }
     RawFinding::Allow
@@ -38,13 +38,12 @@ pub fn check_forced_branch_move(cmd: &str) -> RawFinding {
     for (seg, _) in split_segments(cmd) {
         let toks = tokenize(&seg);
         let (inner, _) = unwrap_command(&toks);
-        if let Some(("branch", args)) = git_subcommand(inner) {
-            if args
+        if let Some(("branch", args)) = git_subcommand(inner)
+            && args
                 .iter()
                 .any(|a| matches!(a.as_str(), "-f" | "--force" | "-M"))
-            {
-                return RawFinding::Deny("forced git branch move is denied".into());
-            }
+        {
+            return RawFinding::Deny("forced git branch move is denied".into());
         }
     }
     RawFinding::Allow
@@ -54,13 +53,12 @@ pub fn check_stage_all(cmd: &str) -> RawFinding {
     for (seg, _) in split_segments(cmd) {
         let toks = tokenize(&seg);
         let (inner, _) = unwrap_command(&toks);
-        if let Some(("add", args)) = git_subcommand(inner) {
-            if args
+        if let Some(("add", args)) = git_subcommand(inner)
+            && args
                 .iter()
                 .any(|a| matches!(a.as_str(), "-A" | "--all" | "."))
-            {
-                return RawFinding::Deny("git add -A/--all/. is denied; name explicit paths".into());
-            }
+        {
+            return RawFinding::Deny("git add -A/--all/. is denied; name explicit paths".into());
         }
     }
     RawFinding::Allow
@@ -98,10 +96,10 @@ pub fn check_gate_bypass_env(cmd: &str, names: &[String], no_verify: bool) -> Ra
         }
         if no_verify {
             let (inner, _) = unwrap_command(&toks);
-            if let Some((_, args)) = git_subcommand(inner) {
-                if args.iter().any(|a| a == "--no-verify") {
-                    return RawFinding::Deny("git --no-verify is denied".into());
-                }
+            if let Some((_, args)) = git_subcommand(inner)
+                && args.iter().any(|a| a == "--no-verify")
+            {
+                return RawFinding::Deny("git --no-verify is denied".into());
             }
         }
     }
@@ -113,7 +111,10 @@ pub fn check_mainline_deliver(cmd: &str, branch: &str) -> RawFinding {
         let toks = tokenize(&seg);
         let (inner, _) = unwrap_command(&toks);
         if let Some(("push", args)) = git_subcommand(inner) {
-            if args.iter().any(|a| matches!(a.as_str(), "-n" | "--dry-run")) {
+            if args
+                .iter()
+                .any(|a| matches!(a.as_str(), "-n" | "--dry-run"))
+            {
                 continue;
             }
             let targets_main = args.iter().any(|a| {

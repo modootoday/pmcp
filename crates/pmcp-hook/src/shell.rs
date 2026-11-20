@@ -377,7 +377,9 @@ pub fn check_compose_teardown(cmd: &str) -> RawFinding {
                 break;
             }
             if !has_service {
-                return RawFinding::Deny(format!("docker compose {subcmd} without service is denied"));
+                return RawFinding::Deny(format!(
+                    "docker compose {subcmd} without service is denied"
+                ));
             }
         }
     }
@@ -388,10 +390,13 @@ pub fn check_runaway_regex(cmd: &str) -> RawFinding {
     static ERE_COUNT_RE: OnceLock<Regex> = OnceLock::new();
     static BRE_COUNT_RE: OnceLock<Regex> = OnceLock::new();
     static NESTED_RE: OnceLock<Regex> = OnceLock::new();
-    let ere_count_re = ERE_COUNT_RE.get_or_init(|| Regex::new(r"\\*\{(?:\d+,)?(\d+)\\*\}").unwrap());
-    let bre_count_re = BRE_COUNT_RE.get_or_init(|| Regex::new(r"\\+\{(?:\d+,)?(\d+)\\+\}").unwrap());
-    let nested_re = NESTED_RE
-        .get_or_init(|| Regex::new(r"\((?:[^()]|\([^()]*\))*[+*](?:[^()]|\([^()]*\))*\)[+*]").unwrap());
+    let ere_count_re =
+        ERE_COUNT_RE.get_or_init(|| Regex::new(r"\\*\{(?:\d+,)?(\d+)\\*\}").unwrap());
+    let bre_count_re =
+        BRE_COUNT_RE.get_or_init(|| Regex::new(r"\\+\{(?:\d+,)?(\d+)\\+\}").unwrap());
+    let nested_re = NESTED_RE.get_or_init(|| {
+        Regex::new(r"\((?:[^()]|\([^()]*\))*[+*](?:[^()]|\([^()]*\))*\)[+*]").unwrap()
+    });
     for (seg, _) in split_segments(cmd) {
         let toks = tokenize(&seg);
         let (inner, bounded_timeout) = unwrap_command(&toks);
@@ -421,17 +426,18 @@ pub fn check_runaway_regex(cmd: &str) -> RawFinding {
             });
         let count_re = if is_ere { ere_count_re } else { bre_count_re };
         for arg in &inner[1..] {
-            if let Some(caps) = count_re.captures(arg) {
-                if let Ok(upper) = caps[1].parse::<u32>() {
-                    if upper >= 250 {
-                        return RawFinding::Deny(format!(
-                            "runaway regex repetition ({upper}) without timeout is denied"
-                        ));
-                    }
-                }
+            if let Some(caps) = count_re.captures(arg)
+                && let Ok(upper) = caps[1].parse::<u32>()
+                && upper >= 250
+            {
+                return RawFinding::Deny(format!(
+                    "runaway regex repetition ({upper}) without timeout is denied"
+                ));
             }
             if nested_re.is_match(arg) {
-                return RawFinding::Deny("nested quantifier regex without timeout is denied".into());
+                return RawFinding::Deny(
+                    "nested quantifier regex without timeout is denied".into(),
+                );
             }
         }
     }
@@ -451,10 +457,7 @@ pub fn check_self_matching_wait(cmd: &str) -> RawFinding {
                 return nested;
             }
         }
-        if toks
-            .iter()
-            .any(|t| matches!(t.as_str(), "while" | "until"))
-        {
+        if toks.iter().any(|t| matches!(t.as_str(), "while" | "until")) {
             in_wait_loop = true;
             in_for_header = false;
         } else if toks.iter().any(|t| t == "for") {
@@ -472,7 +475,11 @@ pub fn check_self_matching_wait(cmd: &str) -> RawFinding {
         if in_wait_loop
             && inner.iter().any(|t| {
                 (t.contains("pgrep") || t.contains("pkill"))
-                    && (t.contains("-f") || t.contains("--full") || seg.contains("pgrep -f") || seg.contains("pgrep -af") || seg.contains("pkill -f"))
+                    && (t.contains("-f")
+                        || t.contains("--full")
+                        || seg.contains("pgrep -f")
+                        || seg.contains("pgrep -af")
+                        || seg.contains("pkill -f"))
             })
         {
             return RawFinding::Deny("self-matching wait loop can match its own shell".into());
@@ -540,7 +547,17 @@ pub fn check_secret_exfiltration(
         }
         if !matches!(
             bin,
-            "cat" | "head" | "tail" | "less" | "more" | "sed" | "awk" | "grep" | "rg" | "printenv" | "env"
+            "cat"
+                | "head"
+                | "tail"
+                | "less"
+                | "more"
+                | "sed"
+                | "awk"
+                | "grep"
+                | "rg"
+                | "printenv"
+                | "env"
         ) {
             continue;
         }
@@ -559,7 +576,9 @@ pub fn check_secret_exfiltration(
         }
     }
     if saw_secret_read {
-        return RawFinding::Ask("reading a secret file or credential store requires approval".into());
+        return RawFinding::Ask(
+            "reading a secret file or credential store requires approval".into(),
+        );
     }
     RawFinding::Allow
 }

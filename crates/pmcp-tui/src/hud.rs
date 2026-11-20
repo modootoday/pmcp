@@ -134,8 +134,13 @@ impl fmt::Display for MemoryCap {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum LeaseWaitState {
     Idle,
-    Held { token: Option<String> },
-    Waiting { queue_position: u32, elapsed_ms: u64 },
+    Held {
+        token: Option<String>,
+    },
+    Waiting {
+        queue_position: u32,
+        elapsed_ms: u64,
+    },
     Contended,
 }
 
@@ -506,7 +511,10 @@ mod tests {
             BillingHint::from_str_hint("pay-as-you-go"),
             BillingHint::Payg
         );
-        assert_eq!(BillingHint::from_str_hint("other"), BillingHint::Unspecified);
+        assert_eq!(
+            BillingHint::from_str_hint("other"),
+            BillingHint::Unspecified
+        );
     }
 
     #[test]

@@ -363,12 +363,12 @@ pub fn format_mailbox_panel(
                 pad_right(&truncate_str(&item.alias_pair(), alias_col), alias_col),
             );
             let prefix_len = fixed_prefix.chars().count();
-            let subject_len = if max_w > prefix_len {
-                max_w - prefix_len
-            } else {
-                0
-            };
-            let row = format!("{}{}", fixed_prefix, truncate_str(&item.subject, subject_len));
+            let subject_len = max_w.saturating_sub(prefix_len);
+            let row = format!(
+                "{}{}",
+                fixed_prefix,
+                truncate_str(&item.subject, subject_len)
+            );
             lines.push(truncate_str(&row, max_w));
         }
     } else {
@@ -444,12 +444,24 @@ mod tests {
         assert_eq!(HandoffPriority::Low.as_badge(true), "[LOW]");
         assert_eq!(HandoffPriority::Low.as_badge(false), "[L]");
 
-        assert_eq!(HandoffPriority::from_str_hint("urgent"), HandoffPriority::Urgent);
-        assert_eq!(HandoffPriority::from_str_hint("P0"), HandoffPriority::Urgent);
-        assert_eq!(HandoffPriority::from_str_hint("high"), HandoffPriority::High);
+        assert_eq!(
+            HandoffPriority::from_str_hint("urgent"),
+            HandoffPriority::Urgent
+        );
+        assert_eq!(
+            HandoffPriority::from_str_hint("P0"),
+            HandoffPriority::Urgent
+        );
+        assert_eq!(
+            HandoffPriority::from_str_hint("high"),
+            HandoffPriority::High
+        );
         assert_eq!(HandoffPriority::from_str_hint("p1"), HandoffPriority::High);
         assert_eq!(HandoffPriority::from_str_hint("low"), HandoffPriority::Low);
-        assert_eq!(HandoffPriority::from_str_hint("anything"), HandoffPriority::Normal);
+        assert_eq!(
+            HandoffPriority::from_str_hint("anything"),
+            HandoffPriority::Normal
+        );
     }
 
     #[test]
@@ -480,11 +492,17 @@ mod tests {
     fn summary_formatting_wide_and_narrow() {
         let s = MailboxSummary::new("agent-1", 3, 10, 1);
         assert_eq!(s.format_compact(), "agent-1: 3/10 unread (!1)");
-        assert_eq!(s.format_wide(), "Mailbox <agent-1> | 3 unread / 10 total | 1 urgent");
+        assert_eq!(
+            s.format_wide(),
+            "Mailbox <agent-1> | 3 unread / 10 total | 1 urgent"
+        );
 
         let s_no_urgent = MailboxSummary::new("agent-2", 0, 5, 0);
         assert_eq!(s_no_urgent.format_compact(), "agent-2: 0/5 unread");
-        assert_eq!(s_no_urgent.format_wide(), "Mailbox <agent-2> | 0 unread / 5 total");
+        assert_eq!(
+            s_no_urgent.format_wide(),
+            "Mailbox <agent-2> | 0 unread / 5 total"
+        );
 
         let narrow = s.format_status_line(25);
         assert!(narrow.chars().count() <= 25);
@@ -493,9 +511,30 @@ mod tests {
     #[test]
     fn summary_from_items_calculation() {
         let items = vec![
-            HandoffItem::new("1", "a", "b", "task 1", HandoffPriority::Urgent, HandoffStatus::Unread),
-            HandoffItem::new("2", "a", "b", "task 2", HandoffPriority::High, HandoffStatus::Read),
-            HandoffItem::new("3", "b", "a", "task 3", HandoffPriority::Normal, HandoffStatus::Unread),
+            HandoffItem::new(
+                "1",
+                "a",
+                "b",
+                "task 1",
+                HandoffPriority::Urgent,
+                HandoffStatus::Unread,
+            ),
+            HandoffItem::new(
+                "2",
+                "a",
+                "b",
+                "task 2",
+                HandoffPriority::High,
+                HandoffStatus::Read,
+            ),
+            HandoffItem::new(
+                "3",
+                "b",
+                "a",
+                "task 3",
+                HandoffPriority::Normal,
+                HandoffStatus::Unread,
+            ),
         ];
         let summary = MailboxSummary::from_items("agent-test", &items);
         assert_eq!(summary.total_count, 3);
@@ -570,8 +609,22 @@ mod tests {
     #[test]
     fn dock_formatting_fits_columns() {
         let items = vec![
-            HandoffItem::new("t-1", "src", "dst", "Task one", HandoffPriority::Urgent, HandoffStatus::Unread),
-            HandoffItem::new("t-2", "src", "dst", "Task two", HandoffPriority::Low, HandoffStatus::Read),
+            HandoffItem::new(
+                "t-1",
+                "src",
+                "dst",
+                "Task one",
+                HandoffPriority::Urgent,
+                HandoffStatus::Unread,
+            ),
+            HandoffItem::new(
+                "t-2",
+                "src",
+                "dst",
+                "Task two",
+                HandoffPriority::Low,
+                HandoffStatus::Read,
+            ),
         ];
         let summary = MailboxSummary::from_items("dst", &items);
 
