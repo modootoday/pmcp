@@ -139,7 +139,7 @@ pub fn evaluate(policy: &CompiledPolicy, req: &EvalRequest) -> EvalResponse {
                     .options
                     .get("no_verify")
                     .and_then(Value::as_bool)
-                    .unwrap_or(false);
+                    .unwrap_or(true);
                 git::check_gate_bypass_env(cmd, &names, no_verify)
             }
             "git.mainline.deliver" => git::check_mainline_deliver(cmd, branch),

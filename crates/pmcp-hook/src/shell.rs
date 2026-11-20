@@ -145,7 +145,7 @@ pub fn unwrap_command(tokens: &[String]) -> (&[String], bool) {
             idx += 1;
             continue;
         }
-        if t == "env" || t == "command" || t == "sudo" {
+        if matches!(t.as_str(), "env" | "command" | "sudo" | "xargs") {
             idx += 1;
             while idx < tokens.len() && tokens[idx].starts_with('-') {
                 idx += 1;
@@ -168,20 +168,46 @@ pub fn unwrap_command(tokens: &[String]) -> (&[String], bool) {
     (&tokens[idx..], bounded_timeout)
 }
 
+fn subshell_script(inner: &[String]) -> Option<&str> {
+    let bin = inner.first().map(|s| basename(s))?;
+    if !matches!(bin, "bash" | "sh" | "zsh" | "dash") {
+        return None;
+    }
+    let mut i = 1;
+    while i < inner.len() {
+        let a = &inner[i];
+        if (a == "-c" || a == "-lc" || a == "-ic") && i + 1 < inner.len() {
+            return Some(&inner[i + 1]);
+        }
+        i += 1;
+    }
+    None
+}
+
+fn has_short_flag(arg: &str, ch: char) -> bool {
+    arg.starts_with('-') && !arg.starts_with("--") && arg[1..].contains(ch)
+}
+
 pub fn check_in_place_edit(cmd: &str) -> RawFinding {
     for (seg, _) in split_segments(cmd) {
         let toks = tokenize(&seg);
         let (inner, _) = unwrap_command(&toks);
+        if let Some(script) = subshell_script(inner) {
+            let nested = check_in_place_edit(script);
+            if nested != RawFinding::Allow {
+                return nested;
+            }
+        }
         let Some(bin) = inner.first().map(|s| basename(s)) else {
             continue;
         };
         if matches!(bin, "sed" | "perl" | "awk" | "gawk") {
             for arg in &inner[1..] {
-                if arg == "-i"
-                    || arg == "--in-place"
-                    || (arg.starts_with("-i") && bin != "awk" && bin != "gawk")
+                let is_in_place = arg == "--in-place"
                     || arg.starts_with("--in-place=")
-                {
+                    || (bin != "awk" && bin != "gawk" && has_short_flag(arg, 'i'))
+                    || arg == "-i";
+                if is_in_place {
                     return RawFinding::Deny(format!(
                         "in-place stream editor ({bin} {arg}) is denied; use the edit tool"
                     ));
@@ -196,6 +222,7 @@ pub fn check_heredoc(cmd: &str) -> RawFinding {
     let mut in_single = false;
     let mut in_double = false;
     let mut escaped = false;
+    let mut arith_depth = 0usize;
     let chars: Vec<char> = cmd.chars().collect();
     let mut i = 0;
     while i + 1 < chars.len() {
@@ -220,10 +247,32 @@ pub fn check_heredoc(cmd: &str) -> RawFinding {
             i += 1;
             continue;
         }
-        if !in_single && !in_double && c == '<' && chars[i + 1] == '<' {
-            return RawFinding::Deny("heredocs and here-strings are denied".into());
+        if !in_single && !in_double {
+            if c == '(' && chars[i + 1] == '(' {
+                arith_depth += 1;
+                i += 2;
+                continue;
+            }
+            if arith_depth > 0 && c == ')' && chars[i + 1] == ')' {
+                arith_depth -= 1;
+                i += 2;
+                continue;
+            }
+            if arith_depth == 0 && c == '<' && chars[i + 1] == '<' {
+                return RawFinding::Deny("heredocs and here-strings are denied".into());
+            }
         }
         i += 1;
+    }
+    for (seg, _) in split_segments(cmd) {
+        let toks = tokenize(&seg);
+        let (inner, _) = unwrap_command(&toks);
+        if let Some(script) = subshell_script(inner) {
+            let nested = check_heredoc(script);
+            if nested != RawFinding::Allow {
+                return nested;
+            }
+        }
     }
     RawFinding::Allow
 }
@@ -239,22 +288,36 @@ pub fn check_stdin_interpreter(cmd: &str) -> RawFinding {
             continue;
         }
         let args = &inner[1..];
-        let has_inline = args.iter().any(|a| {
-            matches!(
-                a.as_str(),
-                "-c" | "-m" | "-V" | "--version" | "-h" | "--help"
-            )
-        });
+        let reads_dash = args.iter().any(|a| a == "-");
+        let has_inline = !reads_dash
+            && args.iter().any(|a| {
+                matches!(
+                    a.as_str(),
+                    "-c" | "-m" | "-V" | "--version" | "-h" | "--help"
+                )
+            });
         if has_inline {
             continue;
         }
-        let reads_dash = args.iter().any(|a| a == "-");
         let has_redirect_in = seg.contains('<');
-        let has_script = args
-            .iter()
-            .any(|a| !a.starts_with('-') && !a.starts_with('<'));
+        let mut has_script = false;
+        let mut skip_next = false;
+        for a in args {
+            if skip_next {
+                skip_next = false;
+                continue;
+            }
+            if a == "<" || a == ">" || a == ">>" {
+                skip_next = true;
+                continue;
+            }
+            if !a.starts_with('-') && !a.contains('<') && !a.contains('>') {
+                has_script = true;
+                break;
+            }
+        }
         if reads_dash || ((piped_in || has_redirect_in) && !has_script) {
-            return RawFinding::Deny(format!(
+            return RawFinding::Ask(format!(
                 "running {bin} from stdin is denied; pass a script file or -c"
             ));
         }
@@ -269,27 +332,66 @@ pub fn check_compose_teardown(cmd: &str) -> RawFinding {
         let Some(bin) = inner.first().map(|s| basename(s)) else {
             continue;
         };
-        let is_compose = (bin == "docker" && inner.get(1).map(String::as_str) == Some("compose"))
-            || bin == "docker-compose";
-        if !is_compose {
+        let start = if bin == "docker" && inner.get(1).map(String::as_str) == Some("compose") {
+            2
+        } else if bin == "docker-compose" {
+            1
+        } else {
             continue;
+        };
+        let mut i = start;
+        let mut sub: Option<&str> = None;
+        while i < inner.len() {
+            let a = inner[i].as_str();
+            if matches!(a, "-f" | "--file" | "-p" | "--project-name" | "--profile") {
+                i += 2;
+                continue;
+            }
+            if a.starts_with('-') {
+                i += 1;
+                continue;
+            }
+            sub = Some(a);
+            i += 1;
+            break;
         }
-        let has_down = inner.iter().any(|a| a == "down");
-        let has_volumes = inner
-            .iter()
-            .any(|a| a == "-v" || a == "--volumes" || a == "--rmi");
-        if has_down && has_volumes {
-            return RawFinding::Deny("docker compose teardown with volume removal is denied".into());
+        let Some(subcmd) = sub else {
+            continue;
+        };
+        if subcmd == "down" {
+            return RawFinding::Deny("docker compose down is denied".into());
+        }
+        if matches!(subcmd, "stop" | "rm" | "kill") {
+            let mut has_service = false;
+            while i < inner.len() {
+                let a = inner[i].as_str();
+                if matches!(a, "-t" | "--timeout" | "-s" | "--signal") {
+                    i += 2;
+                    continue;
+                }
+                if a.starts_with('-') {
+                    i += 1;
+                    continue;
+                }
+                has_service = true;
+                break;
+            }
+            if !has_service {
+                return RawFinding::Deny(format!("docker compose {subcmd} without service is denied"));
+            }
         }
     }
     RawFinding::Allow
 }
 
 pub fn check_runaway_regex(cmd: &str) -> RawFinding {
-    static COUNT_RE: OnceLock<Regex> = OnceLock::new();
+    static ERE_COUNT_RE: OnceLock<Regex> = OnceLock::new();
+    static BRE_COUNT_RE: OnceLock<Regex> = OnceLock::new();
     static NESTED_RE: OnceLock<Regex> = OnceLock::new();
-    let count_re = COUNT_RE.get_or_init(|| Regex::new(r"\{(\d*),(\d+)\}").unwrap());
-    let nested_re = NESTED_RE.get_or_init(|| Regex::new(r"\([^)]*[+*][^)]*\)[+*]").unwrap());
+    let ere_count_re = ERE_COUNT_RE.get_or_init(|| Regex::new(r"\\*\{(?:\d+,)?(\d+)\\*\}").unwrap());
+    let bre_count_re = BRE_COUNT_RE.get_or_init(|| Regex::new(r"\\+\{(?:\d+,)?(\d+)\\+\}").unwrap());
+    let nested_re = NESTED_RE
+        .get_or_init(|| Regex::new(r"\((?:[^()]|\([^()]*\))*[+*](?:[^()]|\([^()]*\))*\)[+*]").unwrap());
     for (seg, _) in split_segments(cmd) {
         let toks = tokenize(&seg);
         let (inner, bounded_timeout) = unwrap_command(&toks);
@@ -299,13 +401,29 @@ pub fn check_runaway_regex(cmd: &str) -> RawFinding {
         let Some(bin) = inner.first().map(|s| basename(s)) else {
             continue;
         };
-        if !matches!(bin, "grep" | "egrep" | "rg" | "pcregrep") {
+        let is_grep = matches!(bin, "grep" | "egrep" | "pcregrep")
+            || (bin == "git" && inner.get(1).map(String::as_str) == Some("grep"));
+        if !is_grep {
             continue;
         }
+        if inner
+            .iter()
+            .any(|a| a == "--fixed-strings" || has_short_flag(a, 'F'))
+        {
+            continue;
+        }
+        let is_ere = matches!(bin, "egrep" | "pcregrep")
+            || inner.iter().any(|a| {
+                a == "--extended-regexp"
+                    || a == "--perl-regexp"
+                    || has_short_flag(a, 'E')
+                    || has_short_flag(a, 'P')
+            });
+        let count_re = if is_ere { ere_count_re } else { bre_count_re };
         for arg in &inner[1..] {
             if let Some(caps) = count_re.captures(arg) {
-                if let Ok(upper) = caps[2].parse::<u32>() {
-                    if upper >= 1000 {
+                if let Ok(upper) = caps[1].parse::<u32>() {
+                    if upper >= 250 {
                         return RawFinding::Deny(format!(
                             "runaway regex repetition ({upper}) without timeout is denied"
                         ));
@@ -321,19 +439,56 @@ pub fn check_runaway_regex(cmd: &str) -> RawFinding {
 }
 
 pub fn check_self_matching_wait(cmd: &str) -> RawFinding {
+    let mut in_wait_loop = false;
+    let mut in_for_header = false;
+    let mut saw_broad_ps = false;
     for (seg, _) in split_segments(cmd) {
         let toks = tokenize(&seg);
         let (inner, _) = unwrap_command(&toks);
+        if let Some(script) = subshell_script(inner) {
+            let nested = check_self_matching_wait(script);
+            if nested != RawFinding::Allow {
+                return nested;
+            }
+        }
+        if toks
+            .iter()
+            .any(|t| matches!(t.as_str(), "while" | "until"))
+        {
+            in_wait_loop = true;
+            in_for_header = false;
+        } else if toks.iter().any(|t| t == "for") {
+            in_for_header = true;
+        }
+        if in_for_header && toks.iter().any(|t| t == "do") {
+            in_wait_loop = true;
+            in_for_header = false;
+        }
+        if toks.iter().any(|t| t == "done") {
+            in_wait_loop = false;
+            in_for_header = false;
+            saw_broad_ps = false;
+        }
+        if in_wait_loop
+            && inner.iter().any(|t| {
+                (t.contains("pgrep") || t.contains("pkill"))
+                    && (t.contains("-f") || t.contains("--full") || seg.contains("pgrep -f") || seg.contains("pgrep -af") || seg.contains("pkill -f"))
+            })
+        {
+            return RawFinding::Deny("self-matching wait loop can match its own shell".into());
+        }
         let Some(bin) = inner.first().map(|s| basename(s)) else {
             continue;
         };
-        if matches!(bin, "pgrep" | "pkill")
-            && inner.iter().any(|a| a == "-f" || a == "--full")
-            && (cmd.contains("while ") || cmd.contains("until "))
-        {
-            return RawFinding::Deny(
-                "self-matching pgrep/pkill -f wait loop can match its own shell".into(),
-            );
+        if bin == "ps" && !inner.iter().any(|a| a == "-p" || a.starts_with("--pid")) {
+            saw_broad_ps = true;
+        }
+        let is_pgrep_f = matches!(bin, "pgrep" | "pkill")
+            && inner
+                .iter()
+                .any(|a| a == "--full" || has_short_flag(a, 'f'));
+        if in_wait_loop && (is_pgrep_f || (bin == "grep" && saw_broad_ps)) {
+            return RawFinding::Deny("self-matching wait loop can match its own shell".into());
         }
     }
     RawFinding::Allow

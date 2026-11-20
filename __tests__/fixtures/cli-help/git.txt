@@ -26,6 +26,9 @@ pmcp git
     --tests-only     For affected, print changed members without their consumers
     --during-pause   Deliver although the sessions are paused
     --no-push        Replay and gate, then stop without pushing
+    --dry-run        Preview commits to replay, target upstream, and whether the
+                     lockfile would trigger a heavy gate without replaying or
+                     pushing
     --apply          For worktree gc, remove eligible clean worktrees instead of
                      previewing
 

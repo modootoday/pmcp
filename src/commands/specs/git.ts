@@ -1,5 +1,5 @@
 import type { CommandSpec } from "../../cli/command.js";
-import { configOption, jsonOption } from "../options/common.js";
+import { configOption, dryRunOption, jsonOption } from "../options/common.js";
 
 export const gitSpec: CommandSpec = {
   name: "git",
@@ -37,9 +37,13 @@ export const gitSpec: CommandSpec = {
       name: "deliver",
       describe: "Replay, gate and push commits to the mainline",
       usage:
-        "pmcp git deliver [<commit>...] [--during-pause] [--no-push] [--json]",
-      options: ["during-pause", "no-push", "config", "json"],
-      examples: ["pmcp git deliver", "pmcp git deliver 1a2b3c4 --no-push"],
+        "pmcp git deliver [<commit>...] [--during-pause] [--no-push] [--dry-run] [--json]",
+      options: ["during-pause", "no-push", "dry-run", "config", "json"],
+      examples: [
+        "pmcp git deliver",
+        "pmcp git deliver 1a2b3c4 --no-push",
+        "pmcp git deliver --dry-run",
+      ],
     },
     {
       name: "sync",
@@ -92,6 +96,9 @@ export const gitSpec: CommandSpec = {
       describe: "Replay and gate, then stop without pushing",
       boolean: true,
     },
+    dryRunOption(
+      "Preview commits to replay, target upstream, and whether the lockfile would trigger a heavy gate without replaying or pushing",
+    ),
     {
       name: "apply",
       describe:

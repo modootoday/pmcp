@@ -5,7 +5,9 @@ import { deliveryEvents } from "../mainline/delivery-events.js";
 import { filesSessionGate } from "../mainline/store.js";
 import { detect } from "../detect.js";
 import { dirToGitlinkPolicy } from "../dir-to-gitlink.js";
+import { gitText } from "../exec.js";
 import { installSpec } from "../install.js";
+import { GitReadError, touchedPaths, undelivered } from "../landed.js";
 import { syncMainline, syncMainlineResult } from "../mainline/sync.js";
 import { gateTreePath, leaseSpecs, type GitSetup } from "../setup.js";
 import type { Reporter } from "../types.js";
@@ -59,6 +61,107 @@ export const mainlineDeliver: Action = (setup, context, report) => {
   const { config, ctx, stateDir } = setup;
   const settings = config.deliver ?? off("git.mainline.deliver");
   const sync = config.sync;
+
+  // Inspect commits and leases to preview delivery without mutating refs or pushing.
+  if (context.args.flags.has("dry-run")) {
+    const named = context.args.positional.slice(1);
+    let commits: string[];
+    try {
+      commits = undelivered(ctx.root, ctx.upstream, named);
+    } catch (error) {
+      if (error instanceof GitReadError) {
+        report.warn(error.message);
+        return 1;
+      }
+      throw error;
+    }
+    const touched = touchedPaths(ctx.root, commits);
+    for (const line of setup.ownerNotices?.(touched) ?? []) report.info(line);
+
+    const commitItems = commits.map((sha) => ({
+      sha,
+      short: sha.slice(0, 10),
+      subject: gitText(ctx.root, ["log", "-1", "--format=%s", sha]),
+    }));
+
+    const leases = leaseSpecs(config);
+    const matchingLeases = leases.filter((spec) =>
+      spec.paths.some((path) => touched.has(path)),
+    );
+    const leasedNames = matchingLeases.map((spec) => spec.name);
+    const isLockfile = (path: string) =>
+      path === "bun.lock" ||
+      path === "bun.lockb" ||
+      path === "package-lock.json" ||
+      path === "pnpm-lock.yaml" ||
+      path === "yarn.lock" ||
+      path.endsWith("/bun.lock") ||
+      path.endsWith("/bun.lockb") ||
+      path.endsWith("/package-lock.json") ||
+      path.endsWith("/pnpm-lock.yaml") ||
+      path.endsWith("/yarn.lock") ||
+      (config.sync?.installWhenChanged ?? []).includes(path);
+
+    const lockfileTriggered =
+      leasedNames.includes("lockfile") || Array.from(touched).some(isLockfile);
+
+    const receipt = {
+      ok: true,
+      code: 0,
+      dry_run: true,
+      dryRun: true,
+      delivered: null,
+      replayed: null,
+      attempts: 0,
+      upstream: ctx.upstream,
+      commits: commitItems,
+      count: commits.length,
+      touched: Array.from(touched),
+      leases: leasedNames,
+      lockfile: lockfileTriggered,
+      heavyGate: lockfileTriggered,
+      heavy_gate: lockfileTriggered,
+      gate: null,
+      sync: null,
+      desk_sync: null,
+    };
+
+    if (context.args.flags.has("json")) {
+      context.ui.data(`${JSON.stringify(receipt)}\n`);
+      return 0;
+    }
+
+    report.info(`dry-run: previewing delivery to ${ctx.upstream}`);
+    if (commits.length === 0) {
+      report.info(`nothing that ${ctx.upstream} lacks`);
+    } else {
+      report.info(
+        `${commits.length} commit(s) to replay onto ${ctx.upstream}:`,
+      );
+      for (const item of commitItems) {
+        report.info(`  ${item.short} ${item.subject}`);
+      }
+    }
+    report.info(
+      `lockfile: ${lockfileTriggered ? "changed (triggers heavy gate)" : "unchanged"}`,
+    );
+    if (leasedNames.length > 0) {
+      report.info(`leases: ${leasedNames.join(", ")}`);
+    }
+
+    context.ui.results.line(`upstream: ${ctx.upstream}`);
+    context.ui.results.line(`commits: ${commits.length}`);
+    for (const item of commitItems) {
+      context.ui.results.line(`  ${item.short} ${item.subject}`);
+    }
+    context.ui.results.line(
+      `lockfile: ${lockfileTriggered ? "changed (triggers heavy gate)" : "unchanged"}`,
+    );
+    context.ui.results.line(
+      `leases: ${leasedNames.length > 0 ? leasedNames.join(", ") : "none"}`,
+    );
+    return 0;
+  }
   // The main checkout, when this delivery syncs it: [git.mainline.sync] after_deliver.
   const mainCheckout = () => {
     const when = sync?.afterDeliver ?? "from_main";

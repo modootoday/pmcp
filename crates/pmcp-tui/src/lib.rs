@@ -8,6 +8,7 @@ pub mod draw;
 pub mod events;
 pub mod exec;
 pub mod host;
+pub mod hud;
 pub mod input;
 pub mod keys;
 pub mod layout;
