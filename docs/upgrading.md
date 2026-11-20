@@ -15,14 +15,18 @@ it: a lease-wrapped install (`pmcp heavy`) only warns about an unknown top-level
 on, a refused key in a checkout whose `package.json` pins a newer pmcp than the one
 running says so and names the install to run.
 
-## Next minor (after 0.34.1)
+## From 0.34.1 to 0.35.0
+
+Each key below is new: pin 0.35.0 in every checkout that reads the `pmcp.toml` before
+setting one (see the first section).
 
 **`[sessions.mailbox]` accepts `events`.** Setting
 `events = ["session_start", "prompt"]` restricts mailbox delivery to session start
 and prompt submission, leaving `.claude/settings.json`, `.codex/hooks.json` and
 `.gemini/settings.json` byte-identical to mailbox-off (no per-tool hook overhead).
 Sessions mid-turn see new messages on their next prompt. Omitting `events` keeps
-all four events unchanged.
+all four events unchanged. The events are compiled into the mailbox guard in
+`policy.json`, so the hook runtime follows them without reading `pmcp.toml`.
 
 **`[catalog] marketplaces` accepts arrays of alternative paths.** An entry such as
 `[["packages/marketplace-family/public", "packages/marketplace"]]` reads the first
@@ -30,10 +34,11 @@ alternative holding a `marketplace.json` and skips the rest so the catalog never
 duplicates plugins during directory transitions. `pmcp project`, `pmcp doctor` and
 `pmcp roots` report the path read.
 
-**`pmcp git sync` cleans stray submodule checkouts.** After syncing, untracked
-directories whose `.git` is a file and that are no gitlink in `HEAD` are removed
-under the same safety conditions as removed gitlinks (clean working tree, every
-commit on its origin).
+**`pmcp git sync` and `pmcp git worktree sync` clean stray submodule checkouts.**
+When they follow submodules, untracked directories whose `.git` is a file and that
+are no gitlink in `HEAD` are removed under the same safety conditions as removed
+gitlinks (clean working tree, every commit on its origin), also when the checkout is
+already current. A checkout left by a sync before 0.34.1 is cleared on the first sync.
 
 ## From 0.34.0 to 0.34.1
 
