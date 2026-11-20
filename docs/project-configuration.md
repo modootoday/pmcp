@@ -21,7 +21,10 @@ marketplaces = ["vendor/marketplace"]
 Paths resolve against the file's directory. Keys are `roots`, `scopes`,
 `workspaces`, `packages` and `marketplaces`, each a list mirroring the flag of
 the same meaning, and `builtin` (boolean, default on) for the bundled free
-marketplace; an unknown key is an error. A flag replaces the file's list
+marketplace; an unknown key is an error. An entry in `marketplaces` may also be
+an array of alternative paths in preference order (for example
+`[["packages/marketplace-family/public", "packages/marketplace"]]`); the first
+alternative containing a `marketplace.json` is read and the rest are skipped. A flag replaces the file's list
 of its kind. `--config <file>` names another file and `--no-config` ignores it.
 The nearest `pmcp.toml` is found by walking up from the working directory,
 stopping at the directory that holds `.git`.
@@ -680,13 +683,14 @@ agents under another user, where a token file only you can read keeps them out.
 Addressed messages between sessions, and between you and them. A missing table leaves
 the mailbox off; a declared one, even empty, turns it on.
 
-| Key             | Type   | Default | Meaning                                                                     |
-| --------------- | ------ | ------- | --------------------------------------------------------------------------- |
-| `enabled`       | bool   | `true`  | `false` keeps the table but turns the mailbox off.                          |
-| `ttl_minutes`   | number | `1440`  | Default lifetime of a message; `--ttl` overrides it per message.            |
-| `max_delivered` | number | `5`     | At most this many new messages are shown at once, plus a count of the rest. |
-| `audit`         | bool   | `true`  | Append a line per sent, delivered, acked and expired event.                 |
-| `wake`          | bool   | `false` | Wake idle recipients on every send, as `--wake` does for one message.       |
+| Key             | Type     | Default                                                    | Meaning                                                                                                                                |
+| --------------- | -------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`       | bool     | `true`                                                     | `false` keeps the table but turns the mailbox off.                                                                                     |
+| `ttl_minutes`   | number   | `1440`                                                     | Default lifetime of a message; `--ttl` overrides it per message.                                                                       |
+| `max_delivered` | number   | `5`                                                        | At most this many new messages are shown at once, plus a count of the rest.                                                            |
+| `audit`         | bool     | `true`                                                     | Append a line per sent, delivered, acked and expired event.                                                                            |
+| `wake`          | bool     | `false`                                                    | Wake idle recipients on every send, as `--wake` does for one message.                                                                  |
+| `events`        | string[] | `["session_start", "prompt", "before_tool", "after_tool"]` | Hook events the mailbox listens on; `["session_start", "prompt"]` avoids per-tool hooks (mid-turn messages arrive on the next prompt). |
 
 Each message is one file, `<state>/messages/<id>.json`, created atomically and
 never rewritten: `id`, `from` (session and alias), `to`, `subject`, `body`,

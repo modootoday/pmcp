@@ -56,6 +56,22 @@ it: a lease-wrapped install (<code>pmcp heavy</code>) only warns about an unknow
 <code>[host.lease]</code> key from 0.30.1 on, and any other place still refuses one. From 0.32.0
 on, a refused key in a checkout whose <code>package.json</code> pins a newer pmcp than the one
 running says so and names the install to run.</p>
+<h2 id="next-minor-after-0341">Next minor (after 0.34.1)</h2>
+<p><strong><code>[sessions.mailbox]</code> accepts <code>events</code>.</strong> Setting
+<code>events = [&quot;session_start&quot;, &quot;prompt&quot;]</code> restricts mailbox delivery to session start
+and prompt submission, leaving <code>.claude/settings.json</code>, <code>.codex/hooks.json</code> and
+<code>.gemini/settings.json</code> byte-identical to mailbox-off (no per-tool hook overhead).
+Sessions mid-turn see new messages on their next prompt. Omitting <code>events</code> keeps
+all four events unchanged.</p>
+<p><strong><code>[catalog] marketplaces</code> accepts arrays of alternative paths.</strong> An entry such as
+<code>[[&quot;packages/marketplace-family/public&quot;, &quot;packages/marketplace&quot;]]</code> reads the first
+alternative holding a <code>marketplace.json</code> and skips the rest so the catalog never
+duplicates plugins during directory transitions. <code>pmcp project</code>, <code>pmcp doctor</code> and
+<code>pmcp roots</code> report the path read.</p>
+<p><strong><code>pmcp git sync</code> cleans stray submodule checkouts.</strong> After syncing, untracked
+directories whose <code>.git</code> is a file and that are no gitlink in <code>HEAD</code> are removed
+under the same safety conditions as removed gitlinks (clean working tree, every
+commit on its origin).</p>
 <h2 id="from-0340-to-0341">From 0.34.0 to 0.34.1</h2>
 <p><strong><code>pmcp git sync</code> removes the checkout a removed gitlink leaves behind.</strong> After a commit that
 drops a gitlink, git leaves the submodule checkout as an untracked directory, and sync left it

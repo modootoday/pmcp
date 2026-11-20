@@ -20,6 +20,42 @@ import { pluginBinaryDoctor } from "../mcp-spec/plugin-binary.js";
 import { describeHookProblem, unmanagedHooks } from "../unmanaged-hooks.js";
 import { ProjectError } from "../package-rules.js";
 import { readLockFile } from "../apply/lock.js";
+const LACKS_PROMPT_START = new Set<string>(["antigravity", "grok", "opencode"]);
+
+// Names the events the mailbox listens on and warns when runtimes lack start/prompt hooks.
+function mailboxEventsDoctor(
+  spec: ProjectSpec,
+  options: Pick<DoctorOptions, "only">,
+): Finding | null {
+  const mailbox = spec.hookBundle?.policy?.sessions.mailbox;
+  if (!mailbox?.enabled) return null;
+  const events = mailbox.events ?? [
+    "session_start",
+    "prompt",
+    "before_tool",
+    "after_tool",
+  ];
+  const targets = [...spec.tools].filter(
+    (tool) => options.only === undefined || options.only.has(tool as Tool),
+  );
+  const lacking = targets.filter((tool) => LACKS_PROMPT_START.has(tool));
+  const eventsStr = events.join(", ");
+  if (lacking.length > 0) {
+    return {
+      tool: "project",
+      check: "mailbox events",
+      status: "warn",
+      detail: `listens on ${eventsStr}; ${lacking.join(", ")} lacks prompt and session_start hooks (pmcp sessions inbox fallback)`,
+    };
+  }
+  return {
+    tool: "project",
+    check: "mailbox events",
+    status: "ok",
+    detail: `listens on ${eventsStr}`,
+  };
+}
+
 export function doctor(spec: ProjectSpec, options: DoctorOptions): Finding[] {
   // Every other check reads pmcp.lock, so one a merge left unreadable is the whole report.
   try {
@@ -64,6 +100,8 @@ export function doctor(spec: ProjectSpec, options: DoctorOptions): Finding[] {
           },
     );
   findings.push(...sessionsDoctor(spec, options));
+  const mailboxRow = mailboxEventsDoctor(spec, options);
+  if (mailboxRow) findings.push(mailboxRow);
   findings.push(...hostDoctor(spec));
   if (spec.host) findings.push(hostApprovalDoctor(spec.root));
   if (spec.host) findings.push(ptyBinaryDoctor(process.env));

@@ -59,7 +59,10 @@ marketplaces = [&quot;vendor/marketplace&quot;]</code></pre>
 <p>Paths resolve against the file&#39;s directory. Keys are <code>roots</code>, <code>scopes</code>,
 <code>workspaces</code>, <code>packages</code> and <code>marketplaces</code>, each a list mirroring the flag of
 the same meaning, and <code>builtin</code> (boolean, default on) for the bundled free
-marketplace; an unknown key is an error. A flag replaces the file&#39;s list
+marketplace; an unknown key is an error. An entry in <code>marketplaces</code> may also be
+an array of alternative paths in preference order (for example
+<code>[[&quot;packages/marketplace-family/public&quot;, &quot;packages/marketplace&quot;]]</code>); the first
+alternative containing a <code>marketplace.json</code> is read and the rest are skipped. A flag replaces the file&#39;s list
 of its kind. <code>--config &lt;file&gt;</code> names another file and <code>--no-config</code> ignores it.
 The nearest <code>pmcp.toml</code> is found by walking up from the working directory,
 stopping at the directory that holds <code>.git</code>.</p>
@@ -581,7 +584,8 @@ the mailbox off; a declared one, even empty, turns it on.</p>
 <tr><td><code>ttl_minutes</code></td><td>number</td><td><code>1440</code></td><td>Default lifetime of a message; <code>--ttl</code> overrides it per message.</td></tr>
 <tr><td><code>max_delivered</code></td><td>number</td><td><code>5</code></td><td>At most this many new messages are shown at once, plus a count of the rest.</td></tr>
 <tr><td><code>audit</code></td><td>bool</td><td><code>true</code></td><td>Append a line per sent, delivered, acked and expired event.</td></tr>
-<tr><td><code>wake</code></td><td>bool</td><td><code>false</code></td><td>Wake idle recipients on every send, as <code>--wake</code> does for one message.</td></tr></tbody></table></div>
+<tr><td><code>wake</code></td><td>bool</td><td><code>false</code></td><td>Wake idle recipients on every send, as <code>--wake</code> does for one message.</td></tr>
+<tr><td><code>events</code></td><td>string[]</td><td><code>[&quot;session_start&quot;, &quot;prompt&quot;, &quot;before_tool&quot;, &quot;after_tool&quot;]</code></td><td>Hook events the mailbox listens on; <code>[&quot;session_start&quot;, &quot;prompt&quot;]</code> avoids per-tool hooks (mid-turn messages arrive on the next prompt).</td></tr></tbody></table></div>
 <p>Each message is one file, <code>&lt;state&gt;/messages/&lt;id&gt;.json</code>, created atomically and
 never rewritten: <code>id</code>, <code>from</code> (session and alias), <code>to</code>, <code>subject</code>, <code>body</code>,
 <code>createdAt</code>, <code>expiresAt</code>, <code>replyTo</code>, <code>once</code>. <code>to</code> lists selectors: <code>all</code>,

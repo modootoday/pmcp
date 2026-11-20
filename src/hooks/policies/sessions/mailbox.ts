@@ -5,6 +5,11 @@ import { ptyRef } from "../../../sessions/wake/pty-ref.js";
 import type { Recipient } from "../../../sessions/types.js";
 import type { HookInput } from "../../contract.js";
 import { pass, type Policy, type PolicyContext } from "../types.js";
+import {
+  configuredMailboxEvents,
+  MAILBOX_EVENTS,
+  type MailboxEvent,
+} from "../../../sessions/settings.js";
 
 export interface MailboxOptions {
   // Role name to the agent type that holds it, from [sessions.roles].
@@ -67,7 +72,8 @@ function heldForWake(
 // does not show at this event is held by dispatch for the next one that does.
 export const mailbox: Policy<MailboxOptions> = {
   id: "sessions.mailbox",
-  events: ["session_start", "prompt", "before_tool", "after_tool"],
+  events: MAILBOX_EVENTS,
+  eventsFor: () => configuredMailboxEvents(),
   fail: "open",
   defaultMode: "warn",
   options(raw) {
@@ -86,6 +92,10 @@ export const mailbox: Policy<MailboxOptions> = {
   evaluate(input, ctx) {
     const box = ctx.store.mailbox;
     if (!input.session.id || !box.settings.enabled) return pass;
+    const allowed =
+      (box.settings as { events?: readonly MailboxEvent[] }).events ??
+      MAILBOX_EVENTS;
+    if (!allowed.includes(input.event as MailboxEvent)) return pass;
     if (heldForWake(input, ctx)) return pass;
     const recipient = recipientOf(input, ctx);
     const unacked = box.inbox(recipient, Date.now());

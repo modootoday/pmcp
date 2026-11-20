@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import { join, resolve } from "node:path";
+
 import { ConfigError, type ProjectConfig } from "../config.js";
 import { readMcp } from "./mcp-spec.js";
 import { readHooks, type HookSpecs, type ShellHookSpec } from "./hook-spec.js";
@@ -18,6 +21,14 @@ import { TOOLS, type Tool } from "./tools.js";
 export { TOOLS, type Tool };
 
 export type Invocation = "any" | "user";
+
+export interface ChosenMarketplace {
+  readonly original: string | readonly string[];
+  readonly chosen: string;
+  readonly allTried: readonly string[];
+  readonly found: boolean;
+  readonly isAlternative: boolean;
+}
 
 export interface PackageRulesSpec {
   readonly file: string;
@@ -70,6 +81,68 @@ export interface ProjectSpec {
   readonly harness?: { readonly env: readonly string[] };
   // [budget]: limits project --check enforces and status shows.
   readonly budget?: BudgetSettings;
+  readonly chosenMarketplaces?: readonly ChosenMarketplace[];
+}
+
+export function hasMarketplaceJson(directory: string): boolean {
+  if (!directory || !existsSync(directory)) return false;
+  return [
+    ".claude-plugin/marketplace.json",
+    ".agents/plugins/marketplace.json",
+    ".grok-plugin/marketplace.json",
+    "marketplace.json",
+  ].some((file) => existsSync(join(directory, file)));
+}
+
+export function resolveMarketplaceEntry(
+  entry: string | readonly string[],
+  rootDir: string,
+  configPath?: string,
+): ChosenMarketplace {
+  if (typeof entry === "string") {
+    const resolved = resolve(rootDir, entry);
+    const found = hasMarketplaceJson(resolved);
+    return {
+      original: entry,
+      chosen: resolved,
+      allTried: [resolved],
+      found,
+      isAlternative: false,
+    };
+  }
+  if (Array.isArray(entry)) {
+    if (
+      entry.length === 0 ||
+      !entry.every((item) => typeof item === "string" && item.trim() !== "")
+    ) {
+      throw new ConfigError(
+        configPath ?? rootDir,
+        "[catalog] marketplaces must be a list of strings or string arrays",
+      );
+    }
+    const resolvedAlts = entry.map((alt) => resolve(rootDir, alt));
+    const match = resolvedAlts.find((alt) => hasMarketplaceJson(alt));
+    if (match) {
+      return {
+        original: entry,
+        chosen: match,
+        allTried: resolvedAlts,
+        found: true,
+        isAlternative: true,
+      };
+    }
+    return {
+      original: entry,
+      chosen: resolvedAlts.join(", "),
+      allTried: resolvedAlts,
+      found: false,
+      isAlternative: true,
+    };
+  }
+  throw new ConfigError(
+    configPath ?? rootDir,
+    "[catalog] marketplaces must be a list of strings or string arrays",
+  );
 }
 
 const NAME = /^[a-z0-9][a-z0-9-]*$/u;
@@ -217,13 +290,64 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
   const sessionHooks =
     hooks.bundle?.policy?.guards.some((g) => g.id === "sessions.registry") ??
     false;
-  const marketplaces = readMarketplaces(
-    raw["marketplaces"],
-    config.dir,
-    (m) => {
-      throw new ConfigError(path, m);
-    },
+  const rawMarketplaces = raw["marketplaces"];
+  const catalogSection = raw["catalog"] as Record<string, unknown> | undefined;
+  const catalogMarketplaces =
+    catalogSection?.["marketplaces"] ?? config.catalog?.marketplaces;
+  const entries: (string | readonly string[])[] = [];
+
+  if (Array.isArray(rawMarketplaces)) {
+    entries.push(...(rawMarketplaces as (string | readonly string[])[]));
+  } else if (Array.isArray(catalogMarketplaces)) {
+    entries.push(...(catalogMarketplaces as (string | readonly string[])[]));
+  }
+
+  const chosenMarketplaces = entries.map((entry) =>
+    resolveMarketplaceEntry(entry, config.dir, path),
   );
+
+  let declaredInput = rawMarketplaces;
+  if (
+    rawMarketplaces !== undefined &&
+    rawMarketplaces !== null &&
+    typeof rawMarketplaces === "object" &&
+    !Array.isArray(rawMarketplaces)
+  ) {
+    const cloned: Record<string, unknown> = {};
+    for (const [name, val] of Object.entries(
+      rawMarketplaces as Record<string, unknown>,
+    )) {
+      if (val && typeof val === "object" && !Array.isArray(val)) {
+        const entryObj = { ...(val as Record<string, unknown>) };
+        const src = entryObj["source"];
+        if (src && typeof src === "object" && !Array.isArray(src)) {
+          const srcObj = { ...(src as Record<string, unknown>) };
+          if (Array.isArray(srcObj["path"])) {
+            const resolved = resolveMarketplaceEntry(
+              srcObj["path"] as string[],
+              config.dir,
+              path,
+            );
+            srcObj["path"] = resolved.found
+              ? resolved.chosen
+              : resolved.allTried[0];
+            chosenMarketplaces.push(resolved);
+          }
+          entryObj["source"] = srcObj;
+        }
+        cloned[name] = entryObj;
+      } else {
+        cloned[name] = val;
+      }
+    }
+    declaredInput = cloned;
+  } else if (Array.isArray(rawMarketplaces)) {
+    declaredInput = undefined;
+  }
+
+  const marketplaces = readMarketplaces(declaredInput, config.dir, (m) => {
+    throw new ConfigError(path, m);
+  });
   const uiClaude = readUiClaude(
     path,
     raw["ui"],
@@ -250,6 +374,7 @@ export function readSpec(config: ProjectConfig): ProjectSpec {
     packageRules,
     mcp,
     ...(marketplaces.length > 0 ? { marketplaces } : {}),
+    ...(chosenMarketplaces.length > 0 ? { chosenMarketplaces } : {}),
     ...(uiClaude ? { uiClaude } : {}),
     ...(permissions ? { permissions } : {}),
     ...(host ? { host } : {}),

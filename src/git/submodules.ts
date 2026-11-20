@@ -67,6 +67,57 @@ function removeDropped(root: string, path: string): string {
   return "removed: its gitlink is gone, and its checkout was clean with every commit on its origin";
 }
 
+// Finds untracked submodule checkouts whose gitlink is not present in HEAD, skipping
+// ignored paths, regular files, normal directories and standalone repositories.
+function findStrayCheckouts(
+  root: string,
+  skip: ReadonlySet<string> = new Set(),
+): string[] {
+  const candidates = new Set<string>();
+  const add = (output: string) => {
+    for (const raw of output.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      candidates.add(line.endsWith("/") ? line.slice(0, -1) : line);
+    }
+  };
+  add(
+    gitText(root, [
+      "ls-files",
+      "--others",
+      "--directory",
+      "--exclude-standard",
+    ]),
+  );
+  add(gitText(root, ["ls-files", "--others", "--exclude-standard"]));
+  const strays: string[] = [];
+  for (const path of Array.from(candidates).sort()) {
+    if (skip.has(path)) continue;
+    const dotGit = join(root, path, ".git");
+    if (!existsSync(dotGit)) continue;
+    try {
+      if (!statSync(dotGit).isFile()) continue;
+    } catch {
+      continue;
+    }
+    if (gitText(root, ["ls-tree", "HEAD", path]).startsWith("160000 ")) {
+      continue;
+    }
+    strays.push(path);
+  }
+  return strays;
+}
+
+// Cleans untracked submodule checkouts left behind without a gitlink in HEAD, preserving
+// checkouts with uncommitted edits or unpushed commits.
+export function cleanStrayCheckouts(
+  root: string,
+  skip: ReadonlySet<string> = new Set(),
+): string[] {
+  const strays = findStrayCheckouts(root, skip);
+  return strays.map((path) => `${path}: ${removeDropped(root, path)}`);
+}
+
 function followOne(
   dir: string,
   oldPin: string,
@@ -120,18 +171,24 @@ export function followPins(
     to,
   ]);
   const lines: string[] = [];
+  const handled = new Set<string>();
   for (const entry of raw.split("\n")) {
     const dropped = DROPPED.exec(entry)?.[1];
     if (dropped) {
+      handled.add(dropped);
       lines.push(`${dropped}: ${removeDropped(root, dropped)}`);
       continue;
     }
     const match = GITLINK.exec(entry);
     if (!match) continue;
     const [, oldPin = "", newPin = "", path = ""] = match;
+    handled.add(path);
     lines.push(
       `${path}: ${followOne(join(root, path), oldPin, newPin, shared.includes(path))}`,
     );
+  }
+  for (const line of cleanStrayCheckouts(root, handled)) {
+    lines.push(line);
   }
   return lines;
 }

@@ -15,6 +15,26 @@ it: a lease-wrapped install (`pmcp heavy`) only warns about an unknown top-level
 on, a refused key in a checkout whose `package.json` pins a newer pmcp than the one
 running says so and names the install to run.
 
+## Next minor (after 0.34.1)
+
+**`[sessions.mailbox]` accepts `events`.** Setting
+`events = ["session_start", "prompt"]` restricts mailbox delivery to session start
+and prompt submission, leaving `.claude/settings.json`, `.codex/hooks.json` and
+`.gemini/settings.json` byte-identical to mailbox-off (no per-tool hook overhead).
+Sessions mid-turn see new messages on their next prompt. Omitting `events` keeps
+all four events unchanged.
+
+**`[catalog] marketplaces` accepts arrays of alternative paths.** An entry such as
+`[["packages/marketplace-family/public", "packages/marketplace"]]` reads the first
+alternative holding a `marketplace.json` and skips the rest so the catalog never
+duplicates plugins during directory transitions. `pmcp project`, `pmcp doctor` and
+`pmcp roots` report the path read.
+
+**`pmcp git sync` cleans stray submodule checkouts.** After syncing, untracked
+directories whose `.git` is a file and that are no gitlink in `HEAD` are removed
+under the same safety conditions as removed gitlinks (clean working tree, every
+commit on its origin).
+
 ## From 0.34.0 to 0.34.1
 
 **`pmcp git sync` removes the checkout a removed gitlink leaves behind.** After a commit that

@@ -32,13 +32,37 @@ export function marketplaceOutputs(spec: ProjectSpec): Output[] {
 
 export function marketplaceDoctor(spec: ProjectSpec, run: Runner): Finding[] {
   const declared = spec.marketplaces ?? [];
-  if (forRuntime(declared, "codex").length === 0) return [];
+  const findings: Finding[] = [];
+
+  for (const entry of spec.chosenMarketplaces ?? []) {
+    if (entry.isAlternative) {
+      if (entry.found) {
+        findings.push({
+          tool: "project",
+          check: `marketplace ${entry.chosen}`,
+          status: "ok",
+          detail: entry.chosen,
+        });
+      } else {
+        findings.push({
+          tool: "project",
+          check: `marketplace ${entry.allTried.join(", ")}`,
+          status: "fail",
+          detail: `no marketplace.json found in any alternative: ${entry.chosen}`,
+        });
+      }
+    }
+  }
+
+  if (forRuntime(declared, "codex").length === 0) return findings;
   const check = "declared plugins";
   const result = run("codex", CODEX_PLUGIN_LIST, spec.root);
-  if (result.missing) return [{ tool: "codex", check, status: "skip" }];
+  if (result.missing)
+    return [...findings, { tool: "codex", check, status: "skip" }];
   const states = parseCodexPluginList(result.stdout);
   if (!states)
     return [
+      ...findings,
       {
         tool: "codex",
         check,
@@ -46,10 +70,13 @@ export function marketplaceDoctor(spec: ProjectSpec, run: Runner): Finding[] {
         detail: "codex plugin list printed no JSON",
       },
     ];
-  return codexMarketplaceChecks(declared, states, builtinRoot).map((item) => ({
-    tool: "codex",
-    check: item.check,
-    status: item.ok ? "ok" : "fail",
-    ...(item.detail ? { detail: item.detail } : {}),
-  }));
+  findings.push(
+    ...codexMarketplaceChecks(declared, states, builtinRoot).map((item) => ({
+      tool: "codex" as const,
+      check: item.check,
+      status: (item.ok ? "ok" : "fail") as Finding["status"],
+      ...(item.detail ? { detail: item.detail } : {}),
+    })),
+  );
+  return findings;
 }

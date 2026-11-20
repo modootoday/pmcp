@@ -23,13 +23,58 @@ export interface StoreSettings {
   readonly gate?: GateLocation;
 }
 
+export const MAILBOX_EVENTS = [
+  "session_start",
+  "prompt",
+  "before_tool",
+  "after_tool",
+] as const;
+
+export type MailboxEvent = (typeof MAILBOX_EVENTS)[number];
+
+declare module "./types.js" {
+  interface MailboxSettings {
+    readonly events?: readonly MailboxEvent[];
+  }
+}
+
 const MAILBOX_KEYS = [
   "enabled",
   "ttl_minutes",
   "max_delivered",
   "audit",
   "wake",
+  "events",
 ];
+
+let activeMailboxEvents: readonly MailboxEvent[] = MAILBOX_EVENTS;
+
+// Active mailbox events from the last parsed settings, for binding projection.
+export function configuredMailboxEvents(): readonly MailboxEvent[] {
+  return activeMailboxEvents;
+}
+
+export function resetConfiguredMailboxEvents(
+  events?: readonly MailboxEvent[],
+): void {
+  activeMailboxEvents = events ?? MAILBOX_EVENTS;
+}
+
+function readMailboxEvents(value: unknown): readonly MailboxEvent[] {
+  if (
+    !Array.isArray(value) ||
+    !value.every((item) => typeof item === "string")
+  ) {
+    throw new Error("[sessions.mailbox] events must be a list of strings");
+  }
+  const bad = value.find(
+    (event) => !MAILBOX_EVENTS.includes(event as MailboxEvent),
+  );
+  if (bad) {
+    throw new Error(`[sessions.mailbox] events cannot include ${bad}`);
+  }
+  return value as MailboxEvent[];
+}
 
 function flag(value: unknown, where: string, fallback: boolean): boolean {
   if (value === undefined) return fallback;
@@ -40,13 +85,20 @@ function flag(value: unknown, where: string, fallback: boolean): boolean {
 
 // A missing [sessions.mailbox] table leaves the mailbox off; a declared one turns it on.
 export function readMailbox(raw: unknown): MailboxSettings {
-  if (raw === undefined)
+  if (raw === undefined) {
+    resetConfiguredMailboxEvents(undefined);
     return { enabled: false, ttlMinutes: 1440, maxDelivered: 5, audit: true };
+  }
   const mailbox = table(raw, "[sessions.mailbox]");
   const unknown = Object.keys(mailbox).find(
     (key) => !MAILBOX_KEYS.includes(key),
   );
   if (unknown) throw new Error(`[sessions.mailbox] unknown key ${unknown}`);
+  const events =
+    mailbox["events"] !== undefined
+      ? readMailboxEvents(mailbox["events"])
+      : undefined;
+  resetConfiguredMailboxEvents(events);
   return {
     enabled: flag(mailbox["enabled"], "[sessions.mailbox] enabled", true),
     ttlMinutes: positiveInteger(
@@ -64,6 +116,7 @@ export function readMailbox(raw: unknown): MailboxSettings {
     ...(flag(mailbox["wake"], "[sessions.mailbox] wake", false)
       ? { wake: true }
       : {}),
+    ...(events !== undefined ? { events } : {}),
   };
 }
 
