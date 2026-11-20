@@ -4,7 +4,15 @@
     "git push -n --no-verify origin main",
     "git push origin HEAD:main --no-verify",
     "git -C ../ws push --no-verify origin main",
-    "timeout 60 git push --no-verify"
+    "timeout 60 git push --no-verify",
+    "git -c core.hooksPath=/dev/null push origin main",
+    "git -c core.hookspath= push",
+    "git -c CORE.HOOKSPATH=/tmp/none -C ../ws push",
+    "git --config-env=core.hooksPath=EMPTY push",
+    "git --config-env core.hooksPath=EMPTY push origin main",
+    "GIT_CONFIG_PARAMETERS=\"'core.hooksPath'='/dev/null'\" git push",
+    "GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/dev/null git push",
+    "env GIT_CONFIG_COUNT=1 git push origin main"
   ],
   "allowed": [
     "git push",
@@ -13,6 +21,11 @@
     "git push --dry-run origin main",
     "git commit -m 'no-verify mentioned in the message'",
     "git commit --no-verify -m x",
-    "echo 'git push --no-verify'"
+    "echo 'git push --no-verify'",
+    "git -c user.email=a@example.com push origin main",
+    "git -c core.hooksPath=/dev/null commit -m x",
+    "git --config-env=user.name=NAME push",
+    "git config core.hooksPath",
+    "GIT_CONFIG_COUNT=1 git fetch origin"
   ]
 }

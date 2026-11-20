@@ -21,6 +21,7 @@ export const SHELLS: ReadonlySet<string> = new Set([
 export const GIT_VALUE_OPTIONS: ReadonlySet<string> = new Set([
   "-C",
   "-c",
+  "--config-env",
   "--git-dir",
   "--work-tree",
   "--namespace",

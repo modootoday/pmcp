@@ -8,7 +8,10 @@ fn git_subcommand(inner: &[String]) -> Option<(&str, &[String])> {
     let mut i = 1;
     while i < inner.len() {
         let a = inner[i].as_str();
-        if matches!(a, "-C" | "-c" | "--git-dir" | "--work-tree") {
+        if matches!(
+            a,
+            "-C" | "-c" | "--config-env" | "--git-dir" | "--work-tree"
+        ) {
             i += 2;
             continue;
         }
@@ -21,14 +24,60 @@ fn git_subcommand(inner: &[String]) -> Option<(&str, &[String])> {
     None
 }
 
+fn names_hooks_path(entry: &str) -> bool {
+    entry
+        .split('=')
+        .next()
+        .is_some_and(|key| key.eq_ignore_ascii_case("core.hookspath"))
+}
+
+// Global options before the subcommand that set core.hooksPath for this one command.
+fn overrides_hooks(inner: &[String]) -> bool {
+    let mut i = 1;
+    while i < inner.len() {
+        let a = inner[i].as_str();
+        if matches!(a, "-c" | "--config-env") {
+            if inner.get(i + 1).is_some_and(|v| names_hooks_path(v)) {
+                return true;
+            }
+            i += 2;
+            continue;
+        }
+        if let Some(entry) = a.strip_prefix("--config-env=")
+            && names_hooks_path(entry)
+        {
+            return true;
+        }
+        if matches!(a, "-C" | "--git-dir" | "--work-tree") {
+            i += 2;
+            continue;
+        }
+        if !a.starts_with('-') {
+            return false;
+        }
+        i += 1;
+    }
+    false
+}
+
+// Git reads these as configuration for the one command, so they can point core.hooksPath away.
+fn sets_config_env(prefix: &[String]) -> bool {
+    prefix
+        .iter()
+        .any(|t| t.starts_with("GIT_CONFIG_PARAMETERS=") || t.starts_with("GIT_CONFIG_COUNT="))
+}
+
 pub fn check_push_without_verify(cmd: &str) -> RawFinding {
     for (seg, _) in split_segments(cmd) {
         let toks = tokenize(&seg);
         let (inner, _) = unwrap_command(&toks);
+        let prefix = &toks[..toks.len() - inner.len()];
         if let Some(("push", args)) = git_subcommand(inner)
-            && args.iter().any(|a| a == "--no-verify")
+            && (args.iter().any(|a| a == "--no-verify")
+                || overrides_hooks(inner)
+                || sets_config_env(prefix))
         {
-            return RawFinding::Deny("git push --no-verify is denied".into());
+            return RawFinding::Deny("git push without its pre-push hooks is denied".into());
         }
     }
     RawFinding::Allow
