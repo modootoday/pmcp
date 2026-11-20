@@ -15,6 +15,15 @@ it: a lease-wrapped install (`pmcp heavy`) only warns about an unknown top-level
 on, a refused key in a checkout whose `package.json` pins a newer pmcp than the one
 running says so and names the install to run.
 
+## From 0.34.0 to 0.34.1
+
+**`pmcp git sync` removes the checkout a removed gitlink leaves behind.** After a commit that
+drops a gitlink, git leaves the submodule checkout as an untracked directory, and sync left it
+too. Sync now removes it when its git dir is the parent's (`.git` is a file), it has no
+uncommitted changes and its HEAD is on its origin, and prints one line saying so. Otherwise it
+leaves the directory and names the reason. A workflow that kept such a directory to reuse when
+the same gitlink returns should keep a commit or a change in it, or clone it again.
+
 ## From 0.33 to 0.34
 
 **`pmcp heavy queue --json` names its own schema.** Its data was labelled
