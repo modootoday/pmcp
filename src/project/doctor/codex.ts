@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { join } from "node:path";
 import { parse } from "smol-toml";
 import { serversForTool } from "../mcp.js";
@@ -23,10 +24,11 @@ export function codex(spec: ProjectSpec, o: DoctorOptions): Finding[] {
           >;
         }
       ).projects ?? {};
-    const root = spec.root.replace(/\/$/u, "");
-    trusted =
-      projects[root]?.trust_level === "trusted" ||
-      projects[`${root}/`]?.trust_level === "trusted";
+    trusted = trustCandidates(spec.root, o).some(
+      (dir) =>
+        projects[dir]?.trust_level === "trusted" ||
+        projects[`${dir}/`]?.trust_level === "trusted",
+    );
   }
   findings.push(
     trusted
@@ -48,4 +50,34 @@ export function codex(spec: ProjectSpec, o: DoctorOptions): Finding[] {
     );
   }
   return findings;
+}
+
+// Codex trusts a linked worktree through its main checkout's entry, so the
+// root, its ancestors and the main worktree root all count.
+function trustCandidates(root: string, o: DoctorOptions): string[] {
+  const dirs = ancestors(root.replace(/\/$/u, ""));
+  const common = o.run(
+    "git",
+    ["rev-parse", "--path-format=absolute", "--git-common-dir"],
+    root,
+  );
+  const gitDir = common.status === 0 ? common.stdout.trim() : "";
+  if (gitDir.endsWith("/.git")) {
+    for (const dir of ancestors(dirname(gitDir))) {
+      if (!dirs.includes(dir)) dirs.push(dir);
+    }
+  }
+  return dirs;
+}
+
+function ancestors(dir: string): string[] {
+  const out: string[] = [];
+  let current = dir;
+  while (current !== "" && !out.includes(current)) {
+    out.push(current);
+    const parent = dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return out;
 }

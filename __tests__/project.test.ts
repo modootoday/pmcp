@@ -514,6 +514,28 @@ describe("pmcp doctor", () => {
     expect(by("antigravity", "agents carry no tool lists")).toBe("ok");
   });
 
+  it("counts a Codex trust entry for an ancestor or the main worktree root", (t) => {
+    const root = repo(t);
+    run(root);
+    const codexTrust = (trustedDir: string, commonDir?: string) => {
+      const home = join(root, `home-${commonDir === undefined ? "a" : "b"}`);
+      write(
+        join(home, ".codex/config.toml"),
+        `[projects."${trustedDir}"]\ntrust_level = "trusted"\n`,
+      );
+      const answers: Record<string, RunResult> = {};
+      if (commonDir !== undefined) {
+        answers["git rev-parse --path-format=absolute --git-common-dir"] =
+          answer(`${commonDir}\n`);
+      }
+      return doctor(spec(root), { home, run: runner(answers) }).find(
+        (f) => f.tool === "codex" && f.check === "project trusted",
+      )?.status;
+    };
+    expect(codexTrust(dirname(root))).toBe("ok");
+    expect(codexTrust("/elsewhere/main", "/elsewhere/main/.git")).toBe("ok");
+  });
+
   it("names a skill Gemini does not list and an agent Antigravity would drop", (t) => {
     const root = repo(t);
     write(
