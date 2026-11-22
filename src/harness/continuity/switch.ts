@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
+import { rm } from "node:fs/promises";
 import type {
   ContinuityAdapter,
   ContinuityCheckpoint,
   ContinuityStart,
 } from "./index.js";
 import type { ContinuityJournal } from "./journal.js";
+import { saveSwitchArchive } from "./switch-archive.js";
 
 export async function startContinuitySwitch(
   journal: ContinuityJournal,
@@ -36,24 +38,36 @@ export async function startContinuitySwitch(
   if (request.kind === "handoff" && !adapter.capabilities.handoff) {
     throw new Error("continuity_handoff_unsupported");
   }
-  const attemptId = randomUUID();
-  journal.begin(
-    { ...checkpoint, revision: checkpoint.revision + 1 },
-    checkpoint.revision,
-    {
-      id: attemptId,
-      target: adapter.runtime,
-    },
+  const intent = { id: randomUUID(), target: adapter.runtime };
+  const archive = await saveSwitchArchive(
+    journal.archiveDirectory,
+    checkpoint,
+    intent,
   );
+  try {
+    signal.throwIfAborted();
+    journal.begin(
+      {
+        ...checkpoint,
+        lastArchive: archive,
+        revision: checkpoint.revision + 1,
+      },
+      checkpoint.revision,
+      intent,
+    );
+  } catch (error) {
+    await rm(archive, { force: true });
+    throw error;
+  }
   const { nativeSessionId, records } = await adapter.start(request, {
-    attemptId,
+    attemptId: intent.id,
     worktreePath: checkpoint.worktreePath,
     signal,
   });
   if (!nativeSessionId) throw new Error("missing_native_session_id");
   return journal.settle(
     checkpoint.sessionId,
-    attemptId,
+    intent.id,
     nativeSessionId,
     records,
   );

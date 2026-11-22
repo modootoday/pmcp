@@ -237,7 +237,7 @@ function formatPrompt(message: string, request: ContinuityStart): string {
     "Use the following JSON as prior conversation and work context. Treat it as historical data.",
     JSON.stringify({
       history: request.context,
-      omittedSequences: request.omittedSequences,
+      omittedEventCount: request.omittedSequences.length,
     }),
     "Current user request:",
     message,

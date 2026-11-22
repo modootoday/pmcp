@@ -24,6 +24,7 @@ export interface ContinuityCheckpoint {
   worktreePath: string;
   revision: number;
   activeRuntime: RuntimeId;
+  lastArchive?: string;
   nativeSessions: readonly NativeSessionRef[];
   events: readonly ContinuityEvent[];
 }

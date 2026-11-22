@@ -9,6 +9,14 @@ import {
 } from "../../harness/continuity/import-history.js";
 
 export async function runHistory(context: CommandContext): Promise<number> {
+  if (
+    ["switch", "status", "cancel-switch"].includes(
+      context.args.positional[1] ?? "",
+    )
+  ) {
+    const { runHistorySwitch } = await import("./history-switch.js");
+    return runHistorySwitch(context);
+  }
   if (context.args.positional[1] === "wake-open") {
     const [, , archive, socket, model, ...extra] = context.args.positional;
     if (!archive || !socket || extra.length) {

@@ -84,6 +84,23 @@ server, or pmcp-pty. A Codex session opened with <code>pmcp harness history wake
 a private pmcp-pty Codex queue. Address it by desk path to keep the same destination
 across a runtime switch. This mailbox is for sessions of one repository; the <a href="/mailbox/">local mailbox</a>
 serves actors with their own credentials.</p>
+<h2 id="switch-providers-in-a-managed-history-session">Switch providers in a managed history session</h2>
+<p>Import a local transcript once, then use the session ID printed by import. Each
+switch saves the complete checkpoint as private JSONL before invoking the
+target provider. PMCP preserves the session ID and desk across Codex, Claude,
+Gemini, Grok and Antigravity.</p>
+<pre><code>pmcp harness history import codex session.jsonl continuity.sqlite .
+pmcp harness history switch continuity.sqlite codex:SESSION_ID claude &quot;Summarize the remaining work&quot;
+pmcp harness history status continuity.sqlite codex:SESSION_ID</code></pre>
+<p>The switch command runs a headless turn. It sends a bounded selection of
+historical events to the selected provider and keeps the full record locally
+in <code>continuity.sqlite.checkpoints/</code>. To continue interactively from a saved
+checkpoint, use <code>pmcp harness history open &lt;runtime&gt; &lt;archive&gt;</code>. A running
+terminal and turns made outside the managed history command are independent of
+this journal. For an uncertain provider start, status shows the pending
+attempt and the source remains active in the journal. After checking that
+the target did not start, clear the intent with
+<code>pmcp harness history cancel-switch &lt;database&gt; &lt;session-id&gt; &lt;attempt-id&gt; confirmed-not-started</code>.</p>
 <h2 id="keep-agents-out-of-each-others-way">Keep agents out of each other&#39;s way</h2>
 <ul>
 <li><strong>Leases.</strong> <code>[sessions.leases.&lt;name&gt;]</code> names a file two sessions must not change at once,

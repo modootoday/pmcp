@@ -1,4 +1,5 @@
 import { constants, openSync, closeSync, fstatSync } from "node:fs";
+import { resolve } from "node:path";
 import { openSqlite, type SqliteHandle } from "../../storage/sqlite.js";
 import type { ContinuityCheckpoint, ContinuityRecord } from "./index.js";
 import type { RuntimeId } from "../../runtime/ids.js";
@@ -14,7 +15,10 @@ export interface JournalEntry {
 }
 
 export class ContinuityJournal {
-  private constructor(private readonly db: SqliteHandle) {}
+  private constructor(
+    private readonly db: SqliteHandle,
+    readonly archiveDirectory: string,
+  ) {}
 
   static async open(path: string): Promise<ContinuityJournal> {
     const fd = openSync(
@@ -45,7 +49,7 @@ export class ContinuityJournal {
         attempt_id TEXT,
         target TEXT
       )`);
-      return new ContinuityJournal(db);
+      return new ContinuityJournal(db, `${resolve(path)}.checkpoints`);
     } catch (error) {
       db.close();
       throw error;

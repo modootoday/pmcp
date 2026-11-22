@@ -48,6 +48,37 @@ export const harnessSpec: CommandSpec = {
     },
     ...HOST,
     {
+      name: "history switch",
+      describe:
+        "Checkpoint a managed session and run a turn on another provider",
+      usage:
+        "pmcp harness history switch <database> <pmcp-session-id> <runtime> <prompt>",
+      options: [],
+      examples: [
+        'pmcp harness history switch continuity.sqlite codex:SESSION_ID claude "Summarize the remaining work"',
+      ],
+    },
+    {
+      name: "history status",
+      describe: "Inspect a managed session and its last switch checkpoint",
+      usage: "pmcp harness history status <database> <pmcp-session-id>",
+      options: [],
+      examples: [
+        "pmcp harness history status continuity.sqlite codex:SESSION_ID",
+      ],
+    },
+    {
+      name: "history cancel-switch",
+      describe:
+        "Clear a pending switch after confirming the target did not start",
+      usage:
+        "pmcp harness history cancel-switch <database> <pmcp-session-id> <attempt-id> confirmed-not-started",
+      options: [],
+      examples: [
+        "pmcp harness history cancel-switch continuity.sqlite codex:SESSION_ID ATTEMPT_ID confirmed-not-started",
+      ],
+    },
+    {
       name: "history import",
       describe: "Import visible messages from a local native session file",
       usage:
