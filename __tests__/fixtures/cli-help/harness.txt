@@ -10,6 +10,12 @@ pmcp harness
     host up                Start pmcp-pty and the approved sessions (Linux)
     host down              Stop the host's sessions
     host unit              Print a systemd user unit for pmcp-pty (Linux)
+    history switch         Checkpoint a managed session and run a turn on
+                           another provider
+    history status         Inspect a managed session and its last switch
+                           checkpoint
+    history cancel-switch  Clear a pending switch after confirming the target
+                           did not start
     history import         Import visible messages from a local native session
                            file
     history archive        Normalize native session history into a local file
