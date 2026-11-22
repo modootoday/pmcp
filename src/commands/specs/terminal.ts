@@ -79,7 +79,9 @@ export const harnessSpec: CommandSpec = {
       describe: "Open a Codex history session on a pmcp-pty host",
       usage: "pmcp harness history wake-open <archive> <socket> [model]",
       options: [],
-      examples: ['pmcp harness history wake-open history.jsonl "$PMCP_PTY_SOCKET"'],
+      examples: [
+        'pmcp harness history wake-open history.jsonl "$PMCP_PTY_SOCKET"',
+      ],
     },
     {
       name: "mcp",
