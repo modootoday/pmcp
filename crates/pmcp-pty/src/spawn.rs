@@ -45,7 +45,8 @@ impl Daemon {
         let mut channel = None;
         if req.delivery_setup && delivery != "screen" {
             let dir = self.instance_dir().join(&id);
-            let (launch, mut ch, spec) = prepare(&delivery, argv, &env, &dir)?;
+            let (launch, mut ch, spec) =
+                prepare(&delivery, argv, &env, &dir, &req.codex_writable_roots)?;
             if let Some(spec) = spec {
                 ch.helper = Some(helper::start(&spec, &env, &unset, cwd.as_deref())?);
             }

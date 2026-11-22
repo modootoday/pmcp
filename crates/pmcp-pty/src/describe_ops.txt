@@ -11,7 +11,7 @@ subscribe|read|id:string!|Stream session events (not a one-line reply).
 turn|write|id:string!,text:string!,timeout_ms:integer,wait_idle_ms:integer,target:object,expect:object|Deliver one prompt through the profile's channel and wait for its end.
 lease|write|id:string!,token:string,ttl_ms:integer,current:string,release:boolean|Hold or release the harness lease token.
 answer|write|id:string!,dialog:string!,option:string!,expect:object|Choose a dialog option the operator policy allows.
-spawn|write|argv:array!,name:string,cwd:string,env:object,keep_env:array,cols:integer,rows:integer,profile:string,labels:object,delivery_setup:boolean,ring_kb:integer|Start a runtime in a new PTY.
+spawn|write|argv:array!,name:string,cwd:string,env:object,keep_env:array,cols:integer,rows:integer,profile:string,labels:object,delivery_setup:boolean,codex_writable_roots:array,ring_kb:integer|Start a runtime in a new PTY.
 write|write|id:string!,text:string!,submit:boolean,guard:string,wait_ms:integer,expect:object|Type text, guarded by idle.
 key|write|id:string!,key:string!,expect:object|Send one named key.
 resize|write|id:string!,cols:integer!,rows:integer!,expect:object|Resize the PTY.

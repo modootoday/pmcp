@@ -1,6 +1,9 @@
 import { spawn } from "node:child_process";
 import { ptyBinary } from "../../native/binary.js";
+import { codexMailboxRoots } from "../../sessions/mailbox/codex-access.js";
+import { stateHome } from "../../sessions/state-dir.js";
 import { ptyRequest } from "../adapters/pty/client.js";
+import { codexConfiguredRoots } from "./codex-config.js";
 import { historyLaunch } from "./open-history.js";
 
 export async function openWakeableCodex(
@@ -12,6 +15,15 @@ export async function openWakeableCodex(
   const binary = ptyBinary(process.env);
   if (!binary) throw new Error("terminal_host_missing");
   const launch = await historyLaunch("codex", archive);
+  const mailboxRoots = await codexMailboxRoots(launch.cwd, process.env);
+  const writableRoots = mailboxRoots.length
+    ? [
+        ...new Set([
+          ...(await codexConfiguredRoots(launch.executable, launch.cwd)),
+          ...mailboxRoots,
+        ]),
+      ]
+    : [];
   const reply = await ptyRequest(
     socket,
     {
@@ -27,8 +39,10 @@ export async function openWakeableCodex(
         ...launch.args,
       ],
       cwd: launch.cwd,
+      env: { XDG_STATE_HOME: stateHome(process.env) },
       profile: "codex",
       delivery_setup: true,
+      codex_writable_roots: writableRoots,
     },
     30_000,
   );

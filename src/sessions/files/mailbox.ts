@@ -18,11 +18,18 @@ import { readJson } from "./json.js";
 const ID = /^\d{13}-[0-9a-f]{8}$/u;
 const SAFE_KEY = /^@?[\w.-]+$/u;
 
+export function mailboxPaths(dir: string) {
+  return {
+    messages: join(dir, "messages"),
+    inbox: join(dir, "inbox"),
+    audit: join(dir, "messages.jsonl"),
+  };
+}
+
 // <state>/messages/<id>.json is created once and never rewritten; per-recipient state lives in
 // empty markers under <state>/inbox/<key>/, and <state>/messages.jsonl is an append-only audit.
 export function filesMailbox(dir: string, settings: MailboxSettings): Mailbox {
-  const messages = join(dir, "messages");
-  const inbox = join(dir, "inbox");
+  const { messages, inbox, audit: auditPath } = mailboxPaths(dir);
   const pathOf = (id: string) => join(messages, `${id}.json`);
   const marker = (key: string, id: string, kind: "ack" | "delivered") => {
     if (!SAFE_KEY.test(key) || !ID.test(id))
@@ -33,7 +40,7 @@ export function filesMailbox(dir: string, settings: MailboxSettings): Mailbox {
     if (!settings.audit) return;
     const line = { at: new Date().toISOString(), event, ...fields };
     // One small append per event: O_APPEND keeps concurrent lines whole.
-    appendFileSync(join(dir, "messages.jsonl"), `${JSON.stringify(line)}\n`, {
+    appendFileSync(auditPath, `${JSON.stringify(line)}\n`, {
       mode: 0o600,
     });
   };

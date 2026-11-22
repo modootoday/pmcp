@@ -127,6 +127,8 @@ pub struct SpawnReq {
     /// a pinned opencode port, a private grok leader socket). Off: turn uses the screen.
     #[serde(default)]
     pub delivery_setup: bool,
+    #[serde(default)]
+    pub codex_writable_roots: Vec<String>,
     /// Inherited runtime session markers to keep; every other one is removed (see scrub.rs).
     #[serde(default)]
     pub keep_env: Vec<String>,

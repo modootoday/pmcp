@@ -6,7 +6,9 @@ import { join } from "node:path";
 import { gitCommonDir } from "./checkout.js";
 import { expandPath } from "./paths.js";
 
-function stateHome(env: Readonly<Record<string, string | undefined>>): string {
+export function stateHome(
+  env: Readonly<Record<string, string | undefined>>,
+): string {
   return env["XDG_STATE_HOME"] || join(homedir(), ".local", "state");
 }
 

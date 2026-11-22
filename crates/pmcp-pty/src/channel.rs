@@ -47,6 +47,7 @@ pub fn prepare(
     argv: Vec<String>,
     env: &[(String, String)],
     dir: &Path,
+    codex_writable_roots: &[String],
 ) -> Result<(Vec<String>, Channel, Option<HelperSpec>), Fail> {
     let bin = argv.first().cloned().unwrap_or_default();
     let mut channel = Channel {
@@ -68,12 +69,19 @@ pub fn prepare(
             let sock = dir.join("codex.sock").display().to_string();
             let remote = format!("unix://{sock}");
             channel.remote = Some(remote.clone());
-            let server = vec![
+            let mut server = vec![
                 bin.clone(),
                 "app-server".into(),
                 "--listen".into(),
                 remote.clone(),
             ];
+            if !codex_writable_roots.is_empty() {
+                server.push("-c".into());
+                server.push(format!(
+                    "sandbox_workspace_write.writable_roots={}",
+                    json_roots(codex_writable_roots)?
+                ));
+            }
             let mut tui = vec![bin, "--remote".into(), remote];
             tui.extend(rest);
             Ok((tui, channel, Some(helper(server, &sock, &dir))))
@@ -120,17 +128,53 @@ pub fn prepare(
     }
 }
 
+fn json_roots(roots: &[String]) -> Result<String, Fail> {
+    if roots.iter().any(|root| !Path::new(root).is_absolute()) {
+        return Err(Fail::new(
+            Code::BadRequest,
+            "Codex writable roots must be absolute",
+        ));
+    }
+    Ok(serde_json::json!(roots).to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn codex_writable_roots_are_passed_only_to_the_app_server() {
+        let dir = std::env::temp_dir().join(format!("pmcp-codex-roots-{}", std::process::id()));
+        let roots = vec![dir.join("mail box").display().to_string()];
+        let (tui, _, helper) =
+            prepare("codex-queue", strings(&["codex"]), &[], &dir, &roots).unwrap();
+        assert_eq!(tui.len(), 3);
+        assert_eq!(
+            helper.unwrap().argv[4..],
+            [
+                "-c".to_owned(),
+                format!(
+                    "sandbox_workspace_write.writable_roots={}",
+                    json_roots(&roots).unwrap()
+                ),
+            ]
+        );
+        std::fs::remove_dir_all(dir).unwrap();
+    }
 
     #[test]
     fn each_channel_rewrites_the_launch_and_names_its_helper() {
         let dir = std::env::temp_dir().join(format!("pmcp-pty-channel-{}", std::process::id()));
         let sock = dir.join("codex.sock").display().to_string();
         let remote = format!("unix://{sock}");
-        let (tui, c, h) =
-            prepare("codex-queue", strings(&["codex", "-m", "x"]), &[], &dir).unwrap();
+        let (tui, c, h) = prepare(
+            "codex-queue",
+            strings(&["codex", "-m", "x"]),
+            &[],
+            &dir,
+            &[],
+        )
+        .unwrap();
         assert_eq!(tui, strings(&["codex", "--remote", &remote, "-m", "x"]));
         assert_eq!(c.remote.as_deref(), Some(remote.as_str()));
         let h = h.unwrap();
@@ -143,12 +187,19 @@ mod tests {
             (sock, dir.join("helper.log"))
         );
         let env = [("OPENCODE_SERVER_PASSWORD".to_string(), "pw".to_string())];
-        let (oc, c, h) = prepare("http-prompt-async", strings(&["opencode"]), &env, &dir).unwrap();
+        let (oc, c, h) =
+            prepare("http-prompt-async", strings(&["opencode"]), &env, &dir, &[]).unwrap();
         assert_eq!((oc[1].as_str(), h), ("--port", None));
         assert_eq!(c.url.unwrap(), format!("http://127.0.0.1:{}", oc[2]));
         assert_eq!(c.auth, Some(("opencode".into(), "pw".into())));
-        let (tui, c, h) =
-            prepare("grok-leader-acp", strings(&["grok", "-m", "x"]), &[], &dir).unwrap();
+        let (tui, c, h) = prepare(
+            "grok-leader-acp",
+            strings(&["grok", "-m", "x"]),
+            &[],
+            &dir,
+            &[],
+        )
+        .unwrap();
         let leader = c.leader_socket.unwrap();
         assert_eq!(
             tui,
@@ -163,7 +214,7 @@ mod tests {
             "--relay-on-demand",
         ]);
         assert_eq!(h.unwrap().argv, want);
-        let (screen, _, h) = prepare("screen", strings(&["gemini"]), &[], &dir).unwrap();
+        let (screen, _, h) = prepare("screen", strings(&["gemini"]), &[], &dir, &[]).unwrap();
         assert_eq!((screen, h), (strings(&["gemini"]), None));
         let _ = std::fs::remove_dir_all(&dir);
     }
