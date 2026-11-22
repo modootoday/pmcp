@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { VERSION } from "../commands/version.js";
-import { missingBinary, nativeBinary } from "../native/binary.js";
+import { missingBinary, ptyBinary } from "../native/binary.js";
 import { pickEnv } from "../native/env-names.js";
 import { readLock } from "./apply/lock.js";
 import type { Finding } from "./doctor/types.js";
@@ -69,12 +69,7 @@ export function hostOutputs(spec: ProjectSpec): Output[] {
   ];
 }
 
-// PMCP_PTY_BIN when set, else the platform package, else pmcp-pty on PATH.
-export function ptyBinary(
-  env: Readonly<Record<string, string | undefined>>,
-): string | null {
-  return nativeBinary("pmcp-pty", "PMCP_PTY_BIN", env);
-}
+export { ptyBinary };
 
 export function ptyBinaryDoctor(
   env: Readonly<Record<string, string | undefined>>,

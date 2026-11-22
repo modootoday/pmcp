@@ -53,8 +53,10 @@ pmcp sessions send --to worktree:.claude/worktrees/docs --wake "Rebase onto main
 pmcp sessions inbox
 ```
 
-`--wake` also starts a turn in an idle recipient where the runtime allows it (Claude Code,
-opencode). This mailbox is for sessions of one repository; the [local mailbox](mailbox.md)
+`--wake` also starts a turn in an idle recipient through Claude Code's inbox, opencode's
+server, or pmcp-pty. A Codex session opened with `pmcp harness history wake-open` uses
+a private pmcp-pty Codex queue. Address it by desk path to keep the same destination
+across a runtime switch. This mailbox is for sessions of one repository; the [local mailbox](mailbox.md)
 serves actors with their own credentials.
 
 ## Keep agents out of each other's way

@@ -88,3 +88,7 @@ export function nativeBinary(
   }
   return null;
 }
+
+export function ptyBinary(env: Env): string | null {
+  return nativeBinary("pmcp-pty", "PMCP_PTY_BIN", env);
+}

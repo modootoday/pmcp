@@ -22,6 +22,10 @@ export const harnessCommand: Command = {
       return runHost(context);
     }
     try {
+      if (context.args.positional[0] === "history") {
+        const { runHistory } = await import("./harness/history.js");
+        return await runHistory(context);
+      }
       const operation = parseInvocation(context);
       const { invoke } = await import("../harness/application/invoke.js");
       const receipt = await invoke(operation);

@@ -48,6 +48,40 @@ export const harnessSpec: CommandSpec = {
     },
     ...HOST,
     {
+      name: "history import",
+      describe: "Import visible messages from a local native session file",
+      usage:
+        "pmcp harness history import <runtime> <source> <database> <worktree>",
+      options: [],
+      examples: [
+        "pmcp harness history import codex session.jsonl continuity.sqlite .",
+      ],
+    },
+    {
+      name: "history archive",
+      describe: "Normalize native session history into a local file",
+      usage:
+        "pmcp harness history archive <runtime> <session-id> <source> <archive> <worktree>",
+      options: [],
+      examples: [
+        'pmcp harness history archive claude "$CLAUDE_SESSION_ID" "$TRANSCRIPT" history.jsonl .',
+      ],
+    },
+    {
+      name: "history open",
+      describe: "Open a native session with a local history file",
+      usage: "pmcp harness history open <runtime> <archive>",
+      options: [],
+      examples: ["pmcp harness history open gemini history.jsonl"],
+    },
+    {
+      name: "history wake-open",
+      describe: "Open a Codex history session on a pmcp-pty host",
+      usage: "pmcp harness history wake-open <archive> <socket> [model]",
+      options: [],
+      examples: ['pmcp harness history wake-open history.jsonl "$PMCP_PTY_SOCKET"'],
+    },
+    {
       name: "mcp",
       describe: "A stdio MCP server for one pmcp-pty socket (PMCP_PTY_SOCKET)",
       usage: "pmcp harness mcp",
