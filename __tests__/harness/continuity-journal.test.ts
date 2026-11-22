@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { buildSync } from "esbuild";
 import { expect, it } from "vitest";
 import { ContinuityJournal } from "../../src/harness/continuity/journal.js";
 import { startContinuitySwitch } from "../../src/harness/continuity/switch.js";
@@ -10,15 +11,12 @@ it("recovers a durable switch intent after a process is killed and settles it on
   const directory = mkdtempSync(join(tmpdir(), "pmcp-continuity-"));
   const path = join(directory, "session.sqlite");
   try {
-    const child = spawnSync(
-      process.execPath,
-      [
-        "--import",
-        "tsx",
-        "--input-type=module",
-        "--eval",
-        `import { ContinuityJournal } from './src/harness/continuity/journal.ts';
-       const journal = await ContinuityJournal.open(process.argv[1]);
+    const worker = join(directory, "worker.mjs");
+    buildSync({
+      stdin: {
+        resolveDir: process.cwd(),
+        contents: `import { ContinuityJournal } from './src/harness/continuity/journal.ts';
+       const journal = await ContinuityJournal.open(process.argv[2]);
        const checkpoint = {
          version: 1, sessionId: 'pilot', workspaceId: 'fixture', worktreePath: '/synthetic',
          revision: 0, activeRuntime: 'codex', nativeSessions: [], events: []
@@ -30,10 +28,16 @@ it("recovers a durable switch intent after a process is killed and settles it on
        }];
        journal.begin({ ...checkpoint, revision: 1, events }, 0, { id: 'attempt', target: 'claude' });
        process.kill(process.pid, 'SIGKILL');`,
-        path,
-      ],
-      { encoding: "utf8", timeout: 10_000 },
-    );
+      },
+      outfile: worker,
+      bundle: true,
+      platform: "node",
+      format: "esm",
+    });
+    const child = spawnSync(process.execPath, [worker, path], {
+      encoding: "utf8",
+      timeout: 10_000,
+    });
     expect(child.signal, child.stderr).toBe("SIGKILL");
     const journal = await ContinuityJournal.open(path);
     try {
