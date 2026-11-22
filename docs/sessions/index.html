@@ -79,8 +79,10 @@ the agent&#39;s runtime before they start. The same holds for <code>pmcp heavy -
 <pre><code>pmcp sessions send --to alias:reviewer --subject review &quot;Please check the config change&quot;
 pmcp sessions send --to worktree:.claude/worktrees/docs --wake &quot;Rebase onto main&quot;
 pmcp sessions inbox</code></pre>
-<p><code>--wake</code> also starts a turn in an idle recipient where the runtime allows it (Claude Code,
-opencode). This mailbox is for sessions of one repository; the <a href="/mailbox/">local mailbox</a>
+<p><code>--wake</code> also starts a turn in an idle recipient through Claude Code&#39;s inbox, opencode&#39;s
+server, or pmcp-pty. A Codex session opened with <code>pmcp harness history wake-open</code> uses
+a private pmcp-pty Codex queue. Address it by desk path to keep the same destination
+across a runtime switch. This mailbox is for sessions of one repository; the <a href="/mailbox/">local mailbox</a>
 serves actors with their own credentials.</p>
 <h2 id="keep-agents-out-of-each-others-way">Keep agents out of each other&#39;s way</h2>
 <ul>
