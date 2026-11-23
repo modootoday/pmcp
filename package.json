@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/modootoday/pmcp/issues"
   },
-  "packageManager": "bun@1.3.14",
+  "packageManager": "bun@1.4.4",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
