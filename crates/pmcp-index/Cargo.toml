@@ -1,6 +1,6 @@
 [package]
 name = "pmcp-index"
-version = "0.37.0"
+version = "0.37.1"
 edition = "2024"
 license = "Elastic-2.0"
 description = "Incremental skill catalog indexer and prompt budget auditor for pmcp"
