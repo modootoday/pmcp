@@ -24,6 +24,10 @@ export interface SkillServerOptions extends CatalogOptions {
   readonly cache?: IntentCache;
   readonly vectors?: ReadonlyMap<string, Float32Array>;
   readonly loadCatalog?: (options: CatalogOptions) => SkillEntry[];
+  // Used by list requests, which must not hold the event loop while the catalog is walked.
+  readonly loadCatalogAsync?: (
+    options: CatalogOptions,
+  ) => Promise<SkillEntry[]>;
   readonly rankByClientRuntime?: boolean;
 }
 export interface CallResponse {

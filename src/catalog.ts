@@ -11,6 +11,6 @@ export { expandBraces } from "./catalog/globs.js";
 export { globDirs } from "./catalog/globs.js";
 export { workspacePackageDirs } from "./catalog/workspaces.js";
 export { expandRootGlob } from "./catalog/globs.js";
-export { readCatalog } from "./catalog/load.js";
+export { readCatalog, readCatalogAsync } from "./catalog/load.js";
 export { withoutBody } from "./catalog/display.js";
 export { displayPath } from "./catalog/display.js";

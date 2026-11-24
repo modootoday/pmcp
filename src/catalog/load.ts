@@ -6,7 +6,8 @@ import {
   specProblems,
   stringFields,
 } from "../frontmatter.js";
-import { readMarketplace } from "../marketplace.js";
+import { marketplaceSteps } from "../marketplace.js";
+import { runSteps, runStepsYielding, type Steps } from "./steps.js";
 import type { SkillEntry } from "./types.js";
 import type { CatalogOptions } from "./types.js";
 import { kindOf } from "./_shared.js";
@@ -16,6 +17,16 @@ import { nameOf } from "./packages.js";
 import { expandRootGlob } from "./globs.js";
 import { workspacePackageDirs } from "./workspaces.js";
 export function readCatalog(options: CatalogOptions): SkillEntry[] {
+  return runSteps(catalogSteps(options));
+}
+
+export function readCatalogAsync(
+  options: CatalogOptions,
+): Promise<SkillEntry[]> {
+  return runStepsYielding(catalogSteps(options));
+}
+
+function* catalogSteps(options: CatalogOptions): Steps<SkillEntry[]> {
   const scopes = options.scopes ?? [];
   const found: SkillEntry[] = [];
   const seen = new Set<string>();
@@ -29,6 +40,7 @@ export function readCatalog(options: CatalogOptions): SkillEntry[] {
       .flatMap(workspacePackageDirs),
   ];
   for (const packageDir of packageDirsToRead) {
+    yield;
     const packageName = nameOf(packageDir, direct.has(packageDir));
     if (packageName === "") continue;
     if (scopes.length > 0 && !scopes.some((s) => packageName.startsWith(s))) {
@@ -75,7 +87,8 @@ export function readCatalog(options: CatalogOptions): SkillEntry[] {
     }
   }
   for (const dir of options.marketplaces ?? []) {
-    for (const entry of readMarketplace(dir, options.onReject)) {
+    const marketplace = yield* marketplaceSteps(dir, options.onReject);
+    for (const entry of marketplace) {
       if (seen.has(entry.name)) {
         options.onReject?.({
           path: entry.path,

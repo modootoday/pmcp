@@ -1,4 +1,10 @@
-import { readCatalog, withoutBody, type SkillEntry } from "../catalog.js";
+import {
+  readCatalog,
+  readCatalogAsync,
+  withoutBody,
+  type CatalogOptions,
+  type SkillEntry,
+} from "../catalog.js";
 import type {
   SkillServerOptions,
   KindFilter,
@@ -19,20 +25,49 @@ import { describeOperation } from "./describe.js";
 import { readOperation } from "./read.js";
 import { bundleOperation } from "./bundle.js";
 import { callOperation } from "./call.js";
+function asyncLoader(options: SkillServerOptions) {
+  if (options.loadCatalogAsync) return options.loadCatalogAsync;
+  const load = options.loadCatalog;
+  if (load) return (catalog: CatalogOptions) => Promise.resolve(load(catalog));
+  return readCatalogAsync;
+}
+
 export function createSkillTools(options: SkillServerOptions) {
   const load = options.loadCatalog ?? readCatalog;
+  const loadAsync = asyncLoader(options);
+  const catalogOptions: CatalogOptions = {
+    roots: options.roots,
+    scopes: options.scopes,
+    marketplaces: options.marketplaces,
+    packages: options.packages,
+    workspaces: options.workspaces,
+    onReject: options.onReject,
+    onWarning: options.onWarning,
+  };
   let entries: SkillEntry[] | null = null;
+  let pending: Promise<SkillEntry[]> | null = null;
+  let generation = 0;
   const catalog = (): SkillEntry[] => {
-    entries ??= load({
-      roots: options.roots,
-      scopes: options.scopes,
-      marketplaces: options.marketplaces,
-      packages: options.packages,
-      workspaces: options.workspaces,
-      onReject: options.onReject,
-      onWarning: options.onWarning,
-    });
+    entries ??= load(catalogOptions);
     return entries;
+  };
+  // A walk started before refresh() must not install the catalog it read.
+  const ready = (): Promise<SkillEntry[]> => {
+    if (entries) return Promise.resolve(entries);
+    const started = generation;
+    pending ??= loadAsync(catalogOptions).then(
+      (found) => {
+        if (started !== generation) return ready();
+        pending = null;
+        entries ??= found;
+        return entries;
+      },
+      (error: unknown) => {
+        if (started === generation) pending = null;
+        throw error;
+      },
+    );
+    return pending;
   };
   const byName = (name: string): SkillEntry | null => {
     const all = catalog();
@@ -94,8 +129,11 @@ export function createSkillTools(options: SkillServerOptions) {
     entry: (name: string): SkillEntry | null => byName(name),
     refresh(): void {
       entries = null;
+      pending = null;
+      generation += 1;
     },
     entries: () => catalog().map(withoutBody),
     skills: (): readonly SkillEntry[] => catalog(),
+    skillsReady: (): Promise<readonly SkillEntry[]> => ready(),
   };
 }

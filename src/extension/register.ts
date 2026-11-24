@@ -21,13 +21,15 @@ export interface SkillsExtensionOptions {
 }
 
 // Use catalog identity for memoization so refresh invalidates extension entries.
-function entriesOf(skills: () => readonly SkillEntry[]) {
+function entriesOf(
+  skills: () => readonly SkillEntry[] | Promise<readonly SkillEntry[]>,
+) {
   let memo: {
     source: readonly SkillEntry[];
     entries: Map<string, SkillExtensionEntry>;
   } | null = null;
-  return (): Map<string, SkillExtensionEntry> => {
-    const source = skills();
+  return async (): Promise<Map<string, SkillExtensionEntry>> => {
+    const source = await skills();
     if (memo?.source === source) return memo.entries;
     const map = new Map<string, SkillExtensionEntry>();
     for (const entry of source) {
@@ -58,7 +60,7 @@ function page(all: readonly SkillExtensionEntry[], cursor: string | undefined) {
 // Register before connection so initialization advertises the extension.
 export function registerSkillsExtension(
   server: McpServer,
-  skills: () => readonly SkillEntry[],
+  skills: () => readonly SkillEntry[] | Promise<readonly SkillEntry[]>,
   options: SkillsExtensionOptions = {},
 ): void {
   const entries = entriesOf(skills);
@@ -73,7 +75,7 @@ export function registerSkillsExtension(
     { params: z.object({ cursor: z.string().optional() }).passthrough() },
     async (params) => ({
       resultType: "complete",
-      ...page([...entries().values()], params.cursor),
+      ...page([...(await entries()).values()], params.cursor),
       ...cache,
     }),
   );
@@ -82,7 +84,7 @@ export function registerSkillsExtension(
     "skills/get",
     { params: z.object({ uri: z.string() }).passthrough() },
     async (params) => {
-      const skill = entries().get(params.uri);
+      const skill = (await entries()).get(params.uri);
       if (!skill) {
         throw new ProtocolError(
           ProtocolErrorCode.InvalidParams,

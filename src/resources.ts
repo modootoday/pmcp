@@ -49,15 +49,16 @@ function complete(value: string, entries: readonly SkillEntry[]): string[] {
     .slice(0, COMPLETION_LIMIT);
 }
 
+// A promise-returning source lets list requests wait for the walk without holding other requests.
 export function registerSkillResources(
   server: McpServer,
-  skills: () => readonly SkillEntry[],
+  skills: () => readonly SkillEntry[] | Promise<readonly SkillEntry[]>,
 ): void {
   server.registerResource(
     "skill-files",
     new ResourceTemplate(`skill://${SKILL_URI_AUTHORITY}/{+path}`, {
-      list: () => ({ resources: listing(skills()) }),
-      complete: { path: (value) => complete(value, skills()) },
+      list: async () => ({ resources: listing(await skills()) }),
+      complete: { path: async (value) => complete(value, await skills()) },
     }),
     {
       title: "Skill files",
@@ -66,7 +67,7 @@ export function registerSkillResources(
     },
     async (uri) => {
       const href = uri.toString();
-      const found = resolveSkillFileUri(href, skills());
+      const found = resolveSkillFileUri(href, await skills());
       if (!found) throw new ResourceNotFoundError(href);
       const file = readSkillFile(found.entry, found.file, RESOURCE_READ_BUDGET);
       if (!file.ok) throw new ResourceNotFoundError(href);

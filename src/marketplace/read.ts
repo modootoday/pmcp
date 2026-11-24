@@ -8,10 +8,17 @@ import { commandEntries } from "./commands.js";
 import { agentEntries } from "./agents.js";
 import { hookEntries } from "./hooks.js";
 import { mcpEntries } from "./mcp.js";
+import { runSteps, type Steps } from "../catalog/steps.js";
 export function readMarketplace(
   dir: string,
   onReject?: (rejection: Rejection) => void,
 ): SkillEntry[] {
+  return runSteps(marketplaceSteps(dir, onReject));
+}
+export function* marketplaceSteps(
+  dir: string,
+  onReject?: (rejection: Rejection) => void,
+): Steps<SkillEntry[]> {
   const marketplace = readLocalMarketplace(dir, onReject);
   if (!marketplace) return [];
   const found: SkillEntry[] = [];
@@ -35,6 +42,7 @@ export function readMarketplace(
       ...hookEntries(context, pluginManifest),
       ...mcpEntries(context),
     );
+    yield;
   }
   return found;
 }

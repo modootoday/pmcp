@@ -56,8 +56,8 @@ export function createSkillServer(options: SkillMcpOptions): McpServer {
     { maxToolInputElements: MAX_TOOL_INPUT_ELEMENTS },
   );
   const tools = createSkillTools(options);
-  registerSkillsExtension(server, tools.skills, options.skillsExtension);
-  registerSkillResources(server, tools.skills);
+  registerSkillsExtension(server, tools.skillsReady, options.skillsExtension);
+  registerSkillResources(server, tools.skillsReady);
   if (options.prompts) registerSkillPrompts(server, tools);
   if (options.mailbox) registerMailboxTools(server, options.mailbox);
   return registerSkillTools(server, tools);
