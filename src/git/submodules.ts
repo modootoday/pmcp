@@ -16,7 +16,7 @@ function hasCommit(dir: string, sha: string): boolean {
 
 // git's on-demand submodule fetch runs only when the parent's own fetch brings commits, and a
 // checkout sharing the parent's refs has usually fetched them first.
-function fetchedPin(dir: string, sha: string): boolean {
+export function fetchedPin(dir: string, sha: string): boolean {
   if (!hasCommit(dir, sha)) git(dir, ["fetch", "-q", "origin"]);
   return hasCommit(dir, sha);
 }
@@ -118,7 +118,7 @@ export function cleanStrayCheckouts(
   return strays.map((path) => `${path}: ${removeDropped(root, path)}`);
 }
 
-function followOne(
+export function followOne(
   dir: string,
   oldPin: string,
   newPin: string,

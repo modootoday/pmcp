@@ -8,6 +8,7 @@ import {
   withUmask,
 } from "../modes.js";
 import { initAddedSubmodules } from "../added-submodules.js";
+import { followLaggingPins } from "../submodule-lag.js";
 import {
   dirToGitlinkRefusal,
   type DirToGitlinkPolicy,
@@ -79,8 +80,10 @@ function syncOnce(options: WorktreeSyncOptions): WorktreeSyncResult {
   if (counted.behind === 0) {
     report.info(`already on ${ctx.upstream}`);
     // A checkout an older sync left behind is cleared even when nothing moves.
-    if (options.followSubmodules)
+    if (options.followSubmodules) {
+      for (const line of followLaggingPins(ctx.root)) report.info(line);
       for (const line of cleanStrayCheckouts(ctx.root)) report.info(line);
+    }
     if (options.install !== undefined)
       installIfStale(ctx.root, options.install, report);
     return "current";
