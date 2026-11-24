@@ -1,5 +1,14 @@
 import { workspacePatterns } from "../members.js";
 import {
+  changedResolutions,
+  DEP_FIELDS,
+  depNames,
+  parentKey,
+  same,
+  workspacePathOf,
+  type Lock,
+} from "./bun-graph.js";
+import {
   isToolchain,
   rootMapping,
   type LockfileAdapter,
@@ -9,18 +18,7 @@ import {
 } from "./types.js";
 
 type Json = Record<string, unknown>;
-interface Lock {
-  readonly workspaces: Readonly<Record<string, Json>>;
-  readonly packages: Readonly<Record<string, unknown>>;
-  readonly [field: string]: unknown;
-}
 
-const DEP_FIELDS = [
-  "dependencies",
-  "devDependencies",
-  "optionalDependencies",
-  "peerDependencies",
-];
 const GRAPH_FIELDS = new Set(["workspaces", "packages"]);
 
 // bun.lock is JSON with trailing commas and comments; strip both outside strings only.
@@ -60,77 +58,12 @@ export function parseBunLock(text: string): Lock {
   return parsed as unknown as Lock;
 }
 
-const same = (a: unknown, b: unknown): boolean =>
-  JSON.stringify(a) === JSON.stringify(b);
-
-function depNames(meta: unknown): string[] {
-  if (meta === null || typeof meta !== "object") return [];
-  const names = new Set<string>();
-  for (const field of DEP_FIELDS)
-    for (const name of Object.keys(((meta as Json)[field] ?? {}) as object))
-      names.add(name);
-  return [...names];
-}
-
 function rangeOf(manifest: Json | null, name: string): unknown {
   for (const field of DEP_FIELDS) {
     const range = (manifest?.[field] as Json | undefined)?.[name];
     if (range !== undefined) return range;
   }
   return undefined;
-}
-
-// A key is a path of package names, "parent/child", where a name may be scoped.
-function parentKey(key: string): string | null {
-  const parts = key.split("/");
-  const names: string[] = [];
-  for (let i = 0; i < parts.length; i += 1) {
-    if (parts[i]!.startsWith("@") && i + 1 < parts.length) {
-      names.push(`${parts[i]}/${parts[i + 1]}`);
-      i += 1;
-    } else names.push(parts[i]!);
-  }
-  return names.length <= 1 ? null : names.slice(0, -1).join("/");
-}
-
-function resolveFrom(
-  packages: Lock["packages"],
-  from: string,
-  dep: string,
-): string | null {
-  for (let key: string | null = from; key; key = parentKey(key))
-    if (packages[`${key}/${dep}`] !== undefined) return `${key}/${dep}`;
-  return packages[dep] !== undefined ? dep : null;
-}
-
-function entryMeta(entry: unknown): unknown {
-  if (!Array.isArray(entry)) return null;
-  for (const at of [2, 1])
-    if (entry[at] !== null && typeof entry[at] === "object") return entry[at];
-  return null;
-}
-
-function workspacePathOf(entry: unknown): string | null {
-  if (!Array.isArray(entry) || typeof entry[0] !== "string") return null;
-  return /@workspace:(.+)$/u.exec(entry[0])?.[1] ?? null;
-}
-
-function addReverseEdges(lock: Lock, reverse: Map<string, Set<string>>): void {
-  const add = (to: string | null, from: string): void => {
-    if (to === null) return;
-    if (!reverse.has(to)) reverse.set(to, new Set());
-    reverse.get(to)!.add(from);
-  };
-  for (const [dir, manifest] of Object.entries(lock.workspaces)) {
-    const from = typeof manifest?.["name"] === "string" ? manifest["name"] : "";
-    for (const dep of depNames(manifest))
-      add(resolveFrom(lock.packages, from, dep), `ws:${dir}`);
-  }
-  for (const [key, entry] of Object.entries(lock.packages)) {
-    if (workspacePathOf(entry) !== null) continue;
-    for (const dep of depNames(entryMeta(entry)))
-      add(resolveFrom(lock.packages, key, dep), key);
-  }
 }
 
 function readable(manifest: Json | null): boolean {
@@ -146,7 +79,6 @@ function rootDelta(
   base: Json | null,
   head: Json | null,
   input: LockfileInput,
-  seeds: Set<string>,
   rootNames: Set<string>,
   moved: { workspaces: boolean },
 ): string | null {
@@ -169,7 +101,6 @@ function rootDelta(
     if (rangeOf(base, name) === rangeOf(head, name)) continue;
     if (isToolchain(name, input.config.toolchain))
       return `root toolchain dependency ${name} changed`;
-    seeds.add(name);
     rootNames.add(name);
   }
   return null;
@@ -186,12 +117,11 @@ function lockDelta(input: LockfileInput): LockfileDelta {
   const headPkg = json(read(input.head, "package.json"));
   if (basePkg === null || headPkg === null)
     return { all: "no root package.json at one revision", direct: [] };
-  const seeds = new Set<string>();
   const rootNames = new Set<string>();
   const moved = { workspaces: false };
-  const rootAll = rootDelta(basePkg, headPkg, input, seeds, rootNames, moved);
+  const rootAll = rootDelta(basePkg, headPkg, input, rootNames, moved);
   if (rootAll !== null) return { all: rootAll, direct: [] };
-  const answer = lockOnly(input, seeds, rootNames, read, lock);
+  const answer = lockOnly(input, rootNames, read, lock);
   return moved.workspaces && answer.all === null
     ? { ...answer, workspaces: true }
     : answer;
@@ -199,7 +129,6 @@ function lockDelta(input: LockfileInput): LockfileDelta {
 
 function lockOnly(
   input: LockfileInput,
-  seeds: Set<string>,
   rootNames: Set<string>,
   read: (rev: string, path: string) => string | null,
   lock: (text: string | null) => Lock | null,
@@ -222,6 +151,7 @@ function lockOnly(
     if (dir === "" || head.workspaces[dir] === undefined) continue;
     if (!same(base.workspaces[dir], head.workspaces[dir])) direct.add(dir);
   }
+  let changed = false;
   for (const key of new Set([
     ...Object.keys(base.packages),
     ...Object.keys(head.packages),
@@ -231,31 +161,17 @@ function lockOnly(
       return { all: `toolchain package ${key} changed`, direct: [] };
     const moved = workspacePathOf(head.packages[key]);
     if (moved !== null) direct.add(moved);
-    seeds.add(key);
+    changed = true;
   }
-  if (seeds.size === 0) return { all: null, direct: [...direct].sort() };
-  const reverse = new Map<string, Set<string>>();
-  addReverseEdges(base, reverse);
-  addReverseEdges(head, reverse);
-  const seen = new Set(seeds);
-  const queue = [...seeds];
-  while (queue.length > 0) {
-    const key = queue.pop()!;
-    for (const from of reverse.get(key) ?? []) {
-      // The root reached through key: key resolves one of its own dependencies.
-      if (from === "ws:") rootNames.add(lastName(key));
-      if (seen.has(from)) continue;
-      seen.add(from);
-      if (!from.startsWith("ws:")) queue.push(from);
-      else if (from !== "ws:") direct.add(from.slice(3));
+  if (changed)
+    for (const [dir, names] of changedResolutions(base, head)) {
+      if (dir !== "") {
+        direct.add(dir);
+        continue;
+      }
+      for (const name of names) rootNames.add(name);
     }
-  }
   return mapRoot(input, rootNames, [...direct].sort());
-}
-
-function lastName(key: string): string {
-  const parent = parentKey(key);
-  return parent === null ? key : key.slice(parent.length + 1);
 }
 
 // Without [git.affected.root_dependencies] the root's own dependencies select nothing, as

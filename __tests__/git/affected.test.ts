@@ -346,6 +346,78 @@ describe("root dependencies", () => {
     });
   });
 
+  it("does not blame a root dependency for a hoisting move that keeps its resolution", () => {
+    const ws = workspace();
+    const entry = (id: string, deps: Record<string, string> = {}): string =>
+      JSON.stringify([id, "", { dependencies: deps }, "sha"]);
+    const lock = (member: boolean, packages: Record<string, string>): string =>
+      [
+        "{",
+        '  "lockfileVersion": 1,',
+        '  "workspaces": {',
+        '    "": { "name": "root", "devDependencies": { "tsup": "^8.5.1" } },',
+        member
+          ? '    "packages/x": { "name": "x", "dependencies": { "nanoid": "^5.0.0" } },'
+          : "",
+        "  },",
+        '  "packages": {',
+        Object.entries(packages)
+          .map(([key, value]) => `    "${key}": ${value},`)
+          .join("\n"),
+        "  },",
+        "}",
+        "",
+      ].join("\n");
+    const tsup = entry("tsup@8.5.1", { postcss: "^8" });
+    const postcss = entry("postcss@8.5.6", { nanoid: "^3" });
+    ws.write(
+      "bun.lock",
+      lock(true, {
+        tsup,
+        postcss,
+        nanoid: entry("nanoid@5.1.16"),
+        "postcss/nanoid": entry("nanoid@3.3.20"),
+      }),
+    );
+    ws.commit("member x uses nanoid 5");
+    ws.write(
+      "bun.lock",
+      lock(false, { tsup, postcss, nanoid: entry("nanoid@3.3.20") }),
+    );
+    ws.commit("remove member x");
+    expect(select(ws, {})).toMatchObject({ all: false, changed: [] });
+  });
+
+  it("still blames a root dependency whose resolved subtree changed", () => {
+    const ws = workspace();
+    const entry = (id: string, deps: Record<string, string> = {}): string =>
+      JSON.stringify([id, "", { dependencies: deps }, "sha"]);
+    const lock = (nanoid: string): string =>
+      [
+        "{",
+        '  "lockfileVersion": 1,',
+        '  "workspaces": {',
+        '    "": { "name": "root", "devDependencies": { "tsup": "^8.5.1" } },',
+        "  },",
+        '  "packages": {',
+        `    "tsup": ${entry("tsup@8.5.1", { postcss: "^8" })},`,
+        `    "postcss": ${entry("postcss@8.5.6", { nanoid: "^3" })},`,
+        `    "nanoid": ${entry(nanoid)},`,
+        "  },",
+        "}",
+        "",
+      ].join("\n");
+    ws.write("bun.lock", lock("nanoid@3.3.19"));
+    ws.commit("nanoid 3.3.19");
+    ws.write("bun.lock", lock("nanoid@3.3.20"));
+    ws.commit("nanoid 3.3.20");
+    expect(select(ws, {})).toMatchObject({
+      all: true,
+      reason:
+        "root dependency tsup changed and [git.affected.root_dependencies] does not map it",
+    });
+  });
+
   it("selects nothing for a root dependency mapped to an empty list", () => {
     const ws = bumped(
       { "@modootoday/pmcp": "0.25.0" },
