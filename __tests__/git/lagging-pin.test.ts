@@ -106,6 +106,40 @@ describe("a checkout left behind its pin by a move pmcp did not make", () => {
     expect(headOf(lib)).toBe(first);
   });
 
+  it("keeps a pushed checkout ahead of its pin while a worktree sync moves the desk", () => {
+    const { origin, first, pin, ahead } = pinned();
+    const desk = join(origin.base, "desk");
+    sh(origin.main, "worktree", "add", "-q", "-b", "desk", desk, "origin/main");
+    sh(desk, "submodule", "update", "-q", "--init");
+    const lagging = join(origin.base, "lagging");
+    sh(
+      origin.main,
+      "worktree",
+      "add",
+      "-q",
+      "-b",
+      "lagging",
+      lagging,
+      "origin/main",
+    );
+    sh(lagging, "submodule", "update", "-q", "--init");
+    sh(join(desk, "lib"), "checkout", "-q", "--detach", ahead);
+    sh(join(lagging, "lib"), "checkout", "-q", "--detach", first);
+    commit(origin.main, "next.txt", "next\n", "advance mainline");
+    sh(origin.main, "push", "-q", "origin", "HEAD:main");
+    for (const dir of [desk, lagging])
+      expect(
+        syncWorktree({
+          ctx: detect(dir)!,
+          followSubmodules: true,
+          fetch: true,
+          report: recorder(),
+        }),
+      ).toBe("moved");
+    expect(headOf(join(desk, "lib"))).toBe(ahead);
+    expect(headOf(join(lagging, "lib"))).toBe(pin);
+  });
+
   it("leaves it alone when submodules are not followed", () => {
     const { origin, first } = pinned();
     const desk = join(origin.base, "desk");

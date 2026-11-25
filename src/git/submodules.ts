@@ -202,8 +202,18 @@ export function movableSubmodules(root: string): string[] {
     .filter((path) => {
       const dir = join(root, path);
       if (!path || !existsSync(join(dir, ".git"))) return false;
-      return clean(dir) && pushed(dir);
+      return clean(dir) && pushed(dir) && onOrBehindPin(root, dir, path);
     });
+}
+
+// A checkout ahead of or beside its pin holds a pin move in progress; only one on its pin or
+// behind it follows the move.
+function onOrBehindPin(root: string, dir: string, path: string): boolean {
+  const pin = gitText(root, ["rev-parse", "-q", "--verify", `:${path}`]);
+  const head = gitText(dir, ["rev-parse", "HEAD"]);
+  if (head === pin) return true;
+  if (!pin || !fetchedPin(dir, pin)) return false;
+  return gitOk(dir, ["merge-base", "--is-ancestor", head, pin]);
 }
 
 export function updateToPins(root: string, paths: readonly string[]): string[] {
