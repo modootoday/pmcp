@@ -17,5 +17,5 @@ export const worktreeSync: Action = (setup, _context, report) => {
     ...(config.umask !== undefined ? { umask: config.umask } : {}),
     ...(install === undefined ? {} : { install }),
   });
-  return result === "held" ? 1 : 0;
+  return result === "held" || result === "behind" ? 1 : 0;
 };

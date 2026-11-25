@@ -85,7 +85,7 @@ export function syncDesk(options: DeskSyncOptions): SyncResult {
   return {
     from,
     to: head(),
-    code: moved === "held" ? 1 : 0,
+    code: moved === "held" || moved === "behind" ? 1 : 0,
     ...(reason ? { reason } : {}),
   };
 }

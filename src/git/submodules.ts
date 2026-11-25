@@ -232,9 +232,12 @@ export function updateToPins(root: string, paths: readonly string[]): string[] {
       continue;
     }
     if (gitText(dir, ["rev-parse", "HEAD"]) === pin) continue;
-    const moved = gitOk(root, ["submodule", "update", "-q", "--", path]);
+    // git's own reason is kept: a lock file another process holds or a crash left is named
+    // there, and only its owner or the user may remove it.
+    const moved = git(root, ["submodule", "update", "-q", "--", path]);
+    const reason = moved.stderr.trim().split("\n").join("; ");
     lines.push(
-      `${path}: ${moved ? `moved to ${pin.slice(0, 10)}` : "update failed"}`,
+      `${path}: ${moved.status === 0 ? `moved to ${pin.slice(0, 10)}` : `update failed: ${reason || `git exited ${moved.status}`}`}`,
     );
   }
   return lines;

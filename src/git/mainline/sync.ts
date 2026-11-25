@@ -16,6 +16,7 @@ import {
   type DirToGitlinkPolicy,
 } from "../dir-to-gitlink.js";
 import { followLaggingPins } from "../submodule-lag.js";
+import { gitlinksBehindPins } from "../pins-behind.js";
 import { cleanStrayCheckouts, followPins } from "../submodules.js";
 import type { GitContext, MainlineSyncConfig, Reporter } from "../types.js";
 import { resetKeepingIdenticalFiles } from "./identical-files.js";
@@ -177,5 +178,9 @@ function syncOnce(options: MainlineSyncOptions): number {
       ...restoreModes(ctx.root, head, target),
       ...restoreSubmoduleModes(ctx.root, head, target),
     ]);
-  return install(options);
+  const installed = install(options);
+  if (!options.followSubmodules) return installed;
+  const behind = gitlinksBehindPins(ctx.root);
+  for (const line of behind) report.warn(line);
+  return behind.length > 0 ? 1 : installed;
 }
