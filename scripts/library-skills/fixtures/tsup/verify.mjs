@@ -87,7 +87,11 @@ export async function verify({ scratchRoot }) {
     libraryRoot,
   );
   commands.push(packed);
-  const pack = JSON.parse(packed.stdout)[0];
+  // npm 11 prints an array of entries, npm 12 an object keyed by package name.
+  const packedJson = JSON.parse(packed.stdout);
+  const [pack] = Array.isArray(packedJson)
+    ? packedJson
+    : Object.values(packedJson);
   assert.ok(pack.files.some((file) => file.path === "dist/index.d.cts"));
   assert.ok(!pack.files.some((file) => file.path.startsWith("src/")));
   const installedRoot = join(

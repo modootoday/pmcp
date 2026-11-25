@@ -82,7 +82,12 @@ it("installs pinned skill packages with npm and Bun without executing install ho
       ["pack", "--ignore-scripts", "--json"],
       { cwd: source, env: baseEnv, timeout: 30000 },
     );
-    const archivePath = join(source, JSON.parse(packed.stdout)[0].filename);
+    // npm 11 prints an array of entries, npm 12 an object keyed by package name.
+    const packedJson = JSON.parse(packed.stdout);
+    const [entry] = Array.isArray(packedJson)
+      ? packedJson
+      : Object.values(packedJson);
+    const archivePath = join(source, entry.filename);
     const tlsKey = join(root, "registry.key");
     const tlsCert = join(root, "registry.crt");
     await execute(

@@ -42,7 +42,9 @@ try {
         { encoding: "utf8", timeout: 30_000 },
       ),
     );
-    archive = join(directory, packed[0].filename);
+    // npm 11 prints an array of entries, npm 12 an object keyed by package name.
+    const [entry] = Array.isArray(packed) ? packed : Object.values(packed);
+    archive = join(directory, entry.filename);
   }
   const profiles = flags.has("--matrix")
     ? [
