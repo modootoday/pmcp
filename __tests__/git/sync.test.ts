@@ -18,7 +18,17 @@ import {
 
 beforeAll(isolateGit);
 
-const behindLine = /^lib: at [0-9a-f]{10}, (behind its pin|and its pin) /u;
+function heldLine(reason: string): RegExp {
+  return new RegExp(
+    `^lib: held at [0-9a-f]{10}, behind its pin [0-9a-f]{10}: ${reason}`,
+    "u",
+  );
+}
+
+function expectHeld(lines: readonly string[], reason: string): void {
+  expect(lines).toContainEqual(expect.stringMatching(heldLine(reason)));
+  expect(lines).toContain("1 gitlink held behind its pin");
+}
 
 function settings(command: string): MainlineSyncConfig {
   return {
@@ -190,12 +200,12 @@ it("names a lagging submodule whose origin's branches cannot be read", () => {
   sh(lib, "remote", "set-url", "origin", join(origin.base, "gone.git"));
   sh(origin.main, "config", "fetch.recurseSubmodules", "false");
   const report = recorder();
-  expect(sync(origin, origin.main, marking(marker), true, report)).toBe(1);
+  expect(sync(origin, origin.main, marking(marker), true, report)).toBe(0);
   expect(pin()).toBe(before);
   expect(report.lines).toContain(
     `lib: left at ${before.slice(0, 10)}: it was not on the old pin, and what its origin holds is unknown (no remote-tracking refs)`,
   );
-  expect(report.lines).toContainEqual(expect.stringMatching(behindLine));
+  expectHeld(report.lines, "what its origin holds is unknown");
 });
 
 it("leaves a submodule off the old pin that holds an unpushed commit", () => {
@@ -256,13 +266,13 @@ it("leaves a shared submodule whose local file conflicts with the pin, and names
   const lib = join(origin.main, "lib");
   writeFileSync(join(lib, "lib.txt"), "my draft\n");
   const report = recorder();
-  expect(syncShared(origin, ["lib"], report)).toBe(1);
+  expect(syncShared(origin, ["lib"], report)).toBe(0);
   expect(pin()).toBe(before);
   expect(readFileSync(join(lib, "lib.txt"), "utf8")).toBe("my draft\n");
   expect(report.lines).toContain(
     `lib: left at the old pin: local edits to lib.txt conflict with ${next.slice(0, 10)}; commit or move them, then sync again`,
   );
-  expect(report.lines).toContainEqual(expect.stringMatching(behindLine));
+  expectHeld(report.lines, "its local edits conflict with the pin");
 });
 
 // A tracked directory turned into a gitlink upstream (a brand split out of the parent).
@@ -385,8 +395,8 @@ it("keeps an earlier checkout with a local edit where it is and names it", () =>
   const { origin, pin } = gitlinkReturns();
   writeFileSync(join(origin.main, "lib", "notes.txt"), "mine\n");
   const report = recorder();
-  expect(syncShared(origin, [], report)).toBe(1);
-  expect(report.lines).toContainEqual(expect.stringMatching(behindLine));
+  expect(syncShared(origin, [], report)).toBe(0);
+  expectHeld(report.lines, "it has uncommitted changes");
   expect(sh(join(origin.main, "lib"), "rev-parse", "HEAD")).not.toBe(pin);
   expect(readFileSync(join(origin.main, "lib", "notes.txt"), "utf8")).toBe(
     "mine\n",
@@ -402,10 +412,10 @@ it("still leaves a submodule that is not shared when it has edits", () => {
   bumpSubmodule(origin);
   writeFileSync(join(origin.main, "lib", "README.md"), "local note\n");
   const report = recorder();
-  expect(syncShared(origin, [], report)).toBe(1);
+  expect(syncShared(origin, [], report)).toBe(0);
   expect(pin()).toBe(before);
   expect(report.lines).toContain(
     "lib: left at the old pin: it has uncommitted changes",
   );
-  expect(report.lines).toContainEqual(expect.stringMatching(behindLine));
+  expectHeld(report.lines, "it has uncommitted changes");
 });

@@ -2,9 +2,12 @@ import { existsSync, writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { gitlinksBehindPins } from "../../src/git/pins-behind.js";
+import {
+  gitlinksBehindPins,
+  reportPinsBehind,
+} from "../../src/git/pins-behind.js";
 import { updateToPins } from "../../src/git/submodules.js";
-import { clone, commit, isolateGit, remote, sh } from "./fixture.js";
+import { clone, commit, isolateGit, recorder, remote, sh } from "./fixture.js";
 
 beforeAll(isolateGit);
 
@@ -57,8 +60,30 @@ describe("a gitlink whose update fails", () => {
     const [line] = updateToPins(behind, ["lib"]);
     expect(line).toMatch(/^lib: update failed: .*index\.lock/u);
     expect(existsSync(lock)).toBe(true);
-    expect(gitlinksBehindPins(behind)).toEqual([
-      `lib: at ${oldPin.slice(0, 10)}, behind its pin ${newPin.slice(0, 10)}`,
+    expect(gitlinksBehindPins(behind)).toEqual({
+      held: [],
+      refused: [
+        `lib: at ${oldPin.slice(0, 10)}, behind its pin ${newPin.slice(0, 10)}, with no reason to hold it`,
+      ],
+    });
+  });
+
+  it("fails the report as a refusal, not a hold", () => {
+    const { behind, dir } = laggingLib();
+    writeFileSync(lockOf(dir), "");
+    const report = recorder();
+    expect(reportPinsBehind(behind, [], report)).toBe(false);
+    expect(report.lines).not.toContain("1 gitlink held behind its pin");
+  });
+
+  it("is counted as held, without failing, when it has local edits", () => {
+    const { behind, dir, oldPin, newPin } = laggingLib();
+    writeFileSync(join(dir, "a.txt"), "edited\n");
+    const report = recorder();
+    expect(reportPinsBehind(behind, [], report)).toBe(true);
+    expect(report.lines).toEqual([
+      `lib: held at ${oldPin.slice(0, 10)}, behind its pin ${newPin.slice(0, 10)}: it has uncommitted changes`,
+      "1 gitlink held behind its pin",
     ]);
   });
 
@@ -67,13 +92,13 @@ describe("a gitlink whose update fails", () => {
     expect(updateToPins(behind, ["lib"])).toEqual([
       `lib: moved to ${newPin.slice(0, 10)}`,
     ]);
-    expect(gitlinksBehindPins(behind)).toEqual([]);
+    expect(gitlinksBehindPins(behind)).toEqual({ held: [], refused: [] });
   });
 
   it("is not reported when its checkout is ahead of its pin", () => {
     const { behind, dir } = laggingLib();
     sh(dir, "checkout", "-q", "origin/main");
     commit(dir, "c.txt", "c\n", "local work");
-    expect(gitlinksBehindPins(behind)).toEqual([]);
+    expect(gitlinksBehindPins(behind)).toEqual({ held: [], refused: [] });
   });
 });

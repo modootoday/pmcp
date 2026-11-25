@@ -18,7 +18,7 @@ import {
   movableSubmodules,
   updateToPins,
 } from "../submodules.js";
-import { gitlinksBehindPins } from "../pins-behind.js";
+import { reportPinsBehind } from "../pins-behind.js";
 import type { GitContext, Reporter } from "../types.js";
 
 export interface WorktreeSyncOptions {
@@ -33,7 +33,7 @@ export interface WorktreeSyncOptions {
   readonly umask?: number;
 }
 
-// "behind": the worktree moved, but a gitlink checkout is still behind its pin.
+// "behind": the worktree moved, but git refused to bring a gitlink checkout to its pin.
 export type WorktreeSyncResult = "current" | "moved" | "held" | "behind";
 
 // A read that fails holds the worktree: an empty answer is not "clean" or "all landed".
@@ -142,7 +142,6 @@ function syncOnce(options: WorktreeSyncOptions): WorktreeSyncResult {
   if (options.install !== undefined)
     installIfStale(ctx.root, options.install, report);
   if (!options.followSubmodules) return "moved";
-  const behind = gitlinksBehindPins(ctx.root);
-  for (const line of behind) report.warn(line);
-  return behind.length > 0 ? "behind" : "moved";
+  if (!reportPinsBehind(ctx.root, [], report)) return "behind";
+  return "moved";
 }

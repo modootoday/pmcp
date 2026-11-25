@@ -218,12 +218,16 @@ app kept in its own repository, for example): those move to the new pin even wit
 long as no edited or untracked file is one the pin changes. When one is, the
 submodule stays on the old pin and sync names the files; pmcp never restores,
 stashes or discards them.
-After the move, any followed checkout still behind its pin, held for one of these
-reasons or because git refused the update (git's own message, such as a lock file
-left in its git dir, is quoted; pmcp never deletes a lock), is named as
-`<path>: at <commit>, behind its pin <commit>` and sync exits 1 although the
-parent moved: an install or build in that tree would read the old manifests.
-A checkout ahead of or beside its pin holds its own work and is not counted.
+After the move, sync lists every checkout still behind its pin. One held on
+purpose (uncommitted edits, edits in a shared submodule that conflict with the pin,
+or an origin it cannot read) is printed as
+`<path>: held at <commit>, behind its pin <commit>: <reason>`, followed by a line
+counting them, and leaves the exit code alone. One behind with none of these
+reasons means git refused the move (its own message, such as a lock file left in
+the git dir, is quoted on the update line; pmcp never deletes a lock): it is
+printed as `<path>: at <commit>, behind its pin <commit>, with no reason to hold it`
+and sync exits 1 although the parent moved. A checkout ahead of or beside its pin
+holds its own work and is not counted.
 
 `dir_to_gitlink` decides what a sync does when the move turns a tracked directory
 that still holds files into a gitlink (an app split out into its own repository).
