@@ -1,6 +1,6 @@
 [package]
 name = "pmcp-tui"
-version = "0.37.4"
+version = "0.37.5"
 edition = "2024"
 license = "Elastic-2.0"
 description = "Terminal workspace for agent sessions hosted by pmcp-pty"
