@@ -15,6 +15,7 @@ export interface DeviceStart {
 }
 export interface StoredSession {
   readonly issuer: string;
+  readonly resource?: string;
   readonly accessToken: string;
   readonly refreshToken?: string;
   readonly expiresAt?: number;

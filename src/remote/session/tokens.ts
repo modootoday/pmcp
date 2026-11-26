@@ -38,6 +38,7 @@ export async function refresh(
   const scope = body["scope"];
   return {
     issuer: session.issuer,
+    ...(session.resource ? { resource: session.resource } : {}),
     accessToken: token,
     refreshToken:
       typeof rotated === "string" && rotated !== ""

@@ -4,7 +4,7 @@ import {
   applyInstallPlan,
   createPackageManagerRunner,
 } from "../../install/apply.js";
-import { readSession } from "../../remote/session.js";
+import { audienceMismatch, readSession } from "../../remote/session.js";
 import {
   issueDistributionCredential,
   revokeDistributionCredential,
@@ -29,6 +29,8 @@ export async function applyHosted(
     );
   }
   const origin = apiOrigin(context);
+  const mismatch = audienceMismatch(session, origin);
+  if (mismatch) throw new Error(mismatch);
   const credential = await issueDistributionCredential(
     session.accessToken,
     origin,

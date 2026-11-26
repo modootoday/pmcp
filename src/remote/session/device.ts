@@ -61,6 +61,7 @@ export async function pollOnce(
     clientId: string;
     deviceCode: string;
     issuer: string;
+    resource?: string;
   },
   fetcher: Fetcher,
   now: () => number = Date.now,
@@ -86,6 +87,7 @@ export async function pollOnce(
       kind: "granted",
       session: {
         issuer: request.issuer,
+        ...(request.resource ? { resource: request.resource } : {}),
         accessToken: token,
         ...(typeof refresh === "string" ? { refreshToken: refresh } : {}),
         ...(Number.isFinite(expiresIn)

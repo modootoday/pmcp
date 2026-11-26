@@ -391,7 +391,7 @@ pmcp logout
 pmcp whoami [--json]
 ```
 
-`login` signs this machine in without a browser: it prints a code and a URL to open anywhere. The credential is kept outside the project, so it cannot be committed or copied into an image. `whoami` answers on stdout, so a script can read it. This optional service login is not needed to use the free package skills on pmcp.build.
+`login` signs this machine in without a browser: it prints a code and a URL to open anywhere. The credential is kept outside the project, so it cannot be committed or copied into an image. `whoami` answers on stdout, so a script can read it. A sign-in is kept for the API it was granted for (`PMCP_OAUTH_RESOURCE`, the default API unless set): an install whose `--api` or `PMCP_API_ORIGIN` names another origin stops before sending it, so a mistyped origin never receives your credential. This optional service login is not needed to use the free package skills on pmcp.build.
 
 [skills.modoo.today](https://skills.modoo.today) is a separate skill catalog service built on pmcp, with its own accounts and access policies; `pmcp login` and `--provider hosted` reach it. pmcp itself needs no account there.
 

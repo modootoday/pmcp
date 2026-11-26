@@ -79,7 +79,7 @@ export const loginCommand: Command = {
       await wait(interval);
       const outcome = await pollOnce(
         metadata,
-        { clientId, deviceCode: start.deviceCode, issuer },
+        { clientId, deviceCode: start.deviceCode, issuer, resource },
         fetcher,
       );
       if (outcome.kind === "granted" && outcome.session) {

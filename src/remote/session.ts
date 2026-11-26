@@ -12,3 +12,4 @@ export { readSession } from "./session/storage.js";
 export { writeSession } from "./session/storage.js";
 export { clearSession } from "./session/storage.js";
 export { revoke } from "./session/tokens.js";
+export { audienceMismatch } from "./session/audience.js";
