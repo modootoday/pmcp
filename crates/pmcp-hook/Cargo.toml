@@ -1,6 +1,6 @@
 [package]
 name = "pmcp-hook"
-version = "0.37.6"
+version = "0.37.7"
 edition = "2024"
 license = "Elastic-2.0"
 description = "Fast native hook guard evaluator for compiled pmcp policies"
